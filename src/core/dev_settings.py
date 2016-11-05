@@ -14,7 +14,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 BOOK_DIR = os.path.join(BASE_DIR, 'files', 'books')
 PROPOSAL_DIR = os.path.join(BASE_DIR, 'files', 'proposals')
-EMAIL_DIR = os.path.join(BASE_DIR, 'files', 'email','general')
+EMAIL_DIR = os.path.join(BASE_DIR, 'files', 'email', 'general')
 
 SITE_ID = 1
 
@@ -75,7 +75,7 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    
+
     # allauth providers
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
@@ -104,6 +104,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': 'rua.sqlite',
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rua',
         'USER': 'root',
@@ -234,17 +236,17 @@ SILENCED_SYSTEM_CHECKS = (
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
-       '--with-coverage',  # activate coverage report
-     #  '--with-doctest',  # activate doctest: find and run docstests
-        '--verbosity=2',   # verbose output 
-        '--nocapture',
-        '--nologcapture',
+    '--with-coverage',  # activate coverage report
+    #  '--with-doctest',  # activate doctest: find and run docstests
+    '--verbosity=2',   # verbose output
+    '--nocapture',
+    '--nologcapture',
 
-   
+
     # Run test: python manage.py test --cover-package=(app)
-    
-      '--cover-package=core,author,editor,manager,onetasker,review,submission',  #uncomment to run all tests with 'python manage.py test'
-   
+
+    '--cover-package=core,author,editor,manager,onetasker,review,submission',  # uncomment to run all tests with 'python manage.py test'
+
     #    '--with-xunit',    # enable XUnit plugin
     #   '--xunit-file=xunittest.xml',  # the XUnit report file
     #    '--cover-xml',     # produle XML coverage info

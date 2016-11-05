@@ -129,5 +129,3 @@ def handle_review_file(file, review_assignment, kind):
     review_assignment.files.add(new_file)
 
     return path
-
-

@@ -1358,4 +1358,4 @@ class EmailLog(models.Model):
 
     def __unicode__(self):
         return u"From: %s To: %s, CC: %s BCC: %s : Subject: %s" % (
-        self.from_address, self.to, self.cc, self.bcc, self.subject)
+            self.from_address, self.to, self.cc, self.bcc, self.subject)

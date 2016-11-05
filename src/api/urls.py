@@ -14,6 +14,6 @@ router.register(r'omp', views.OMPViewSet)
 router.register(r'license', views.LicenseViewSet)
 
 urlpatterns = patterns('',
-    url(r'^$', 'api.views.index', name='index'),
-    url(r'^', include(router.urls)),
-)
+                       url(r'^$', 'api.views.index', name='index'),
+                       url(r'^', include(router.urls)),
+                       )

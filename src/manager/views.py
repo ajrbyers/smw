@@ -408,7 +408,7 @@ def series_delete(request, series_id):
 def add_user(request):
     user_form = core_forms.FullUserProfileForm()
     profile_form = core_forms.FullProfileForm()
-    display_interests = [] #To keep displaying interests if registration page is reloaded.
+    display_interests = []  # To keep displaying interests if registration page is reloaded.
 
     if request.method == 'POST':
         user_form = core_forms.FullUserProfileForm(request.POST)
@@ -502,7 +502,7 @@ def select_merge(request, user_id):
     user = User.objects.get(pk=user_id)
     secondary_users = User.objects.exclude(pk=user_id)
 
-    template='manager/users/select_merge.html'
+    template = 'manager/users/select_merge.html'
     context = {
         'user': user,
         'secondary_users': secondary_users
@@ -844,7 +844,7 @@ def delete_review_form_element(request, form_id, relation_id):
     return redirect(reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
 
 
-## File handler
+# File handler
 
 @is_press_editor
 def handle_file(request, file):
@@ -864,7 +864,7 @@ def handle_file(request, file):
     return filename
 
 
-## AJAX Handler
+# AJAX Handler
 
 @is_press_editor
 @csrf_exempt

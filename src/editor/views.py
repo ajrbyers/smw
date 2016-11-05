@@ -238,7 +238,7 @@ def get_list_of_editors(book):
         already_added = False
         if editor in previous_editors:
             already_added = True
-        list_of_editors[t] = {'editor': editor, 'already_added': already_added,}
+        list_of_editors[t] = {'editor': editor, 'already_added': already_added, }
     return list_of_editors
 
 
@@ -250,7 +250,7 @@ def get_list_of_authors(book):
         owner = False
         if author == book.owner:
             owner = True
-        list_of_authors[t] = {'author': author, 'owner': owner,}
+        list_of_authors[t] = {'author': author, 'owner': owner, }
     return list_of_authors
 
 
@@ -262,7 +262,7 @@ def get_list_of_book_authors(book):
         owner = False
         if author.author_email == book.owner.email:
             owner = True
-        list_of_authors[t] = {'author': author, 'owner': owner,}
+        list_of_authors[t] = {'author': author, 'owner': owner, }
     return list_of_authors
 
 
@@ -274,7 +274,7 @@ def get_list_of_book_editors(book):
         owner = False
         if editor.author_email == book.owner.email:
             owner = True
-        list_of_editors[t] = {'editor': editor, 'owner': owner,}
+        list_of_editors[t] = {'editor': editor, 'owner': owner, }
     return list_of_editors
 
 
@@ -600,9 +600,9 @@ def remove_assignment_editor(request, submission_id, assignment_type, assignment
     if review_assignment:
         review_assignment.delete()
     if assignment_type == 'typesetting':
-        return redirect(reverse('editor_production', kwargs={'submission_id': submission_id,}))
+        return redirect(reverse('editor_production', kwargs={'submission_id': submission_id, }))
     else:
-        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id,}))
+        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id, }))
 
 
 @is_book_editor
@@ -741,7 +741,7 @@ def editor_editorial_decision(request, submission_id, review_id, decision):
             messages.add_message(request, messages.SUCCESS, 'Submission declined.')
             if 'inform' in request.POST:
                 url = "%s/review/submission/%s/access_key/%s/" % (
-                request.META['HTTP_HOST'], book.pk, review_assignment.editorial_board_access_key)
+                    request.META['HTTP_HOST'], book.pk, review_assignment.editorial_board_access_key)
                 core_logic.send_editorial_decision_ack(review_assignment=review_assignment, contact="editorial-board",
                                                        decision="Revision Required",
                                                        email_text=request.POST.get('id_email_text'),
@@ -753,7 +753,7 @@ def editor_editorial_decision(request, submission_id, review_id, decision):
             messages.add_message(request, messages.SUCCESS, 'Submission has been moved to the review stage.')
             if 'inform' in request.POST:
                 url = "%s/review/submission/%s/access_key/%s/" % (
-                request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
+                    request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
                 core_logic.send_editorial_decision_ack(review_assignment=review_assignment,
                                                        contact="publishing-committee", decision="Revision Required",
                                                        email_text=request.POST.get('id_email_text'),
@@ -768,7 +768,7 @@ def editor_editorial_decision(request, submission_id, review_id, decision):
             review_assignment.save()
             if 'inform' in request.POST:
                 url = "%s/review/editorial/%s/access_key/%s/" % (
-                request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
+                    request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
                 core_logic.send_editorial_decision_ack(review_assignment=review_assignment,
                                                        contact="publishing-committee",
                                                        decision="Invitation to Editorial Review",
@@ -918,7 +918,7 @@ def editor_decision(request, submission_id, decision):
                                                           attachment)
                     log.add_log_entry(book=book, user=request.user, kind='production',
                                       message='Production Editor %s %s assigend to %s' % (
-                                      editor.first_name, editor.last_name, book.title),
+                                          editor.first_name, editor.last_name, book.title),
                                       short_name='Production Editor Assigned')
 
             elif 'skip' in request.POST:
@@ -969,7 +969,7 @@ def request_revisions(request, submission_id, returner):
 
             logic.send_requests_revisions(book, request.user, new_revision_request, email_text, attachments)
             log.add_log_entry(book, request.user, 'revisions', '%s %s requested revisions for %s' % (
-            request.user.first_name, request.user.last_name, book.title), 'Revisions Requested')
+                request.user.first_name, request.user.last_name, book.title), 'Revisions Requested')
 
             if returner == 'review':
                 return redirect(reverse('editor_review', kwargs={'submission_id': submission_id}))
@@ -1311,7 +1311,7 @@ def catalog(request, submission_id):
             new_cover_proof.save()
             log.add_log_entry(book=book, user=request.user, kind='production',
                               message='%s %s requested Cover Image Proofs' % (
-                              request.user.first_name, request.user.last_name), short_name='Cover Image Proof Request')
+                                  request.user.first_name, request.user.last_name), short_name='Cover Image Proof Request')
             messages.add_message(request, messages.SUCCESS, 'Cover Image Proof request added.')
             return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
 
@@ -1542,7 +1542,7 @@ def add_format(request, submission_id, file_id=None):
             new_format.save()
             log.add_log_entry(book=book, user=request.user, kind='production',
                               message='%s %s loaded a new format, %s' % (
-                              request.user.first_name, request.user.last_name, new_format.identifier),
+                                  request.user.first_name, request.user.last_name, new_format.identifier),
                               short_name='New Format Loaded')
             return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
 
@@ -1589,7 +1589,7 @@ def add_chapter(request, submission_id, chapter_id=None):
             new_chapter.save()
             log.add_log_entry(book=book, user=request.user, kind='production',
                               message='%s %s loaded a new chapter, %s' % (
-                              request.user.first_name, request.user.last_name, new_chapter.sequence),
+                                  request.user.first_name, request.user.last_name, new_chapter.sequence),
                               short_name='New Chapter Loaded')
             return redirect(
                 reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': new_chapter.id}))
@@ -1674,7 +1674,7 @@ def update_chapter(request, submission_id, chapter_id):
                 chapter.disciplines.add(new_subject)
             chapter.save()
             log.add_log_entry(book=book, user=request.user, kind='production', message='%s %s updated a chapter, %s' % (
-            request.user.first_name, request.user.last_name, chapter.sequence), short_name='New Chapter Loaded')
+                request.user.first_name, request.user.last_name, chapter.sequence), short_name='New Chapter Loaded')
             return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter_id}))
 
     template = 'editor/submission.html'
@@ -1763,7 +1763,7 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
             chapter.save()
             log.add_log_entry(book=book, user=request.user, kind='production',
                               message='%s %s loaded a new chapter, %s' % (
-                              request.user.first_name, request.user.last_name, new_chapter_format.identifier),
+                                  request.user.first_name, request.user.last_name, new_chapter_format.identifier),
                               short_name='New Chapter Loaded')
             return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter_id}))
         else:
@@ -1842,7 +1842,7 @@ def add_physical(request, submission_id):
             new_format.save()
             log.add_log_entry(book=book, user=request.user, kind='production',
                               message='%s %s loaded a new format, %s' % (
-                              request.user.first_name, request.user.last_name, new_format.name),
+                                  request.user.first_name, request.user.last_name, new_format.name),
                               short_name='New Format Loaded')
             return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
 
@@ -2225,7 +2225,7 @@ def assign_copyeditor(request, submission_id):
                                                requestor=request.user, attachment=attachment)
             log.add_log_entry(book=book, user=request.user, kind='editing',
                               message='Copyeditor %s %s assigend to %s' % (
-                              copyeditor.first_name, copyeditor.last_name, book.title),
+                                  copyeditor.first_name, copyeditor.last_name, book.title),
                               short_name='Copyeditor Assigned')
 
         return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
@@ -2260,7 +2260,7 @@ def view_copyedit(request, submission_id, copyedit_id):
             copyedit.editor_review = timezone.now()
             log.add_log_entry(book=book, user=request.user, kind='editing',
                               message='Copyedit Review Completed by %s %s' % (
-                              request.user.first_name, request.user.last_name),
+                                  request.user.first_name, request.user.last_name),
                               short_name='Editor Copyedit Review Complete')
             copyedit.save()
 
@@ -2313,7 +2313,7 @@ def assign_indexer(request, submission_id):
             logic.handle_indexer_assignment(request, book, indexer, file_list, due_date, note, email_text,
                                             requestor=request.user, attachment=attachment)
             log.add_log_entry(book=book, user=request.user, kind='editing', message='Indexer %s %s assigend to %s' % (
-            indexer.first_name, indexer.last_name, book.title), short_name='Indexer Assigned')
+                indexer.first_name, indexer.last_name, book.title), short_name='Indexer Assigned')
 
         return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
 
@@ -2425,7 +2425,7 @@ def contract_manager(request, submission_id, contract_id=None):
 
 ## END CONTRACTS ##
 
-### WORKFLOW NEW SUBMISSIONS 
+# WORKFLOW NEW SUBMISSIONS
 
 @is_editor
 def new_submissions(request):
@@ -2479,7 +2479,7 @@ def files_for_production(request, submission_id):
     production_files = submission.production_files.order_by('kind')
 
     copyedit_files = [x for copyedit in submission.copyeditassignment_set.all()
-                      for x in chain(copyedit.copyedit_files.all(),  copyedit.author_files.all())]
+                      for x in chain(copyedit.copyedit_files.all(), copyedit.author_files.all())]
 
     index_files = [x for index in submission.indexassignment_set.all() for x in index.index_files.all()]
 
@@ -2487,9 +2487,9 @@ def files_for_production(request, submission_id):
     primary_files = sorted(
         set(chain(manuscript_files, copyedit_files, index_files)) - set(production_files),
         key=attrgetter('date_uploaded'), reverse=True
-        )
+    )
 
-    #All files associated with book, excluding those already in primary files and production files, sorted by type.
+    # All files associated with book, excluding those already in primary files and production files, sorted by type.
     additional_files = sorted(
         set(chain(files, internal_review_files, external_review_files, misc_files))
         - set(primary_files) - set(production_files),
@@ -2502,15 +2502,15 @@ def files_for_production(request, submission_id):
         submission.first_run = False
         submission.save()
 
-    #Handle adding and removing files to production_files list
+    # Handle adding and removing files to production_files list
     if request.POST:
         if 'add_file' in request.POST:
-            file_id = request.POST.get('file_id')[:-1] #[:-1] to ignore trailing slash
+            file_id = request.POST.get('file_id')[:-1]  # [:-1] to ignore trailing slash
             file = models.File.objects.get(pk=file_id)
             submission.production_files.add(file)
 
         if 'remove_file' in request.POST:
-            file_id = request.POST.get('file_id')[:-1] #[:-1] to ignore trailing slash
+            file_id = request.POST.get('file_id')[:-1]  # [:-1] to ignore trailing slash
             file = models.File.objects.get(pk=file_id)
             submission.production_files.remove(file)
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from models import *
 
 admin_list = [
-	(CoverImageProof,),
+    (CoverImageProof,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

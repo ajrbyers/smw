@@ -57,6 +57,8 @@ docs/_build/
 target/
 *.sqlite3
 
+venv/*
+src/collected-static/*
 src/media/profile_images/*
 src/media/*
 src/files/*

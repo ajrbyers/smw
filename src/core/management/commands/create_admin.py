@@ -36,5 +36,3 @@ class Command(BaseCommand):
         profile.roles.add(editor_role)
 
         profile.save()
-
-

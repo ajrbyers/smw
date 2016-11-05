@@ -15,7 +15,7 @@ import uuid
 class UploadMiscFile(forms.Form):
     label = forms.CharField(required=True)
     file_type = forms.ChoiceField(required=True, choices=(
-    ('marketing', 'Marketing'), ('agreements', 'Agreements'), ('other', 'Other')))
+        ('marketing', 'Marketing'), ('agreements', 'Agreements'), ('other', 'Other')))
 
 
 class UploadFile(forms.Form):
@@ -67,7 +67,7 @@ class UserCreationForm(forms.ModelForm):
 
         # Add a profile for this new user and create a new activation code.
         profile = models.Profile(user=user, activation_code=uuid.uuid4())
-        profile.terms_and_conditions = True;
+        profile.terms_and_conditions = True
         profile.save()
 
         # Send email to the user
@@ -292,4 +292,3 @@ class ChangeReviewDueDateForm(forms.ModelForm):
     class Meta:
         model = submission_models.ProposalReview
         fields = ('due',)
-

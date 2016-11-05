@@ -6,13 +6,13 @@ from review import forms as review_forms
 
 class EditorialReviewForm(forms.ModelForm):
 
-	class Meta:
-		model = models.EditorialReview
-		fields = ('due',)
+    class Meta:
+        model = models.EditorialReview
+        fields = ('due',)
 
-	def __init__(self, *args, **kwargs):
-		super(EditorialReviewForm, self).__init__(*args, **kwargs)
-		self.fields['due'].required = True
+    def __init__(self, *args, **kwargs):
+        super(EditorialReviewForm, self).__init__(*args, **kwargs)
+        self.fields['due'].required = True
 
 class RecommendationForm(forms.ModelForm):
     class Meta:

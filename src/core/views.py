@@ -46,7 +46,7 @@ from bs4 import BeautifulSoup
 import zipfile
 import StringIO
 
-from  __builtin__ import any as string_any
+from __builtin__ import any as string_any
 import string
 
 
@@ -343,7 +343,7 @@ def oai(request):
         list_format = []
         for format in formats:
             list_format.append(format.file.mime_type)
-        list_of_books[t] = [{'book': book, 'isbns': isbns, 'formats': list_format,}]
+        list_of_books[t] = [{'book': book, 'isbns': isbns, 'formats': list_format, }]
 
     template = 'core/oai.xml'
     context = {
@@ -376,7 +376,7 @@ def user_home(request):
         'indexes': models.IndexAssignment.objects.filter(indexer=request.user, completed__isnull=True),
         'typesetting': models.TypesetAssignment.objects.filter(
             (Q(requested__isnull=False) & Q(completed__isnull=True)) | (
-            Q(typesetter_invited__isnull=False) & Q(typesetter_completed__isnull=True)), typesetter=request.user),
+                Q(typesetter_invited__isnull=False) & Q(typesetter_completed__isnull=True)), typesetter=request.user),
         'user_proposals': submission_models.Proposal.objects.filter(owner=request.user)
     }
 
@@ -621,22 +621,22 @@ def get_messages(request, submission_id):
             sender=request.user).order_by('-id')
 
         message_list = [{
-                            'message': message.message,
-                            'message_id': message.pk,
-                            'sender': message.sender.profile.full_name(),
-                            'initials': message.sender.profile.initials(),
-                            'message': message.message,
-                            'date_sent': message.date_sent.strftime("%-d %b %Y, %H:%M"),
-                            'user': 'same',
-                        } for message in messages
-                        ]
+            'message': message.message,
+            'message_id': message.pk,
+            'sender': message.sender.profile.full_name(),
+            'initials': message.sender.profile.initials(),
+            'message': message.message,
+            'date_sent': message.date_sent.strftime("%-d %b %Y, %H:%M"),
+            'user': 'same',
+        } for message in messages
+        ]
         response_dict = {
             'status_code': 200,
             'messages': message_list,
         }
 
         return HttpResponse(smart_text(json.dumps(response_dict)))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(e)
 
 
@@ -747,7 +747,7 @@ def email_users(request, group, submission_id=None, user_id=None):
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
 
-        attachments = [] #To create list of attachment objects, rather than InMemoryUploadedFiles
+        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles
 
         if attachment_files:
             for attachment in attachment_files:
@@ -758,7 +758,7 @@ def email_users(request, group, submission_id=None, user_id=None):
         if to_addresses:
             if attachments: # send_email_multiple is temporary function while email forms changed to allow multiple attachments
                 send_email_multiple(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
-                           cc=cc_list, html_template=body, book=submission, attachments=attachments)
+                                    cc=cc_list, html_template=body, book=submission, attachments=attachments)
             else:
                 send_email(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
                            cc=cc_list, html_template=body, book=submission)
@@ -842,12 +842,12 @@ def email_general(request, user_id=None):
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
 
-        attachments = [] #To create list of attachment objects, rather than InMemoryUploadedFiles.
+        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles.
 
         if attachment_files:
             for attachment in attachment_files:
                 attachment = handle_email_file(attachment, 'other', request.user,
-                                        "Attachment: Uploaded by %s" % (request.user.username))
+                                               "Attachment: Uploaded by %s" % (request.user.username))
                 attachments.append(attachment)
 
         if to_addresses:
@@ -903,12 +903,12 @@ def email_users_proposal(request, proposal_id, user_id):
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
 
-        attachments = [] #To create list of attachment objects, rather than InMemoryUploadedFiles
+        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles
 
         if attachment_files:
             for attachment in attachment_files:
                 attachment = handle_proposal_file(attachment, proposal, 'other', request.user,
-                                              "Attachment: Uploaded by %s" % (request.user.username))
+                                                  "Attachment: Uploaded by %s" % (request.user.username))
                 attachments.append(attachment)
 
         if to_addresses:
@@ -965,7 +965,7 @@ def email_primary_contact(request):
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
 
-        attachments = [] #To create list of attachment objects, rather than InMemoryUploadedFiles
+        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles
 
         if attachment_files:
             for attachment in attachment_files:
@@ -1620,7 +1620,7 @@ def assign_proposal(request):
             proposal.save()
             editors = User.objects.filter(profile__roles__slug='press-editor')
             message = "A new Unassigned Proposal '%s' with id %s has been submitted by %s ." % (
-            proposal.title, proposal.pk, request.user.username)
+                proposal.title, proposal.pk, request.user.username)
             for editor in editors:
                 notification = models.Task(assignee=editor, creator=request.user, text=message, workflow='proposal')
                 notification.save()
@@ -1657,7 +1657,7 @@ def proposal_assign_user(request, proposal_id, user_id):
     messages.add_message(request, messages.SUCCESS, 'Unassigned Proposal %s assigned' % proposal.id)
     log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                message='Proposal "%s %s" assigned to %s %s.' % (
-                               proposal.title, proposal.subtitle, user.first_name, user.last_name),
+                                   proposal.title, proposal.subtitle, user.first_name, user.last_name),
                                short_name='Proposal Assigned')
 
     return redirect(reverse('view_proposal', kwargs={'proposal_id': proposal_id}))
@@ -1716,7 +1716,7 @@ def proposal_assign_view(request, proposal_id):
         messages.add_message(request, messages.SUCCESS, 'Unassigned Proposal %s assigned' % proposal.id)
         log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                    message='Proposal "%s %s" assigned to %s %s.' % (
-                                   proposal.title, proposal.subtitle, user.first_name, user.last_name),
+                                       proposal.title, proposal.subtitle, user.first_name, user.last_name),
                                    short_name='Proposal Assigned')
         return redirect(reverse('view_proposal', kwargs={'proposal_id': proposal_id}))
 
@@ -1813,7 +1813,7 @@ def proposal_assign_edit(request, proposal_id):
             update_email_text = models.Setting.objects.get(group__name='email', name='proposal_update_ack').value
             log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                        message='Unassigned Proposal "%s %s" has been updated.' % (
-                                       proposal.title, proposal.subtitle), short_name='Unassigned Proposal Updated')
+                                           proposal.title, proposal.subtitle), short_name='Unassigned Proposal Updated')
             # logic.send_proposal_update(proposal, email_text=update_email_text, sender=request.user, receiver=proposal.owner)
             messages.add_message(request, messages.SUCCESS, 'Unassigned Proposal %s updated' % proposal.id)
             return redirect(reverse('proposals'))
@@ -2036,7 +2036,7 @@ def start_proposal_review(request, proposal_id):
                                                            attachment=attachment)
                     except IntegrityError:
                         messages.add_message(request, messages.WARNING, '%s %s is already a reviewer' % (
-                        member.user.first_name, member.user.last_name))
+                            member.user.first_name, member.user.last_name))
 
             # Tidy up and save
             proposal.requestor = request.user
@@ -2134,9 +2134,9 @@ def view_proposal_review_decision(request, proposal_id, assignment_id, access_ke
             review_assignment.accepted = timezone.now()
             review_assignment.save()
             message = "Review Assignment request for proposal '%s' has been accepted by %s %s." % (
-            proposal.title, review_assignment.user.first_name, review_assignment.user.last_name)
+                proposal.title, review_assignment.user.first_name, review_assignment.user.last_name)
             log.add_proposal_log_entry(proposal=proposal, user=user, kind='proposal', message=message,
-                              short_name='Assignment accepted')
+                                       short_name='Assignment accepted')
             if proposal.requestor:
                 notification = models.Task(assignee=proposal.requestor, creator=user, text=message,
                                            workflow='proposal')
@@ -2160,9 +2160,9 @@ def view_proposal_review_decision(request, proposal_id, assignment_id, access_ke
             review_assignment.declined = timezone.now()
             review_assignment.save()
             message = "Review Assignment request for proposal '%s' has been declined by %s %s." % (
-            proposal.title, review_assignment.user.first_name, review_assignment.user.last_name)
+                proposal.title, review_assignment.user.first_name, review_assignment.user.last_name)
             log.add_proposal_log_entry(proposal=proposal, user=review_assignment.user, kind='proposal', message=message,
-                              short_name='Assignment declined')
+                                       short_name='Assignment declined')
             if proposal.requestor:
                 notification = models.Task(assignee=proposal.requestor, creator=user, text=message,
                                            workflow='proposal')
@@ -2307,7 +2307,7 @@ def get_list_of_editors(proposal):
         already_added = False
         if editor in previous_editors:
             already_added = True
-        list_of_editors[t] = {'editor': editor, 'already_added': already_added,}
+        list_of_editors[t] = {'editor': editor, 'already_added': already_added, }
     return list_of_editors
 
 
@@ -2492,7 +2492,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 review_assignment.files.add(review_file)
             review_assignment.save()
             message = "Review assignment for proposal '%s' has been completed by %s ." % (
-            review_assignment.proposal.title, review_assignment.user.profile.full_name())
+                review_assignment.proposal.title, review_assignment.user.profile.full_name())
             notification = models.Task(assignee=review_assignment.proposal.requestor, creator=user,
                                        text=message, workflow='proposal')
             notification.save()
@@ -2610,7 +2610,7 @@ def add_proposal_reviewers(request, proposal_id):
                     logic.send_proposal_review_request(request, proposal, new_review_assignment, email_text, attachment)
                 except IntegrityError:
                     messages.add_message(request, messages.WARNING, '%s %s is already a reviewer' % (
-                    member.user.first_name, member.user.last_name))
+                        member.user.first_name, member.user.last_name))
 
         # Tidy up and save
 
@@ -2798,7 +2798,7 @@ def reopen_proposal_review(request, proposal_id, assignment_id):
         logic.send_proposal_review_reopen_request(request, proposal, review_assignment, email_updated_text)
         log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                    message='Revisions request for proposal %s %s.' % (
-                                   proposal.title, proposal.subtitle), short_name='Proposal Revisions Requested')
+                                       proposal.title, proposal.subtitle), short_name='Proposal Revisions Requested')
 
         return redirect(reverse('proposals'))
 
@@ -2835,7 +2835,7 @@ def request_proposal_revisions(request, proposal_id):
 
         log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                    message='Revisions request for proposal %s %s.' % (
-                                   proposal.title, proposal.subtitle), short_name='Proposal Revisions Requested')
+                                       proposal.title, proposal.subtitle), short_name='Proposal Revisions Requested')
 
         return redirect(reverse('proposals'))
 
