@@ -75,7 +75,7 @@ def send_acknowldgement_email(book, press_editors):
 
     if len(press_editors) > 1:
         editor = press_editors[0]
-        cc_eds = [editor.email for editor in press_editors if not editor == press_editors[0]]
+        cc_eds = [ed.email for ed in press_editors if ed != press_editors[0]]
     else:
         editor = press_editors[0]
         cc_eds = None

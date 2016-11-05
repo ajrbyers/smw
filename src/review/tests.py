@@ -1,23 +1,15 @@
 from django.test import TestCase
 from django.utils import timezone
-from django.http import HttpRequest
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from django.test import SimpleTestCase
-from django.db.models import Q
+from django.core.urlresolvers import reverse
 
 from review import models
 from review import views
 from core import models as core_models
 
-import json
-from __builtin__ import any as string_any
-import calendar
 import tempfile
 import time
-import datetime
-# Create your tests here.
 
 class ReviewTests(TestCase):
 
@@ -64,7 +56,7 @@ class ReviewTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_reviewer_access(self):
-        login = self.client.login(username="rua_author", password="tester")
+        self.client.login(username="rua_author", password="tester")
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
 

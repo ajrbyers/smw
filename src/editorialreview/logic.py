@@ -4,11 +4,10 @@ from django.utils.encoding import smart_text
 from django.db.models import Q
 from django.conf import settings
 
-from core import models as core_models, setting_util, email
+from core import models as core_models
 from submission import models as submission_models
 from review import models as review_models
 
-from pprint import pprint
 from uuid import uuid4
 import json, os
 import mimetypes as mime
@@ -60,11 +59,8 @@ def handle_editorial_post(request, submission, form, reviewer, review_form):
     return new_editorial_review
 
 def get_task_url(review, request):
-
-    base_url = setting_util.get_setting(setting_name='base_url', setting_group_name='general', default='localhost:8000')
     protocol = 'https://' if request.is_secure() else 'http://'
     task_url = '{0}{1}{2}'.format(protocol, request.get_host(), reverse('editorial_review', kwargs={'review_id': review.id}))
-
     return task_url
 
 def handle_generated_form_post(review_assignment, request):

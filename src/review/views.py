@@ -3,8 +3,6 @@ import os
 from uuid import uuid4
 import mimetypes as mime
 from docx import Document
-from docx.shared import Inches
-from pprint import pprint
 import mimetypes
 from bs4 import BeautifulSoup
 
@@ -13,19 +11,19 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Q
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponse, StreamingHttpResponse, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseRedirect
+from django.http import StreamingHttpResponse
 
 from core import logic as core_logic
 from core import models as core_models
-from core import views as core_views
 from core import forms as core_forms
-from core.decorators import is_reviewer, has_reviewer_role, is_editor
+from core.decorators import has_reviewer_role
+from core.decorators import is_reviewer
 from core import log
-from core import models as core_models
 from review import forms
 from review import models
 from review import logic

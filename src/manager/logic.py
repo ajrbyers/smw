@@ -1,7 +1,8 @@
 import random
 
 from core.setting_util import get_setting
-from core import models, email, log
+from core import email
+from core import models
 
 def generate_password():
 

@@ -1,25 +1,12 @@
 from django.test import TestCase
 from submission import models
 from django.utils import timezone
-import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
-from manager import views
 from core import models as core_models
-from review import models as review_models
-from submission import models as submission_models
-from core import logic as core_logic, task
-import json
-from django.http import HttpRequest
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from __builtin__ import any as string_any
+from django.core.urlresolvers import reverse
 
 from django.core import management
-import calendar
-# Create your tests here.
 
 class SubmissionTests(TestCase):
 
@@ -161,7 +148,7 @@ class SubmissionTests(TestCase):
         self.assertEqual('revisions_submitted', proposal_form_updated.status)
 
         management.call_command('loaddata', 'test/test_incomplete_proposal.json', verbosity=0)
-        incomplete_proposal = models.IncompleteProposal.objects.get(pk=1)
+        models.IncompleteProposal.objects.get(pk=1)
 
         resp = self.client.get(reverse('incomplete_proposal', kwargs={"proposal_id": 1}))
         content = resp.content

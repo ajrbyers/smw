@@ -4,7 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.http import HttpResponseRedirect, Http404, HttpResponse, StreamingHttpResponse
+from django.http import HttpResponseRedirect
+from django.http import StreamingHttpResponse
 from django.conf import settings
 from django.contrib import messages
 
@@ -12,10 +13,11 @@ from manager import models as manager_models
 from editorialreview import logic, forms, models
 from review import models as review_models, forms as review_forms
 from core import setting_util, email, models as core_models, logic as core_logic
-from core.files import handle_attachment, handle_email_file
+from core.files import handle_email_file
 from submission import models as submission_models
 
-from core.decorators import is_reviewer, is_editor, is_book_editor
+from core.decorators import is_editor
+from core.decorators import is_reviewer
 
 @is_editor
 def add_editorial_review(request, submission_type, submission_id):

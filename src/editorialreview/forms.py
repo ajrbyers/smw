@@ -1,8 +1,6 @@
 from django import forms
-from django.forms import ModelForm
 
 from editorialreview import models
-from review import forms as review_forms
 
 class EditorialReviewForm(forms.ModelForm):
 

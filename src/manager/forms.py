@@ -1,14 +1,11 @@
 from django import forms
-from django.forms import ModelForm
-from django.core.exceptions import ValidationError
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from django_summernote.widgets import SummernoteWidget
 from django.utils.encoding import smart_text
 
 from django.template.defaultfilters import slugify
 from manager import models
 from core import models as core_models
 from review import models as review_models
-from pprint import pprint
 
 class GroupForm(forms.ModelForm):
 
@@ -90,9 +87,6 @@ class EditKey(forms.Form):
 
     value = forms.CharField(label='')
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
-
 class ProposalForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -114,9 +108,6 @@ class DefaultForm(forms.Form):
     subtitle = forms.CharField(widget=forms.TextInput, required=False)
     author = forms.CharField(widget=forms.TextInput, required=True, label='Submitting Author/Editor')
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
-
 
 class DefaultNotRequiredForm(forms.Form):
 
@@ -124,8 +115,6 @@ class DefaultNotRequiredForm(forms.Form):
     subtitle = forms.CharField(widget=forms.TextInput, required=False)
     author = forms.CharField(widget=forms.TextInput, required=False, label='Submitting Author/Editor')
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
 def render_choices(choices):
     c_split = choices.split('|')
     return [(choice.capitalize(), choice) for choice in c_split]

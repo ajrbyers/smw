@@ -1,4 +1,5 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns
+from django.conf.urls import url
 
 urlpatterns = patterns('',
                        url(r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/$', 'editorialreview.views.add_editorial_review', name='add_editorial_review'),

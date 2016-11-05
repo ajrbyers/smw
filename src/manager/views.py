@@ -1,37 +1,27 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_text
 from django.template.defaultfilters import slugify
-from django.db import transaction
-from django.db.models import get_models, Model, Q
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.db.models import Q
 
 from manager import models as models
 from review import models as review_models
-from submission import models as submission_models
-from revisions import models as revisions_models
-from review import forms as review_f
 from manager import forms, logic
 from django.conf import settings
 from core import models as core_models, forms as core_forms
 from core.decorators import is_press_editor
 from submission import forms as submission_forms
 from submission import models as submission_models
-from itertools import chain
 
 from uuid import uuid4
 import os
 import requests
 
-import json
 
 
 @is_press_editor
@@ -244,7 +234,7 @@ def edit_submission_checklist(request, item_id):
     if request.POST:
         checkitem_form = submission_forms.CreateSubmissionChecklistItem(request.POST, instance=item)
         if checkitem_form.is_valid():
-            new_check_item = checkitem_form.save()
+            checkitem_form.save()
             return redirect(reverse('submission_checklist'))
 
     template = 'manager/submission/checklist.html'
@@ -271,7 +261,7 @@ def submission_checklist(request):
     if request.POST:
         checkitem_form = submission_forms.CreateSubmissionChecklistItem(request.POST)
         if checkitem_form.is_valid():
-            new_check_item = checkitem_form.save()
+            checkitem_form.save()
             return redirect(reverse('submission_checklist'))
 
     template = 'manager/submission/checklist.html'
@@ -373,7 +363,7 @@ def series_add(request):
     if request.method == 'POST':
         series_form = forms.SeriesForm(request.POST)
         if series_form.is_valid():
-            series = series_form.save()
+            series_form.save()
             return redirect(reverse('series'))
 
     template = 'manager/series/edit.html'
@@ -619,7 +609,7 @@ def proposal_forms(request):
 
 @is_press_editor
 def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
-    form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+    get_object_or_404(core_models.ProposalForm, pk=form_id)
 
     field_1 = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=field_1_id)
     field_2 = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=field_2_id)
@@ -638,7 +628,7 @@ def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
 
 @is_press_editor
 def reorder_review_form(request, form_id, field_1_id, field_2_id):
-    form = get_object_or_404(review_models.Form, pk=form_id)
+    get_object_or_404(review_models.Form, pk=form_id)
 
     field_1 = get_object_or_404(review_models.FormElementsRelationship, pk=field_1_id)
     field_2 = get_object_or_404(review_models.FormElementsRelationship, pk=field_2_id)
@@ -757,7 +747,7 @@ def preview_proposal_form(request, form_id):
 
 @is_press_editor
 def delete_proposal_form_element(request, form_id, relation_id):
-    form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+    get_object_or_404(core_models.ProposalForm, pk=form_id)
     relation = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=relation_id)
 
     relation.element.delete()
@@ -835,7 +825,7 @@ def preview_review_form(request, form_id):
 
 @is_press_editor
 def delete_review_form_element(request, form_id, relation_id):
-    form = get_object_or_404(review_models.Form, pk=form_id)
+    get_object_or_404(review_models.Form, pk=form_id)
     relation = get_object_or_404(review_models.FormElementsRelationship, pk=relation_id)
 
     relation.element.delete()

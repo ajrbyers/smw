@@ -1,4 +1,5 @@
-from django.shortcuts import redirect, render, get_object_or_404, Http404
+from django.shortcuts import Http404
+from django.shortcuts import get_object_or_404
 
 from core import files, models, task
 import forms
@@ -64,7 +65,7 @@ def handle_file(_file, assignment):
     elif assignment.type() == 'indexing':
         handled_file = files.handle_onetasker_file(_file, assignment.book, assignment, 'index')
     else:
-        raise http404
+        raise Http404
 
     return handled_file
 

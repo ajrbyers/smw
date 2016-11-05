@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import *
+from models import Form, FormElement, FormResult, FormElementsRelationship
 
 class FormAdmin(admin.ModelAdmin):
     list_display = ('name', 'ref')

@@ -272,7 +272,6 @@ class EditorTests(TestCase):
         self.assertEqual(book.owner.email, author.author_email)
 
     def test_editor_notes(self):
-        book = core_models.Book.objects.get(pk=1)
         resp = self.client.get(reverse('editor_notes', kwargs={'submission_id': 1}))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in resp.content, False)
@@ -300,7 +299,6 @@ class EditorTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_editorial_reviewer_assignment(self):
-        book = core_models.Book.objects.get(pk=1)
         editorial_assignments = core_models.EditorialReviewAssignment.objects.all()
         self.assertEqual(editorial_assignments.count(), 0)
         resp = self.client.get(reverse('editor_add_editorial_reviewers', kwargs={'submission_id': 1}))

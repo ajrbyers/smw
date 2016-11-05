@@ -5,19 +5,21 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, Http404, HttpResponse, StreamingHttpResponse
+from django.http import HttpResponseRedirect
+from django.http import StreamingHttpResponse
 from django.conf import settings
 from operator import attrgetter
 from itertools import chain
 
 import os
 import mimetypes
-import mimetypes as mime
 
 from uuid import uuid4
 from core.files import handle_attachment, handle_file_update, handle_attachment, handle_file
 from core import models, log, logic as core_logic, forms as core_forms
-from core.decorators import is_editor, is_book_editor, is_book_editor_or_author, is_press_editor
+from core.decorators import is_book_editor
+from core.decorators import is_editor
+from core.decorators import is_press_editor
 from editor import logic
 from revisions import models as revision_models
 from review import models as review_models
@@ -361,7 +363,7 @@ def editor_add_editors(request, submission_id):
 
     list_of_editors = get_list_of_editors(book)
 
-    email_text = models.Setting.objects.get(group__name='email', name='book_editor_ack').value
+    #email_text = models.Setting.objects.get(group__name='email', name='book_editor_ack').value
 
     if request.GET and "add" in request.GET:
         user_id = request.GET.get("add")
@@ -456,8 +458,8 @@ def editor_view_revisions(request, submission_id, revision_id):
 def editor_review_round(request, submission_id, round_number):
     book = get_object_or_404(models.Book, pk=submission_id)
     review_round = get_object_or_404(models.ReviewRound, book=book, round_number=round_number)
-    reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book,
-                                                     review_round__round_number=round_number)
+    #reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book,
+    #                                                 review_round__round_number=round_number)
     review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
     internal_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='internal',
                                                                          review_round__round_number=round_number).select_related(
@@ -587,7 +589,7 @@ def editorial_review_accept(request, submission_id, review_id, type):
 
 @is_book_editor
 def remove_assignment_editor(request, submission_id, assignment_type, assignment_id):
-    submission = get_object_or_404(models.Book, pk=submission_id)
+    get_object_or_404(models.Book, pk=submission_id)
     if assignment_type == 'indexing':
         review_assignment = get_object_or_404(models.IndexAssignment, pk=assignment_id)
     elif assignment_type == 'copyediting':
@@ -1884,10 +1886,8 @@ def delete_format_or_chapter(request, submission_id, format_or_chapter, id):
 @is_book_editor
 def update_format_or_chapter(request, submission_id, format_or_chapter, id):
     book = get_object_or_404(models.Book, pk=submission_id)
-    chapter = None
     if format_or_chapter == 'chapter':
         item = get_object_or_404(models.ChapterFormat, pk=id)
-        chapter = item.chapter
         type = 'chapter'
     elif format_or_chapter == 'format':
         item = get_object_or_404(models.Format, pk=id)

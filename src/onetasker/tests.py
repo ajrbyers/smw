@@ -1,19 +1,10 @@
 from django.test import TestCase
-from onetasker import models
-from django.utils import timezone
 import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
-from onetasker import views
 from core import models as core_models
-from core import logic as core_logic, task
-import json
-from django.http import HttpRequest
+from core import logic as core_logic
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from __builtin__ import any as string_any
+from django.core.urlresolvers import reverse
 import calendar
 # Create your tests here.
 
@@ -41,7 +32,7 @@ class OnetaskerTests(TestCase):
         self.book = core_models.Book.objects.get(pk=1)
 
         login = self.client.login(username="rua_onetasker", password="tester")
-        self.assertEqual(login, True)
+        self.assertTrue(login)
 
     def tearDown(self):
         pass
@@ -65,7 +56,7 @@ class OnetaskerTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_onetasker_access(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('onetasker_dashboard'))
         content = resp.content
 

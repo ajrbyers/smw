@@ -1,22 +1,11 @@
 from django.test import TestCase
 from manager import models
-from django.utils import timezone
-import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
-from manager import views
 from core import models as core_models
 from review import models as review_models
 from submission import models as submission_models
-from core import logic as core_logic, task
-import json
-from django.http import HttpRequest
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from __builtin__ import any as string_any
-import calendar
+from django.core.urlresolvers import reverse
 # Create your tests here.
 
 class ManagerTests(TestCase):
@@ -85,7 +74,7 @@ class ManagerTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_manager_access_not_staff(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('manager_index'))
         self.assertEqual("403 - Permission Denied" in resp.content, True)
         self.assertEqual(resp.status_code, 200)
@@ -171,11 +160,11 @@ class ManagerTests(TestCase):
 
                 if len(have_role) > 0:
                     for user in have_role:
-                        remove = self.client.post(reverse('manager_role_action', kwargs={'slug': role.slug, 'user_id': user.id, 'action': 'remove'}))
+                        self.client.post(reverse('manager_role_action', kwargs={'slug': role.slug, 'user_id': user.id, 'action': 'remove'}))
 
                 elif len(dont_have_role) > 0:
                     for user in dont_have_role:
-                        add = self.client.post(reverse('manager_role_action', kwargs={'slug': role.slug, 'user_id': user.id, 'action': 'add'}))
+                        self.client.post(reverse('manager_role_action', kwargs={'slug': role.slug, 'user_id': user.id, 'action': 'add'}))
 
                 role_resp = self.client.get(reverse('manager_role', kwargs={'slug': role.slug}))
                 role_content = role_resp.content
@@ -210,32 +199,13 @@ class ManagerTests(TestCase):
         self.assertEqual("403" in content, False)
         for group in groups:
             self.assertEqual(group.name in content, True)
-        found = False
         resp = self.client.post(reverse('manager_group_add'), {'group_type': 'generic', 'name': 'rua_new_group', 'active': True, 'sequence': 4})
-        try:
-            new_group = models.Group.objects.get(name="rua_new_group")
-            found = True
-        except:
-            found = False
-        self.assertEqual(found, True)
-
-        found = False
+        models.Group.objects.get(name="rua_new_group")
         resp = self.client.post(reverse('manager_group_edit', kwargs={'group_id': 4}), {'group_type': 'generic', 'name': 'changed_name', 'active': True, 'sequence': 4})
-
-        try:
-            new_group = models.Group.objects.get(name="changed_name")
-            found = True
-        except:
-            found = False
-        self.assertEqual(found, True)
-        found = False
+        models.Group.objects.get(name="changed_name")
+        
         resp = self.client.post(reverse('manager_group_delete', kwargs={'group_id': 4}))
-        try:
-            new_group = models.Group.objects.get(name="changed_name")
-            found = True
-        except:
-            found = False
-        self.assertEqual(found, False)
+        models.Group.objects.get(name="changed_name")
         editorial_group = models.Group.objects.get(name="rua_editorial_group")
         editorial_group_members = models.GroupMembership.objects.filter(group=editorial_group)
         self.assertEqual(len(editorial_group_members), 2)
@@ -415,7 +385,6 @@ class ManagerTests(TestCase):
                 self.assertEqual(field.element.field_type in form_content, True)
                 delete_button = '/manager/forms/proposal/%s/element/%s/delete/' % (form.id, field.id)
                 self.assertEqual(delete_button in form_content, True)
-            deleted = form_element_relationships[0]
             self.client.get(reverse('manager_delete_proposal_form_element', kwargs={'form_id': form.id, 'relation_id': 1}))
             form_element_relationships = core_models.ProposalFormElementsRelationship.objects.filter(form=form)
             self.assertEqual(len(form_element_relationships), 1)
@@ -430,14 +399,34 @@ class ManagerTests(TestCase):
         self.assertEqual(found, True)
         self.assertEqual(new_form_resp.status_code, 302)
         create_elements_url = "http://testing/manager/forms/proposal/"
-        element_creation = "/form/%s/create/elements/" % new_form.id
         self.assertEqual(new_form_resp['Location'], create_elements_url)
         form_elements = core_models.ProposalFormElement.objects.all()
         self.assertEqual(len(form_elements), 1)
-        new_form_resp = self.client.post(reverse('manager_edit_proposal_form', kwargs={'form_id': new_form.id}), {'name': 'new_test_element', 'choices': '', 'field_type': 'textarea', 'required': True, 'order': 5, 'required': False, 'width': 'col-md-6', 'help_text': ''})
+        payload = {
+            'name': 'new_test_element',
+            'choices': '',
+            'field_type': 'textarea',
+            'required': True,  # ???
+            'order': 5,
+            'required': False, # ???
+            'width':
+            'col-md-6',
+            'help_text': ''
+        }
+        new_form_resp = self.client.post(reverse('manager_edit_proposal_form', kwargs={'form_id': new_form.id}), payload)
         form_elements = core_models.ProposalFormElement.objects.all()
         self.assertEqual(len(form_elements), 2)
-        new_form_resp = self.client.post(reverse('manager_edit_proposal_form_element', kwargs={'form_id': new_form.id, 'relation_id': 3}), {'name': 'updated_new_test_element', 'choices': '', 'field_type': 'textarea', 'required': True, 'order': 5, 'required': False, 'width': 'col-md-12', 'help_text': 'updated'})
+        payload= {
+            'name': 'updated_new_test_element',
+            'choices': '',
+            'field_type': 'textarea',
+            'required': True,  # ??
+            'order': 5,
+            'required': False, # ??
+            'width': 'col-md-12',
+            'help_text': 'updated'
+        }
+        new_form_resp = self.client.post(reverse('manager_edit_proposal_form_element', kwargs={'form_id': new_form.id, 'relation_id': 3}), payload)
         form_elements = core_models.ProposalFormElement.objects.all()
         self.assertEqual(len(form_elements), 2)
         self.client.get(reverse('manager_delete_proposal_form_element', kwargs={'form_id': new_form.id, 'relation_id': 3}))
@@ -489,7 +478,6 @@ class ManagerTests(TestCase):
         self.assertEqual(found, True)
         self.assertEqual(new_form_resp.status_code, 302)
         create_elements_url = "http://testing/manager/forms/review/"
-        element_creating = "/form/%s/create/elements/" % new_form.id
         self.assertEqual(new_form_resp['Location'], create_elements_url)
         form_elements = review_models.FormElement.objects.all()
         self.assertEqual(len(form_elements), 0)

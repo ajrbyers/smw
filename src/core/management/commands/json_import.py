@@ -11,7 +11,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if file is None:
             print 'Please supply a file path'
-            pass
         else:
             with open('/user/home/tech/rua_data/%s.json' % file) as data_file:
                 book_list = json.load(data_file)

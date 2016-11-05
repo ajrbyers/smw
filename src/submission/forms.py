@@ -1,12 +1,8 @@
 from django import forms
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxSelectMultiple
-from django.contrib.auth.models import User
-from django.core.mail import EmailMultiAlternatives
 
 from core import models as core_models
 from submission import models
-from core import logic
 
 
 class ProposalStart(forms.ModelForm):
@@ -56,7 +52,7 @@ class SubmissionChecklist(forms.Form):
 
     def __init__(self, *args, **kwargs):
         checklist_items = kwargs.pop('checklist_items', None)
-        book = kwargs.pop('book', None)
+        kwargs.pop('book', None)
         super(SubmissionChecklist, self).__init__(*args, **kwargs)
 
         if checklist_items:
