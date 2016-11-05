@@ -1,7 +1,4 @@
-from core import logic
 from core.cache import cache_result
-
-from django.contrib.auth.models import Group
 from core import logic, models as core_models
 from author.logic import author_tasks
 

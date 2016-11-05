@@ -1,27 +1,16 @@
 from django.test import TestCase, RequestFactory
-from django.core.urlresolvers import resolve, reverse
+from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.utils import timezone
-import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
-from editor import views, models
 from core import models as core_models
-from review import models as review_models
-from submission import models as submission_models
-from core import logic as core_logic, task
-import json
-from django.http import HttpRequest
-from __builtin__ import any as string_any
-import calendar
 import tempfile
 from django.core import management
 from revisions import models as revision_models
-from django.db import transaction
-from django.db import IntegrityError
+
+import logging
+LOG = logging.getLogger(__name__)
+
 class EditorTests(TestCase):
 
     # Dummy DBs
@@ -176,7 +165,8 @@ class EditorTests(TestCase):
         self.assertEqual(book.stage.current_stage == 'review', True)
         rounds = core_models.ReviewRound.objects.all()
         self.assertEqual(rounds.count(), 1)
-        resp = self.client.get(reverse('editor_review_round_cancel', kwargs={'submission_id': self.book.id, 'round_number': 1}))
+        LOG.warn("possibly modifying server state with GET requests. this is a really bad idea")
+        self.client.get(reverse('editor_review_round_cancel', kwargs={'submission_id': self.book.id, 'round_number': 1}))
         rounds = core_models.ReviewRound.objects.all()
         self.assertEqual(rounds.count(), 0)
 
@@ -245,11 +235,10 @@ class EditorTests(TestCase):
         self.assertEqual(resp['Location'], "http://testing/editor/submission/1/review/round/2/")
 
     def test_published_books(self):
-        book = core_models.Book.objects.get(pk=1)
         resp = self.client.get(reverse('editor_published_books'))
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
-        self.assertEqual("Published Submissions" in resp.content, True)
+        self.assertFalse("403" in resp.content)
+        self.assertTrue("Published Submissions" in resp.content)
 
     def test_editor_add_editors(self):
         book = core_models.Book.objects.get(pk=1)

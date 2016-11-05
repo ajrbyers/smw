@@ -1,13 +1,7 @@
 from django import forms
-from django.forms import ModelForm
-from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from functools import partial
-
 from submission import models as submission_models
-from core import models, logic, email
+from core import models, logic
 
 import uuid
 

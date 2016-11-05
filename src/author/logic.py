@@ -1,9 +1,9 @@
 from core import models
-from core.cache import cache_result
 from revisions import models as revisions_models
 from submission import models as submission_models
 from editor import models as editor_models
 from datetime import datetime
+
 def author_tasks(user):
     base_url = models.Setting.objects.get(group__name='general', name='base_url').value
     task_list = []

@@ -12,7 +12,7 @@ from core.logic import order_data, decode_json
 from submission import models as submission_models, logic as submission_logic
 from revisions import models as revision_models
 from review import models as review_models
-from core.files import handle_file_update, handle_attachment, handle_file, handle_copyedit_file, handle_typeset_file, handle_proposal_file
+from core.files import handle_file_update, handle_attachment, handle_file, handle_typeset_file, handle_proposal_file
 
 @is_author
 def author_dashboard(request):
@@ -82,7 +82,7 @@ def review(request, submission_id):
 def view_review_round(request, submission_id, round_id):
     book = get_object_or_404(models.Book, pk=submission_id, owner=request.user)
     review_round = get_object_or_404(models.ReviewRound, book=book, round_number=round_id)
-    reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book, review_round__round_number=round_id)
+    models.ReviewAssignment.objects.filter(book=book, review_round__book=book, review_round__round_number=round_id)
 
     review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
     internal_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='internal', review_round__round_number=round_id, hide=False).select_related('user', 'review_round')
@@ -290,7 +290,7 @@ def author_production(request, submission_id):
         proof.note_to_editor = author_feedback
         proof.save()
         log.add_log_entry(book=book, user=request.user, kind='production', message='%s %s completed Cover Image Proofs' % (request.user.first_name, request.user.last_name), short_name='Cover Image Proof Request')
-        new_task = task.create_new_task(book, request.user, proof.editor, "Cover Proofing completed for %s" % book.title, workflow='production')
+        task.create_new_task(book, request.user, proof.editor, "Cover Proofing completed for %s" % book.title, workflow='production')
         return redirect(reverse('author_production', kwargs={'submission_id': submission_id}))
 
     template = 'author/submission.html'
@@ -499,7 +499,7 @@ def copyedit_review(request, submission_id, copyedit_id):
             copyedit.save()
             log.add_log_entry(book=book, user=request.user, kind='editing', message='Copyedit Author review compeleted by %s %s.' % (request.user.first_name, request.user.last_name), short_name='Copyedit Author Review Complete')
             messages.add_message(request, messages.SUCCESS, 'Copyedit task complete. Thanks.')
-            new_task = task.create_new_task(book, copyedit.book.owner, copyedit.requestor, "Author Copyediting completed for %s" % book.title, workflow='editing')
+            task.create_new_task(book, copyedit.book.owner, copyedit.requestor, "Author Copyediting completed for %s" % book.title, workflow='editing')
             return redirect(reverse('editing', kwargs={"submission_id": submission_id, }))
 
     template = 'author/submission.html'
@@ -533,7 +533,7 @@ def typeset_review(request, submission_id, typeset_id):
             typeset.save()
             log.add_log_entry(book=book, user=request.user, kind='production', message='Author Typesetting review %s %s completed.' % (request.user.first_name, request.user.last_name), short_name='Author Typesetting Review Completed')
             messages.add_message(request, messages.SUCCESS, 'Typesetting task complete. Thanks.')
-            new_task = task.create_new_task(book, typeset.book.owner, typeset.requestor, "Author Typesetting completed for %s" % book.title, workflow='production')
+            task.create_new_task(book, typeset.book.owner, typeset.requestor, "Author Typesetting completed for %s" % book.title, workflow='production')
             return redirect(reverse('editing', kwargs={"submission_id": submission_id, }))
 
     template = 'author/submission.html'

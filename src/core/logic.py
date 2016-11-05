@@ -1,32 +1,27 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.contrib.auth.models import User
-from django.template import Context
 from django.db.models import Max
 from django.utils import timezone
 from django.db.models import Q
-from django.template.loader import render_to_string
-from django.template import Context, Template
+from django.template import Context
 from django.utils.encoding import smart_text
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
-from operator import itemgetter
-from core.decorators import is_copyeditor, is_typesetter, is_indexer
-from core import models
+from core import models, log
 from core.cache import cache_result
 from revisions import models as revisions_models
 from submission import logic as submission_logic, models as submission_models
-from core.files import handle_file, handle_copyedit_file, handle_marc21_file
+from core.files import handle_marc21_file
 from setting_util import get_setting
 from core import email
 
 import datetime
 import json
 from pymarc import Record, Field
-from pymarc import *
-import os
-from uuid import uuid4
+#from pymarc import *
+from pymarc import record_to_xml
 import re
 from __builtin__ import any as string_any
 
@@ -82,7 +77,7 @@ def book_to_mark21_file(book, owner, xml=False):
     authors = book.author.all()
     author_names = ''
     for author in authors:
-        auhtor_names = author_names + author.full_name() + ' '
+        author_names = author_names + author.full_name() + ' '
         name = author.last_name + ', ' + author.first_name
         if author.middle_name:
             name = name + ' ' + author.middle_name[:1] + '.'
@@ -219,7 +214,7 @@ def book_to_mark21_file_content(book, owner, xml=False):
     authors = book.author.all()
     author_names = ''
     for author in authors:
-        auhtor_names = author_names + author.full_name() + ' '
+        author_names = author_names + author.full_name() + ' '
         name = author.last_name + ', ' + author.first_name
         if author.middle_name:
             name = name + ' ' + author.middle_name[:1] + '.'
@@ -293,12 +288,12 @@ def book_to_mark21_file_content(book, owner, xml=False):
     content = None
     if not xml:
         filename = 'book_' + str(book.id) + '_' + re.sub('[^a-zA-Z0-9\n\.]', '', title.lower()) + '_marc21.dat'
-        file = handle_marc21_file(record.as_marc(), filename, book, owner)
+        handle_marc21_file(record.as_marc(), filename, book, owner)
         content = record.as_marc()
     else:
         filename = 'book_' + str(book.id) + '_' + re.sub('[^a-zA-Z0-9\n\.]', '', title.lower()) + '_marc21.xml'
         content = record_to_xml(record, quiet=False, namespace=False)
-        file = handle_marc21_file(content, filename, book, owner)
+        handle_marc21_file(content, filename, book, owner)
     return content
 
 def get_author_emails(submission_id, term):
@@ -446,6 +441,8 @@ def send_email(subject, context, from_email, to, html_template, text_template=No
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
+''' 
+# this function is almost duplicated a little further down
 def send_author_sign_off(proposal, email_text, sender):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
 
@@ -456,7 +453,7 @@ def send_author_sign_off(proposal, email_text, sender):
     }
 
     email.send_email(get_setting('book_contract_uploaded_subject', 'email_subject', 'Book Contract Uploaded'), context, from_email.value, proposal.owner.email, email_text, proposal=proposal, kind='proposal')
-
+'''
 
 @cache_result(300)
 def press_settings():
@@ -751,7 +748,6 @@ def handle_typeset_assignment(book, typesetter, files, due_date, email_text, req
 # Email Handlers - TODO: move to email.py?
 def send_decision_ack(book, decision, email_text, url=None, attachment=None):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
-    base_url = models.Setting.objects.get(group__name='general', name='base_url')
     decision_full = decision
     if not decision == 'decline':
         decision_full = "Move to " + decision
@@ -774,7 +770,6 @@ def send_decision_ack(book, decision, email_text, url=None, attachment=None):
 
 def send_editorial_decision_ack(review_assignment, contact, decision, email_text, url=None, attachment=None):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
-    base_url = models.Setting.objects.get(group__name='general', name='base_url')
     publishing_committee = models.Setting.objects.get(group__name='general', name='publishing_committee').value
 
     decision_full = decision
@@ -816,7 +811,6 @@ def send_editorial_decision_ack(review_assignment, contact, decision, email_text
 # Email Handlers - TODO: move to email.py?
 def send_production_editor_ack(book, editor, email_text, attachment=None):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
-    base_url = models.Setting.objects.get(group__name='general', name='base_url')
 
     context = {
         'submission': book,

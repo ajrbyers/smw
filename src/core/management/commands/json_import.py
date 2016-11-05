@@ -1,10 +1,6 @@
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
 from core import models
-
-import sys
 import json
-from pprint import pprint
 
 file = 'ucp'
 
@@ -51,14 +47,14 @@ class Command(BaseCommand):
                         new_subject, create = models.Subject.objects.get_or_create(**subject)
                         new_book.subject.add(new_subject)
 
-                    identifier = models.Identifier.objects.create(
+                    models.Identifier.objects.create(
                         book=new_book,
                         identifier='doi',
                         value=book.get('doi'),
                         displayed=True,
                     )
 
-                    identifier = models.Identifier.objects.create(
+                    models.Identifier.objects.create(
                         book=new_book,
                         identifier='pub_id',
                         value=book.get('pub_id'),

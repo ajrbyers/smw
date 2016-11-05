@@ -5,13 +5,10 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse, StreamingHt
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django import forms
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
-from django.core import serializers
 from django.conf import settings
-from django.template import Context, Template
 from django.db import IntegrityError
 from django.utils.encoding import smart_text
 
@@ -23,8 +20,7 @@ from email import send_email, send_email_multiple, send_reset_email, get_email_c
 from files import handle_file_update, handle_attachment, handle_file, handle_email_file, handle_proposal_review_file, \
     handle_proposal_file, handle_proposal_file_form
 from submission import models as submission_models
-from core.decorators import is_reviewer, is_editor, is_book_editor, is_book_editor_or_author, is_onetasker, is_author, \
-    is_press_editor
+from core.decorators import is_reviewer, is_editor, is_book_editor, is_book_editor_or_author, is_onetasker, is_press_editor
 from review import forms as review_forms
 from datetime import datetime
 from manager import models as manager_models
@@ -33,15 +29,10 @@ from submission import forms as submission_forms
 from editorialreview import models as er_models
 
 from docx import Document
-from docx.shared import Inches
-from pprint import pprint
 import json
-from time import strftime
-import time
 from uuid import uuid4
 import os
 import mimetypes
-import mimetypes as mime
 from bs4 import BeautifulSoup
 import zipfile
 import StringIO
@@ -82,7 +73,6 @@ def dashboard(request):
 def login(request):
     if request.user.is_authenticated():
         messages.info(request, 'You are already logged in.')
-        roles = request.user.profile.roles.all()
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
         else:
@@ -104,7 +94,6 @@ def login(request):
             if user.is_active:
                 login_user(request, user)
                 messages.info(request, 'Login successful.')
-                roles = user.profile.roles.all()
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
                 else:
@@ -301,7 +290,7 @@ def update_profile(request):
         user_form = forms.UserProfileForm(request.POST, instance=request.user)
         profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile)
         if profile_form.is_valid() and user_form.is_valid():
-            user = user_form.save()
+            user_form.save()
             profile = profile_form.save()
             for interest in profile.interest.all():
                 profile.interest.remove(interest)
@@ -463,11 +452,8 @@ def unauth_reset(request):
 
 
 def unauth_reset_code(request, uuid):
-    valid_user = False
     try:
         user = get_object_or_404(User, profile__reset_code=uuid)
-        if user.profile.reset_code:
-            valid_user = True
         user.profile.reset_code_validated = True
         user.profile.save()
         user.save()
@@ -621,7 +607,6 @@ def get_messages(request, submission_id):
             sender=request.user).order_by('-id')
 
         message_list = [{
-            'message': message.message,
             'message_id': message.pk,
             'sender': message.sender.profile.full_name(),
             'initials': message.sender.profile.initials(),
@@ -653,7 +638,6 @@ def get_authors(request, submission_id):
 def get_all_users(request):
     if request.is_ajax():
         q = request.GET.get('term', '')
-        results = []
         data = smart_text(json.dumps(logic.get_all_user_emails(q)))
     else:
         data = 'Unable to get editors'
@@ -665,7 +649,6 @@ def get_all_users(request):
 def get_editors(request, submission_id):
     if request.is_ajax():
         q = request.GET.get('term', '')
-        results = []
         data = smart_text(json.dumps(logic.get_editor_emails(submission_id, q)))
     else:
         data = 'Unable to get editors'
@@ -685,7 +668,7 @@ def get_onetaskers(request, submission_id):
 
 
 def get_all(request, submission_id):
-    submission = get_object_or_404(models.Book, pk=submission_id)
+    get_object_or_404(models.Book, pk=submission_id)
     if request.is_ajax():
         q = request.GET.get('term', '')
         onetasker_results = logic.get_onetasker_emails(submission_id, q)
@@ -710,7 +693,7 @@ def get_all(request, submission_id):
 
 
 def get_proposal_users(request, proposal_id):
-    proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
+    get_object_or_404(submission_models.Proposal, pk=proposal_id)
     if request.is_ajax():
         q = request.GET.get('term', '')
         proposal_results = logic.get_proposal_emails(proposal_id, q)
@@ -821,11 +804,9 @@ def email_users(request, group, submission_id=None, user_id=None):
 
 @login_required
 def email_general(request, user_id=None):
-    users = User.objects.all()
+    user = None
     if user_id:
         user = get_object_or_404(User, pk=user_id)
-    else:
-        user = None
     to_value = ""
     sent = False
     if request.POST:
@@ -882,7 +863,6 @@ def email_general(request, user_id=None):
 def email_users_proposal(request, proposal_id, user_id):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     proposal_reviews = submission_models.ProposalReview.objects.filter(proposal=proposal)
-    users = User.objects.all()
     user = User.objects.get(pk=user_id)
     list_of_reviewers = []
     for review in proposal_reviews:
@@ -948,7 +928,6 @@ def email_users_proposal(request, proposal_id, user_id):
 
 @login_required
 def email_primary_contact(request):
-    users = User.objects.all()
     to_value = ""
     sent = False
     if request.POST:
@@ -1202,7 +1181,7 @@ def serve_all_review_files(request, submission_id, review_type):
 
 
 def serve_all_review_files_one_click(request, submission_id, review_type, review_id, access_key):
-    review = get_object_or_404(models.ReviewAssignment, pk=review_id, access_key=access_key)
+    get_object_or_404(models.ReviewAssignment, pk=review_id, access_key=access_key)
     book = get_object_or_404(models.Book, pk=submission_id)
     internal_review_files = book.internal_review_files.all()
     external_review_files = book.external_review_files.all()
@@ -1243,7 +1222,7 @@ def serve_all_review_files_one_click(request, submission_id, review_type, review
 
 @is_onetasker
 def serve_file(request, submission_id, file_id):
-    book = get_object_or_404(models.Book, pk=submission_id)
+    get_object_or_404(models.Book, pk=submission_id)
     _file = get_object_or_404(models.File, pk=file_id)
     file_path = os.path.join(settings.BOOK_DIR, submission_id, _file.uuid_filename)
 
@@ -1259,8 +1238,8 @@ def serve_file(request, submission_id, file_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def serve_file_one_click(request, submission_id, file_id, review_id, access_key):
-    review = get_object_or_404(models.ReviewAssignment, pk=review_id, access_key=access_key)
-    book = get_object_or_404(models.Book, pk=submission_id)
+    get_object_or_404(models.ReviewAssignment, pk=review_id, access_key=access_key)
+    get_object_or_404(models.Book, pk=submission_id)
     _file = get_object_or_404(models.File, pk=file_id)
     file_path = os.path.join(settings.BOOK_DIR, submission_id, _file.uuid_filename)
 
@@ -1278,7 +1257,7 @@ def serve_file_one_click(request, submission_id, file_id, review_id, access_key)
 
 @is_editor
 def serve_proposal_file_id(request, proposal_id, file_id):
-    proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
+    get_object_or_404(submission_models.Proposal, pk=proposal_id)
     _file = get_object_or_404(models.File, pk=file_id)
     file_path = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(proposal_id), _file.uuid_filename)
     try:
@@ -1291,10 +1270,9 @@ def serve_proposal_file_id(request, proposal_id, file_id):
         messages.add_message(request, messages.ERROR, 'File not found. %s' % (file_path))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
 @is_editor
 def serve_proposal_file(request, proposal_id, file_id):
-    proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
+    get_object_or_404(submission_models.Proposal, pk=proposal_id)
     _file = get_object_or_404(models.File, pk=file_id)
     file_path = os.path.join(settings.PROPOSAL_DIR, proposal_id, _file.uuid_filename)
 
@@ -1312,7 +1290,7 @@ def serve_proposal_file(request, proposal_id, file_id):
 
 @is_book_editor_or_author
 def serve_versioned_file(request, submission_id, revision_id):
-    book = get_object_or_404(models.Book, pk=submission_id)
+    get_object_or_404(models.Book, pk=submission_id)
     versions_file = get_object_or_404(models.FileVersion, pk=revision_id)
     file_path = os.path.join(settings.BOOK_DIR, submission_id, versions_file.uuid_filename)
 
@@ -1810,7 +1788,7 @@ def proposal_assign_edit(request, proposal_id):
             proposal.subtitle = defaults.get("subtitle")
             proposal.save()
 
-            update_email_text = models.Setting.objects.get(group__name='email', name='proposal_update_ack').value
+            #update_email_text = models.Setting.objects.get(group__name='email', name='proposal_update_ack').value
             log.add_proposal_log_entry(proposal=proposal, user=request.user, kind='proposal',
                                        message='Unassigned Proposal "%s %s" has been updated.' % (
                                            proposal.title, proposal.subtitle), short_name='Unassigned Proposal Updated')
@@ -1919,7 +1897,7 @@ def view_proposal(request, proposal_id):
 def create_proposal_form(proposal):
     document = Document()
     document.add_heading(proposal.title, 0)
-    p = document.add_paragraph('You should complete this form and then use the proposal page to upload it.')
+    document.add_paragraph('You should complete this form and then use the proposal page to upload it.')
     relations = models.ProposalFormElementsRelationship.objects.filter(form=proposal.form).order_by('order')
     document.add_heading("Title", level=1)
     document.add_paragraph(proposal.title).italic = True
@@ -1948,7 +1926,7 @@ def create_proposal_form(proposal):
 
 @is_editor
 def withdraw_proposal_review(request, proposal_id, review_id):
-    submission = get_object_or_404(submission_models.Proposal, pk=proposal_id)
+    get_object_or_404(submission_models.Proposal, pk=proposal_id)
     review_assignment = get_object_or_404(submission_models.ProposalReview, pk=review_id)
     if review_assignment.withdrawn:
         review_assignment.withdrawn = False
@@ -2098,8 +2076,8 @@ def change_review_due_date(request, proposal_id, assignment_id):
 def view_proposal_review_decision(request, proposal_id, assignment_id, access_key=None):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     proposal_form = manager_forms.GeneratedForm(form=models.ProposalForm.objects.get(pk=proposal.form.id))
-    default_fields = manager_forms.DefaultForm(
-        initial={'title': proposal.title, 'author': proposal.author, 'subtitle': proposal.subtitle})
+    #default_fields = manager_forms.DefaultForm(
+    #    initial={'title': proposal.title, 'author': proposal.author, 'subtitle': proposal.subtitle})
     relationships = models.ProposalFormElementsRelationship.objects.filter(form=proposal.form)
     data = json.loads(proposal.data)
     intial_data = {}
@@ -2205,8 +2183,8 @@ def proposal_review_declined(request):
 def view_completed_proposal_review(request, proposal_id, assignment_id):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     proposal_form = manager_forms.GeneratedForm(form=models.ProposalForm.objects.get(pk=proposal.form.id))
-    default_fields = manager_forms.DefaultForm(
-        initial={'title': proposal.title, 'author': proposal.author, 'subtitle': proposal.subtitle})
+    #default_fields = manager_forms.DefaultForm(
+    #    initial={'title': proposal.title, 'author': proposal.author, 'subtitle': proposal.subtitle})
     relationships = models.ProposalFormElementsRelationship.objects.filter(form=proposal.form)
     data = json.loads(proposal.data)
     intial_data = {}
@@ -2225,18 +2203,22 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
 
     ci_required = models.Setting.objects.get(group__name='general', name='ci_required')
     recommendation_form = forms.RecommendationForm(ci_required=ci_required.value)
+    
     if result:
         relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
         data_ordered = logic.order_data(logic.decode_json(result.data), relations)
     else:
         relations = None
         data_ordered = None
+        
     if not request.POST and request.GET.get('download') == 'proposal':
         path = create_proposal_form(proposal)
         return serve_proposal_file(request, path)
+    
     elif not request.POST and request.GET.get('download') == 'docx':
         path = create_completed_proposal_review_form(proposal, review_assignment.pk)
         return serve_proposal_file(request, path)
+    
     elif request.POST:
         form = review_forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.review_form)
         recommendation_form = forms.RecommendationForm(request.POST, ci_required=ci_required.value)
@@ -2251,8 +2233,8 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        handle_review_file(request.FILES[field.element.name], submission, review_assignment,
-                                           'reviewer')]
+                        handle_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer')
+                    ]
 
             for field in data_fields:
                 if field.element.name in request.POST:
@@ -2389,8 +2371,6 @@ def hide_review(request, proposal_id, assignment_id):
 def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     proposal_form = manager_forms.GeneratedForm(form=models.ProposalForm.objects.get(pk=proposal.form.id))
-    default_fields = manager_forms.DefaultForm(
-        initial={'title': proposal.title, 'author': proposal.author, 'subtitle': proposal.subtitle})
     relationships = models.ProposalFormElementsRelationship.objects.filter(form=proposal.form)
     data = json.loads(proposal.data)
 
@@ -2465,8 +2445,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        handle_review_file(request.FILES[field.element.name], submission, review_assignment,
-                                           'reviewer')]
+                        handle_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:

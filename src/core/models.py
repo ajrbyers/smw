@@ -2,14 +2,12 @@ from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.utils.html import strip_tags
 
 import uuid
 import os
 from decimal import Decimal
-from autoslug import AutoSlugField
-from datetime import datetime, timedelta, date
+from datetime import date
 from django.utils.safestring import mark_safe
 from revisions import models as revision_models
 from submission import models as submission_models

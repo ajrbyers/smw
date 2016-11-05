@@ -1,16 +1,10 @@
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
-from django.utils import timezone
-from django.forms.models import model_to_dict
 from django.utils.encoding import smart_text
 from rest_framework.decorators import api_view, permission_classes
-from django.conf.urls import url, include
-from django.contrib.auth.models import User
-from rest_framework import routers, serializers, viewsets
+from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.renderers import JSONRenderer
 from api import serializers
 
 import json

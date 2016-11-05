@@ -1,13 +1,6 @@
-from django.db.models import Q
-from django.db.models import Max
-
-from django.db.models import Max
-from django.utils import timezone
+from django.db.models import Q, Max
 from django.contrib import messages
 from core import models, email, log
-from submission import logic as submission_logic
-
-import json
 from core.setting_util import get_setting
 
 def generate_digital_choices(digital_formats):
@@ -267,7 +260,6 @@ def send_editorial_review_request(book, review_assignment, email_text, sender, a
 
 def send_editorial_review_update(book, review_assignment, email_text, sender, attachment=None):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
-    base_url = models.Setting.objects.get(group__name='general', name='base_url')
 
     print email_text
     context = {
@@ -281,7 +273,6 @@ def send_editorial_review_update(book, review_assignment, email_text, sender, at
 
 def send_review_update(book, review_assignment, email_text, sender, attachment=None):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
-    base_url = models.Setting.objects.get(group__name='general', name='base_url')
 
     print email_text
     context = {

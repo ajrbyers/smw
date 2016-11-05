@@ -1,10 +1,7 @@
-import requests
 import json
 import requests
 from urllib import urlencode
-from subprocess import Popen
 from django.conf import settings
-from pprint import pprint
 
 ORCID_API = settings.ORCID_API_URL
 ORCID_REQ = '/orcid-profile'

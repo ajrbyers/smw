@@ -1,11 +1,7 @@
 from django.contrib.auth.models import User
-
 from core import models
 from review import models as review_models
 from rest_framework import serializers
-import json
-from django.core import serializers as serializers_alt
-from pprint import pprint
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -334,17 +330,16 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         author_data = validated_data.pop('author')
-        keyword_data = validated_data.pop('keywords')
-        lang_data = validated_data.pop('languages')
-        subject_data = validated_data.pop('subject')
-        stage_data = validated_data.pop('stage')
+        validated_data.pop('keywords')
+        validated_data.pop('languages')
+        validated_data.pop('subject')
+        validated_data.pop('stage')
 
         book = models.Book.objects.create(**validated_data)
-
-        stage = models.Stage.objects.create(book=book, current_stage="published")
+        models.Stage.objects.create(book=book, current_stage="published")
 
         for author in author_data:
-            author = models.Author.objects.create(book=book, **author_data)
+            models.Author.objects.create(book=book, **author_data)
 
         return book
 
@@ -390,9 +385,8 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
         keyword_data = validated_data.pop('keywords')
         lang_data = validated_data.pop('languages')
         subject_data = validated_data.pop('subject')
-        stage_data = validated_data.pop('stage')
+        validated_data.pop('stage')
 
-        pprint(validated_data)
         book = models.Book.objects.create(**validated_data)
         stage = models.Stage.objects.create(current_stage="published")
         book.stage = stage

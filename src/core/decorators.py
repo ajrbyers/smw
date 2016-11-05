@@ -1,12 +1,9 @@
 from django.core import exceptions
 from django.contrib import messages
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from core import models
 from submission import models as submission_models
-
-from pprint import pprint
-from itertools import chain
 
 def is_author(function):
     def wrap(request, *args, **kwargs):
@@ -16,10 +13,6 @@ def is_author(function):
             return redirect("%s?next=%s" % (reverse('login'), request.get_full_path()))
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if 'author' in user_roles:
             return function(request, *args, **kwargs)
@@ -78,10 +71,6 @@ def is_editor(function):
             return redirect("%s?next=%s" % (reverse('login'), request.get_full_path()))
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if 'press-editor' in user_roles or 'series-editor' in user_roles or 'book-editor' in user_roles or 'production-editor' in user_roles:
             return function(request, *args, **kwargs)
@@ -214,10 +203,6 @@ def has_reviewer_role(function):
             return redirect("%s?next=%s" % (reverse('login'), request.get_full_path()))
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if 'reviewer' in user_roles:
             return function(request, *args, **kwargs)

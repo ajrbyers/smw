@@ -1,12 +1,9 @@
 from django.core.mail import EmailMessage
-from django.template.loader import get_template
 from django.template import Context, Template, RequestContext
 from django.conf import settings
 from setting_util import get_setting
 from core import models
 from core import log
-
-from pprint import pprint
 
 def filepath(book, attachment):
     return '%s/%s/%s' % (settings.BOOK_DIR, book.id, attachment.uuid_filename)

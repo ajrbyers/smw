@@ -1,10 +1,6 @@
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
 from cron import models
 from cron import execute_cron_tasks as ect
-
-from pprint import pprint
-import sys
 
 class Command(BaseCommand):
     help = 'Actions cron tasks.'

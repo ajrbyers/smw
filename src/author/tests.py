@@ -1,18 +1,9 @@
 from django.test import TestCase
-from author import models
 from core import models as core_models
 from django.utils import timezone
-import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
-from author import views
-import json
-from django.http import HttpRequest
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from __builtin__ import any as string_any
+from django.core.urlresolvers import reverse
 import tempfile
 from django.core import management
 # Create your tests here.

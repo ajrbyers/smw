@@ -4,18 +4,11 @@
 from django.test import TestCase
 from core import models
 from django.utils import timezone
-import time
-import datetime
-from django.test import SimpleTestCase
-from django.db.models import Q
 from submission import models as submission_models
-from core import views
 import json
-from django.http import HttpRequest
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, reverse
-from __builtin__ import any as string_any
+from django.core.urlresolvers import reverse
 import tempfile
 from django.test.utils import setup_test_environment
 from django.core import management
@@ -58,96 +51,60 @@ class CoreTests(TestCase):
         login = self.client.login(username=self.user.username, password="root")
         self.assertEqual(login, True)
 
-    def tearDown(self):
-        pass
-
-    def test_set_up(self):
-        """
-        testing set up
-        """
         self.assertEqual(self.user.username == "rua_user", True)
         self.assertEqual(self.user.email == "fake_user@fakeaddress.com", True)
         self.assertEqual(self.user.first_name == "rua_user_first_name", True)
         self.assertEqual(self.user.last_name == "rua_user_last_name", True)
         self.assertEqual(self.user.profile.institution == "rua_testing", True)
         self.assertEqual(self.user.profile.country == "GB", True)
+        
+    def tearDown(self):
+        pass
 
+    def all_x_exist(self, Model, key, expected_val_list):
+        for expected_val in expected_val_list:
+            try:
+                Model.objects.get(**{key: expected_val})
+            except Model.DoesNotExist:
+                self.fail("expected object with id %r not for model %r" % (expected_val, Model))
+
+        
 ##############################################	Fixture Tests	 ##############################################
 
     def test_roles_fixture(self):
         """
         testing roles fixture
         """
-        roles = ["Reader", "Author", "Copyeditor", "Reviewer", "Press Editor", "Production Editor", "Book Editor", "Series Editor", "Indexer", "Typesetter"]
-        roles_exist = True
-        for role_name in roles:
-            try:
-                role = models.Role.objects.get(name=role_name)
-            except models.Role.DoesNotExist:
-                roles_exist = False
-        number_of_roles = len(models.Role.objects.all())
-        self.assertEqual(number_of_roles == 10, True)
-        self.assertEqual(roles_exist, True)
+        expected_roles = ["Reader", "Author", "Copyeditor", "Reviewer", "Press Editor", "Production Editor", "Book Editor", "Series Editor", "Indexer", "Typesetter"]
+        self.all_x_exist(models.Role, 'name', expected_roles)
 
     def test_settings_fixture(self):
         """
         testing settings fixture
         """
         settings = ["accronym", "editorial_assignment_feature", "proposal_contract_author_sign_off", "default_review_type", "review_type_selection", "submit_proposals", "additional_files_guidelines", "base_url", "ci_required", "city", "copyedit_author_instructions", "copyedit_instructions", "description", "direct_submissions", "footer", "index_instructions", "instructions_for_task_copyedit", "instructions_for_task_index", "instructions_for_task_proposal", "instructions_for_task_review", "instructions_for_task_typeset", "manuscript_guidelines", "oai_identifier", "press_name", "preview_review_files", "primary_contact_email", "primary_contact_name", "proposal_form", "publishing_committee", "registration_message", "submission_checklist_help", "submission_guidelines", "suggested_reviewers", "suggested_reviewers_guide", "typeset_author_instructions", "typeset_instructions", "competing_interests", "terms-conditions", "accepted_reminder", "author_copyedit_request", "author_submission_ack", "author_typeset_request", "book_editor_ack", "contract_author_sign_off", "copyedit_request", "decision_ack", "editor_submission_ack", "editorial_decision_ack", "external_review_request", "from_address", "index_request", "new_user_email", "new_user_owner_email", "notification_reminder_email", "overdue_reminder", "production_editor_ack", "proposal_accept", "proposal_decline", "proposal_request_revisions", "proposal_review_request", "proposal_revision_submit_ack", "proposal_submission_ack", "proposal_update_ack", "request_revisions", "reset_password", "review_due_ack", "review_request", "revisions_reminder_email", "task_decline", "typeset_request", "typesetter_typeset_request", "unaccepted_reminder", "brand_header", "favicon", "notification_reminder", "remind_accepted_reviews", "remind_overdue_reviews", "remind_unaccepted_reviews", "revisions_reminder"]
-        settings_exist = True
-        for setting_name in settings:
-            try:
-                setting = models.Setting.objects.get(name=setting_name)
-            except models.Setting.DoesNotExist:
-                settings_exist = False
-        number_of_settings = len(models.Setting.objects.all())
-        self.assertEqual(number_of_settings, 79)
-        self.assertEqual(settings_exist, True)
+        self.all_x_exist(models.Setting, 'name', settings)
 
     def test_setting_groups_fixture(self):
         """
         testing setting groups fixture
         """
-        setting_groups = ["general", "page", "email", "look", "cron"]
-        setting_groups_exist = True
-        for group in setting_groups:
-            try:
-                group = models.SettingGroup.objects.get(name=group)
-            except models.SettingGroup.DoesNotExist:
-                setting_groups_exist = False
-        number_of_setting_groups = len(models.SettingGroup.objects.all())
-        self.assertEqual(number_of_setting_groups == 5, True)
-        self.assertEqual(setting_groups_exist, True)
-
+        settings_groups = ["general", "page", "email", "look", "cron"]
+        self.all_x_exist(models.SettingGroup, 'name', settings_groups)
+            
     def test_cc_licenses_fixture(self):
         """
         testing cc licenses fixture
         """
         license_codes = ["cc-4-by", "cc-4-by-sa", "cc-4-by-nd", "cc-4-by-nc", "cc-4-by-nc-nd", "cc-4-by-nd-sa"]
-        license_codes_exist = True
-        for code in license_codes:
-            try:
-                group = models.License.objects.get(code=code)
-            except models.License.DoesNotExist:
-                license_codes_exist = False
-        number_of_licenses = len(models.License.objects.all())
-        self.assertEqual(number_of_licenses == 6, True)
-        self.assertEqual(license_codes_exist, True)
+        self.all_x_exist(models.License, 'code', license_codes)
 
     def test_langs_fixture(self):
         """
         testing langs fixture
         """
         langs = ["abk", "afr", "afa", "amh", "anp", "apa", "ara", "hye", "asm", "ast", "aus", "aze", "ban", "bat", "bas", "bak", "eus", "bel", "ben", "ber", "bos", "bre", "bul", "mya", "cat", "cel", "cai", "che", "chr", "zho", "cor", "cos", "hrv", "ces", "dak", "dan", "dum", "nld", "eng", "est", "fao", "fij", "fil", "fin", "fiu", "fra", "gla", "car", "glg", "lug", "gay", "gba", "gez", "kat", "deu", "gmh", "goh", "gem", "gil", "hat", "haw", "heb", "hin", "hun", "isl", "ind", "gle", "ita", "jpn", "tlh", "kon", "kor", "kur", "kru", "lat", "lav", "lit", "nds", "lus", "ltz", "mkd", "mlg", "msa", "mal", "mlt", "mni", "mri", "myn", "moh", "mol", "mon", "new", "nep", "non", "nai", "nor", "nno", "pag", "pan", "paa", "fas", "phi", "pol", "por", "ron", "rom", "rus", "smo", "sco", "srp", "iii", "scn", "sla", "slk", "slv", "sog", "som", "son", "wen", "spa", "zgh", "suk", "sun", "swa", "swe", "gsw", "syr", "tha", "tog", "ton", "tsi", "tso", "tsn", "tum", "tur", "ukr", "urd", "uzb", "vai", "ven", "vie", "cym", "yap", "yid", "zap", "zha", "zul"]
-        langs_exist = True
-        for lang in langs:
-            try:
-                language = models.Language.objects.get(code=lang)
-            except models.Language.DoesNotExist:
-                langs_exist = False
-        number_of_langs = len(models.Language.objects.all())
-        self.assertEqual(number_of_langs == 147, True)
-        self.assertEqual(langs_exist, True)
+        self.all_x_exist(models.Language, 'code', langs)
 
 ##############################################	Model Tests	 ##############################################
 
@@ -181,27 +138,26 @@ class CoreTests(TestCase):
     def test_user_roles(self):
         user = models.User.objects.get(username="rua_user")
         roles = ["Reader", "Author", "Copyeditor", "Reviewer", "Press Editor", "Book Editor", "Series Editor", "Indexer", "Typesetter"]
-        user_roles = user.profile.roles.all()
         for role in roles:
             self.assertEqual(user.profile.roles.filter(name=role).exists(), True)
+        
         user = models.User.objects.get(username="rua_reviewer")
         roles = ["Reviewer"]
-        user_roles = user.profile.roles.all()
         for role in roles:
             self.assertEqual(user.profile.roles.filter(name=role).exists(), True)
+        
         user = models.User.objects.get(username="rua_author")
         roles = ["Author"]
-        user_roles = user.profile.roles.all()
         for role in roles:
             self.assertEqual(user.profile.roles.filter(name=role).exists(), True)
+        
         user = models.User.objects.get(username="rua_editor")
         roles = ["Press Editor", "Book Editor", "Series Editor"]
-        user_roles = user.profile.roles.all()
         for role in roles:
             self.assertEqual(user.profile.roles.filter(name=role).exists(), True)
+        
         user = models.User.objects.get(username="rua_onetasker")
         roles = ["Copyeditor", "Indexer", "Typesetter"]
-        user_roles = user.profile.roles.all()
         for role in roles:
             self.assertEqual(user.profile.roles.filter(name=role).exists(), True)
 
@@ -240,7 +196,7 @@ class CoreTests(TestCase):
 ################### Dashboards ##################
 
     def test_editor_access(self):
-        login = self.client.login(username="rua_editor", password="tester")
+        self.client.login(username="rua_editor", password="tester")
         resp = self.client.get(reverse('editor_dashboard'))
 
         content = resp.content
@@ -248,7 +204,7 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_editor_access(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('editor_dashboard'))
         content = resp.content
 
@@ -256,12 +212,12 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, True)
 
     def test_editor_redirect(self):
-        login = self.client.login(username="rua_editor", password="tester")
+        self.client.login(username="rua_editor", password="tester")
         response = self.client.get(reverse('user_dashboard'))
         self.assertRedirects(response, "http://testing/editor/dashboard/", status_code=302, target_status_code=200, host=None, msg_prefix='', fetch_redirect_response=True)
 
     def test_author_access(self):
-        login = self.client.login(username="rua_author", password="tester")
+        self.client.login(username="rua_author", password="tester")
         resp = self.client.get(reverse('author_dashboard'))
         content = resp.content
 
@@ -269,7 +225,7 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_author_access(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('author_dashboard'))
         content = resp.content
         self.user.last_login = timezone.now()
@@ -279,12 +235,12 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, True)
 
     def test_author_redirect(self):
-        login = self.client.login(username="rua_author", password="tester")
+        self.client.login(username="rua_author", password="tester")
         response = self.client.get(reverse('user_dashboard'))
         self.assertRedirects(response, "http://testing/author/dashboard/", status_code=302, target_status_code=200, host=None, msg_prefix='', fetch_redirect_response=True)
 
     def test_onetasker_access(self):
-        login = self.client.login(username="rua_onetasker", password="tester")
+        self.client.login(username="rua_onetasker", password="tester")
         resp = self.client.get(reverse('onetasker_dashboard'))
         content = resp.content
 
@@ -292,7 +248,7 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_onetasker_access(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('onetasker_dashboard'))
         content = resp.content
 
@@ -300,12 +256,12 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, True)
 
     def test_onetasker_redirect(self):
-        login = self.client.login(username="rua_onetasker", password="tester")
+        self.client.login(username="rua_onetasker", password="tester")
         response = self.client.get(reverse('user_dashboard'))
         self.assertRedirects(response, "http://testing/tasks/", status_code=302, target_status_code=200, host=None, msg_prefix='', fetch_redirect_response=True)
 
     def test_reviewer_access(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
 
@@ -313,7 +269,7 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, False)
 
     def test_not_reviewer_access(self):
-        login = self.client.login(username="rua_author", password="tester")
+        self.client.login(username="rua_author", password="tester")
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
 
@@ -321,7 +277,7 @@ class CoreTests(TestCase):
         self.assertEqual("403" in content, True)
 
     def test_reviewer_redirect(self):
-        login = self.client.login(username="rua_reviewer", password="tester")
+        self.client.login(username="rua_reviewer", password="tester")
         response = self.client.get(reverse('user_dashboard'))
         self.assertRedirects(response, "http://testing/review/dashboard/", status_code=302, target_status_code=200, host=None, msg_prefix='', fetch_redirect_response=True)
 
@@ -404,7 +360,7 @@ class CoreTests(TestCase):
         self.assertEqual("Your message" in content, True)
 
     def test_user_submission(self):
-        login = self.client.login(username="rua_author", password="tester")
+        self.client.login(username="rua_author", password="tester")
         resp = self.client.get(reverse('user_submission', kwargs={'submission_id': 1}))
         content = resp.content
 
@@ -448,7 +404,7 @@ class CoreTests(TestCase):
         management.call_command('loaddata', 'test/test_proposal_form.json', verbosity=0)
         management.call_command('loaddata', 'test/test_submission_proposal.json', verbosity=0)
         proposal = submission_models.Proposal.objects.get(pk=1)
-        login = self.client.login(username="rua_editor", password="tester")
+        self.client.login(username="rua_editor", password="tester")
         resp = self.client.get(reverse('proposals'))
         content = resp.content
 
@@ -552,7 +508,7 @@ class CoreTests(TestCase):
         management.call_command('loaddata', 'test/test_proposal_form.json', verbosity=0)
         management.call_command('loaddata', 'test/test_submission_proposal.json', verbosity=0)
         proposal = submission_models.Proposal.objects.get(pk=1)
-        login = self.client.login(username="rua_editor", password="tester")
+        self.client.login(username="rua_editor", password="tester")
         proposal_reviews = submission_models.ProposalReview.objects.all()
         self.assertEqual(0, len(proposal_reviews))
         resp = self.client.get(reverse('start_proposal_review', kwargs={'proposal_id': proposal.id}))

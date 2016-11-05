@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from core.setting_util import get_setting
 
 from datetime import timedelta
-from pprint import pprint
 
 def remind_unaccepted_reviews(task):
     days = int(models.Setting.objects.get(group__name='cron', name='remind_unaccepted_reviews').value)
@@ -78,10 +77,7 @@ def reminder_overdue_revisions(task):
 def reminder_notifications_not_emailed(task):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
     press_name = models.Setting.objects.get(group__name='general', name='press_name').value
-    days = int(models.Setting.objects.get(group__name='cron', name='notification_reminder').value)
     email_text = models.Setting.objects.get(group__name='email', name='notification_reminder_email').value
-    dt = timezone.now()
-    target_date = dt - timedelta(days=days)
 
     editors = User.objects.filter(Q(profile__roles__slug='press-editor') | Q(profile__roles__slug='book-editor') | Q(profile__roles__slug='production-editor'))
 

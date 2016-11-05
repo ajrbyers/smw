@@ -1,13 +1,11 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.utils.encoding import smart_text
 from django.contrib.auth.models import User
 
 from core import models
 
 import sys
 import json
-from pprint import pprint
 import os
 import shutil
 
@@ -60,7 +58,7 @@ class Command(BaseCommand):
                         owner=owner
                     )
 
-                    new_format = models.Format.objects.create(
+                    models.Format.objects.create(
                         book=book,
                         file=new_file,
                         name=format.get('file_name'),
@@ -69,7 +67,7 @@ class Command(BaseCommand):
                         file_type=format.get('file_type'),
                     )
 
-                    identifier = models.Identifier.objects.create(
+                    models.Identifier.objects.create(
                         book=book,
                         identifier='isbn-10',
                         value=format.get('isbn'),
