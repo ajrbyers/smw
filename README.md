@@ -17,53 +17,37 @@ Rua is completely free to use under the GNU GENERAL PUBLIC LICENSE v2 (see LICEN
 # Technology
 RUA is written in Python using the Django Web Application framework and follows a MTV (that is, “model”, “template”, and “view.”) style. The template system is simple, easy to modify and uses Twitter Bootstrap 3.
 
-# Development
+# Installation
 
-If you want to hack on Rua, getting it set up is easy. You'll need a unix machine (you can set it up on Windows if you're super hard core). We recommend you use [VirtualEnvironment](https://virtualenv.pypa.io/en/latest/) with [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). Once these are installed, clone the repo with:
+If you want to hack on Rua, getting it set up is easy. You'll need a unix machine (you can set it up on Windows if you're super hard core). We recommend you use [VirtualEnvironment](https://virtualenv.pypa.io/en/latest/). 
 
-	$ git clone https://github.com/ubiquitypress/rua.git
-
-Ensure VirtualEnvWrapper is installed:
-
-	$ pip install virtualenvwrapper
-
-Make a virtual environment:
-
-	$ mkvirtualenv rua
-
-And install the requirements (requirements.txt is found in the root folder of the repo):
-
-	$ pip install -r requirements.txt
-
-This will install a small number of requirements including Django.
-
-Symlink the settings module you require. In development, this will be:
-
-	$ ln -s dev_settings.py src/core/settings.py
-
-These settings assume a `root` user with the password `root` and a database called `rua`. To create this database:
+Rua uses a MySQL database called 'rua' accessed by a 'root' user by default. Create it with:
 
 	$ mysql -u root -p -e "CREATE DATABASE rua;"
 
-Sync and migrate the SQLite DB (from the src folder):
+Once created, clone the repo with:
 
-	$ python src/manage.py syncdb
-	$ python src/manage.py migrate
+	$ git clone https://github.com/ubiquitypress/rua.git
 
-We have a few required database settings so you need to import some data:
+And install with:
 
-	$ python manage.py loaddata core/fixtures/settinggroup.json
-	$ python manage.py loaddata core/fixtures/settings.json
-	$ python manage.py loaddata core/fixtures/cc-licenses.json
-	$ python manage.py loaddata core/fixtures/role.json
+    $ ./install.sh
 
-In the future this will all be hanlded by an install command.
+This will install a small number of requirements including Django.
+
+# Development
 
 To start hacking run (from the src folder):
 
 	$ python manage.py runserver
 
 You'll now be able to access the server from http://localhost:8000
+
+# Testing
+
+Run the unit tests with:
+
+    $ ./test.sh
 
 # Credit
 Originally started by a team of volunteer developers, this project is now supported by [Ubiquity Press](http://ubiquitypress.com/).
