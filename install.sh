@@ -9,6 +9,12 @@ fi
 # activate it
 source venv/bin/activate
 
+if [ ! -z src/core/settings.py ]; then
+    cd src/core/
+    ln -s dev_settings.py settings.py
+    cd -
+fi
+
 # install any requirements
 pip install -r requirements.txt
 
