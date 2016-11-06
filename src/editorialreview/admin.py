@@ -1,9 +1,8 @@
 from django.contrib import admin
-from models import *
+from models import EditorialReview
 
 admin_list = [
-	(EditorialReview,),
+    (EditorialReview,),
 ]
 
 [admin.site.register(*t) for t in admin_list]
-from django.contrib import admin

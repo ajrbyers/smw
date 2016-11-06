@@ -1,0 +1,18 @@
+language: python
+python:
+    - "2.7"
+#    - "3.5"
+env:
+    - DB=mysql
+services:
+    - mysql
+
+# command to install dependencies
+install: 
+    - sudo apt-get install python-dev libmysqlclient-dev
+    - mysql -u root -e "CREATE DATABASE rua;"
+    - ./install.sh
+
+# command to run tests
+script: 
+    - ./test.sh

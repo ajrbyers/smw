@@ -30,7 +30,7 @@ class EditorialReview(models.Model):
 
     # Used to ensure that an email is not sent more than once.
     overdue_reminder = models.BooleanField(default=False)
-    
+
     reopened = models.BooleanField(default=False)
     withdrawn = models.BooleanField(default=False)
 

@@ -1,9 +1,9 @@
 from django.contrib import admin
-from models import *
+from models import CronTask
 
 class CronTaskAdmin(admin.ModelAdmin):
-	list_display = ('name', 'schedule', 'enabled')
-	search_fields = ('name',)
+    list_display = ('name', 'schedule', 'enabled')
+    search_fields = ('name',)
 
 
 admin_list = [
