@@ -40,6 +40,8 @@ ORCID_CLIENT_ID = 'APP-VXH2IGZ6ZH7Q71L9'
 # Application definition
 
 INSTALLED_APPS = (
+    'test_without_migrations',
+
     'flat',
     'django.contrib.sites',
     'django.contrib.admin',
@@ -234,6 +236,7 @@ SILENCED_SYSTEM_CHECKS = (
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 NOSE_ARGS = [
     '--with-coverage',  # activate coverage report
