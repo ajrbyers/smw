@@ -372,38 +372,49 @@ def delete_incomplete_proposal(request,proposal_id):
 @login_required
 def incomplete_proposal(request,proposal_id):
     proposal_form_id = core_models.Setting.objects.get(name='proposal_form').value
-    proposal_form = manager_forms.GeneratedNotRequiredForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
-    default_fields = manager_forms.DefaultNotRequiredForm()
+    proposal_form = manager_forms.GeneratedForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+    default_fields = manager_forms.DefaultForm()
     incomplete_proposal = get_object_or_404(submission_models.IncompleteProposal, pk=proposal_id)
     proposal_form_validated = manager_forms.GeneratedForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
 
-    default_fields_validated = manager_forms.DefaultForm(initial={'title': incomplete_proposal.title,'author':incomplete_proposal.author,'subtitle':incomplete_proposal.subtitle})
-    default_fields = manager_forms.DefaultForm(initial={'title': incomplete_proposal.title,'author':incomplete_proposal.author,'subtitle':incomplete_proposal.subtitle})
-
-    intial_data={}
+    default_fields_validated = manager_forms.DefaultForm(initial={'title': incomplete_proposal.title,
+                                                                  'author':incomplete_proposal.author,
+                                                                  'subtitle':incomplete_proposal.subtitle})
+    default_fields = manager_forms.DefaultForm(initial={'title': incomplete_proposal.title,
+                                                        'author':incomplete_proposal.author,
+                                                        'subtitle':incomplete_proposal.subtitle})
+    intial_data = {}
     data = {}
+
     if incomplete_proposal.data:
         data = json.loads(incomplete_proposal.data)
+
         for k,v in data.items():
             intial_data[k] = v[0]
-
 
     proposal_form.initial=intial_data
     proposal_form_validated.initial=intial_data
 
     if request.method == 'POST' and 'book_submit' in request.POST:
-        proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+        proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,
+                                                    form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
         default_fields = manager_forms.DefaultForm(request.POST)
+
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
-            proposal = submission_models.Proposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id), data=None, owner=request.user, **defaults)
-            proposal_type=request.POST.get('proposal-type')
+            proposal = submission_models.Proposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                                                  data=None, owner=request.user, **defaults)
+            proposal_type = request.POST.get('proposal-type')
+
             if proposal_type:
                 proposal.book_type = proposal_type
+
             proposal.save()
             proposal_data_processing(request,proposal,proposal_form_id)
             editors = User.objects.filter(profile__roles__slug='press-editor')
-            message = "A new  Proposal '%s' with id %s has been submitted by %s ."  % (proposal.title,proposal.pk,request.user.username)
+            message = "A new  Proposal '%s' with id %s has been submitted by %s ."  % (proposal.title,
+                                                                                       proposal.pk,
+                                                                                       request.user.username)
             for editor in editors:
                 notification = core_models.Task(assignee=editor,creator=request.user,text=message,workflow='proposal')
                 notification.save()
@@ -412,24 +423,30 @@ def incomplete_proposal(request,proposal_id):
             email_text = core_models.Setting.objects.get(group__name='email', name='proposal_submission_ack').value
             core_logic.send_proposal_submission_ack(proposal, email_text=email_text, owner=request.user)
 
-            log.add_proposal_log_entry(proposal=proposal,user=request.user, kind='proposal', message='Proposal has been submitted by %s.' % request.user.profile.full_name(), short_name='Proposal Submitted')
+            log.add_proposal_log_entry(proposal=proposal,user=request.user, kind='proposal',
+                                       message='Proposal has been submitted by %s.' % request.user.profile.full_name(),
+                                       short_name='Proposal Submitted')
             incomplete_proposal.delete()
             return redirect(reverse('user_dashboard',kwargs = {}))
+
         else:
-            proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
-            default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
+            proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,
+                                                                   form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+            default_fields = manager_forms.DefaultForm(request.POST)
 
     elif request.method == 'POST' and 'incomplete' in request.POST:
-        proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+        proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,
+                                                               form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
         default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
+
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
-            incomplete_proposal.form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
-            incomplete_proposal.owner=request.user
-            incomplete_proposal.title=defaults['title']
-            incomplete_proposal.subtitle=defaults['subtitle']
-            incomplete_proposal.author=defaults['author']
-            proposal_type=request.POST.get('proposal-type')
+            incomplete_proposal.form = core_models.ProposalForm.objects.get(pk=proposal_form_id)
+            incomplete_proposal.owner = request.user
+            incomplete_proposal.title = defaults['title']
+            incomplete_proposal.subtitle = defaults['subtitle']
+            incomplete_proposal.author = defaults['author']
+            proposal_type = request.POST.get('proposal-type')
             incomplete_proposal.book_type = proposal_type
             incomplete_proposal.save()
             proposal_data_processing(request,incomplete_proposal,proposal_form_id)
@@ -456,26 +473,29 @@ def start_proposal(request):
     if not submit_proposals:
         return redirect(reverse('user_dashboard'))
     proposal_form_id = core_models.Setting.objects.get(name='proposal_form').value
-    proposal_form = manager_forms.GeneratedNotRequiredForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
-    default_fields = manager_forms.DefaultNotRequiredForm()
-
-    errors=False
-    proposal_form_validated = manager_forms.GeneratedForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
-    default_fields_validated = manager_forms.DefaultForm()
+    proposal_form = manager_forms.GeneratedForm(form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+    default_fields = manager_forms.DefaultForm()
+    errors = False
 
     if request.method == 'POST' and 'book_submit' in request.POST:
-        proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+        proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,
+                                                    form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
         default_fields = manager_forms.DefaultForm(request.POST)
+
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
-            proposal = submission_models.Proposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id), data=None, owner=request.user, **defaults)
-            proposal_type=request.POST.get('proposal-type')
+            proposal = submission_models.Proposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                                                  data=None, owner=request.user, **defaults)
+            proposal_type = request.POST.get('proposal-type')
+
             if proposal_type:
                 proposal.book_type = proposal_type
             proposal.save()
             proposal_data_processing(request,proposal,proposal_form_id)
             editors = User.objects.filter(profile__roles__slug='press-editor')
-            message = "A new  Proposal '%s' with id %s has been submitted by %s ."  % (proposal.title,proposal.pk,request.user.username)
+            message = "A new  Proposal '%s' with id %s has been submitted by %s ."  % (proposal.title,proposal.pk,
+                                                                                       request.user.username)
+
             for editor in editors:
                 notification = core_models.Task(assignee=editor,creator=request.user,text=message,workflow='proposal')
                 notification.save()
@@ -483,37 +503,44 @@ def start_proposal(request):
             messages.add_message(request, messages.SUCCESS, 'Proposal %s submitted' % proposal.id)
             email_text = core_models.Setting.objects.get(group__name='email', name='proposal_submission_ack').value
             core_logic.send_proposal_submission_ack(proposal, email_text=email_text, owner=request.user)
-
-            log.add_proposal_log_entry(proposal=proposal,user=request.user, kind='proposal', message='Proposal has been submitted by %s.' % request.user.profile.full_name(), short_name='Proposal Submitted')
+            log.add_proposal_log_entry(proposal=proposal,user=request.user, kind='proposal',
+                                       message='Proposal has been submitted by %s.' % request.user.profile.full_name(),
+                                       short_name='Proposal Submitted')
 
             return redirect(reverse('user_dashboard',kwargs = {}))
+
         else:
-            errors=True
-            proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
-            default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
+            errors = True
+            proposal_form = manager_forms.GeneratedForm(request.POST, request.FILES,
+                                                                   form=core_models.ProposalForm.objects.get(
+                                                                       pk=proposal_form_id))
+            default_fields = manager_forms.DefaultForm(request.POST)
+
 
     elif request.method == 'POST' and 'incomplete' in request.POST:
-        proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+        proposal_form = manager_forms.GeneratedNotRequiredForm(request.POST, request.FILES,
+                                                               form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
         default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
+
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
-            proposal = submission_models.IncompleteProposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id), data=None, owner=request.user, **defaults)
+            proposal = submission_models.IncompleteProposal(form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                                                            data=None, owner=request.user, **defaults)
             proposal_type=request.POST.get('proposal-type')
+
             if proposal_type:
                 proposal.book_type = proposal_type
             proposal.save()
             proposal_data_processing(request,proposal,proposal_form_id)
             messages.add_message(request, messages.SUCCESS, 'Proposal %s saved' % proposal.id)
-            return redirect(reverse('user_dashboard',kwargs = {}))
 
+            return redirect(reverse('user_dashboard',kwargs = {}))
 
     template = "submission/start_proposal.html"
     context = {
         'proposal_form': proposal_form,
-        'errors':errors,
+        'errors': errors,
         'default_fields': default_fields,
-        'proposal_form_validated': proposal_form_validated,
-        'default_fields_validated': default_fields_validated,
         'core_proposal':core_models.ProposalForm.objects.get(pk=proposal_form_id),
     }
 
