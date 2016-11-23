@@ -1,8 +1,14 @@
 {% if press.general.editorial_assignment_feature %}
 <hr>
-<div class="col-md-12 other-sub-heading"><h4>Editorial Review Assignments</h4><a href="{% url 'add_editorial_review' 'proposal' proposal.id %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-37px"><i class="fa fa-plus">&nbsp;</i>Create</a></div>
+<div class="col-md-12 other-sub-heading"><h4>Editorial Review Assignments</h4>
+    {% if not proposal.status = 'accepted' and not proposal.status = 'declined'%}
+    <a href="{% url 'add_editorial_review' 'proposal' proposal.id %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-37px">
+        <i class="fa fa-plus">&nbsp;</i>Add Reviewers</a>
+    {% else %}
+    {% endif %}
+</div>
 
-  <table class="table table-bordered small">
+  <table class="table table-bordered">
     <tr>
       <th>ID</th>
       <th>Assigned</th>

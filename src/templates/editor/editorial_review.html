@@ -183,7 +183,7 @@
         <p class="submission-revisions"> <b> Revisions Required</b></p>
         {% endifequal %}
   <hr />
-        <h5><b>Publication Committee Group - Competing interests:</b> <br /><br />{{review_assignment.publication_committee_competing_interests|linebreaksbr}}</h5><br><small>If any of the authors or editors have any competing interests <br>please add them here. e.g. 'This study was paid for by corp xyz.'.<br> <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+        <h5><b>Publication Committee Group - Competing interests:</b> <br /><br />{{review_assignment.publication_committee_competing_interests|linebreaksbr|safe}}</h5><br><small>If any of the authors or editors have any competing interests <br>please add them here. e.g. 'This study was paid for by corp xyz.'.<br> <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
       <br/><br/>
          <a href="{% url 'editor_editorial_decision' submission.id review_assignment.id 'revision-publishing'%}"  style="margin-top: 10px;margin-right:10px;" class="btn btn-xs btn-review"></h5>&nbsp;&nbsp;Request Revisions&nbsp;&nbsp;</a>  <a href="{% url 'editor_editorial_decision' submission.id review_assignment.id 'send-decision'%}"  style="margin-top: 10px;margin-right:0px;" class="btn btn-xs btn-other pull-right"></h5>&nbsp;&nbsp;Send Decision&nbsp;&nbsp;</a>
          </div>
@@ -251,7 +251,7 @@
         <p class="submission-revisions"> <b> Revisions Required</b></p>
         {% endifequal %}
   <hr />
-        <h5><b>Editorial Board - Competing interests:</b> <br /><br />{{review_assignment.editorial_board_competing_interests|linebreaksbr}}</h5><br><small>If any of the authors or editors have any competing interests <br>please add them here. e.g. 'This study was paid for by corp xyz.'.<br> <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+        <h5><b>Editorial Board - Competing interests:</b> <br /><br />{{review_assignment.editorial_board_competing_interests|linebreaksbr|safe}}</h5><br><small>If any of the authors or editors have any competing interests <br>please add them here. e.g. 'This study was paid for by corp xyz.'.<br> <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
       <br/><br/>
          <a href="{% url 'editor_editorial_decision' submission.id review_assignment.id 'revision-editorial'%}"  style="margin-top: 10px;margin-right:10px;" class="btn btn-xs btn-review"></h5>&nbsp;&nbsp;Request Revisions&nbsp;&nbsp;</a>  <a href="{% url 'editor_editorial_decision' submission.id review_assignment.id 'invite-publishing'%}"  style="margin-top: 10px;margin-right:0px;" class="btn btn-xs btn-other pull-right"></h5>&nbsp;&nbsp;Invite Publication Committee&nbsp;&nbsp;</a>
          </div>

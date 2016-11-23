@@ -32,7 +32,7 @@
                       &nbsp; &nbsp;   <i class="fa fa-file-text-o"></i>
                       {% endif %}
                     </h1>
-                    <a href="{% url 'serve_versioned_file' submission.id file.id %}" style="float:right;" class="btn btn-sm btn-task">&nbsp;<i class="fa fa-cloud-download">&nbsp;</i>Download &nbsp;</a>
+                    <a href="{% url 'serve_file' submission.id file.id %}" style="float:right;" class="btn btn-sm btn-task">&nbsp;<i class="fa fa-cloud-download">&nbsp;</i>Download &nbsp;</a>
                   </div>
                 </div>
               </div>

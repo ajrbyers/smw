@@ -18,9 +18,14 @@ Rua is completely free to use under the GNU GENERAL PUBLIC LICENSE v2 (see LICEN
 RUA is written in Python using the Django Web Application framework and follows a MTV (that is, “model”, “template”, and “view.”) style. The template system is simple, easy to modify and uses Twitter Bootstrap 3.
 
 # Development
-If you want to hack on RUA, getting it set up is easy. You'll need a unix machine (you can set it up on Windows if you're super hard core). We recommend you use [VirtualEnvironment](https://virtualenv.pypa.io/en/latest/) with [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). Once these are installed, clone the repo with:
+
+If you want to hack on Rua, getting it set up is easy. You'll need a unix machine (you can set it up on Windows if you're super hard core). We recommend you use [VirtualEnvironment](https://virtualenv.pypa.io/en/latest/) with [VirtualEnvWrapper](https://virtualenvwrapper.readthedocs.org/en/latest/). Once these are installed, clone the repo with:
 
 	$ git clone https://github.com/ubiquitypress/rua.git
+
+Ensure VirtualEnvWrapper is installed:
+
+	$ pip install virtualenvwrapper
 
 Make a virtual environment:
 
@@ -30,12 +35,20 @@ And install the requirements (requirements.txt is found in the root folder of th
 
 	$ pip install -r requirements.txt
 
-This will install a small number of requirements including Django. By default the program uses SQLite in development but for production it's recommended you make use of MySQL or Postgresql.
+This will install a small number of requirements including Django.
+
+Symlink the settings module you require. In development, this will be:
+
+	$ ln -s dev_settings.py src/core/settings.py
+
+These settings assume a `root` user with the password `root` and a database called `rua`. To create this database:
+
+	$ mysql -u root -p -e "CREATE DATABASE rua;"
 
 Sync and migrate the SQLite DB (from the src folder):
 
-	$ python manage.py syncdb
-	$ python manage.py migrate
+	$ python src/manage.py syncdb
+	$ python src/manage.py migrate
 
 We have a few required database settings so you need to import some data:
 

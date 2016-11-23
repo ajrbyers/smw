@@ -102,6 +102,7 @@ admin_list = [
 	(EmailLog,),
 	(Message,),
 	(APIConnector,),
+	(PhysicalFormat,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

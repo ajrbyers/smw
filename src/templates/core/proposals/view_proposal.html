@@ -12,7 +12,7 @@
   <h3>Book Proposal :  {{ proposal.title }}{% if proposal.subtitle%} : {{ proposal.subtitle }}{%endif%}
 
   <a class="btn  btn-transparent-white btn-proposal-header" href="?download=docx"> <i class="fa fa-cloud-download"> &nbsp; Download Proposal</i></a>
-    <a class="btn  btn-transparent-white btn-proposal-header" href="{% url 'proposal_add_editors' proposal.id %}"><h5 class="btn-proposal-text">&nbsp; Book Managers</h5></a>
+    <a class="btn  btn-transparent-white btn-proposal-header" href="{% url 'proposal_add_editors' proposal.id %}"><h5 class="btn-proposal-text">&nbsp; Book Editors</h5></a>
      <a class="btn  btn-transparent-white btn-proposal-header" href="{% url 'view_proposal_log' proposal.id %}"><h5 class="btn-proposal-text"> &nbsp; Log &nbsp;</h5></a>
      <a href="{% url 'proposal_contract_manager' proposal.id %}" class="btn btn-proposal-header btn-transparent-white"><h5 class="btn-proposal-text"> Contract</h5></a>
 {% if proposal.status = 'accepted' or proposal.status = 'declined'%} 
@@ -62,7 +62,7 @@
 {% endfor %}
 </div>
 <hr>
-<h5> <b>Book Manager</b></h5>
+<h5> <b>Book Editor</b></h5>
 <table class="table table-bordered">
 <thead>
 <tr>
@@ -72,10 +72,10 @@
 <tbody>
 {% for editor in proposal.book_editors.all %}
 <tr>
-<td>{{editor.profile.full_name}}</td>
+<td>{{ editor.profile.full_name }}</td>
 </tr>
 {% empty %}
-No book managers have been assigned
+No book editors have been assigned
 {% endfor %}
 
 </tbody>
@@ -84,20 +84,22 @@ No book managers have been assigned
 <h5> <b>Contract</b>  {% if proposal.contract %}(<a href="{% url 'proposal_contract_manager' proposal.id %}">View</a>) {% endif %}:</h5>
 {% include "core/proposals/contract/contract.html" %}
 <hr>
-  {% if not proposal.date_review_started %} 
-{% if proposal.status = 'accepted' or proposal.status = 'declined'%} {% else %}<a href="{% url 'start_proposal_review' proposal.id %}" class="btn btn-primary btn-round"><i class="fa fa-plus">&nbsp;</i>Start Review Process</a>{% endif %}{% else %}
 
-  <div class="col-md-12 other-sub-heading"><h4>Review</h4>{% if proposal.status = 'accepted' or proposal.status = 'declined'%} {% else %}<a href="{% url 'add_proposal_reviewers' proposal.id %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-37px"><i class="fa fa-plus">&nbsp;</i>Add Reviewers</a>{% endif %}</div>
+<div class="col-md-12 other-sub-heading"><h4>External Review Assignments</h4>
+{% if not proposal.status = 'accepted' and not proposal.status = 'declined'%}
+  <a href="{% url 'add_proposal_reviewers' proposal.id %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-37px">
+    <i class="fa fa-plus">&nbsp;</i>Add Reviewers</a>
+{% else %}
+{% endif %}
+</div>
 
-  {% include "core/proposals/proposal_review_block.html" with review_data=proposal.review_assignments.all %}
-  {% include "core/proposals/proposal_editorial_review.html" %}
+{% include "core/proposals/proposal_review_block.html" with review_data=proposal.review_assignments.all %}
+{% include "core/proposals/proposal_editorial_review.html" %}
 
-
-  {% endif %}
-{% if not proposal.status = 'accepted' or not proposal.status = 'declined'%} 
+{% if not proposal.status = 'accepted' or not proposal.status = 'declined'%}
 <hr>
   <h3>Action</h3>
-  <p>Once you have compeleted the review process, you can accept, decline or ask the author to submit revisions the proposal. Accepting the proposal will create a submission for the author to complete and allow you to send them some notes on the proposal. Declining will move the proposal to the archive. If revisions are requested, the author will be able to edit and resubmit their proposal.</p>
+  <p>Once you have completed the review process, you can accept, decline or ask the author to submit revisions the proposal. Accepting the proposal will create a submission for the author to complete and allow you to send them some notes on the proposal. Declining will move the proposal to the archive. If revisions are requested, the author will be able to edit and resubmit their proposal.</p>
   <div class="container col-md-12" style="width:80%;left:10%;right:10%;position:absolute;">
     
   {% include "core/proposals/proposal_action_buttons.html" %}

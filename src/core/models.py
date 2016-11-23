@@ -927,7 +927,7 @@ class Editor(models.Model):
 
 
 class File(models.Model):
-    mime_type = models.CharField(max_length=50)
+    mime_type = models.CharField(max_length=100)
     original_filename = models.CharField(max_length=1000)
     uuid_filename = models.CharField(max_length=100)
     label = models.CharField(max_length=200, null=True, blank=True)

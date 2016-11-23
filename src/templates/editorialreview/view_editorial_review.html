@@ -13,29 +13,28 @@
 	<h3>Editorial Review for {{ review.content_object.title }} ({{ review.content_type|capfirst }})</h3>
 	Viewing review by {{ review.user.profile.full_name }} - {{ review.id }}<br /><br />
 </div>
-	<br /><br />
-	<h5>Review Files</h5>
-	<ul>
-	{% for file in review.files.all %}
-		<li><a href="{% url 'download_editor_er_file' file.id review.id %}">{{ file.original_filename }}</a></li>
-	{% endfor %}
-	</ul>
-	<hr />
-	<h4>Recommendation: </h4>
-	{{ review.get_recommendation_display }}
-	<hr />
-	<h4>Competing Interests: </h4>
-	{{ review.competing_interests }}<br>If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
-	<hr />
 	<h4>Review: </h4>
 	<div style="clear:both"></div>
 	{% for item in data_ordered %}
 	<div>
 	  <label>{{ item.0 }}</label>
-	  <p>{% lookup result.data item.0 %} </p>
+	  <p>{% lookup result.data item.0 %}</p>
 	</div>
 	{% endfor %}
-
+	<br /><br />
+	<hr />
+	<h4>Recommendation: </h4>
+	{{ review.get_recommendation_display }}
+	<hr />
+	<h4>Competing Interests: </h4>
+	{{ review.competing_interests|safe }}<br>If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+	<hr />
+	<h4>Review Files</h4>
+	<ul>
+	{% for file in review.files.all %}
+		<li><a href="{% url 'download_editor_er_file' file.id review.id %}">{{ file.original_filename }}</a></li>
+	{% endfor %}
+	</ul>
 
 {% endblock body %}
 

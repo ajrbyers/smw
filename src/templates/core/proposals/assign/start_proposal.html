@@ -39,25 +39,29 @@
         {% bootstrap_form default_fields %}
         {% if proposal_form %}
           <div class="row">
-         {% for field in proposal_form %}
-            <div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
+          {% for field in proposal_form %}
+            <div class="{{ field.field.widget.attrs.div_class|default:"col-md-12" }}">
             {% if field.field.widget.attrs.is_checkbox %}
-              {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
-              {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
-            {% else %}
-                 {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
-                 {% bootstrap_field field %}
+              {% if field.errors %}
+                <span class="red">{{ field.errors|join:", " }}</span><br />
               {% endif %}
-              </div>
+              {{ field }} &nbsp;
+              {% if field.field.help_text %}
+                {{ field.field.help_text|safe }}
+              {% endif %}
+            {% else %}
+                {% bootstrap_field field %}
+            {% endif %}
+            </div>
           {% endfor %}
           </div>
-          {% endif %}
-        </div>
+        {% endif %}
+      </div>
 
         
 	    {% buttons %}
       <div class="dash-container">
-	        <button name="book" type="submit" class="btn btn-other pull-right" style="width:120px">
+	        <button name="book" type="submit" formnovalidate class="btn btn-other pull-right" style="width:120px">
 	           Submit
 	        </button>
       </div>
@@ -75,7 +79,15 @@
     </thead>
     <tbody>
     <tr>
-      <td>{{ proposal.requestor.username }} <sup> <a href="core/email.html" onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{proposal.requestor.id}}/','proposal_{{proposal.requestor.id}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></td>
+      <td>{{ proposal.requestor.username }}
+          <sup>
+              <a href="core/email.html"
+                 onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{proposal.requestor.id}}/','proposal_{{proposal.requestor.id}}')"
+                 class="fa fa-envelope-o btn btn-xs btn-default">
+
+              </a>
+          </sup>
+      </td>
     </tr>
   </tbody>
   </table>

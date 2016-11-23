@@ -132,7 +132,7 @@
         <p class="submission-revisions"> <b> Revisions Required</b></p>
         {% endifequal %}
   <hr />
-        <h5><b>Competing interests:</b> <br />{{review_assignment.competing_interests|linebreaksbr}}</h5><br>If any reviewer has any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+        <h5><b>Competing interests:</b> <br />{{review_assignment.competing_interests|linebreaksbr|safe}}</h5><br>If any reviewer has any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
       <br/><br/>
 
       </form>

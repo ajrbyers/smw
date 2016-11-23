@@ -195,7 +195,9 @@ def register(request):
     if request.method == 'POST':
         form = forms.UserCreationForm(request.POST)
         profile_form = forms.RegistrationProfileForm(request.POST)
-        display_interests = request.POST.get('interests').split(',')  # To keep interests field filled if validation error is raised.
+
+        if 'interests' in request.POST:
+            display_interests = request.POST.get('interests').split(',')  # To keep interests field filled if validation error is raised.
 
         if form.is_valid() and profile_form.is_valid():
             author_role = models.Role.objects.get(slug='author')
@@ -1315,8 +1317,6 @@ def serve_versioned_file(request, submission_id, revision_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     versions_file = get_object_or_404(models.FileVersion, pk=revision_id)
     file_path = os.path.join(settings.BOOK_DIR, submission_id, versions_file.uuid_filename)
-
-    print file_path
 
     try:
         fsock = open(file_path, 'r')

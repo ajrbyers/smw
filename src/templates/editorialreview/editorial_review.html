@@ -14,39 +14,37 @@
 	<br /><br />
 	<form method="POST" enctype="multipart/form-data">
 	{% csrf_token %}
+	<h4>1. View summary of this {{ review.content_type }}</h4>
+	<ul>
+		<li><a href="{% url 'view_content_summary' review.id %}?access_key={{ review.access_key }}" target="_blank">View Summary in New Tab</a></li>
+	</ul>
 
-	<h4><b>COMPLETE REVIEW</b></h4>
-		<h4>1. View summary of this {{ review.content_type }}</h4>
-		<ul>
-			<li><a href="{% url 'view_content_summary' review.id %}?access_key={{ review.access_key }}" target="_blank">View Summary in New Tab</a></li>
-		</ul>
+	<h4>2. View completed reviews for this {{ review.content_type }}</h4>
+	<ul>
+	{% for pr in peer_reviews %}
+		<li><a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}" target="_blank">{{ pr.user.profile.full_name }} - {{ pr.id }}</a></li>
+	{% endfor %}
+	</ul>
 
-		<h4>2. View reviews for this {{ review.content_type }}</h4>
-		<ul>
-		{% for pr in peer_reviews %}
-			<li><a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}" target="_blank">{{ pr.user.profile.full_name }} - {{ pr.id }}</a></li>
-		{% endfor %}
-		</ul>
-
-    	<h4>3. Completed the Review Form</h4>
-    	<p class="subtitle-form-text"><em> {{ form_info.intro_text|safe }} </em></p>
-      	{% if form.errors %}
-      	<div class="alert alert-info">
-          	Please correct errors below. Note, you'll have to reselect any files you want uploaded.
-        	</div>
-      	{% endif %}
-      	<div class="row">
-      	{% for field in form %}
-        <div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
-        {% if field.field.widget.attrs.is_checkbox %}
-          {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
-          {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
-        {% else %}
-             {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
-             {% bootstrap_field field %}
-        {% endif %}
-          </div>
-      	{% endfor %}
+	<h4>3. Please complete the form below to submit your feedback</h4>
+	<p class="subtitle-form-text"><em> {{ form_info.intro_text|safe }} </em></p>
+	{% if form.errors %}
+		<div class="alert alert-info">
+			Please correct errors below. Note, you'll have to reselect any files you want uploaded.
+		</div>
+	{% endif %}
+	<div class="row">
+	{% for field in form %}
+		<div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
+	{% if field.field.widget.attrs.is_checkbox %}
+	  {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
+	  {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
+	{% else %}
+		 {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
+		 {% bootstrap_field field %}
+	{% endif %}
+	  </div>
+	{% endfor %}
       </div>
   
       {% csrf_token %}

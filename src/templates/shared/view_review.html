@@ -10,7 +10,7 @@
  {% if book.review_type == 'open-with' or active == 'review' %}
   <hr />
  <h4>Competing Interests: </h4>
-{{ review.competing_interests }}<br>If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+{{ review.competing_interests|safe }}<br>If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
 {% endif %}
 <hr />
 <h4>Review: </h4>

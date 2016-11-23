@@ -243,7 +243,7 @@
 },
 {
   "fields": {
-    "value": "Book Managers have been updated",
+    "value": "Book Editors have been updated",
     "group": 6,
     "name": "book_editors_subject",
     "types": "text",
@@ -375,7 +375,7 @@
 },
 {
   "fields": {
-    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS MANAGER TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
+    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
     "group": 3,
     "name": "editorial_decision_ack",
     "types": "rich_text",
@@ -639,7 +639,7 @@
 },
 {
     "fields": {
-        "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;</span>{{ book.owner.profile.salutation_name }},</p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book, \u2018{{book.title}}\u2019 to {{press_name}}. Our decision is to request some revisions prior to a final editorial decision. A summary of the requested edits from the editorial team can be found below <span style=\"background-color: yellow;\">[OR SEE ATTACHED FILES = PRESS MANAGER TO EDIT AS REQUIRED PRIOR TO SENDING EMAIL]</span>. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the book details and submit your revisions via the book management system: {{revision_url }}</span><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> {{revision.due|date:\"Y-m-d\"}}<span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
+        "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;</span>{{ book.owner.profile.salutation_name }},</p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book, \u2018{{book.title}}\u2019 to {{press_name}}. Our decision is to request some revisions prior to a final editorial decision. A summary of the requested edits from the editorial team can be found below <span style=\"background-color: yellow;\">[OR SEE ATTACHED FILES = PRESS EDITOR TO EDIT AS REQUIRED PRIOR TO SENDING EMAIL]</span>. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the book details and submit your revisions via the book management system: {{revision_url }}</span><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> {{revision.due|date:\"Y-m-d\"}}<span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
         "group": 3,
         "name": "request_revisions",
         "types": "rich_text",
@@ -804,7 +804,7 @@
 },
 {
     "fields": {
-        "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to accept the book, {{proposal.title}}, for full submission and peer review. We hope that you are pleased with this news.</p><p>[DETAIL TO BE ADDED BY THE PRESS MANAGER ON HOW/WHEN TO SUBMIT THE FULL BOOK FOR REVIEW]</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+        "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to accept the book, {{proposal.title}}, for full submission and peer review. We hope that you are pleased with this news.</p><p>[DETAIL TO BE ADDED BY THE PRESS EDITOR ON HOW/WHEN TO SUBMIT THE FULL BOOK FOR REVIEW]</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
         "group": 3,
         "name": "proposal_accept",
         "types": "rich_text",
@@ -881,7 +881,7 @@
 },
 {
     "fields": {
-        "value": "<p></p><p><span style=\"line-height: 1.42857;\">The book manager(s) assigned to submission {{submission.title}}<submission id:{{submission.id}}=\"\"> has been updated.</submission></span></p>\r\n{% if added_editors %}\r\n<p>These book managers have been added: </p>\r\n--------\r\n  {% for editor in added_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n\r\n{% endif %}\r\n{% if removed_editors %}<p></p><p>These book managers have been removed:</p><p>--------\r\n  {% for editor in removed_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n{% endif %}\r\n</p><p> \r\nTo view the submission, use the following link: http://{{base_url}}/editor/submission/{{submission.id}}/\r\n<br></p><p><span style=\"line-height: 1.42857;\">Regards,\r\n<br><br>RUA notification system</span><br></p><p></p>",
+        "value": "<p></p><p><span style=\"line-height: 1.42857;\">The book editor(s) assigned to submission {{submission.title}}<submission id:{{submission.id}}=\"\"> has been updated.</submission></span></p>\r\n{% if added_editors %}\r\n<p>These book editors have been added: </p>\r\n--------\r\n  {% for editor in added_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n\r\n{% endif %}\r\n{% if removed_editors %}<p></p><p>These book editors have been removed:</p><p>--------\r\n  {% for editor in removed_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n{% endif %}\r\n</p><p> \r\nTo view the submission, use the following link: http://{{base_url}}/editor/submission/{{submission.id}}/\r\n<br></p><p><span style=\"line-height: 1.42857;\">Regards,\r\n<br><br>RUA notification system</span><br></p><p></p>",
         "group": 3,
         "name": "book_editor_ack",
         "types": "rich_text",
@@ -892,7 +892,7 @@
 },
 {
     "fields": {
-        "value": "<p>Dear {{ author.full_name }},\r\n</p><p>The Editorial team at&nbsp;{{press_name}} have recorded a decision on your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS MANAGER TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]<br>{{ link_to_page }}<br></p><p>\r\nRegards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
+        "value": "<p>Dear {{ author.full_name }},\r\n</p><p>The Editorial team at&nbsp;{{press_name}} have recorded a decision on your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]<br>{{ link_to_page }}<br></p><p>\r\nRegards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
         "group": 3,
         "name": "decision_ack",
         "types": "rich_text",
@@ -1222,7 +1222,7 @@
 },
 {
   "fields": {
-    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS MANAGER TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
+    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
     "group": 3,
     "name": "editorial_decision_ack",
     "types": "rich_text",
@@ -1315,7 +1315,8 @@
     "name": "one_click_review_url",
     "types": "boolean",
     "description": "Allow reviewers to access and complete assignments without registering an account.<br>WARNING: Enabling this option makes data less secure."
-  }
- }
-
+  },
+  "model": "core.setting",
+  "pk": 124
+}
 ]

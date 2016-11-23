@@ -1,11 +1,16 @@
-<h3>EDITORS 
-    <a href="{% url 'editor_add_editors' submission.id %}" class="btn btn-xs  {% if submission.book_editors.all %}btn-accept btn-round-sm{% else %}btn-info{% endif %} ">  +{% if submission.book_editors.all %}
-               Update {% else %} Add {% endif %} editors</a></h3>
+<h3>
+    BOOK EDITORS
+    <a href="{% url 'editor_add_editors' submission.id %}"
+       class="btn btn-xs  {% if submission.book_editors.all %}btn-accept btn-round-sm{% else %}btn-info{% endif %} ">  +
+        {% if submission.book_editors.all %}
+               Update {% else %} Add {% endif %} editor
+    </a>
+</h3>
      <h4 class="author-note">
      {% for editor in submission.book_editors.all %}
          {{ editor.profile.full_name }}<sup> <a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editors_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>{% if not forloop.last %}, {% endif %}
      {% empty %}
-      No book managers have been assigned yet.
+      No book editors have been assigned yet.
      {% endfor %}
      </h4>
      

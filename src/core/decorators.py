@@ -43,7 +43,7 @@ def is_press_editor(function):
 		if 'press-editor' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -86,7 +86,7 @@ def is_editor(function):
 		if 'press-editor' in user_roles or 'series-editor' in user_roles or 'book-editor' in user_roles or 'production-editor' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -114,10 +114,10 @@ def is_book_editor(function):
 			if request.user in book.book_editors.all() or book.series in request.user.series_set.all():
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied 
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -145,10 +145,10 @@ def is_book_editor_or_author(function):
 			if request.user in book.book_editors.all() or book.series in request.user.series_set.all() or book.owner == request.user:
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied 
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -195,12 +195,12 @@ def is_reviewer(function):
 			if request.user in [reviewer.user for reviewer in book.reviewassignment_set.all()] or book.owner == request.user:
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied 
 		elif not submission_id and 'reviewer' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -251,12 +251,12 @@ def is_indexer(function):
 			if request.user in [reviewer.indexer for reviewer in book.indexassignment_set.all()] or book.owner == request.user:
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied
 		elif not submission_id and 'indexer' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -285,12 +285,12 @@ def is_copyeditor(function):
 			if request.user in [reviewer.copyeditor for reviewer in book.copyeditassignment_set.all()] or book.owner == request.user:
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied 
 		elif not submission_id and 'copyeditor' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -318,12 +318,12 @@ def is_typesetter(function):
 			if request.user in [reviewer.typesetter for reviewer in book.copyeditassignment_set.all()] or book.owner == request.user:
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied
 		elif not submission_id and 'typesetter' in user_roles:
 			return function(request, *args, **kwargs)
 		else:
-			messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+			messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 			raise exceptions.PermissionDenied 
 
 	wrap.__doc__=function.__doc__
@@ -356,7 +356,7 @@ def is_onetasker(function):
 			elif not submission_id and (set(user_roles) & set(['copyeditor', 'typesetter', 'indexer'])):
 				return function(request, *args, **kwargs)
 			else:
-				messages.add_message(request, messages.ERROR, 'You need to have Press Manager, Book Manager or Series Editor level permission to view this page.')
+				messages.add_message(request, messages.ERROR, 'You need to have Press Editor, Book Editor or Series Editor level permission to view this page.')
 				raise exceptions.PermissionDenied 
 
 		wrap.__doc__=function.__doc__
