@@ -62,3 +62,4 @@ src/media/*
 src/files/*
 *.DS_Store
 src/core/settings.py
+src/core/dev_settings.py

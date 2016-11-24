@@ -373,7 +373,7 @@ class Book(models.Model):
     proposal = models.ForeignKey('submission.Proposal', null=True, blank=True)
 
     peer_review_override = models.BooleanField(default=False,
-                                               help_text="If enabled, this will mark a book as Peer Reviewed even if there is no Reviews in the Rua database.")
+                                               help_text="If enabled, this will mark a book as Peer Reviewed even if there are no reviews in the Rua database.")
     # First Run
     first_run = models.BooleanField(default=True)
 

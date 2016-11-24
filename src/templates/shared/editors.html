@@ -1,3 +1,6 @@
+{% load static from staticfiles %}
+{% block body %}
+
 {% for author in submission.editor.all %}
 <div class="well">
 	<table class="table table-striped">
@@ -34,7 +37,40 @@
 		<td>{{ author.linkedin }}</td>
 	</tr>
 	</table>
-	<a href="{% url 'update_contributor' submission.id 'editor' author.id %}" class="btn btn-small btn-primary"><i class="fa fa-edit">&nbsp;</i>Edit Editor</a>&nbsp;<a href="{% url 'delete_contributor' submission.id 'editor' author.id %}" class="btn btn-small btn-primary"><i class="fa fa-trash">&nbsp;</i>Delete Editor</a>
+	<a href="{% url 'update_contributor' submission.id 'editor' author.id %}" class="btn btn-small btn-primary">
+        <i class="fa fa-edit">&nbsp;</i>Edit Editor</a>&nbsp;
+    <a href="{% url 'delete_contributor' submission.id 'editor' author.id %}" class="btn btn-small btn-primary">
+        <i class="fa fa-trash">&nbsp;</i>Delete Editor</a>
 </div>
 {% endfor %}
-<a href="{% url 'add_contributor' submission.id 'editor' %}" class="btn btn-small btn-primary"><i class="fa fa-plus">&nbsp;</i>Add New Editor</a>
+<a href="{% url 'add_contributor' submission.id 'editor' %}" class="btn btn-small btn-primary">
+    <i class="fa fa-plus">&nbsp;</i>Add New Editor
+</a>
+
+<hr>
+
+<h4>Author/Editor List</h4>
+<form method="post" class="form" enctype="multipart/form-data">
+    {% if submission.book_type == 'monograph' %}
+    <p>The authors will be published online in the below order. You can reorder your submitted authors by dragging and dropping them.</p>
+    <ul class="list-group" id="auth_order">
+        {% for author in submission.author.all %}
+        <li id="auth-{{ author.id }}" class="list-group-item"><i class="fa fa-sort">&nbsp;&nbsp;</i><i class="fa fa-user">
+            &nbsp;&nbsp;</i>{{ author.first_name }} {{ author.last_name }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% elif submission.book_type == 'edited_volume' %}
+    <p>You can reorder your submitted editors by dragging and dropping them into the correct order.</p>
+    <ul class="list-group" id="edit_order">
+        {% for author in submission.editor.all %}
+        <li id="edit-{{ author.id }}" class="list-group-item"><i class="fa fa-sort">&nbsp;&nbsp;</i><i class="fa fa-user">
+            &nbsp;&nbsp;</i>{{ author.first_name }} {{ author.last_name }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</form>
+<br/><br/>
+{% endblock body %}
+
