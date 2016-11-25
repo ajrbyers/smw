@@ -1016,8 +1016,8 @@ def add_review_files(request, submission_id, review_type):
 def editor_add_editorial_reviewers(request, submission_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
     editors = models.User.objects.filter(
-        Q(profile__roles__slug='press-editor') | Q(profile__roles__slug='book-editor') | Q(
-            profile__roles__slug='production-editor')).distinct()
+        Q(profile__roles__slug='press-editor') | Q(profile__roles__slug='book-editor') |
+        Q(profile__roles__slug='production-editor')).distinct()
     review_forms = review_models.Form.objects.all()
     committees = manager_models.Group.objects.filter(group_type='editorial_group')
 
@@ -1046,9 +1046,9 @@ def editor_add_editorial_reviewers(request, submission_id):
 
         # Handle committees
         for committee in committees:
-            members = manager_models.GroupMembership.objects.filter(group=committee)
-            logic.handle_editorial_review_assignment(request, submission, members, due_date, request.user, email_text,
-                                                     attachment)
+            members = [member.user for member in manager_models.GroupMembership.objects.filter(group=committee)]
+            logic.handle_editorial_review_assignment(request, submission, members, uuid4(),
+                                                     due_date, request.user, email_text, attachment)
 
         # Tidy up and save
         submission.stage.editorial_review = timezone.now()
@@ -1069,7 +1069,6 @@ def editor_add_editorial_reviewers(request, submission_id):
         'active': 'new',
         'email_text': models.Setting.objects.get(group__name='email', name='review_request'),
         'review_forms': review_forms,
-
         'submission': submission,
     }
 
