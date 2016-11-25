@@ -1267,7 +1267,6 @@ def catalog(request, submission_id):
     external_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='external',
                                                                          completed__isnull=False).select_related('user',
                                                                                                                  'review_round')
-
     metadata_form = forms.EditMetadata(instance=book)
     cover_form = forms.CoverForm(instance=book)
 
@@ -1460,7 +1459,6 @@ def update_contributor(request, submission_id, contributor_type, contributor_id=
                 form = submission_forms.EditorForm(request.POST)
 
         if form.is_valid():
-
             saved_contributor = form.save()
 
             if not contributor:

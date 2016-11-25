@@ -82,13 +82,13 @@ class AuthorForm(forms.ModelForm):
 
 	class Meta:
 		model = core_models.Author
-		exclude = ()
+		exclude = ('sequence',)
 
 class EditorForm(forms.ModelForm):
 
 	class Meta:
 		model = core_models.Editor
-		exclude = ()
+		exclude = ('sequence',)
 
 class CreateSubmissionChecklistItem(forms.ModelForm):
 
