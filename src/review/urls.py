@@ -29,6 +29,6 @@ urlpatterns = patterns('',
 	url(r'^editorial/(?P<submission_id>\d+)/access_key/(?P<access_key>[^/]+)/complete/$', 'review.views.editorial_review_complete', name='editorial_review_complete'),
 
 	#Other
-    url(r'^download/(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/(?P<review_id>\d+)/$', 'review.views.generate_review_form', name='generate_review_form'),
-    url(r'^download/(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/(?P<review_id>\d+)/access_key/(?P<access_key>[-\w+]+)/$', 'review.views.generate_review_form', name='generate_review_form_access_key'),
+	url(r'^download/(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/(?P<review_id>\d+)/$', 'review.views.generate_review_form', name='generate_review_form'),
+	url(r'^download/(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/(?P<review_id>\d+)/access_key/(?P<access_key>[-\w+]+)/$', 'review.views.generate_review_form', name='generate_review_form_access_key'),
 )
