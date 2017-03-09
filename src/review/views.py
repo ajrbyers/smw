@@ -762,12 +762,13 @@ def create_completed_review_form(submission,review_id):
     document.save(path)
     return path
 
-def generate_review_form(request, review_type, submission_id, review_id, access_key = None):
+def generate_review_form(request, review_type, submission_id, review_id, access_key=None):
     submission = get_object_or_404(core_models.Book, pk=submission_id)
+
     if access_key:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, access_key=access_key, review_type=review_type, withdrawn = False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, access_key=access_key, review_type=review_type, withdrawn=False)
     else:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, review_type=review_type, withdrawn = False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, review_type=review_type, withdrawn=False)
 
     path = create_completed_review_form(submission, review_assignment.pk)
     return serve_file(request, path)

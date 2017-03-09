@@ -179,12 +179,14 @@ def view_content_summary(request, review_id):
     if review.content_type.model == 'proposal':
         data = json.loads(review.content_object.data)
         relationships = core_models.ProposalFormElementsRelationship.objects.filter(form=review.content_object.form)
+        proposal = get_object_or_404(submission_models.Proposal, pk=review.object_id)
 
         template = 'editorialreview/view_content_summary_proposal.html'
         context = {
             'data': data,
             'relationships': relationships,
             'review': review,
+            'proposal': proposal,
         }
     else:
         template = 'editorialreview/view_content_summary_book.html'
