@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     url(r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/$', 'editorialreview.views.add_editorial_review', name='add_editorial_review'),
+    url(r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/add_files/$', 'editorialreview.views.add_editorial_review_files', name='add_editorial_review_files'),
+    url(r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/remove_files/(?P<file_id>\d+)/$', 'editorialreview.views.remove_editorial_review_file', name='remove_editorial_review_file'),
     url(r'(?P<review_id>\d+)/email/$', 'editorialreview.views.email_editorial_review', name='email_editorial_review'),
     url(r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/editor/$', 'editorialreview.views.download_editor_er_file', name='download_editor_er_file'),
     url(r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/$', 'editorialreview.views.download_er_file', name='download_er_file'),

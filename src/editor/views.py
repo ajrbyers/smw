@@ -996,7 +996,7 @@ def add_review_files(request, submission_id, review_type):
         for file in files:
             if review_type == 'internal':
                 submission.internal_review_files.add(file)
-            else:
+            elif review_type == 'external':
                 submission.external_review_files.add(file)
 
         messages.add_message(request, messages.SUCCESS, '%s files added to Review' % files.count())
@@ -2180,7 +2180,6 @@ def delete_review_files(request, submission_id, review_type, file_id):
 
     return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
                                                            'round_number': submission.get_latest_review_round()}))
-
 
 @is_book_editor
 def editor_status(request, submission_id):

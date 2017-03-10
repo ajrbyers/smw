@@ -49,6 +49,49 @@ def add_editorial_review(request, submission_type, submission_id):
     return render(request, template, context)
 
 @is_editor
+def add_editorial_review_files(request, submission_type, submission_id):
+    """
+    Add files to editorial review. Currently set up for full
+    submissions only, and only linked in if creating editorial
+    review for full submissions, but could be extended to include
+    proposals by passing it to submission_type and adding
+    logic below.
+    """
+
+    submission = get_object_or_404(core_models.Book, pk=submission_id)
+
+    if request.POST:
+        files = core_models.File.objects.filter(pk__in=request.POST.getlist('file'))
+        for file in files:
+            submission.editorial_review_files.add(file)
+
+        messages.add_message(request, messages.SUCCESS, '%s files added to Review' % files.count())
+
+        return redirect(reverse('add_editorial_review', kwargs={'submission_type': submission_type,
+                                                                'submission_id': submission_id,}))
+
+    template = 'editorialreview/add_editorial_review_files.html'
+    context = {
+        'submission': submission,
+    }
+
+    return render(request, template, context)
+
+@is_editor
+def remove_editorial_review_file(request, submission_type, submission_id, file_id):
+    """
+    Remove a file from a submission's editorial review files list
+    """
+    submission = get_object_or_404(core_models.Book, pk=submission_id)
+    file = get_object_or_404(submission.editorial_review_files, pk=file_id)
+
+    submission.editorial_review_files.remove(file)
+
+    return redirect(reverse('add_editorial_review', kwargs={'submission_type': submission_type,
+                                                            'submission_id': submission_id}))
+
+
+@is_editor
 def email_editorial_review(request, review_id):
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)

@@ -57,9 +57,10 @@
   {% endif %}
    {% if press.general.editorial_assignment_feature %}
 <hr>
-<h2>Editorial Review Assignments {% if submission.start_editorial_review %}
-    <a href="{% url 'editor_add_editorial_reviewers' submission.id %}" class="btn btn-sm btn-accept pull-right"
-       style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>Create</a>{% endif%}</h2>
+<h2>Editorial Review Assignments</h2>
+    <a href="{% url 'add_editorial_review' 'submission' submission.id %}" class="btn btn-sm btn-accept pull-right"
+       style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>Create
+    </a>
 
 
   <table class="table table-bordered">
