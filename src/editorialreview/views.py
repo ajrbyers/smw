@@ -22,6 +22,7 @@ def add_editorial_review(request, submission_type, submission_id):
     check = None
     submission = logic.get_submission(submission_type, submission_id)
     editorial_reviewers = manager_models.GroupMembership.objects.filter(group__group_type='editorial_group')
+    editorial_groups = manager_models.Group.objects.filter(group_type='editorial_group')
     form = forms.EditorialReviewForm()
 
     if request.POST:
@@ -41,6 +42,7 @@ def add_editorial_review(request, submission_type, submission_id):
         'submission': submission,
         'submission_type': submission_type,
         'editorial_reviewers': editorial_reviewers,
+        'editorial_groups': editorial_groups,
         'form': form,
         'review_forms': review_models.Form.objects.all(),
         'check': check,
