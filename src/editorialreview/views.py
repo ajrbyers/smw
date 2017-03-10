@@ -102,17 +102,20 @@ def email_editorial_review(request, review_id):
 
     if request.POST:
         email_text = request.POST.get('email_text')
-        if request.FILES.get('attachment'):
-            attachment = handle_email_file(request.FILES.get('attachment'), 'other', request.user,
-                                        "Attachment: Uploaded by %s" % (request.user.username))
-        else:
-            attachment = None
+        attachment_files = request.FILES.getlist('attachment')
+        attachments = []
+
+        if attachment_files:
+            for file in attachment_files:
+                attachment = handle_email_file(file, 'other', request.user,
+                                               "Attachment: Uploaded by %s" % (request.user.username))
+                attachments.append(attachment)
 
         if review.content_type.model == 'proposal':
-            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=[attachment], book=None, proposal=review.content_object)
+            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=attachments, book=None, proposal=review.content_object)
             return redirect(reverse('view_proposal', kwargs={'proposal_id': review.content_object.id}))
         else:
-            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=[attachment], book=review.content_object, proposal=None)
+            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=attachments, book=review.content_object, proposal=None)
             return redirect(reverse('editor_review', kwargs={'submission_id': review.content_object.id}))
 
     template = 'editorialreview/email_editorial_review.html'
