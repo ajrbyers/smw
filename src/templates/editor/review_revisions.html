@@ -54,31 +54,30 @@
     </tr>
     {% endfor %}
   </table>
-  {% endif %}
-   {% if press.general.editorial_assignment_feature %}
-<hr>
-<h2>Editorial Review Assignments</h2>
+{% endif %}
+{% if press.general.editorial_assignment_feature %}
+    <hr>
+    <h2>Editorial Review Assignments</h2>
     <a href="{% url 'add_editorial_review' 'submission' submission.id %}" class="btn btn-sm btn-accept pull-right"
        style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>Create
     </a>
 
-
-  <table class="table table-bordered">
-    <tr>
-      <th>ID</th>
-      <th>Assigned</th>
-      <th>Due</th>
-      <th></th>
-    </tr>
-  {% for review in editorial_review_assignments %}
-    <tr>
-    <td>{{review.pk}}</td>
-    <td>{{review.assigned}}</td>
-      <td width="25%">{% if review.completed %}Completed{% else %}<small>{{ review.due }}</small>{% endif %}</td>
-        <td width="25%"><a class="btn btn-task" href="{% url 'editorial_review_view' submission.id review.id %}">View</a></td>
-    </tr>
-    {% empty %}
-    <td colspan="4"> No assignments found.</td>
+    <table class="table table-bordered">
+        <tr>
+          <th>ID</th>
+          <th>Assigned</th>
+          <th>Due</th>
+          <th></th>
+        </tr>
+    {% for review in editorial_review_assignments %}
+        <tr>
+        <td>{{review.pk}}</td>
+        <td>{{review.assigned}}</td>
+          <td width="25%">{% if review.completed %}Completed{% else %}<small>{{ review.due }}</small>{% endif %}</td>
+            <td width="25%"><a class="btn btn-task" href="{% url 'view_editorial_review' review.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <td colspan="4"> No assignments found.</td>
     {% endfor %}
     </table>
-  {% endif %}
+{% endif %}

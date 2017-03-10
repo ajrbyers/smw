@@ -250,8 +250,6 @@ def download_er_file(request, file_id, review_id):
 
     access_key = request.GET.get('access_key')
 
-    print request.GET.get('access_key')
-
     if access_key:
         review = get_object_or_404(models.EditorialReview, pk=review_id, access_key=access_key)
     else:
