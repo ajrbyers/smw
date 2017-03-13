@@ -59,8 +59,9 @@
       </div>
     </div>
         <div class="media-right">
-        <a href="{% if one_click %}{% url 'serve_file_one_click' submission.id file.id review_assignment.id access_key %}{% else %}{% url 'serve_file' submission.id file.id %}{% endif %}" class="btn btn-sm btn-task pull-right download-small" ><i class="fa fa-cloud-download"> &nbsp; Download</i></a>    </div>
-    </div>
+            <a href="{% if one_click %}{% url 'serve_file_one_click' submission.id file.id review_assignment.id access_key %}{% else %}{% url 'serve_file' submission.id file.id %}{% endif %}"
+               class="btn btn-sm btn-task pull-right download-small" ><i class="fa fa-cloud-download"> &nbsp; Download</i></a>
+        </div>
     </li>
     {% empty %}
      <li class="grey-container">
