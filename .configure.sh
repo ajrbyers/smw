@@ -4,18 +4,8 @@ set -e # everything must past
 
 ### configuration that can be done every time install.sh is run
 
-echo "pre-migrate"
-
-if [ ! -z src/core/settings.py ]; then
-    cd src/core/
-    ln -sf dev_settings.py settings.py
-    cd -
-fi
-
 # ensure you're on the most recent migration
-./src/manage.py migrate
-
-echo "post-migrate"
+#./src/manage.py migrate
 
 
 ### initial once-off configuration
