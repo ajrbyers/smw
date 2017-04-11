@@ -1,11 +1,7 @@
 from django.contrib.auth.models import User
-
 from core import models
 from review import models as review_models
 from rest_framework import serializers
-import json
-from django.core import serializers as serializers_alt
-from pprint import pprint
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -23,22 +19,22 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Author
         fields = (
-        'id',
-        'salutation',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'institution',
-        'department',
-        'country',
-        'author_email',
-        'biography',
-        'orcid',
-        'twitter',
-        'linkedin',
-        'facebook',
-        'sequence',
-        'full_name',
+            'id',
+            'salutation',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'institution',
+            'department',
+            'country',
+            'author_email',
+            'biography',
+            'orcid',
+            'twitter',
+            'linkedin',
+            'facebook',
+            'sequence',
+            'full_name',
         )
 
 class EditorSerializer(serializers.HyperlinkedModelSerializer):
@@ -46,21 +42,21 @@ class EditorSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Editor
         fields = (
-        'id',
-        'salutation',
-        'first_name',
-        'middle_name',
-        'last_name',
-        'institution',
-        'department',
-        'country',
-        'author_email',
-        'biography',
-        'orcid',
-        'twitter',
-        'linkedin',
-        'facebook',
-        'sequence',
+            'id',
+            'salutation',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'institution',
+            'department',
+            'country',
+            'author_email',
+            'biography',
+            'orcid',
+            'twitter',
+            'linkedin',
+            'facebook',
+            'sequence',
         )
 
 class ReviewRoundSerializer(serializers.HyperlinkedModelSerializer):
@@ -105,21 +101,21 @@ class ReviewAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 
 class KeywordSerializer(serializers.HyperlinkedModelSerializer):
 
-     class Meta:
-         model = models.Keyword
-         fields = ('name',)
+    class Meta:
+        model = models.Keyword
+        fields = ('name',)
 
 class DisciplineSerializer(serializers.HyperlinkedModelSerializer):
 
-     class Meta:
-         model = models.Subject
-         fields = ('name',)
+    class Meta:
+        model = models.Subject
+        fields = ('name',)
 
 class SubjectSerializer(serializers.HyperlinkedModelSerializer):
 
-     class Meta:
-         model = models.Subject
-         fields = ('name',)
+    class Meta:
+        model = models.Subject
+        fields = ('name',)
 
 class FileSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -282,7 +278,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'review_type',
             'identifier',
             'peer_review_override',
-            )
+        )
 
 class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
     """
@@ -295,7 +291,7 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
     subject = SubjectSerializer(many=True)
     formats = FormatSerializer(many=True)
     chapters = ChapterSerializer(many=True)
-    physical_formats = PhysicalFormatSerializer(many=True,  source='physicalformat_set')
+    physical_formats = PhysicalFormatSerializer(many=True, source='physicalformat_set')
     stage = StageSerializer(many=False)
     identifier = IdentiferSerializer(many=True, source='identifier_set', required=False)
     languages = LanguageSerializer(many=True)
@@ -330,23 +326,20 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
             'identifier',
             'peer_review_override',
             'review_assignments',
-            )
+        )
 
     def create(self, validated_data):
         author_data = validated_data.pop('author')
-        keyword_data = validated_data.pop('keywords')
-        lang_data = validated_data.pop('languages')
-        subject_data = validated_data.pop('subject')
-        stage_data = validated_data.pop('stage')
+        validated_data.pop('keywords')
+        validated_data.pop('languages')
+        validated_data.pop('subject')
+        validated_data.pop('stage')
 
         book = models.Book.objects.create(**validated_data)
-
-        stage = models.Stage.objects.create(book=book, current_stage="published")
+        models.Stage.objects.create(book=book, current_stage="published")
 
         for author in author_data:
-            author = models.Author.objects.create(book=book, **author_data)
-
-
+            models.Author.objects.create(book=book, **author_data)
 
         return book
 
@@ -385,16 +378,15 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
             'review_type',
             'stage',
             'identifier',
-            )
+        )
 
     def create(self, validated_data):
         author_data = validated_data.pop('author')
         keyword_data = validated_data.pop('keywords')
         lang_data = validated_data.pop('languages')
         subject_data = validated_data.pop('subject')
-        stage_data = validated_data.pop('stage')
+        validated_data.pop('stage')
 
-        pprint(validated_data)
         book = models.Book.objects.create(**validated_data)
         stage = models.Stage.objects.create(current_stage="published")
         book.stage = stage
@@ -415,8 +407,5 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
             keyw, c = models.Keyword.objects.get_or_create(**keyword)
             book.keywords.add(keyw)
 
-
         book.save()
         return book
-
-

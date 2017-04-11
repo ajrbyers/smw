@@ -11,7 +11,6 @@ from django.contrib import messages
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 BOOK_DIR = os.path.join(BASE_DIR, 'files', 'books')
 PROPOSAL_DIR = os.path.join(BASE_DIR, 'files', 'proposals')
@@ -41,6 +40,8 @@ ORCID_CLIENT_ID = 'insert-client-id'
 # Application definition
 
 INSTALLED_APPS = (
+    'test_without_migrations',
+
     'flat',
     'django.contrib.sites',
     'django.contrib.admin',
@@ -50,6 +51,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_nose',
+
 
     # Django
     'core',
@@ -75,7 +77,7 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
+    
     # allauth providers
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
@@ -98,11 +100,14 @@ ROOT_URLCONF = 'core.urls'
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
     'default': {
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': 'rua.sqlite',
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rua',
         'USER': 'root',
@@ -132,6 +137,7 @@ USE_L10N = False
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
@@ -139,6 +145,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static-assets'),
 )
 STATIC_URL = '/static/'
+
 
 TEMPLATES = [
     {
@@ -171,6 +178,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 # Media
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -228,22 +236,24 @@ SILENCED_SYSTEM_CHECKS = (
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 NOSE_ARGS = [
     '--with-coverage',  # activate coverage report
     #  '--with-doctest',  # activate doctest: find and run docstests
-    '--verbosity=2',  # verbose output
+    '--verbosity=2',   # verbose output
     '--nocapture',
     '--nologcapture',
 
+
     # Run test: python manage.py test --cover-package=(app)
 
-    '--cover-package=core,author,editor,manager,onetasker,review,submission',
-    # uncomment to run all tests with 'python manage.py test'
+    '--cover-package=core,author,editor,manager,onetasker,review,submission',  # uncomment to run all tests with 'python manage.py test'
 
     #    '--with-xunit',    # enable XUnit plugin
     #   '--xunit-file=xunittest.xml',  # the XUnit report file
     #    '--cover-xml',     # produle XML coverage info
     #    '--cover-xml-file=coverage.xml',  # the coverage info file
+
 
 ]

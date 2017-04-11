@@ -55,8 +55,11 @@ docs/_build/
 
 # PyBuilder
 target/
-*.sqlite3
+*.sqlite
 
+venv/*
+*.flag
+src/collected-static/*
 src/media/profile_images/*
 src/media/*
 src/files/*

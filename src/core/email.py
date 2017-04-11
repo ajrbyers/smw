@@ -1,12 +1,9 @@
 from django.core.mail import EmailMessage
-from django.template.loader import get_template
 from django.template import Context, Template, RequestContext
 from django.conf import settings
 from setting_util import get_setting
 from core import models
 from core import log
-
-from pprint import pprint
 
 def filepath(book, attachment):
     return '%s/%s/%s' % (settings.BOOK_DIR, book.id, attachment.uuid_filename)
@@ -24,7 +21,7 @@ def send_email(subject, context, from_email, to, html_template, bcc=None, cc=Non
     con = Context(context)
     html_content = htmly.render(con)
 
-    if not type(to) in [list,tuple]:
+    if not type(to) in [list, tuple]:
         to = [to]
 
     if request:
@@ -70,7 +67,7 @@ def send_email_multiple(subject, context, from_email, to, html_template, bcc=Non
     con = Context(context)
     html_content = htmly.render(con)
 
-    if not type(to) in [list,tuple]:
+    if not type(to) in [list, tuple]:
         to = [to]
 
     if request:
@@ -83,7 +80,7 @@ def send_email_multiple(subject, context, from_email, to, html_template, bcc=Non
     if book:
         log.add_email_log_entry_multiple(book=book, subject=subject, from_address=from_email, to=to, bcc=bcc, cc=cc, content=html_content, attachments=attachments, kind=kind)
     if proposal:
-        log.add_email_log_entry_multiple(proposal=proposal, subject=subject, from_address=from_email, to=to, bcc=bcc, cc=cc, content=html_content, attachments=attachments, kind = kind)
+        log.add_email_log_entry_multiple(proposal=proposal, subject=subject, from_address=from_email, to=to, bcc=bcc, cc=cc, content=html_content, attachments=attachments, kind=kind)
 
     msg.content_subtype = "html"
 
@@ -103,21 +100,21 @@ def send_reset_email(user, email_text, reset_code):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
     base_url = models.Setting.objects.get(group__name='general', name='base_url')
 
-    reset_url = 'http://%s/login/reset/code/%s/' % (base_url.value,reset_code)
+    reset_url = 'http://%s/login/reset/code/%s/' % (base_url.value, reset_code)
 
     context = {
         'reset_code': reset_code,
-        'reset_url':reset_url,
+        'reset_url': reset_url,
         'user': user,
     }
 
-    send_email(get_setting('reset_code_subject','email_subject','[abp] Reset Code'), context, from_email.value, user.email, email_text, kind = 'general')
+    send_email(get_setting('reset_code_subject', 'email_subject', '[abp] Reset Code'), context, from_email.value, user.email, email_text, kind='general')
 
 def send_prerendered_email(request, html_template, subject, to, bcc=None, cc=None, attachments=None, book=None, proposal=None):
 
     html_content = html_template
 
-    if not type(to) in [list,tuple]:
+    if not type(to) in [list, tuple]:
         to = [to]
 
     if request:
@@ -125,7 +122,7 @@ def send_prerendered_email(request, html_template, subject, to, bcc=None, cc=Non
     else:
         reply_to = models.Setting.objects.get(group__name='email', name='from_address')
 
-    from_email = get_setting('from_address','general','noreply@rua.re')
+    from_email = get_setting('from_address', 'general', 'noreply@rua.re')
 
     msg = EmailMessage(subject, html_content, from_email, to, bcc=bcc, cc=cc, headers={'Reply-To': reply_to})
 
@@ -158,4 +155,3 @@ def get_email_content(request, setting_name, context):
     html_content = htmly.render(con)
 
     return html_content
-

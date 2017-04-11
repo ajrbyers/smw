@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import *
+from models import Group, GroupMembership
 
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'group_type', 'active', 'sequence')

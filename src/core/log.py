@@ -60,7 +60,7 @@ def add_email_log_entry(subject, from_address, to, bcc, cc, content, attachment=
 
 # Temporary function while all email forms are tweaked to handle multiple attachments
 def add_email_log_entry_multiple(subject, from_address, to, bcc, cc, content, attachments=None, proposal=None, book=None,
-                            kind=None):
+                                 kind=None):
     if proposal:
         log_dict = {
             'proposal': proposal,

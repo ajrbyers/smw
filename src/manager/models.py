@@ -15,7 +15,7 @@ class Group(models.Model):
     sequence = models.IntegerField()
 
     class Meta:
-		ordering = ('sequence', 'name')
+        ordering = ('sequence', 'name')
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -30,4 +30,4 @@ class GroupMembership(models.Model):
     sequence = models.IntegerField()
 
     class Meta:
-		ordering = ('sequence', 'added')
+        ordering = ('sequence', 'added')
