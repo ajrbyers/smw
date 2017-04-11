@@ -461,12 +461,14 @@ def editor_review_round(request, submission_id, round_number):
     #reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book,
     #                                                 review_round__round_number=round_number)
     review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
-    internal_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='internal',
-                                                                         review_round__round_number=round_number).select_related(
-        'user', 'review_round')
-    external_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='external',
-                                                                         review_round__round_number=round_number).select_related(
-        'user', 'review_round')
+    internal_review_assignments = models.ReviewAssignment.objects.filter(
+        book=book, review_type='internal', review_round__round_number=round_number).select_related('user', 'review_round')
+
+    external_review_assignments = models.ReviewAssignment.objects.filter(
+        book=book, review_type='external', review_round__round_number=round_number).select_related('user', 'review_round')
+
+    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(content_type__model='book',
+                                                                                   object_id=submission_id).order_by('-pk')
 
     template = 'editor/submission.html'
     context = {
@@ -479,7 +481,7 @@ def editor_review_round(request, submission_id, round_number):
         'revision_requests': revision_models.Revision.objects.filter(book=book, revision_type='review'),
         'internal_review_assignments': internal_review_assignments,
         'external_review_assignments': external_review_assignments,
-        'editorial_review_assignments': models.EditorialReviewAssignment.objects.filter(book=book).order_by('-pk'),
+        'editorial_review_assignments': editorial_review_assignments,
 
         'active_page': 'editor_review',
     }
