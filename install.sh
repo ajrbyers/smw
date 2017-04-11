@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e # everything must succeed.
-print 'install'
+
+echo "install"
 
 # if virtual environment called 'venv' doesn't exist, create it
 if [ ! -d venv ]; then
@@ -10,16 +11,19 @@ fi
 # activate it
 source venv/bin/activate
 
-print 'activated'
+echo "env activated"
 
 if [ ! -z src/core/settings.py ]; then
     cd src/core/
     ln -sf dev_settings.py settings.py
     cd -
 fi
-print 'settings done'
+
+echo "settings done"
 
 # install any requirements
 pip install -r requirements.txt
+
+echo "requirements installed"
 
 source .configure.sh
