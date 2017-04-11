@@ -36,12 +36,50 @@
 	{% endif %}
 	<form method="POST">
 	{% csrf_token %}
-	<h4>1. Select Reviewers</h4>
+    {% if submission_type == 'submission' %}
+		<h4>1. Review Files</h4>
+		<p class="small">Select files that are accessible to reviewers.</p>
+		<a href="{% url 'add_editorial_review_files' 'submission' submission.id  %}" class="btn btn-sm btn-success">
+            <i class="fa fa-plus">&nbsp;</i>Add Files
+        </a>
+        {% if submission.editorial_review_files.all|length > 0 %}
+            <p class="small">Files currently selected:</p>
+            <table class="table table-bordered small">
+                {% for file in submission.editorial_review_files.all %}
+                    <tr style="background-color: #EBEBEB">
+                        <th>Original File Name</th>
+                        <th>New File Name</th>
+                        <th>Mimetype</th>
+                        <th>File Type</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>{{ file.original_filename }}</td>
+                        <td>{{ file.uuid_filename }}</td>
+                        <td>{{ file.mime_type }}</td>
+                        <td>{{file.kind }}</td>
+                        <td>
+                            <a href="{% url 'remove_editorial_review_file' 'submission' submission.id file.pk %}"
+                               class=" btn btn-xs pull-left">Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="small">No files selected.</p>
+        {% endif %}
+	{% endif %}
+    {% if submission_type == 'submission' %}
+	    <h4>2. Select Reviewers</h4>
+    {% else %}
+        <h4>1. Select Reviewers</h4>
+    {% endif %}
 	  <table class="table table-bordered small" cellspacing="0" width="100%" id='indv-reviewer'>
 	    <thead>
 	    <tr>
 	      <th>First Name</th>
           <th>Last Name</th>
+          <th>Group</th>
           <th>Email</th>
           <th>Profile</th>
           <th>Active Reviews</th>
@@ -56,6 +94,14 @@
 	    <tr>
 	      <td>{{ reviewer.user.first_name }}</td>
           <td>{{ reviewer.user.last_name }}</td>
+          <td>
+              {% for group in editorial_groups %}
+                {% if group.id == reviewer.group_id %}
+                    {{ group }}
+                {% else %} None
+                {% endif %}
+              {% endfor %}
+          </td>
           <td>{{ reviewer.user.email }}</td>
           <td><a href="{% url 'view_profile_readonly' reviewer.user.id %}" target="_blank">
               {{ reviewer.user.first_name }} {{ reviewer.user.last_name }}</a></td>
@@ -69,17 +115,30 @@
 		</tbody>
 	  </table>
 	<hr />
-	<h4>2. Set Due Date</h4>
+
+    {% if submission_type == 'submission' %}
+	    <h4>3. Set due date</h4>
+    {% else %}
+	    <h4>2. Set due date</h4>
+    {% endif %}
 	{% bootstrap_field form.due %}
-	<hr />
-	<h4>3. Review Form</h4>
+    <hr />
+
+    {% if submission_type == 'submission' %}
+	    <h4>4. Select Review Form</h4>
+    {% else %}
+	    <h4>3. Select Review Form</h4>
+    {% endif %}
 	<p class="small">Select a review form for reviewers to complete.</p>
 	<select name="review_form" id="review_form" class="form-control">
 	{% for form in review_forms %}<option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>{% endfor %}
 	</select>
 
+    <hr />
 	<p>On the next page you will have the option of drafting an email to your reviewer</p>
 	<button type="submit" class="btn btn-primary pull-right">Submit</button>
+    <br>
+    <hr />
 {% endblock body %}
 
 {% block js %}

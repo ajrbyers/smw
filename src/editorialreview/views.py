@@ -22,6 +22,7 @@ def add_editorial_review(request, submission_type, submission_id):
     check = None
     submission = logic.get_submission(submission_type, submission_id)
     editorial_reviewers = manager_models.GroupMembership.objects.filter(group__group_type='editorial_group')
+    editorial_groups = manager_models.Group.objects.filter(group_type='editorial_group')
     form = forms.EditorialReviewForm()
 
     if request.POST:
@@ -41,12 +42,56 @@ def add_editorial_review(request, submission_type, submission_id):
         'submission': submission,
         'submission_type': submission_type,
         'editorial_reviewers': editorial_reviewers,
+        'editorial_groups': editorial_groups,
         'form': form,
         'review_forms': review_models.Form.objects.all(),
         'check': check,
     }
 
     return render(request, template, context)
+
+@is_editor
+def add_editorial_review_files(request, submission_type, submission_id):
+    """
+    Add files to editorial review. Currently set up for full
+    submissions only, and only linked in if creating editorial
+    review for full submissions, but could be extended to include
+    proposals by passing it to submission_type and adding
+    logic below.
+    """
+
+    submission = get_object_or_404(core_models.Book, pk=submission_id)
+
+    if request.POST:
+        files = core_models.File.objects.filter(pk__in=request.POST.getlist('file'))
+        for file in files:
+            submission.editorial_review_files.add(file)
+
+        messages.add_message(request, messages.SUCCESS, '%s files added to Review' % files.count())
+
+        return redirect(reverse('add_editorial_review', kwargs={'submission_type': submission_type,
+                                                                'submission_id': submission_id,}))
+
+    template = 'editorialreview/add_editorial_review_files.html'
+    context = {
+        'submission': submission,
+    }
+
+    return render(request, template, context)
+
+@is_editor
+def remove_editorial_review_file(request, submission_type, submission_id, file_id):
+    """
+    Remove a file from a submission's editorial review files list
+    """
+    submission = get_object_or_404(core_models.Book, pk=submission_id)
+    file = get_object_or_404(submission.editorial_review_files, pk=file_id)
+
+    submission.editorial_review_files.remove(file)
+
+    return redirect(reverse('add_editorial_review', kwargs={'submission_type': submission_type,
+                                                            'submission_id': submission_id}))
+
 
 @is_editor
 def email_editorial_review(request, review_id):
@@ -59,17 +104,20 @@ def email_editorial_review(request, review_id):
 
     if request.POST:
         email_text = request.POST.get('email_text')
-        if request.FILES.get('attachment'):
-            attachment = handle_email_file(request.FILES.get('attachment'), 'other', request.user,
-                                        "Attachment: Uploaded by %s" % (request.user.username))
-        else:
-            attachment = None
+        attachment_files = request.FILES.getlist('attachment')
+        attachments = []
+
+        if attachment_files:
+            for file in attachment_files:
+                attachment = handle_email_file(file, 'other', request.user,
+                                               "Attachment: Uploaded by %s" % (request.user.username))
+                attachments.append(attachment)
 
         if review.content_type.model == 'proposal':
-            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=[attachment], book=None, proposal=review.content_object)
+            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=attachments, book=None, proposal=review.content_object)
             return redirect(reverse('view_proposal', kwargs={'proposal_id': review.content_object.id}))
         else:
-            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=[attachment], book=review.content_object, proposal=None)
+            email.send_prerendered_email(request, email_text, subject, review.user.email, attachments=attachments, book=review.content_object, proposal=None)
             return redirect(reverse('editor_review', kwargs={'submission_id': review.content_object.id}))
 
     template = 'editorialreview/email_editorial_review.html'
@@ -201,8 +249,6 @@ def view_content_summary(request, review_id):
 def download_er_file(request, file_id, review_id):
 
     access_key = request.GET.get('access_key')
-
-    print request.GET.get('access_key')
 
     if access_key:
         review = get_object_or_404(models.EditorialReview, pk=review_id, access_key=access_key)

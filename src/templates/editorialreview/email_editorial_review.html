@@ -24,12 +24,12 @@
 	{% csrf_token %}
 	<textarea class="form-control" rows="10" id="email_text" name="email_text">{{ email_text }}</textarea>
 	<br />
-	<label class="control-label" for="id_label">Attachment</label>
-	  <p class="small">Please add any additional files here.</p>
+	<label class="control-label" for="id_label">Attachments</label>
+	  <p class="small">Please add any additional files here. Use 'shift' or 'ctrl' to select multiple files.</p>
 	  <div class="input-group">
 	    <span class="input-group-btn">
 	      <span class="btn btn-primary btn-file">
-	        Browse&hellip; <input type="file" id="attachment" name="attachment">
+	        Browse&hellip; <input type="file" id="attachment" name="attachment" multiple>
 	      </span>
 	    </span>
 	    <input type="text" class="form-control" readonly>
