@@ -5,7 +5,7 @@ set -e # everything must past
 ### configuration that can be done every time install.sh is run
 
 # ensure you're on the most recent migration
-#./src/manage.py migrate
+./src/manage.py migrate
 
 
 ### initial once-off configuration
