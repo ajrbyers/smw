@@ -1,69 +1,71 @@
 {% load static from staticfiles %}
 <link href="{% static "css/over-rides.css" %}" rel="stylesheet">
 
-<h3>Editorial Review</h3>
-
-<div class="col-md-12">
-    <div class="review-assignment">
-        <strong>
-            <a href="{% url 'view_profile_readonly' review.user.id %}">{{ review.user.profile.full_name }}</a>
-            <sup> <a style="height:17px;margin-top:6px"
-                     href="core/email.html"
-                     onclick="return popitup('/email/onetaskers/submission/{{submission.id}}/user/{{review.user.pk}}/',
-                     'onetasker_{{review.user.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a>
-            </sup>
-        </strong>
-        <br>
-        <span class="{% if review.reopened %}no-recommendation
-                     {% else %}
-                        {% if review.recommendation %}recommendation{% else %}no-recommendation{% endif %}
-                     {% endif %}">&nbsp;
-            {% if review.reopened %}
-                Awaiting recommendation
-            {% else %}
-                {% if review.recommendation %}
-                    Recommend to {{ review.get_recommendation_display }}
+<h3>Editorial Review Assignment</h3>
+<hr>
+<div class="row">
+    <div class="col-md-12">
+        <div class="editorial-review-assignment">
+            <h4>
+                <a href="{% url 'view_profile_readonly' review.user.id %}">{{ review.user.profile.full_name }}</a>
+                <sup> <a style="margin-top:6px;"
+                         href="core/email.html"
+                         onclick="return popitup('/email/onetaskers/submission/{{submission.id}}/user/{{review.user.pk}}/',
+                         'onetasker_{{review.user.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a>
+                </sup>
+            </h4>
+            <span class="{% if review.reopened %}no-recommendation
+                         {% else %}
+                            {% if review.recommendation %}recommendation{% else %}no-recommendation{% endif %}
+                         {% endif %}">&nbsp;
+                {% if review.reopened %}
+                    Awaiting recommendation
                 {% else %}
-                    {% if review.accepted %}
-                        Awaiting recommendation
+                    {% if review.recommendation %}
+                        Recommend to {{ review.get_recommendation_display }}
                     {% else %}
-                        Invitation Sent
+                        {% if review.accepted %}
+                            Awaiting recommendation
+                        {% else %}
+                            Invitation Sent
+                        {% endif %}
                     {% endif %}
                 {% endif %}
-            {% endif %}
-            &nbsp;
-        </span>
-        <p>
-            {% if review.completed %}
-                <strong>Completed on: </strong>{{ review.completed }}
-            {% elif review.accepted %}
-                <strong>Accepted on: </strong>{{ review.accepted }}
-            {% else %}
-                <strong>Assigned on: </strong>{{ review.assigned }}
-            {% endif %}
-        </p>
-        {% if not review.completed %}
-            <span style="margin-left:12px">
-                Due: {{ review.due }}&nbsp;&nbsp;
-                <a href="{% url 'update_editorial_review_due_date' submission.id review.id %}">
-                    <i class="fa fa-edit"></i>
-                </a>
+                &nbsp;
             </span>
-        {% else %}
-            <a href="{% url 'view_editorial_review' review.id %}"
-               style="margin-left:10px" class="btn btn-xs btn-success">View Review
-            </a>
-        {% endif %}
-        <p>
-            <a href="{% url 'remove_editorial_review' submission.id review.id %}"
-               class=" btn btn-danger btn-xs pull-left">
-                Delete
-            </a>
-            <a href="{% url 'withdraw_editorial_review' submission.id review.id %}"
-               class=" btn {% if review.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-xs pull-left"
-               style="margin-left:5px">
-                {% if review.withdrawn %} Re-Enable {% else %} Withdraw {% endif %}
-            </a>
-        </p>
+            <p>
+                {% if review.completed %}
+                    <strong>Completed on: </strong>{{ review.completed }}
+                {% elif review.accepted %}
+                    <strong>Accepted on: </strong>{{ review.accepted }}
+                {% else %}
+                    <strong>Assigned on: </strong>{{ review.assigned }}
+                {% endif %}
+            </p>
+            {% if not review.completed %}
+                <span style="margin-left:12px">
+                    Due: {{ review.due }}&nbsp;&nbsp;
+                    <a href="{% url 'update_editorial_review_due_date' submission.id review.id %}">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </span>
+            {% else %}
+                <a href="{% url 'view_editorial_review' review.id %}"
+                   style="margin-left:10px" class="btn btn-xs btn-success">View Review
+                </a>
+            {% endif %}
+            <p>
+                <a href="{% url 'remove_editorial_review' submission.id review.id %}"
+                   class=" btn btn-danger btn-xs pull-left">
+                    Delete
+                </a>
+                <a href="{% url 'withdraw_editorial_review' submission.id review.id %}"
+                   class=" btn {% if review.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-xs pull-left"
+                   style="margin-left:5px">
+                    {% if review.withdrawn %} Re-Enable {% else %} Withdraw {% endif %}
+                </a>
+            </p>
+        </div>
     </div>
 </div>
+<hr>
