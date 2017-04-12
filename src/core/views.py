@@ -2234,7 +2234,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        review_logic.handle_review_file(request.FILES[field.element.name], review_assignment, 'reviewer')
+                        review_logic.handle_review_file(request.FILES[field.element.name], 'proposal', review_assignment, 'reviewer')
                     ]
 
             for field in data_fields:
@@ -2247,7 +2247,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
             form_results.save()
 
             if request.FILES.get('review_file_upload'):
-                review_logic.handle_review_file(request.FILES.get('review_file_upload'), review_assignment, 'reviewer')
+                review_logic.handle_review_file(request.FILES.get('review_file_upload'), 'proposal', review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
@@ -2446,7 +2446,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        review_logic.handle_review_file(request.FILES[field.element.name], review_assignment, 'reviewer')]
+                        review_logic.handle_review_file(request.FILES[field.element.name], 'proposal', review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:
@@ -2473,6 +2473,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             review_assignment.save()
             message = "Review assignment for proposal '%s' has been completed by %s ." % (
                 review_assignment.proposal.title, review_assignment.user.profile.full_name())
+            print vars(review_assignment.proposal)
             notification = models.Task(assignee=review_assignment.proposal.requestor, creator=user,
                                        text=message, workflow='proposal')
             notification.save()

@@ -43,11 +43,14 @@ def has_additional_files(submission):
     additional_files = [_file for _file in submission.files.all() if _file.kind == 'additional']
     return True if additional_files else False
 
-def handle_review_file(file, review_assignment, kind):
+def handle_review_file(file, content_type, review_assignment, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder = "{0}s".format(review_assignment.content_type)
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', folder, str(review_assignment.content_object.id))
+
+    if content_type == 'book':
+        folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(review_assignment.book.id))
+    else:
+        folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(review_assignment.proposal.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)

@@ -254,7 +254,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             for field in file_fields:
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [logic.handle_review_file(request.FILES[field.element.name], review_assignment, 'reviewer')]
+                    save_dict[field.element.name] = [logic.handle_review_file(request.FILES[field.element.name], 'book', review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:
@@ -281,7 +281,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                 review_assignment.save()
 
             if request.FILES.get('review_file_upload'):
-                logic.handle_review_file(request.FILES.get('review_file_upload'), review_assignment, 'reviewer')
+                logic.handle_review_file(request.FILES.get('review_file_upload'), 'book', review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
