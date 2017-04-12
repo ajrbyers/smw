@@ -1782,8 +1782,13 @@ box-shadow: 0px 7px 5px 1px rgba(236,236,236,1);
 /*Review Assignment Box Overrides*/
 .review-assignment {
     border-radius: 5px;
+    border-style: 1px solid gray;
     margin-bottom: 10px;
     padding-bottom: 5px;
-    background-color: white;
+}
+
+.editorial-review-assignment {
+    border-style: 1px solid gray;
+    border-radius: 5px;
 }
 

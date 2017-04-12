@@ -281,7 +281,7 @@ def send_editorial_review_update(book, review_assignment, email_text, sender, at
         'sender': sender,
     }
     for editor in review_assignment.editorial_board.all():
-        email.send_email(get_setting('editorial_review_due_date_subject','email_subject','Editorial Review Assignment %s: Due Date Updated') % review_assignment.id, context, from_email.value, editor.email, email_text, book=book, attachment=attachment, kind = 'review')
+        email.send_email(get_setting('editorial_review_due_date_subject','email_subject','Editorial Review Assignment %s: Due Date Updated') % review_assignment.id, context, from_email.value, editor.email, email_text, book=book, attachment=attachment, kind='review')
 
 
 def send_review_update(book, review_assignment, email_text, sender, attachment=None):
@@ -295,7 +295,7 @@ def send_review_update(book, review_assignment, email_text, sender, attachment=N
         'sender': sender,
     }
 
-    email.send_email(get_setting('review_due_date_subject','email_subject','Review Assignment %s: Due Date Updated') % review_assignment.id, context, from_email.value, review_assignment.user.email, email_text, book=book, attachment=attachment, kind = 'review')
+    email.send_email(get_setting('review_due_date_subject','email_subject','Review Assignment %s: Due Date Updated') % review_assignment.id, context, from_email.value, review_assignment.user.email, email_text, book=book, attachment=attachment, kind='review')
 
 def send_proposal_decline(proposal, email_text, sender):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')

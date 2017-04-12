@@ -453,13 +453,32 @@ def editor_view_revisions(request, submission_id, revision_id):
 
     return render(request, template, context)
 
+@is_book_editor
+def editor_view_editorial_review(request, submission_id, editorial_review_id):
+    book = get_object_or_404(models.Book, pk=submission_id)
+    editorial_review = get_object_or_404(editorial_models.EditorialReview, pk=editorial_review_id)
+    review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
+    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(
+        content_type__model='book', object_id=submission_id).order_by('-pk')
+
+
+    template = 'editor/submission.html'
+    context = {
+        'review': editorial_review,
+        'submission': book,
+        'review_rounds': review_rounds,
+        'editorial_review_assignments': editorial_review_assignments,
+        'author_include': 'editor/review_revisions.html',
+        'submission_files': 'editor/view_editorial_review.html',
+    }
+
+    return render(request, template, context)
+
 
 @is_book_editor
 def editor_review_round(request, submission_id, round_number):
     book = get_object_or_404(models.Book, pk=submission_id)
     review_round = get_object_or_404(models.ReviewRound, book=book, round_number=round_number)
-    #reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book,
-    #                                                 review_round__round_number=round_number)
     review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
     internal_review_assignments = models.ReviewAssignment.objects.filter(
         book=book, review_type='internal', review_round__round_number=round_number).select_related('user', 'review_round')
@@ -522,71 +541,6 @@ def editor_change_revision_due_date(request, submission_id, revision_id):
     }
 
     return render(request, template, context)
-
-
-@is_book_editor
-def editorial_review_view(request, submission_id, review_id):
-    book = get_object_or_404(models.Book, pk=submission_id)
-    review = get_object_or_404(models.EditorialReviewAssignment, book=book, pk=review_id)
-    editorial_review_assignments = models.EditorialReviewAssignment.objects.filter(book=book).order_by('-pk')
-
-    if review.editorial_board.filter(pk=request.user.pk).exists():
-        member = True
-    else:
-        member = False
-
-    editorial_board_relations = review_models.FormElementsRelationship.objects.filter(
-        form=review.editorial_board_review_form)
-
-    if review.editorial_board_results:
-        editorial_board_data_ordered = core_logic.order_data(
-            core_logic.decode_json(review.editorial_board_results.data), editorial_board_relations)
-    else:
-        editorial_board_data_ordered = None
-
-    publication_committee_relations = review_models.FormElementsRelationship.objects.filter(
-        form=review.publication_committee_review_form)
-
-    if review.publication_committee_results:
-        publication_committee_data_ordered = core_logic.order_data(
-            core_logic.decode_json(review.publication_committee_results.data), publication_committee_relations)
-    else:
-        publication_committee_data_ordered = None
-
-    template = 'editor/submission.html'
-    context = {
-        'submission': book,
-        'editorial_board_member': member,
-        'editorial_board_relations': editorial_board_relations,
-        'editorial_board_data_ordered': editorial_board_data_ordered,
-        'publication_committee_relations': publication_committee_relations,
-        'publication_committee_data_ordered': publication_committee_data_ordered,
-        'author_include': 'editor/review_revisions.html',
-        'submission_files': 'editor/editorial_review.html',
-        'revision_requests': revision_models.Revision.objects.filter(book=book, revision_type='review'),
-        'editorial_review_assignments': editorial_review_assignments,
-        'review_assignment': review,
-        'review_rounds': models.ReviewRound.objects.filter(book=book).order_by('-round_number'),
-        'active_page': 'editor_review',
-    }
-
-    return render(request, template, context)
-
-
-@is_book_editor
-def editorial_review_accept(request, submission_id, review_id, type):
-    book = get_object_or_404(models.Book, pk=submission_id)
-    review = get_object_or_404(models.EditorialReviewAssignment, book=book, pk=review_id)
-    if type == 'editorial':
-        review.editorial_board_passed = True
-        review.publishing_committee_access_key = uuid4()
-        review.save()
-    else:
-        review.publication_committee_passed = True
-        review.completed = timezone.now()
-        review.save()
-
-    return redirect(reverse('editorial_review_view', kwargs={'submission_id': submission_id, 'review_id': review.pk}))
 
 
 @is_book_editor
@@ -656,7 +610,6 @@ def hide_review(request, submission_id, round_id, review_id):
     return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
                                                            'round_number': submission.get_latest_review_round()}))
 
-
 @is_book_editor
 def update_review_due_date(request, submission_id, round_id, review_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
@@ -685,145 +638,6 @@ def update_review_due_date(request, submission_id, round_id, review_id):
     }
 
     return render(request, template, context)
-
-
-@is_book_editor
-def update_editorial_review_due_date(request, submission_id, review_id):
-    submission = get_object_or_404(models.Book, pk=submission_id)
-    review_assignment = get_object_or_404(models.EditorialReviewAssignment, pk=review_id)
-    previous_due_date = review_assignment.due
-    if request.POST:
-        email_text = models.Setting.objects.get(group__name='email', name='review_due_ack').value
-        due_date = request.POST.get('due_date', None)
-        notify = request.POST.get('email', None)
-        if due_date:
-            if not str(due_date) == str(previous_due_date):
-                review_assignment.due = due_date
-                review_assignment.save()
-                if notify:
-                    logic.send_editorial_review_update(submission, review_assignment, email_text, request.user,
-                                                       attachment=None)
-                messages.add_message(request, messages.SUCCESS, 'Due date updated.')
-            return redirect(
-                reverse('editorial_review_view', kwargs={'submission_id': submission_id, 'review_id': review_id}))
-
-    template = 'editor/update_editorial_review_due_date.html'
-    context = {
-        'submission': submission,
-        'review': review_assignment,
-        'active': 'review',
-    }
-
-    return render(request, template, context)
-
-
-@is_book_editor
-def editorial_review_delete(request, submission_id, review_id):
-    book = get_object_or_404(models.Book, pk=submission_id)
-    review_assignment = get_object_or_404(models.EditorialReviewAssignment, pk=review_id)
-    review_assignment.delete()
-    return redirect(reverse('editor_review', kwargs={'submission_id': book.id}))
-
-
-@is_book_editor
-def editor_editorial_decision(request, submission_id, review_id, decision):
-    book = get_object_or_404(models.Book, pk=submission_id)
-    review_assignment = get_object_or_404(models.EditorialReviewAssignment, pk=review_id)
-    review_forms = review_models.Form.objects.all()
-
-    email_text = models.Setting.objects.get(group__name='email', name='editorial_decision_ack').value
-    editor_email_text = models.Setting.objects.get(group__name='email', name='production_editor_ack').value
-    permission = True
-
-    if request.POST:
-
-        if request.FILES.get('attachment'):
-            attachment = handle_file(request.FILES.get('attachment'), book, 'misc', request.user)
-        else:
-            attachment = None
-        if decision == 'revision-editorial':
-            messages.add_message(request, messages.SUCCESS, 'Submission declined.')
-            if 'inform' in request.POST:
-                url = "%s/review/submission/%s/access_key/%s/" % (
-                    request.META['HTTP_HOST'], book.pk, review_assignment.editorial_board_access_key)
-                core_logic.send_editorial_decision_ack(review_assignment=review_assignment, contact="editorial-board",
-                                                       decision="Revision Required",
-                                                       email_text=request.POST.get('id_email_text'),
-                                                       attachment=attachment)
-            return redirect(reverse('editorial_review_view', kwargs={'submission_id': book.id, 'review_id': review_id}))
-
-        elif decision == 'revision-publishing':
-
-            messages.add_message(request, messages.SUCCESS, 'Submission has been moved to the review stage.')
-            if 'inform' in request.POST:
-                url = "%s/review/submission/%s/access_key/%s/" % (
-                    request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
-                core_logic.send_editorial_decision_ack(review_assignment=review_assignment,
-                                                       contact="publishing-committee", decision="Revision Required",
-                                                       email_text=request.POST.get('id_email_text'),
-                                                       attachment=attachment)
-            return redirect(reverse('editorial_review_view', kwargs={'submission_id': book.id, 'review_id': review_id}))
-
-        elif decision == 'invite-publishing':
-            review_assignment.editorial_board_passed = True
-            review_assignment.publishing_committee_access_key = uuid4()
-            review_assignment.publication_committee_review_form = review_models.Form.objects.get(
-                ref=request.POST.get('review_form'))
-            review_assignment.save()
-            if 'inform' in request.POST:
-                url = "%s/review/editorial/%s/access_key/%s/" % (
-                    request.META['HTTP_HOST'], book.pk, review_assignment.publishing_committee_access_key)
-                core_logic.send_editorial_decision_ack(review_assignment=review_assignment,
-                                                       contact="publishing-committee",
-                                                       decision="Invitation to Editorial Review",
-                                                       email_text=request.POST.get('id_email_text'),
-                                                       attachment=attachment, url=url)
-            return redirect(reverse('editorial_review_view', kwargs={'submission_id': book.id, 'review_id': review_id}))
-
-        elif decision == 'send-decision':
-            review_assignment.publication_committee_passed = True
-            review_assignment.completed = timezone.now()
-            review_assignment.save()
-            author_decision = request.POST.get('recommendation')
-
-            if author_decision == 'accept':
-                if not book.stage.editing:
-                    log.add_log_entry(book=book, user=request.user, kind='editing',
-                                      message='Submission moved to Editing.', short_name='Submission in Editing')
-                book.stage.editing = timezone.now()
-                book.stage.current_stage = 'editing'
-                book.stage.save()
-            elif author_decision == 'decline':
-                book.stage.declined = timezone.now()
-                book.stage.current_stage = 'declined'
-                book.stage.save()
-                messages.add_message(request, messages.SUCCESS, 'Submission declined.')
-            elif author_decision == 'revisions':
-                core_logic.send_editorial_decision_ack(review_assignment=review_assignment, contact="author",
-                                                       decision=request.POST.get('recommendation'),
-                                                       email_text=request.POST.get('id_email_text'),
-                                                       attachment=attachment)
-                return redirect(reverse('request_revisions', kwargs={'submission_id': book.id, 'returner': 'review'}))
-
-            if 'inform' in request.POST:
-                core_logic.send_editorial_decision_ack(review_assignment=review_assignment, contact="author",
-                                                       decision=request.POST.get('recommendation'),
-                                                       email_text=request.POST.get('id_email_text'),
-                                                       attachment=attachment)
-            return redirect(reverse('editorial_review_view', kwargs={'submission_id': book.id, 'review_id': review_id}))
-
-    template = 'editor/editorial-decisions.html'
-    context = {
-        'submission': book,
-        'decision': decision,
-        'email_text': email_text,
-        'editor_email_text': editor_email_text,
-        'permission': permission,
-        'review_forms': review_forms,
-    }
-
-    return render(request, template, context)
-
 
 @is_book_editor
 def editor_decision(request, submission_id, decision):
@@ -1014,70 +828,6 @@ def add_review_files(request, submission_id, review_type):
     }
 
     return render(request, template, context)
-
-
-@is_book_editor
-def editor_add_editorial_reviewers(request, submission_id):
-    submission = get_object_or_404(models.Book, pk=submission_id)
-    editors = models.User.objects.filter(
-        Q(profile__roles__slug='press-editor') | Q(profile__roles__slug='book-editor') |
-        Q(profile__roles__slug='production-editor')).distinct()
-    review_forms = review_models.Form.objects.all()
-    committees = manager_models.Group.objects.filter(group_type='editorial_group')
-
-    if request.POST and "add_user" in request.POST:
-        messages.add_message(request, messages.WARNING, 'Select an "editor" role in order to be able to add this user')
-        return redirect("%s?return=%s" % (reverse('add_user'), reverse('editor_add_reviewers',
-                                                                       kwargs={'submission_id': submission_id,
-                                                                               'review_type': review_type,
-                                                                               'round_number': round_number})))
-
-    elif request.POST:
-        editors = User.objects.filter(pk__in=request.POST.getlist('editor'))
-        committees = manager_models.Group.objects.filter(pk__in=request.POST.getlist('committee'))
-        review_form = review_models.Form.objects.get(ref=request.POST.get('review_form'))
-        due_date = request.POST.get('due_date')
-        email_text = request.POST.get('message')
-
-        if request.FILES.get('attachment'):
-            attachment = handle_file(request.FILES.get('attachment'), submission, 'misc', request.user)
-        else:
-            attachment = None
-
-        # Handle reviewers
-        assignment = logic.handle_editorial_review_assignment(request, submission, editors, uuid4(), due_date,
-                                                              request.user, email_text, attachment)
-
-        # Handle committees
-        for committee in committees:
-            members = [member.user for member in manager_models.GroupMembership.objects.filter(group=committee)]
-            logic.handle_editorial_review_assignment(request, submission, members, uuid4(),
-                                                     due_date, request.user, email_text, attachment)
-
-        # Tidy up and save
-        submission.stage.editorial_review = timezone.now()
-        submission.stage.save()
-        log.add_log_entry(book=submission, user=request.user, kind='review', message='Editorial Review Started',
-                          short_name='Submission entered Editorial Review')
-
-        assignment.editorial_board_review_form = review_form
-        assignment.save()
-
-        return redirect(
-            reverse('editorial_review_view', kwargs={'submission_id': submission_id, 'review_id': assignment.pk}))
-
-    template = 'editor/add_editors_editorial_review.html'
-    context = {
-        'editors': editors,
-        'committees': committees,
-        'active': 'new',
-        'email_text': models.Setting.objects.get(group__name='email', name='review_request'),
-        'review_forms': review_forms,
-        'submission': submission,
-    }
-
-    return render(request, template, context)
-
 
 @is_book_editor
 def editor_add_reviewers(request, submission_id, review_type, round_number):

@@ -9,6 +9,9 @@ urlpatterns = patterns('',
     url(r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/$', 'editorialreview.views.download_er_file', name='download_er_file'),
     url(r'editor/view/(?P<review_id>\d+)/$', 'editorialreview.views.view_editorial_review', name='view_editorial_review'),
 
+    url(r'(?P<submission_id>\d+)/remove_editorial_review/(?P<review_id>\d+)/$', 'editorialreview.views.remove_editorial_review', name='remove_editorial_review'),
+    url(r'(?P<submission_id>\d+)/withdraw_editorial_review/(?P<review_id>\d+)/$', 'editorialreview.views.withdraw_editorial_review', name='withdraw_editorial_review'),
+    url(r'(?P<submission_id>\d+)/update_editorial_review_due_date/(?P<review_id>\d+)/$', 'editorialreview.views.update_editorial_review_due_date', name='update_editorial_review_due_date'),
 
     url(r'review/(?P<review_id>\d+)/view_review/(?P<non_editorial_review_id>\d+)/$', 'editorialreview.views.view_non_editorial_review', name='view_non_editorial_review'),
     url(r'review/(?P<review_id>\d+)/summary/$', 'editorialreview.views.view_content_summary', name='view_content_summary'),

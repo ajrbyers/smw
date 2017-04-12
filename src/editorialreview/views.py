@@ -14,6 +14,7 @@ from review import models as review_models, forms as review_forms
 from core import setting_util, email, models as core_models, logic as core_logic
 from core.files import handle_attachment, handle_email_file
 from submission import models as submission_models
+from editor import logic as editor_logic
 
 from core.decorators import is_reviewer, is_editor, is_book_editor
 
@@ -46,6 +47,63 @@ def add_editorial_review(request, submission_type, submission_id):
         'form': form,
         'review_forms': review_models.Form.objects.all(),
         'check': check,
+    }
+
+    return render(request, template, context)
+
+@is_editor
+def remove_editorial_review(request, submission_id, review_id):
+    # Currently just handles full submissions but can be expanded
+    review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    review_assignment.delete()
+    messages.add_message(request, messages.INFO, 'Editorial review assignment {} deleted'.format(review_id))
+
+    return redirect(reverse('editor_review', kwargs={'submission_id': submission_id}))
+
+
+@is_editor
+def withdraw_editorial_review(request, submission_id, review_id):
+    # Currently just handles full submissions but can be expanded
+    review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    if review_assignment.withdrawn:
+        review_assignment.withdrawn = False
+    else:
+        review_assignment.withdrawn = True
+
+    review_assignment.save()
+    messages.add_message(request, messages.INFO, 'Editorial review assignment {} {}'.format(
+        review_id, 'withdrawn' if review_assignment.withdrawn else 're-enabled'))
+
+    return redirect(reverse('editor_view_editorial_review', kwargs={'submission_id': submission_id,
+                                                                    'editorial_review_id': review_id}))
+
+@is_editor
+def update_editorial_review_due_date(request, submission_id, review_id):
+    submission = get_object_or_404(core_models.Book, pk=submission_id)
+    review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    previous_due_date = review_assignment.due
+
+    if request.POST:
+        email_text = core_models.Setting.objects.get(group__name='email', name='review_due_ack').value
+        due_date = request.POST.get('due_date', None)
+        notify = request.POST.get('email', None)
+
+        if due_date:
+            if not str(due_date) == str(previous_due_date):
+                review_assignment.due = due_date
+                review_assignment.save()
+
+                if notify:
+                    editor_logic.send_review_update(submission, review_assignment, email_text, request.user, attachment=None)
+                messages.add_message(request, messages.SUCCESS, 'Due date updated.')
+
+            return redirect(reverse('editor_view_editorial_review', kwargs={'submission_id': submission_id,
+                                                                   'editorial_review_id': review_id}))
+
+    template = 'editorialreview/update_editorial_review_due_date.html'
+    context = {
+        'submission': submission,
+        'review': review_assignment,
     }
 
     return render(request, template, context)

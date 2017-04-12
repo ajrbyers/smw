@@ -599,7 +599,6 @@ def editorial_review(request, submission_id, access_key):
             for editor in press_editors:
                 notification = core_models.Task(assignee=editor,creator=request.user,text=message,workflow='editorial-review', book = submission, editorial_review = review_assignment)
                 notification.save()
-                print "notify"
             messages.add_message(request, messages.INFO, 'Submitted successfully')
             if editorial_board:
                 return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.editorial_board_access_key}))
