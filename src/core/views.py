@@ -1749,7 +1749,6 @@ def proposal_assign_edit(request, proposal_id):
         if proposal.requestor and not proposal.requestor == request.user and not 'press-editor' in user_roles:
             editor = False
 
-        print editor
     else:
         editor = False
 
@@ -2473,7 +2472,6 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             review_assignment.save()
             message = "Review assignment for proposal '%s' has been completed by %s ." % (
                 review_assignment.proposal.title, review_assignment.user.profile.full_name())
-            print vars(review_assignment.proposal)
             notification = models.Task(assignee=review_assignment.proposal.requestor, creator=user,
                                        text=message, workflow='proposal')
             notification.save()
@@ -2594,7 +2592,7 @@ def add_proposal_reviewers(request, proposal_id):
                         member.user.first_name, member.user.last_name))
 
         # Tidy up and save
-
+        proposal.requestor = request.user
         proposal.date_review_started = timezone.now()
         proposal.save()
 
