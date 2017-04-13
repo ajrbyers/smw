@@ -14,6 +14,7 @@ from django.utils.encoding import smart_text
 
 from editor import forms as editor_forms
 from review import models as review_models
+from review import logic as review_logic
 from core import log, models, forms, logic
 from author import orcid
 from email import send_email, send_email_multiple, send_reset_email, get_email_content
@@ -1748,7 +1749,6 @@ def proposal_assign_edit(request, proposal_id):
         if proposal.requestor and not proposal.requestor == request.user and not 'press-editor' in user_roles:
             editor = False
 
-        print editor
     else:
         editor = False
 
@@ -2233,7 +2233,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        handle_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer')
+                        review_logic.handle_review_file(request.FILES[field.element.name], 'proposal', review_assignment, 'reviewer')
                     ]
 
             for field in data_fields:
@@ -2245,8 +2245,8 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
             form_results = review_models.FormResult(form=review_assignment.review_form, data=json_data)
             form_results.save()
 
-            # if request.FILES.get('review_file_upload'):
-            #   handle_review_file(request.FILES.get('review_file_upload'), submission, review_assignment, 'reviewer')
+            if request.FILES.get('review_file_upload'):
+                review_logic.handle_review_file(request.FILES.get('review_file_upload'), 'proposal', review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
@@ -2445,7 +2445,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
-                        handle_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer')]
+                        review_logic.handle_review_file(request.FILES[field.element.name], 'proposal', review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:
@@ -2592,7 +2592,7 @@ def add_proposal_reviewers(request, proposal_id):
                         member.user.first_name, member.user.last_name))
 
         # Tidy up and save
-
+        proposal.requestor = request.user
         proposal.date_review_started = timezone.now()
         proposal.save()
 
