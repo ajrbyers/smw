@@ -56,7 +56,6 @@ def handle_files(assignment, files):
     return assignment
 
 def handle_file(_file, assignment):
-    print assignment.type, type(assignment)
 
     if assignment.type() == 'copyedit':
         handled_file = files.handle_onetasker_file(_file, assignment.book, assignment, 'copyedit')
