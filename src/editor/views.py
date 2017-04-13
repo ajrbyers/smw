@@ -1907,7 +1907,6 @@ def update_format_or_chapter(request, submission_id, format_or_chapter, id):
                 file_update.label = None
             file_update.save()
             if request.FILES:
-                print request.FILES
                 if type == 'chapter':
                     if file_type:
                         item.file_type = file_type
