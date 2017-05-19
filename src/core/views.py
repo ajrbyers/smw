@@ -521,12 +521,27 @@ def permission_denied(request):
 # Dashboard
 @login_required
 def overview(request):
+    # Filter out unassigned books if user isn't press editor
+    book_list = None
+    roles = request.user_roles
+    if 'press-editor' in roles:
+        book_list = models.Book.objects.all()
+    elif 'book-editor' in roles:
+        book_list = models.Book.objects.filter(book_editors__in=[request.user])
+
+    if 'series-editor' in roles:
+        series_books = models.Book.objects.filter(series__editor=request.user)
+        if book_list:
+            book_list = (series_books | book_list).distinct()
+        else:
+            book_list = series_books
+
     template = 'core/dashboard/dashboard.html'
     context = {
-        'new_submissions': models.Book.objects.filter(stage__current_stage='submission'),
-        'in_review': models.Book.objects.filter(stage__current_stage='review'),
-        'in_editing': models.Book.objects.filter(stage__current_stage='editing'),
-        'in_production': models.Book.objects.filter(stage__current_stage='production'),
+        'new_submissions': book_list.filter(stage__current_stage='submission'),
+        'in_review': book_list.filter(stage__current_stage='review'),
+        'in_editing': book_list.filter(stage__current_stage='editing'),
+        'in_production': book_list.filter(stage__current_stage='production'),
     }
 
     return render(request, template, context)
