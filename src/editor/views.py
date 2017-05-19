@@ -57,6 +57,7 @@ def editor_dashboard(request):
     if search:
         query_list.append(Q(title__contains=search) | Q(subtitle__contains=search) | Q(prefix__contains=search))
 
+    # If not press editor, filter out unassigned books
     if not 'press-editor' in request.user_roles:
         query_list.append(Q(book_editors__in=[request.user]))
 
@@ -76,7 +77,6 @@ def editor_dashboard(request):
             stage__current_stage='declined').select_related('stage').order_by(order)
 
     series_books = []
-
     if 'series-editor' in request.user_roles:
         series_books = models.Book.objects.filter(series__editor=request.user).exclude(
             stage__current_stage='declined').select_related('stage').order_by(order)
@@ -87,7 +87,7 @@ def editor_dashboard(request):
     template = 'editor/dashboard.html'
     context = {
         'book_list': book_list,
-        'recent_activity': models.Log.objects.all().order_by('-date_logged')[:15],
+        'recent_activity': models.Log.objects.filter(book__in=book_list).order_by('-date_logged')[:15],
         'notifications': models.Task.objects.filter(assignee=request.user, completed__isnull=True).select_related(
             'book').order_by('due'),
         'order': order,
