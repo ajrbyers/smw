@@ -697,7 +697,7 @@ def create_completed_review_form(submission,review_id):
         for relation in relations:
             v = data[relation.element.name]
             document.add_heading(relation.element.name, level=1)
-            text = BeautifulSoup(str(v[0]),"html.parser").get_text()
+            text = BeautifulSoup((v[0]).encode('utf-8'), 'html.parser').get_text()
             document.add_paragraph(text).bold = True
             recommendations = {'accept': 'Accept','reject': 'Reject', 'revisions':'Revisions Required'}
 
