@@ -1615,11 +1615,24 @@ def view_chapter(request, submission_id, chapter_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
     chapter_formats = models.ChapterFormat.objects.filter(chapter=chapter)
+    chapter_authors = models.ChapterAuthor.objects.filter(chapter=chapter)
+    old_format_authors = chapter.authors.all()
+
+    # Add Authors linked to Chapter by old ManytoMany relation as ChapterAuthors
+    if old_format_authors:
+        logic.add_chapterauthors_from_author_models(chapter_id, old_format_authors)
 
     if request.POST and 'remove_author' in request.POST:
         author_id = request.POST.get('author_id')[:-1]
-        author = models.Author.objects.get(pk=author_id)
-        chapter.authors.remove(author)
+        chapter_author = models.ChapterAuthor.objects.get(pk=author_id)
+
+        # Also remove ManytoMany relation between Author and Chapter, if there is one
+        author = models.Author.objects.get(pk=chapter_author.old_author_id)
+        if author:
+            chapter.authors.remove(author)
+        chapter_author.delete()
+
+        messages.add_message(request, messages.INFO, 'Author removed')
 
         return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter.id}))
 
@@ -1627,6 +1640,7 @@ def view_chapter(request, submission_id, chapter_id):
     context = {
         'submission': book,
         'chapter': chapter,
+        'chapter_authors': chapter_authors,
         'chapter_formats': chapter_formats,
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_chapter.html',
@@ -1791,24 +1805,22 @@ def add_chapter_author(request, submission_id, chapter_id, author_id=None):
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
 
     if author_id:
-        author = get_object_or_404(models.Author, pk=author_id)
-        form = submission_forms.AuthorForm(instance=author)
+        author = get_object_or_404(models.ChapterAuthor, pk=author_id)
+        form = submission_forms.ChapterAuthorForm(instance=author, initial={'chapter': chapter})
     else:
         author = None
-        form = submission_forms.AuthorForm()
+        form = forms.ChapterAuthorForm(initial={'chapter': chapter})
 
     if request.POST:
-
         if author_id:
-            form = submission_forms.AuthorForm(request.POST, instance=author)
+            form = forms.ChapterAuthorForm(request.POST, instance=author)
             message = 'Author edited.'
         else:
-            form = submission_forms.AuthorForm(request.POST)
+            form = forms.ChapterAuthorForm(request.POST)
             message = 'Author added.'
 
         if form.is_valid():
-            new_chapter_author = form.save()
-            chapter.authors.add(new_chapter_author)
+            form.save()
 
             messages.add_message(request, messages.INFO, message)
 

@@ -421,3 +421,32 @@ def send_requests_revisions(book, sender, revision, email_text, attachments=None
     }
 
     email.send_email_multiple(get_setting('revisions_requested_subject','email_subject','Revisions Requested'), context, from_email.value, book.owner.email, email_text, book=book, attachments=attachments, kind = 'revisions')
+
+def add_chapterauthors_from_author_models(chapter_id, authors):
+    '''
+    Takes list of Author models tied to a Chapter through a ManytoMany relationship
+    and saves ChapterAuthors based on those models if they don't already exist.
+    '''
+    for auth in authors:
+        defaults = {
+            'sequence': 1,
+            'first_name': str(auth.first_name),
+            'middle_name': str(auth.middle_name),
+            'last_name': str(auth.last_name),
+            'salutation': str(auth.salutation),
+            'institution': str(auth.institution),
+            'department': str(auth.department),
+            'country': str(auth.country),
+            'author_email': str(auth.author_email),
+            'biography': str(auth.biography),
+            'orcid': str(auth.orcid),
+            'twitter': str(auth.twitter),
+            'linkedin': str(auth.linkedin),
+            'facebook': str(auth.facebook),
+        }
+        chapter_author, created = models.ChapterAuthor.objects.get_or_create(
+            chapter=models.Chapter.objects.get(pk=chapter_id),
+            old_author_id=auth.pk,
+            defaults=defaults,
+        )
+

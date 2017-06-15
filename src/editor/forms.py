@@ -72,6 +72,12 @@ class ChapterForm(forms.ModelForm):
         model = core_models.Chapter
         exclude = ('book', 'formats')
 
+class ChapterAuthorForm(forms.ModelForm):
+
+    class Meta:
+        model = core_models.ChapterAuthor
+        exclude = ('old_author_id',)
+
 class PhysicalFormatForm(forms.ModelForm):
 
     class Meta:

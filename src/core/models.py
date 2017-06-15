@@ -1211,6 +1211,42 @@ class Chapter(models.Model):
         return u'%s - %s' % (self.book, self.sequence)
 
 
+class ChapterAuthor(models.Model):
+    # Very similar to author but containing chapter and sequence within chapter
+    chapter = models.ForeignKey(Chapter)
+    sequence = models.IntegerField(default=1, null=True, blank=True)
+    # Identifier if ChapterAuthor model has been automatically created from existing Author model
+    old_author_id = models.IntegerField(null=True, blank=True)
+    first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100)
+    salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True)
+    institution = models.CharField(max_length=1000, null=True, blank=True)
+    department = models.CharField(max_length=300, null=True, blank=True)
+    country = models.CharField(max_length=300, choices=COUNTRY_CHOICES, null=True, blank=True)
+    author_email = models.CharField(max_length=100)
+    biography = models.TextField(max_length=3000, null=True, blank=True)
+    orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name="ORCiD")
+    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
+    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
+    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Profile")
+
+    class Meta:
+        ordering = ('sequence',)
+
+    def __unicode__(self):
+        return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
+
+    def __repr__(self):
+        return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
+
+    def full_name(self):
+        if self.middle_name:
+            return "%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        else:
+            return "%s %s" % (self.first_name, self.last_name)
+
+
 class ChapterFormat(models.Model):
     chapter = models.ForeignKey(Chapter, related_name='format_chapter')
     book = models.ForeignKey(Book)
