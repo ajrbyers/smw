@@ -20,7 +20,7 @@ from core import models, log, logic as core_logic, forms as core_forms
 from core.decorators import is_book_editor
 from core.decorators import is_editor
 from core.decorators import is_press_editor
-from editor import logic
+from editor import logic, forms as editor_forms
 from revisions import models as revision_models
 from review import models as review_models
 from manager import models as manager_models, logic as manager_logic
@@ -1645,7 +1645,6 @@ def view_chapter(request, submission_id, chapter_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_chapter.html',
         'active': 'production',
-        'submission': book,
         'format_list': models.Format.objects.filter(book=book).select_related('file'),
         'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
         'active_page': 'production',
@@ -1700,7 +1699,6 @@ def update_chapter(request, submission_id, chapter_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_chapter.html',
         'active': 'production',
-        'submission': book,
         'format_list': models.Format.objects.filter(book=book).select_related('file'),
         'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
         'active_page': 'production',
@@ -1800,20 +1798,21 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
 
 
 @is_book_editor
-def add_chapter_author(request, submission_id, chapter_id, author_id=None):
+def add_edit_chapter_author(request, submission_id, chapter_id, chapter_author_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
+    edit = True if chapter_author_id else False
 
-    if author_id:
-        author = get_object_or_404(models.ChapterAuthor, pk=author_id)
-        form = submission_forms.ChapterAuthorForm(instance=author, initial={'chapter': chapter})
+    if edit:
+        chapter_author = get_object_or_404(models.ChapterAuthor, pk=chapter_author_id)
+        form = editor_forms.ChapterAuthorForm(instance=chapter_author, initial={'chapter': chapter})
     else:
-        author = None
+        chapter_author = None
         form = forms.ChapterAuthorForm(initial={'chapter': chapter})
 
     if request.POST:
-        if author_id:
-            form = forms.ChapterAuthorForm(request.POST, instance=author)
+        if edit:
+            form = forms.ChapterAuthorForm(request.POST, instance=chapter_author)
             message = 'Author edited.'
         else:
             form = forms.ChapterAuthorForm(request.POST)
@@ -1830,16 +1829,16 @@ def add_chapter_author(request, submission_id, chapter_id, author_id=None):
     context = {
         'submission': book,
         'chapter': chapter,
+        'edit': edit,
         'active': 'production',
         'author_include': 'editor/production/view.html',
-        'submission_files': 'editor/production/add_chapter_author.html',
+        'submission_files': 'editor/production/add_edit_chapter_author.html',
         'format_list': models.Format.objects.filter(book=book).select_related('file'),
         'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
         'form': form,
     }
 
     return render(request, template, context)
-
 
 @is_book_editor
 def add_physical(request, submission_id):

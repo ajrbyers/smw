@@ -1,0 +1,43 @@
+
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+
+{% block css %}
+  <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+{% endblock %}
+</br>
+<div class="col-md-12 file-heading container-fluid" style="margin-top:-10px">
+          <h4>{% if edit %}Edit {% else %}Add {% endif %} Author</h4>
+</div>
+
+<div class="col-md-12 dash-container bottom-space">
+
+  {{ form.errors }}
+        <div class="media-body">
+        <div class="col-md-12">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form_errors form layout='inline' %}
+              <div class="form-group">
+                  <div class="row">
+                    <div class="col-md-12">
+
+                    {% bootstrap_form form %}
+                    
+                      <div class="input-group pull-right ">
+                          <br />
+                          <a href="{% url 'editor_view_chapter' submission.id chapter.id %}" style="margin-right:15px">Cancel</a>
+                          <button class="btn btn-task  btn-round-half" type="submit" name="update" id="update">
+                              Submit
+                          </button>
+                      </div>
+                    </div>
+                 </div>
+          </form>
+        </div>
+      </div>
+</div>
+
+{% block js %}
+<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+{% endblock %}
