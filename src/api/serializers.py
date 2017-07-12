@@ -170,6 +170,7 @@ class ChapterAuthorSerializer(serializers.ModelSerializer):
             'id',
             'chapter',
             'sequence',
+            'uuid',
             'old_author_id',
             'salutation',
             'first_name',
