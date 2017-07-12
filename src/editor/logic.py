@@ -3,6 +3,7 @@ from django.db.models import Max
 
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.encoding import smart_text
 from django.contrib import messages
 from core import models, email, log
 from submission import logic as submission_logic
@@ -429,28 +430,30 @@ def add_chapterauthors_from_author_models(chapter_id, authors):
     removes the author model from that chapter.
     '''
     chapter = models.Chapter.objects.get(pk=chapter_id)
+    count = 1
 
     for auth in authors:
         defaults = {
-            'sequence': 1,
-            'first_name': str(auth.first_name),
-            'middle_name': str(auth.middle_name),
-            'last_name': str(auth.last_name),
-            'salutation': str(auth.salutation),
-            'institution': str(auth.institution),
-            'department': str(auth.department),
-            'country': str(auth.country),
-            'author_email': str(auth.author_email),
-            'biography': str(auth.biography),
-            'orcid': str(auth.orcid),
-            'twitter': str(auth.twitter),
-            'linkedin': str(auth.linkedin),
-            'facebook': str(auth.facebook),
+            'sequence': count,
+            'first_name': smart_text(auth.first_name),
+            'middle_name': smart_text(auth.middle_name),
+            'last_name': smart_text(auth.last_name),
+            'salutation': smart_text(auth.salutation),
+            'institution': smart_text(auth.institution),
+            'department': smart_text(auth.department),
+            'country': smart_text(auth.country),
+            'author_email': smart_text(auth.author_email),
+            'biography': smart_text(auth.biography),
+            'orcid': smart_text(auth.orcid),
+            'twitter': smart_text(auth.twitter),
+            'linkedin': smart_text(auth.linkedin),
+            'facebook': smart_text(auth.facebook),
         }
         chapter_author, created = models.ChapterAuthor.objects.get_or_create(
             chapter=chapter,
             old_author_id=auth.pk,
             defaults=defaults,
         )
-
+        count += 1
         chapter.authors.remove(auth)
+

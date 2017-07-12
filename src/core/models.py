@@ -1216,6 +1216,7 @@ class ChapterAuthor(models.Model):
     # Very similar to author but containing chapter and sequence within chapter
     chapter = models.ForeignKey(Chapter)
     sequence = models.IntegerField(default=1, null=True, blank=True)
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     # Identifier if ChapterAuthor model has been automatically created from existing Author model
     old_author_id = models.IntegerField(null=True, blank=True)
     first_name = models.CharField(max_length=100)
@@ -1232,9 +1233,6 @@ class ChapterAuthor(models.Model):
     linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
     facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Profile")
 
-    class Meta:
-        ordering = ('sequence',)
-
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
 
@@ -1246,6 +1244,9 @@ class ChapterAuthor(models.Model):
             return "%s %s %s" % (self.first_name, self.middle_name, self.last_name)
         else:
             return "%s %s" % (self.first_name, self.last_name)
+
+    class Meta:
+        ordering = ('sequence',)
 
 
 class ChapterFormat(models.Model):
