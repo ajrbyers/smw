@@ -162,10 +162,37 @@ class ChapterFormatSerializer(serializers.HyperlinkedModelSerializer):
             'sequence',
         )
 
+class ChapterAuthorSerializer(serializers.ModelSerializer):
 
-class ChapterSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.ChapterAuthor
+        fields = (
+            'id',
+            'chapter',
+            'sequence',
+            'old_author_id',
+            'salutation',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'institution',
+            'department',
+            'country',
+            'author_email',
+            'biography',
+            'orcid',
+            'twitter',
+            'linkedin',
+            'facebook',
+            'sequence',
+            'full_name',
+        )
+
+
+class ChapterSerializer(serializers.ModelSerializer):
 
     authors = AuthorSerializer(many=True)
+    chapter_authors = ChapterAuthorSerializer(many=True, source='chapterauthor_set')
     keywords = KeywordSerializer(many=True)
     disciplines = DisciplineSerializer(many=True)
     formats = ChapterFormatSerializer(many=True)
@@ -182,6 +209,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
             'disciplines',
             'sequence',
             'authors',
+            'chapter_authors',
         )
 
 
@@ -342,6 +370,7 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
             models.Author.objects.create(book=book, **author_data)
 
         return book
+
 
 class OMPSerializer(serializers.HyperlinkedModelSerializer):
     """

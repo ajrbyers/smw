@@ -1198,6 +1198,7 @@ class Chapter(models.Model):
     keywords = models.ManyToManyField('Keyword', null=True, blank=True)
     disciplines = models.ManyToManyField('Subject', null=True, blank=True)
     sequence = models.IntegerField(default=999)
+    # Replaced by ChapterAuthor to allow ordering within chapters.
     authors = models.ManyToManyField('Author', null=True, blank=True)
     doi = models.CharField(max_length=300, null=True, blank=True)
 

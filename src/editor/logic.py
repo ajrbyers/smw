@@ -425,8 +425,11 @@ def send_requests_revisions(book, sender, revision, email_text, attachments=None
 def add_chapterauthors_from_author_models(chapter_id, authors):
     '''
     Takes list of Author models tied to a Chapter through a ManytoMany relationship
-    and saves ChapterAuthors based on those models if they don't already exist.
+    and saves ChapterAuthors based on those models if they don't already exist, then
+    removes the author model from that chapter.
     '''
+    chapter = models.Chapter.objects.get(pk=chapter_id)
+
     for auth in authors:
         defaults = {
             'sequence': 1,
@@ -445,8 +448,9 @@ def add_chapterauthors_from_author_models(chapter_id, authors):
             'facebook': str(auth.facebook),
         }
         chapter_author, created = models.ChapterAuthor.objects.get_or_create(
-            chapter=models.Chapter.objects.get(pk=chapter_id),
+            chapter=chapter,
             old_author_id=auth.pk,
             defaults=defaults,
         )
 
+        chapter.authors.remove(auth)
