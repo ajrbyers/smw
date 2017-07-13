@@ -40,6 +40,8 @@ class EditorTests(TestCase):
         self.client = Client(HTTP_HOST="testing")
         self.user = User.objects.get(username="rua_editor")
         self.book = core_models.Book.objects.get(pk=1)
+        self.chapter = core_models.Chapter.objects.get(pk=1)
+        self.chapter_authors = core_models.ChapterAuthor.objects.filter(chapter=self.chapter)
         self.factory = RequestFactory()
         login = self.client.login(username='rua_editor', password='tester')
         self.assertEqual(login, True)
@@ -560,10 +562,19 @@ class EditorTests(TestCase):
 			'title':'title',
 			'subtitle':'subtitle',
 			'series':None,
-			'description':'descirption',
+			'description':'description',
 			'license':'2',
 			'pages':'15',
 			'slug':'slug',
 			'review_type':'open-with',
 			'languages':'124',
 			'publication_date':None}) '''
+
+    def test_view_chapter(self):
+        resp = self.client.get(reverse('editor_view_chapter', kwargs={
+            'submission_id': self.book.id,
+            'chapter_id': self.chapter.id,
+        }))
+        content = resp.content
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual("Chapter Authors" in content, True)
