@@ -231,7 +231,7 @@ def editorial_review(request, review_id):
             logic.handle_generated_form_post(review, request)
             review.completed = timezone.now()
             review.save()
-            return redirect(reverse('editorial_review_thanks'))
+            return redirect(reverse('editorial_review_thanks', kwargs={'review_id': review_id}))
 
     template = 'editorialreview/editorial_review.html'
     context = {
@@ -346,9 +346,11 @@ def download_editor_er_file(request, file_id, review_id):
         messages.add_message(request, messages.ERROR, 'File not found. %s' % (file_path))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-def editorial_review_thanks(request):
+def editorial_review_thanks(request, review_id):
 
     template = 'editorialreview/editorial_review_thanks.html'
-    context = {}
+    context = {
+        'review_id': review_id,
+    }
 
     return render(request, template, context)

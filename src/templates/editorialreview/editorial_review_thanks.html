@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
 {% block body %}
-<h2>Thanks for completing your review.</h2>
+<h3>Thank you for completing this review.</h3>
+<br>
+<a href="{% url 'view_editorial_review' review_id %}">View Review</a>
+or
+<a href="{% url 'reviewer_dashboard' %}">return to reviewer dashboard.</a>
 {% endblock body %}

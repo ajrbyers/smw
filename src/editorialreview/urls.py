@@ -15,8 +15,8 @@ urlpatterns = patterns('',
 
     url(r'review/(?P<review_id>\d+)/view_review/(?P<non_editorial_review_id>\d+)/$', 'editorialreview.views.view_non_editorial_review', name='view_non_editorial_review'),
     url(r'review/(?P<review_id>\d+)/summary/$', 'editorialreview.views.view_content_summary', name='view_content_summary'),
+    url(r'review/(?P<review_id>\d+)/thanks/$', 'editorialreview.views.editorial_review_thanks', name='editorial_review_thanks'),
     url(r'review/(?P<review_id>\d+)/$', 'editorialreview.views.editorial_review', name='editorial_review'),
-    url(r'review/thanks/$', 'editorialreview.views.editorial_review_thanks', name='editorial_review_thanks'),
 
 
 )
