@@ -3,6 +3,7 @@ from django.db.models import Max
 
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.encoding import smart_text
 from django.contrib import messages
 from core import models, email, log
 from submission import logic as submission_logic
@@ -421,3 +422,38 @@ def send_requests_revisions(book, sender, revision, email_text, attachments=None
     }
 
     email.send_email_multiple(get_setting('revisions_requested_subject','email_subject','Revisions Requested'), context, from_email.value, book.owner.email, email_text, book=book, attachments=attachments, kind = 'revisions')
+
+def add_chapterauthors_from_author_models(chapter_id, authors):
+    '''
+    Takes list of Author models tied to a Chapter through a ManytoMany relationship
+    and saves ChapterAuthors based on those models if they don't already exist, then
+    removes the author model from that chapter.
+    '''
+    chapter = models.Chapter.objects.get(pk=chapter_id)
+    count = 1
+
+    for auth in authors:
+        defaults = {
+            'sequence': count,
+            'first_name': smart_text(auth.first_name),
+            'middle_name': smart_text(auth.middle_name),
+            'last_name': smart_text(auth.last_name),
+            'salutation': smart_text(auth.salutation),
+            'institution': smart_text(auth.institution),
+            'department': smart_text(auth.department),
+            'country': smart_text(auth.country),
+            'author_email': smart_text(auth.author_email),
+            'biography': smart_text(auth.biography),
+            'orcid': smart_text(auth.orcid),
+            'twitter': smart_text(auth.twitter),
+            'linkedin': smart_text(auth.linkedin),
+            'facebook': smart_text(auth.facebook),
+        }
+        chapter_author, created = models.ChapterAuthor.objects.get_or_create(
+            chapter=chapter,
+            old_author_id=auth.pk,
+            defaults=defaults,
+        )
+        count += 1
+        chapter.authors.remove(auth)
+
