@@ -91,26 +91,26 @@
 	    </thead>
 	    <tbody>
 	    {% for reviewer in editorial_reviewers %}
-	    <tr>
-	      <td>{{ reviewer.user.first_name }}</td>
-          <td>{{ reviewer.user.last_name }}</td>
-          <td>
-              {% for group in editorial_groups %}
-                {% if group.id == reviewer.group_id %}
-                    {{ group }}
-                {% else %} None
-                {% endif %}
-              {% endfor %}
-          </td>
-          <td>{{ reviewer.user.email }}</td>
-          <td><a href="{% url 'view_profile_readonly' reviewer.user.id %}" target="_blank">
-              {{ reviewer.user.first_name }} {{ reviewer.user.last_name }}</a></td>
-          <td>{{ reviewer.user.profile.number_active_reviews }}</td>
-          <td>{{ reviewer.user.profile.number_completed_reviews }}</td>
-          <td>{{ reviewer.user.profile.number_declined_reviews }}</td>
-          <td><a href="{% url 'view_review_history' reviewer.user.id %}" target="_blank">View</a></td>
-          <td><input type="radio" name="reviewer" value="{{ reviewer.user.id }}"/></td>
-	    </tr>
+            <tr>
+              <td>{{ reviewer.user.first_name }}</td>
+              <td>{{ reviewer.user.last_name }}</td>
+              <td>
+                  {% for group in editorial_groups %}
+                    {% if group.id == reviewer.group_id %}
+                        {{ group }}
+                    {% else %} None
+                    {% endif %}
+                  {% endfor %}
+              </td>
+              <td>{{ reviewer.user.email }}</td>
+              <td><a href="{% url 'view_profile_readonly' reviewer.user.id %}" target="_blank">
+                  {{ reviewer.user.first_name }} {{ reviewer.user.last_name }}</a></td>
+              <td>{{ reviewer.user.profile.number_active_reviews }}</td>
+              <td>{{ reviewer.user.profile.number_completed_reviews }}</td>
+              <td>{{ reviewer.user.profile.number_declined_reviews }}</td>
+              <td><a href="{% url 'view_review_history' reviewer.user.id %}" target="_blank">View</a></td>
+              <td><input type="checkbox" name="reviewer" value="{{ reviewer.user.id }}"/></td>
+            </tr>
 	    {% endfor %}
 		</tbody>
 	  </table>

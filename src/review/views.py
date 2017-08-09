@@ -48,8 +48,6 @@ def reviewer_dashboard(request):
     pending_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=True,declined__isnull=True, withdrawn = False)
     completed_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=False, withdrawn = False)
 
-
-
     template = 'review/dashboard.html'
     context = {
         'pending_tasks': pending_tasks,
