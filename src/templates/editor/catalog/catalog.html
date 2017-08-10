@@ -213,14 +213,16 @@
                     <div class="col-md-6" style="max-height: 290px; overflow-x: scroll;">
                       {% bootstrap_field metadata_form.languages %}
                     </div>
-                     <div class="col-md-3">
+                     <div class="col-md-6">
                       {% bootstrap_field metadata_form.expected_completion_date %}
                       </div>
                        <div class="col-md-3">
-                      {% bootstrap_field metadata_form.table_contents %}
+                      {% bootstrap_field metadata_form.table_contents_linked %}
                       </div>
-                     <div class="col-md-6">
+                      <div class="col-md-3">
                       {% bootstrap_field metadata_form.peer_review_override %}
+                      </div>
+                      <div class="col-md-6">
                       <div class="aside"><strong>Keywords</strong> Hit Enter to add a new keyword.</div>
                       <input type="text" id="tags" name="tags" value="{% for keyword in submission.keywords.all %}{{ keyword }}{% if not forloop.last %},{% endif %}{% endfor %}"/>
                       <div class="aside"><strong>Disciplines</strong> Hit Enter to add a new discipline.</div>

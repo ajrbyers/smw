@@ -294,13 +294,6 @@ class Author(models.Model):
             return "%s %s" % (self.first_name, self.last_name)
 
 
-def table_contents_options():
-    return (
-        ('book-level', 'Book Level'),
-        ('chapter-level', 'Chapter Level'),
-    )
-
-
 class Book(models.Model):
     prefix = models.CharField(max_length=100, null=True, blank=True,
                               help_text='A prefix like "The" that shouldn\'t be used for searching')
@@ -333,7 +326,9 @@ class Book(models.Model):
                                  help_text="A monograph is a work authored, in its entirety, by one or more authors. An edited volume has different authors for each chapter.")
     review_type = models.CharField(max_length=50, choices=book_review_type_choices(), default='closed')
     languages = models.ManyToManyField('Language', null=True, blank=True)
-    table_contents = models.CharField(max_length=100, choices=table_contents_options(), null=True, blank=True)
+    table_contents_linked = models.BooleanField(default=False,
+                                            help_text='If enabled, will make chapters on table of contents link '
+                                                      'to individual chapter pages.')
 
     # Book Owner
     owner = models.ForeignKey(User, null=True, blank=True)
