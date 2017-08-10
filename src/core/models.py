@@ -326,7 +326,7 @@ class Book(models.Model):
                                  help_text="A monograph is a work authored, in its entirety, by one or more authors. An edited volume has different authors for each chapter.")
     review_type = models.CharField(max_length=50, choices=book_review_type_choices(), default='closed')
     languages = models.ManyToManyField('Language', null=True, blank=True)
-    table_contents_linked = models.BooleanField(default=False,
+    table_contents_linked = models.BooleanField(default=False, verbose_name='Table of contents linked',
                                             help_text='If enabled, will make chapters on table of contents link '
                                                       'to individual chapter pages.')
 
