@@ -355,6 +355,7 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
             'identifier',
             'peer_review_override',
             'review_assignments',
+            'table_contents_linked',
         )
 
     def create(self, validated_data):

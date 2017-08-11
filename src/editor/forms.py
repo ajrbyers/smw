@@ -121,7 +121,7 @@ class EditMetadata(forms.ModelForm):
             'expected_completion_date',
             'peer_review_override',
             'book_type',
-            'table_contents',
+            'table_contents_linked',
             'publisher_location',
             'publisher_name'
         )
