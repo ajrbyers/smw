@@ -846,7 +846,7 @@ def send_review_request(book, review_assignment, email_text, sender, attachment=
                      attachment=attachment, kind='review')
 
 
-def send_proposal_book_editor(request, proposal, email_text, sender):
+def send_proposal_book_editor(request, proposal, email_text, sender, editor_email):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
     if request:
         from_email = "%s <%s>" % (request.user.profile.full_name(), from_email.value)
@@ -856,7 +856,7 @@ def send_proposal_book_editor(request, proposal, email_text, sender):
         'sender': sender,
     }
     subject = get_setting('proposal_book_editors_subject', 'email_subject', '[abp] Proposal Book Editors: Update')
-    email.send_email(subject, context, from_email, proposal.owner.email, email_text, proposal=proposal, request=request, kind='proposal')
+    email.send_email(subject, context, from_email, editor_email, email_text, proposal=proposal, request=request, kind='proposal')
 
 
 def send_proposal_decline(request, proposal, email_text, sender):

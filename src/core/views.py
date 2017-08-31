@@ -2336,7 +2336,7 @@ def proposal_add_editors(request, proposal_id):
 
         email_text = email_text.replace('_proposal_editors_', editor_text)
 
-        logic.send_proposal_book_editor(request, proposal, email_text, request.user)
+        logic.send_proposal_book_editor(request, proposal, email_text, request.user, user.email)
 
         list_of_editors = get_list_of_editors(proposal)
 
@@ -2355,7 +2355,7 @@ def proposal_add_editors(request, proposal_id):
 
         email_text = email_text.replace('You have been assigned as a', 'You have been removed from being a')
 
-        logic.send_proposal_book_editor(request, proposal, email_text, request.user)
+        logic.send_proposal_book_editor(request, proposal, email_text, request.user, user.email)
 
         list_of_editors = get_list_of_editors(proposal)
 
