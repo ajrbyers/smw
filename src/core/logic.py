@@ -856,7 +856,8 @@ def send_proposal_book_editor(request, proposal, email_text, sender, editor_emai
         'sender': sender,
     }
     subject = get_setting('proposal_book_editors_subject', 'email_subject', '[abp] Proposal Book Editors: Update')
-    email.send_email(subject, context, from_email, editor_email, email_text, proposal=proposal, request=request, kind='proposal')
+    email.send_email(subject, context, from_email, editor_email, email_text,
+                     proposal=proposal, request=request, kind='proposal')
 
 
 def send_proposal_decline(request, proposal, email_text, sender):
@@ -869,7 +870,8 @@ def send_proposal_decline(request, proposal, email_text, sender):
         'sender': sender,
     }
     subject = get_setting('proposal_declined_subject', 'email_subject', '[abp] Proposal Declined')
-    email.send_email(subject, context, from_email, proposal.owner.email, email_text, proposal=proposal, request=request, kind='proposal')
+    email.send_email(subject, context, from_email, proposal.owner.email, email_text,
+                     proposal=proposal, request=request, kind='proposal')
 
 def send_proposal_update(proposal, email_text, sender, receiver):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
@@ -880,7 +882,8 @@ def send_proposal_update(proposal, email_text, sender, receiver):
         'receiver': receiver,
     }
     subject = get_setting('proposal_update_subject', 'email_subject', '[abp] Proposal Update')
-    email.send_email(subject, context, from_email.value, proposal.owner.email, email_text, proposal=proposal, kind='proposal')
+    email.send_email(subject, context, from_email.value, proposal.owner.email,
+                     email_text, proposal=proposal, kind='proposal')
 
 def send_proposal_submission_ack(proposal, email_text, owner):
     from_email = models.Setting.objects.get(group__name='email', name='from_address')
