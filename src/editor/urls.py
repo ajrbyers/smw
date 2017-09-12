@@ -66,8 +66,8 @@ urlpatterns = patterns('',
                        url(r'^submission/(?P<submission_id>\d+)/production/view/typesetter/(?P<typeset_id>\d+)/alter/due-date/$', 'editor.views.view_typesetter_alter_due_date', name='view_typesetter_alter_due_date'),
                        url(r'^submission/(?P<submission_id>\d+)/production/view/typesetter/(?P<typeset_id>\d+)/alter/author-due/$', 'editor.views.view_typesetter_alter_author_due', name='view_typesetter_alter_author_due'),
 
-                       url(r'^submission/(?P<submission_id>\d+)/production/chapter/(?P<chapter_id>\d+)/add/author/$', 'editor.views.add_chapter_author', name='add_chapter_author'),
-                       url(r'^submission/(?P<submission_id>\d+)/production/chapter/(?P<chapter_id>\d+)/edit/author/(?P<author_id>\d+)/$', 'editor.views.add_chapter_author', name="edit_chapter_author"),
+                       url(r'^submission/(?P<submission_id>\d+)/production/chapter/(?P<chapter_id>\d+)/add/author/$', 'editor.views.add_edit_chapter_author', name='add_chapter_author'),
+                       url(r'^submission/(?P<submission_id>\d+)/production/chapter/(?P<chapter_id>\d+)/edit/author/(?P<chapter_author_id>\d+)/$', 'editor.views.add_edit_chapter_author', name='edit_chapter_author'),
 
 
                        # Catalog

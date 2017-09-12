@@ -90,7 +90,7 @@ def handle_generated_form_post(review_assignment, request):
 
 def handle_review_file(file, review_assignment, kind):
 
-    original_filename = smart_text(file._get_name())
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder = "{0}s".format(review_assignment.content_type)
     folder_structure = os.path.join(settings.BASE_DIR, 'files', folder, str(review_assignment.content_object.id))

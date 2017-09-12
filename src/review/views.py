@@ -240,6 +240,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
     if not request.POST and request.GET.get('download') == 'docx':
         path = create_completed_review_form(submission, review_assignment.pk)
         return serve_file(request, path)
+
     elif request.POST:
         form = forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.review_form)
         recommendation_form = core_forms.RecommendationForm(request.POST, ci_required=ci_required.value)
@@ -251,7 +252,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             for field in file_fields:
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [handle_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer')]
+                    save_dict[field.element.name] = [logic.handle_review_file(request.FILES[field.element.name], 'book', review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:
@@ -278,7 +279,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                 review_assignment.save()
 
             if request.FILES.get('review_file_upload'):
-                handle_review_file(request.FILES.get('review_file_upload'), submission, review_assignment, 'reviewer')
+                logic.handle_review_file(request.FILES.get('review_file_upload'), 'book', review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
@@ -326,7 +327,7 @@ def review_request_declined(request):
     return render(request, template)
 
 @is_reviewer
-def review_complete(request, review_type, submission_id,review_round,access_key=None):
+def review_complete(request, review_type, submission_id, review_round, access_key=None):
 
     one_click_no_login = core_models.Setting.objects.filter(name='one_click_review_url')
 
@@ -334,7 +335,6 @@ def review_complete(request, review_type, submission_id,review_round,access_key=
         review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key)
         submission = get_object_or_404(core_models.Book, pk=submission_id)
         user = review_assignment.user
-
     else:
         user = request.user
 
@@ -694,7 +694,7 @@ def create_completed_review_form(submission,review_id):
         for relation in relations:
             v = data[relation.element.name]
             document.add_heading(relation.element.name, level=1)
-            text = BeautifulSoup(str(v[0]),"html.parser").get_text()
+            text = BeautifulSoup((v[0]).encode('utf-8'), 'html.parser').get_text()
             document.add_paragraph(text).bold = True
             recommendations = {'accept': 'Accept','reject': 'Reject', 'revisions':'Revisions Required'}
 
@@ -794,43 +794,6 @@ def serve_file(request, file_path):
     except IOError:
         messages.add_message(request, messages.ERROR, 'File not found.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-def handle_review_file(file, proposal, review_assignment, kind):
-
-    original_filename = smart_text(file._get_name())
-    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(proposal.id))
-
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-    for chunk in file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
-
-    new_file = core_models.File(
-        mime_type=file_mime,
-        original_filename=original_filename,
-        uuid_filename=filename,
-        stage_uploaded=1,
-        kind=kind,
-        owner=review_assignment.user,
-    )
-    new_file.save()
-    review_assignment.files.add(new_file)
-
-    return path
 
 def handle_editorial_review_file(file, proposal, review_assignment, kind, editorial):
 

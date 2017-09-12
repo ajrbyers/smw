@@ -72,6 +72,12 @@ class ChapterForm(forms.ModelForm):
         model = core_models.Chapter
         exclude = ('book', 'formats')
 
+class ChapterAuthorForm(forms.ModelForm):
+
+    class Meta:
+        model = core_models.ChapterAuthor
+        exclude = ('old_author_id',)
+
 class PhysicalFormatForm(forms.ModelForm):
 
     class Meta:
@@ -115,7 +121,7 @@ class EditMetadata(forms.ModelForm):
             'expected_completion_date',
             'peer_review_override',
             'book_type',
-            'table_contents',
+            'table_contents_linked',
             'publisher_location',
             'publisher_name'
         )
