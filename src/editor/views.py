@@ -61,11 +61,11 @@ def editor_dashboard(request):
     if not 'press-editor' in request.user_roles:
         query_list.append(Q(book_editors__in=[request.user]))
 
+    book_list = []
     if query_list:
-        list_of_books = models.Book.objects.filter(publication_date__isnull=True).filter(*query_list).exclude(
+        query_books = models.Book.objects.filter(publication_date__isnull=True).filter(*query_list).exclude(
             stage__current_stage='declined').select_related('stage').select_related('owner__profile').order_by(order)
-        book_list = []
-        for book in list_of_books:
+        for book in query_books:
             if filterby == 'revisions':
                 if book.revisions_requested():
                     book_list.append(book)
@@ -73,8 +73,10 @@ def editor_dashboard(request):
                 if not book.revisions_requested():
                     book_list.append(book)
     else:
-        book_list = models.Book.objects.filter(publication_date__isnull=True).exclude(
+        books = models.Book.objects.filter(publication_date__isnull=True).exclude(
             stage__current_stage='declined').select_related('stage').order_by(order)
+        for book in books:
+            book_list.append(book)
 
     series_books = []
     if 'series-editor' in request.user_roles:
