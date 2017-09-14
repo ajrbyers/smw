@@ -1016,7 +1016,7 @@ def page(request, page_name):
 
 
 @is_book_editor
-def upload_misc_file(request, submission_id):
+def upload_misc_file(request, submission_id, editorial_review=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     if request.POST:
         file_form = forms.UploadMiscFile(request.POST)
@@ -1024,7 +1024,11 @@ def upload_misc_file(request, submission_id):
             new_file = handle_file(request.FILES.get('misc_file'), submission, file_form.cleaned_data.get('file_type'),
                                    request.user, file_form.cleaned_data.get('label'))
             submission.misc_files.add(new_file)
-            return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
+
+            if editorial_review:
+                return redirect(reverse('add_editorial_review_files', kwargs={'submission_id': submission.id}))
+            else:
+                return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
     else:
         file_form = forms.UploadMiscFile()
 
@@ -1039,7 +1043,7 @@ def upload_misc_file(request, submission_id):
 
 
 @is_book_editor
-def upload_manuscript(request, submission_id):
+def upload_manuscript(request, submission_id, editorial_review=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     if request.POST:
         file_form = forms.UploadFile(request.POST)
@@ -1047,7 +1051,11 @@ def upload_manuscript(request, submission_id):
             new_file = handle_file(request.FILES.get('manuscript'), submission, 'manuscript', request.user,
                                    file_form.cleaned_data.get('label'))
             submission.files.add(new_file)
-            return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
+
+            if editorial_review:
+                return redirect(reverse('add_editorial_review_files', kwargs={'submission_id': submission.id}))
+            else:
+                return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
     else:
         file_form = forms.UploadFile()
 
@@ -1062,7 +1070,7 @@ def upload_manuscript(request, submission_id):
 
 
 @is_book_editor
-def upload_additional(request, submission_id):
+def upload_additional(request, submission_id, editorial_review=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     if request.POST:
         file_form = forms.UploadFile(request.POST)
@@ -1070,7 +1078,11 @@ def upload_additional(request, submission_id):
             new_file = handle_file(request.FILES.get('additional'), submission, 'additional', request.user,
                                    file_form.cleaned_data.get('label'))
             submission.files.add(new_file)
-            return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
+
+            if editorial_review:
+                return redirect(reverse('add_editorial_review_files', kwargs={'submission_id': submission.id}))
+            else:
+                return redirect(reverse('editor_submission', kwargs={'submission_id': submission.id}))
     else:
         file_form = forms.UploadFile()
 

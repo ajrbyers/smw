@@ -110,10 +110,18 @@
     <button class="btn btn-green btn-round dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;&nbsp;&nbsp;+ Upload&nbsp;&nbsp;&nbsp;
     <span class="caret"></span></button>
     <ul class="dropdown-menu">
-      <li><a href="{% url 'upload_manuscript' submission.id %}" class="hover-file">&nbsp;&nbsp;&nbsp;Manuscript&nbsp;&nbsp;&nbsp;</a></li>
-      <li><a href="{% url 'upload_additional' submission.id %}"class="hover-file" >&nbsp;&nbsp;&nbsp;Additional&nbsp;&nbsp;&nbsp;</a></li>
-      <li><a href="{% url 'upload_misc_file' submission.id %}"class="hover-file" >&nbsp;&nbsp;&nbsp;Misc&nbsp;&nbsp;&nbsp;</a></li>
-
+      <li>
+		  <a href="{% url 'upload_manuscript_ed_review_redirect' submission.id editorial_review %}" class="hover-file">
+		  &nbsp;&nbsp;&nbsp;Manuscript&nbsp;&nbsp;&nbsp;</a>
+	  </li>
+      <li>
+		  <a href="{% url 'upload_additional_ed_review_redirect' submission.id editorial_review %}"class="hover-file" >
+		  &nbsp;&nbsp;&nbsp;Additional&nbsp;&nbsp;&nbsp;</a>
+	  </li>
+      <li>
+		  <a href="{% url 'upload_misc_file_ed_review_redirect' submission.id editorial_review %}"class="hover-file" >
+		  &nbsp;&nbsp;&nbsp;Misc&nbsp;&nbsp;&nbsp;</a>
+	  </li>
     </ul>
   </div>
   </div>

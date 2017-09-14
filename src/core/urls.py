@@ -90,7 +90,9 @@ urlpatterns = patterns('',
                        url(r'^files/user/submission/(?P<submission_id>\d+)/review-files/(?P<review_type>[-\w]+)/download/review/(?P<review_id>\d+)/access-key/(?P<access_key>[-\w+]+)/$', 'core.views.serve_all_review_files_one_click', name='serve_all_review_files_one_click'),
                        url(r'^files/user/submission/(?P<submission_id>\d+)/review-files/(?P<review_type>[-\w]+)/download/$', 'core.views.serve_all_review_files', name='serve_all_review_files'),
                        url(r'^files/submission/(?P<submission_id>\d+)/file/upload/additional/$', 'core.views.upload_additional', name='upload_additional'),
+                       url(r'^files/submission/(?P<submission_id>\d+)/file/upload/additional/(?P<editorial_review>[-\w]+)$', 'core.views.upload_additional', name='upload_additional_ed_review_redirect'),
                        url(r'^files/submission/(?P<submission_id>\d+)/file/upload/manuscript/$', 'core.views.upload_manuscript', name='upload_manuscript'),
+                       url(r'^files/submission/(?P<submission_id>\d+)/file/upload/manuscript/(?P<editorial_review>[-\w]+)$', 'core.views.upload_manuscript', name='upload_manuscript_ed_review_redirect'),
                        url(r'^files/submission/(?P<submission_id>\d+)/file/(?P<revision_id>\d+)/download_versioned_file/$', 'core.views.serve_versioned_file', name='serve_versioned_file'),
                        url(r'^files/submission/(?P<submission_id>\d+)/file/(?P<file_id>\d+)/delete/returner/(?P<returner>[-\w]+)/$', 'core.views.delete_file', name='delete_file'),
                        url(r'^files/submission/(?P<submission_id>\d+)/file/(?P<file_id>\d+)/view/$', 'core.views.view_file', name='view_file'),
@@ -104,6 +106,7 @@ urlpatterns = patterns('',
                        # redirect to correct dashboard
                        url(r'^dashboard/$', 'core.views.dashboard', name='user_dashboard'),
                        url(r'^misc_files/(?P<submission_id>\d+)/upload/$', 'core.views.upload_misc_file', name='upload_misc_file'),
+                       url(r'^misc_files/(?P<submission_id>\d+)/upload/(?P<editorial_review>[-\w]+)$', 'core.views.upload_misc_file', name='upload_misc_file_ed_review_redirect'),
 
                        # Proposals
                        url(r'^proposals/$', 'core.views.proposal', name='proposals'),
