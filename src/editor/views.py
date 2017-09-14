@@ -1624,19 +1624,25 @@ def view_chapter(request, submission_id, chapter_id):
     if old_format_authors:
         logic.add_chapterauthors_from_author_models(chapter_id, old_format_authors)
 
-    if request.POST and 'remove_author' in request.POST:
-        author_id = request.POST.get('author_id')[:-1]
-        chapter_author = models.ChapterAuthor.objects.get(pk=author_id)
+    if request.POST:
+        if 'remove_author' in request.POST:
+            author_id = request.POST.get('author_id')[:-1]
+            chapter_author = models.ChapterAuthor.objects.get(pk=author_id)
 
-        # Also remove ManytoMany relation between Author and Chapter, if there is one
-        author = models.Author.objects.get(pk=chapter_author.old_author_id)
-        if author:
-            chapter.authors.remove(author)
-        chapter_author.delete()
+            # Also remove ManytoMany relation between Author and Chapter, if there is one
+            author = models.Author.objects.get(pk=chapter_author.old_author_id)
+            if author:
+                chapter.authors.remove(author)
+            chapter_author.delete()
 
-        messages.add_message(request, messages.INFO, 'Author removed')
+            messages.add_message(request, messages.INFO, 'Author removed')
 
-        return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter.id}))
+            return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter.id}))
+
+        elif 'delete_chapter' in request.POST:
+            chapter.delete()
+            messages.add_message(request, messages.INFO, 'Chapter deleted')
+            return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
 
     template = 'editor/submission.html'
     context = {

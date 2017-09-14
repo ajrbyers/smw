@@ -10,8 +10,22 @@
 {% endblock %}
 </br>
 <div class="col-md-12 file-heading container-fluid" style="margin-top:-10px">
-          <h4>{% if update%} Update Chapter <a class="btn btn-transparent-white pull-right" href="{% url 'editor_view_chapter' submission.id chapter.id%}" style="margin-top:-8px">Go Back</a>{% else %}View Chapter {{chapter.sequence}} <a class="btn btn-transparent-white pull-right" href="{% url 'editor_update_chapter' submission.id chapter.id%}" style="margin-top:-8px">Edit</a>{% endif%} </h4>
-    </div>
+    <h4>
+        {% if update %}
+            Update Chapter
+            <a class="btn btn-transparent-white pull-right"
+               href="{% url 'editor_view_chapter' submission.id chapter.id%}"
+               style="margin-top:-8px">Go Back
+            </a>
+        {% else %}
+            View Chapter {{chapter.sequence}}
+            <a class="btn btn-transparent-white pull-right"
+               href="{% url 'editor_update_chapter' submission.id chapter.id%}"
+               style="margin-top:-8px">Edit
+            </a>
+        {% endif %}
+    </h4>
+</div>
 
 <div class="col-md-12 dash-container bottom-space">
 
@@ -72,6 +86,12 @@
                     {% include "editor/production/chapter_public_files.html" %}
 
                     {% endif %}
-          
+            <hr>
+            <form method="POST">
+                {% csrf_token %}
+                <button name="delete_chapter" type="submit" class="btn btn-xs btn-danger">
+                    <h6>Delete Chapter</h6>
+                </button>
+			</form>
         </div>
       </div>
