@@ -30,12 +30,19 @@ from review import forms
 from review import models
 from review import logic
 from submission import models as submission_models
+from editorialreview import models as editorialreview_models
 
 @has_reviewer_role
 def reviewer_dashboard(request):
 
-    reopened_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=False, reopened=True, declined__isnull=True, withdrawn = False).select_related('book')
-    incoming_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=True, reopened=False, declined__isnull=True, withdrawn = False).select_related('book')
+    reopened_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,completed__isnull=False, reopened=True,
+        declined__isnull=True, withdrawn = False
+    ).select_related('book')
+    incoming_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,completed__isnull=True, reopened=False,
+        declined__isnull=True, withdrawn = False
+    ).select_related('book')
     pending_tasks = []
 
     for task in reopened_tasks:
@@ -44,18 +51,44 @@ def reviewer_dashboard(request):
     for task in incoming_tasks:
         pending_tasks.append(task)
 
-    completed_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=False, reopened = False, withdrawn = False).select_related('book')
-    pending_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=True,declined__isnull=True, withdrawn = False)
-    completed_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=False, withdrawn = False)
+    completed_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,completed__isnull=False, reopened = False, withdrawn=False
+    ).select_related('book')
+    pending_proposal_tasks = submission_models.ProposalReview.objects.filter(
+        user=request.user,completed__isnull=True, declined__isnull=True, withdrawn=False
+    )
+    completed_proposal_tasks = submission_models.ProposalReview.objects.filter(
+        user=request.user,completed__isnull=False, withdrawn = False
+    )
+    pending_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user, completed__isnull=True, withdrawn=False, content_type__model='book'
+    )
+    pending_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user, completed__isnull=True, withdrawn=False, content_type__model='proposal'
+    )
+    completed_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user, completed__isnull=False, withdrawn=False, content_type__model='book'
+    )
+    completed_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user, completed__isnull=False, withdrawn=False, content_type__model='proposal'
+    )
 
     template = 'review/dashboard.html'
     context = {
         'pending_tasks': pending_tasks,
         'pending_proposal_tasks': pending_proposal_tasks,
-        'pending_count': len(pending_tasks)+len(pending_proposal_tasks),
+        'pending_submission_editorial_review_tasks': pending_submission_editorial_review_tasks,
+        'pending_proposal_editorial_review_tasks': pending_proposal_editorial_review_tasks,
+        'pending_count': len(pending_tasks) + len(pending_proposal_tasks)
+                         + len(pending_submission_editorial_review_tasks)
+                         + len(pending_proposal_editorial_review_tasks),
         'completed_tasks': completed_tasks,
         'completed_proposal_tasks': completed_proposal_tasks,
-        'completed_count':len(completed_tasks)+len(completed_proposal_tasks),
+        'completed_submission_editorial_review_tasks': completed_submission_editorial_review_tasks,
+        'completed_proposal_editorial_review_tasks': completed_proposal_editorial_review_tasks,
+        'completed_count':len(completed_tasks) + len(completed_proposal_tasks)
+                            + len(completed_submission_editorial_review_tasks)
+                            + len(completed_proposal_editorial_review_tasks),
     }
 
     return render(request, template, context)

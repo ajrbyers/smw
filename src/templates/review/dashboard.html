@@ -44,7 +44,9 @@
             {% for task in completed_tasks %}
                 <div class="notification reviewer" style=" padding-bottom:8px;">
                     <div class="band" style="margin-left:10px;margin-right:10px">
-                        <p class="small"><span style="color:rgb(101,117,132)"> {{task.book.title}}</span></p>
+                        <p class="small" style="margin-right:30px">
+                            <span style="color:rgb(101,117,132)"> {{task.book.title}}</span>
+                        </p>
                         <div class="border-review-submission-xs"></div>
                         <h5> Accepted on <b>{{ task.accepted }}</b> </br> Completed on <b>{{ task.completed }}</b></h5>
                     </div>
@@ -62,10 +64,37 @@
                     </br>
                 </div>
             {% endfor %}
+            {% for task in completed_submission_editorial_review_tasks %}
+                <div class="notification reviewer" style=" padding-bottom:8px;">
+                    <div class="band" style="margin-left:10px;margin-right:10px">
+                        <p class="small" style="margin-right:30px">
+                            <span style="color:rgb(101,117,132)">
+                                {{ task.content_object.title }}
+                            </span>
+                        </p>
+                        <div class="border-review-submission-xs"></div>
+                        <h5>Editorial Review <br>Completed on <b>{{ task.completed }}</b></h5>
+                    </div>
+                    <div class="activity">
+                        {% include "core/dashboard/activity.html" %}
+                    </div>
+                    <a href="{% url 'view_editorial_review' task.pk %}"
+                           class="btn btn-task pull-right" style="margin-right:10px;">
+                        &nbsp;&nbsp;&nbsp;View Task&nbsp;&nbsp;&nbsp;
+                    </a>
+                    </br>
+                    </br>
+                </div>
+            {% endfor %}
+            {% if completed_tasks or completed_submission_editorial_review_tasks %}
+                <hr>
+            {% endif %}
             {% for task in completed_proposal_tasks %}
                 <div class="notification reviewer" style=" padding-bottom:8px;">
                     <div class="band" style="margin-left:10px;margin-right:10px">
-                        <p class="small"><span style="color:rgb(101,117,132)"> {{ task.proposal.title }}</span></p>
+                        <p class="small" style="margin-right:30px">
+                            <span style="color:rgb(101,117,132)"> {{ task.proposal.title }}</span>
+                        </p>
                         <div class="border-review-proposal-xs"></div>
                         <h5> Accepted on <b>{{ task.accepted }}</b> </br> Completed on <b>{{ task.completed }}</b></h5>
                     </div>
@@ -78,18 +107,24 @@
                     </br>
                 </div>
             {% endfor %}
-            {% for task in completed_editorial_review_tasks %}
+            {% for task in completed_proposal_editorial_review_tasks %}
                 <div class="notification reviewer" style=" padding-bottom:8px;">
                     <div class="band" style="margin-left:10px;margin-right:10px">
-                        <p class="small"><span style="color:rgb(101,117,132)"> {{ task.title }}</span></p>
+                        <p class="small" style="margin-right:30px">
+                            <span style="color:rgb(101,117,132)">
+                                {{ task.content_object.title }}
+                            </span>
+                        </p>
                         <div class="border-review-proposal-xs"></div>
-                        <h5> Accepted on <b>{{ task.accepted }}</b> </br> Completed on <b>{{ task.completed }}</b></h5>
+                        <h5>Editorial Review <br>Completed on <b>{{ task.completed }}</b></h5>
                     </div>
                     <div class="activity">
                         {% include "core/dashboard/activity.html" %}
                     </div>
-                    <a href="{% url 'view_completed_proposal_review' task.proposal.id task.id %}"
-                       class="btn btn-sm btn-task pull-right" style="margin-right:20px; margin-bottom:20px;">&nbsp;&nbsp;&nbsp;View Task&nbsp;&nbsp;&nbsp;</a>
+                    <a href="{% url 'view_editorial_review' task.pk %}"
+                           class="btn btn-task pull-right" style="margin-right:10px;">
+                        &nbsp;&nbsp;&nbsp;View Task&nbsp;&nbsp;&nbsp;
+                    </a>
                     </br>
                     </br>
                 </div>
@@ -108,6 +143,7 @@
                         <div class="band" style="margin-left:10px;margin-right:10px">
                             <p class="small">Review requested for <span
                                     style="color:rgb(101,117,132)"> {{task.book.title}}</span>
+                            <div class="border-review-submission-long"></div>
                                 {% if task.reopened %}
                                     <span class="pull-right small no-recommendation" style="right:40px;position:relative;">
                                         &nbsp; Reopened &nbsp;
@@ -148,12 +184,45 @@
                 </br>
                 </br>
             {% endfor %}
+            {% for task in pending_submission_editorial_review_tasks %}
+                <div class="notification reviewer">
+                    <div class="row">
+                        <div class="band" style="margin-left:10px;margin-right:10px">
+                            <p class="small">Editorial review requested for
+                                <span style="color:rgb(101,117,132)"> {{task.content_object.title}}</span>
+                                <div class="border-review-submission-long"></div>
+                                {% if task.reopened %}
+                                    <span class="pull-right small no-recommendation" style="right:40px;position:relative;">
+                                        &nbsp; Reopened &nbsp;
+                                    </span>
+                                {% endif %}
+                            </p>
+                            <h5><b>Task Due</b> <b style="color:rgb(187,123,73)">{{ task.due }}</b></h5>
+                        </div>
+                        <div class="activity">
+                            {% include "core/dashboard/activity.html" %}
+                        </div>
+                        <a href="{% url 'editorial_review' task.pk %}"
+                           class="btn btn-task btn-sm pull-right" style="margin-right:22px; margin-bottom:20px;">
+                            &nbsp;&nbsp;&nbsp;View Task&nbsp;&nbsp;&nbsp;
+                        </a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span style="color:grey">Assigned: {{task.assigned}}</span>
+                        </br>
+                        </br>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if pending_tasks or pending_submission_editorial_review_tasks %}
+             <hr>
+            {% endif %}
             {% for task in pending_proposal_tasks %}
                 <div class="notification reviewer">
                     <div class="row">
                         <div class="band" style="margin-left:10px;margin-right:10px">
                             <p class="small"> Review requested for proposal
                                 <span style="color:rgb(101,117,132)"> {{task.proposal.title}} </span>
+                                <div class="border-review-proposal-long"></div>
                                 {% if task.reopened %}
                                     <span class="pull-right small no-recommendation" style="right:40px;position:relative;">&nbsp; Reopened &nbsp; </span>
                                 {% endif %}
@@ -187,8 +256,37 @@
                         </div>
                     {% endif %}
                 </div>
-                </br>
-                </br>
+                <br>
+                <br>
+            {% endfor %}
+            {% for task in pending_proposal_editorial_review_tasks %}
+                <div class="notification reviewer">
+                    <div class="row">
+                        <div class="band" style="margin-left:10px;margin-right:10px">
+                            <p class="small">Editorial review requested for proposal
+                                <span style="color:rgb(101,117,132)"> {{task.content_object.title}}</span>
+                                <div class="border-review-proposal-long"></div>
+                                {% if task.reopened %}
+                                    <span class="pull-right small no-recommendation" style="right:40px;position:relative;">
+                                        &nbsp; Reopened &nbsp;
+                                    </span>
+                                {% endif %}
+                            </p>
+                            <h5><b>Task Due</b> <b style="color:rgb(187,123,73)">{{ task.due }}</b></h5>
+                        </div>
+                        <div class="activity">
+                            {% include "core/dashboard/activity.html" %}
+                        </div>
+                        <a href="{% url 'editorial_review' task.pk %}"
+                           class="btn btn-task btn-sm pull-right" style="margin-right:22px; margin-bottom:20px;">
+                            &nbsp;&nbsp;&nbsp;View Task&nbsp;&nbsp;&nbsp;
+                        </a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span style="color:grey">Assigned: {{task.assigned}}</span>
+                        </br>
+                        </br>
+                    </div>
+                </div>
             {% endfor %}
             <!--  <h4>2. Upload Review File</h4>
               <div class="form-group">
