@@ -44,15 +44,15 @@
         </a>
         {% if submission.editorial_review_files.all|length > 0 %}
             <p class="small">Files currently selected:</p>
-            <table class="table table-bordered small">
+	        <table class="table table-bordered small">
+                <tr style="background-color: #EBEBEB">
+                    <th>Original File Name</th>
+                    <th>New File Name</th>
+                    <th>Mimetype</th>
+                    <th>File Type</th>
+                    <th></th>
+                </tr>
                 {% for file in submission.editorial_review_files.all %}
-                    <tr style="background-color: #EBEBEB">
-                        <th>Original File Name</th>
-                        <th>New File Name</th>
-                        <th>Mimetype</th>
-                        <th>File Type</th>
-                        <th></th>
-                    </tr>
                     <tr>
                         <td>{{ file.original_filename }}</td>
                         <td>{{ file.uuid_filename }}</td>

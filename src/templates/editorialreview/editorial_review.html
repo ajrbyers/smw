@@ -76,8 +76,16 @@
 	        <h4>6. Competing interests</h4>
 	        {% bootstrap_field recommendation_form.competing_interests %}</small><br><br>
 	      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
-	      <br/><br/>
+		  <button class="btn btn-default" style="margin-left: 10px" href="core/email.html"
+				 onclick="return popitup(
+				 '/email/onetaskers/submission/{{ review.content_object.id }}/user/2/',
+				 'onetasker_2'
+				 )">
+					<i class="fa fa-envelope" aria-hidden="true"></i>  Contact the editor
+		  </button>
+		<!--<button class="fa fa-envelope-o btn btn-xs btn-default"></button>-->
 
+	      <br/><br/>
 	      </form>
 
 		</div>
