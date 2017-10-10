@@ -33,8 +33,12 @@
 	<ul>
 	{% for file in review.files.all %}
 		<li><a href="{% url 'download_editor_er_file' file.id review.id %}">{{ file.original_filename }}</a></li>
+	{% empty %}
+	</ul>
+		None
 	{% endfor %}
 	</ul>
+<br>
 
 {% endblock body %}
 

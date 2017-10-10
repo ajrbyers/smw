@@ -211,27 +211,64 @@ def editorial_review(request, review_id):
     access_key = request.GET.get('access_key')
 
     if access_key:
-        review = get_object_or_404(models.EditorialReview, pk=review_id, access_key=access_key, completed__isnull=True)
+        review = get_object_or_404(
+            models.EditorialReview,
+            pk=review_id,
+            access_key=access_key,
+            completed__isnull=True
+        )
     else:
-        review = get_object_or_404(models.EditorialReview, pk=review_id, user=request.user, completed__isnull=True)
+        review = get_object_or_404(
+            models.EditorialReview,
+            pk=review_id,
+            user=request.user,
+            completed__isnull=True
+        )
 
     form = review_forms.GeneratedForm(form=review.review_form)
     recommendation_form = forms.RecommendationForm(instance=review)
 
     if review.content_type.model == 'book':
-        peer_reviews = core_models.ReviewAssignment.objects.filter(book=review.content_object, completed__isnull=False)
+        peer_reviews = core_models.ReviewAssignment.objects.filter(
+            book=review.content_object,
+            completed__isnull=False
+        )
     else:
-        peer_reviews = submission_models.ProposalReview.objects.filter(proposal=review.content_object, completed__isnull=False)
+        peer_reviews = submission_models.ProposalReview.objects.filter(
+            proposal=review.content_object,
+            completed__isnull=False
+        )
+
+    completed_editorial_reviews = models.EditorialReview.objects.filter(
+        object_id=review.content_object.id,
+        content_type=review.content_type,
+        completed__isnull=False
+    )
 
     if request.POST:
-        form = review_forms.GeneratedForm(request.POST, request.FILES, form=review.review_form)
-        recommendation_form = forms.RecommendationForm(request.POST, instance=review)
+        form = review_forms.GeneratedForm(
+            request.POST,
+            request.FILES,
+            form=review.review_form
+        )
+        recommendation_form = forms.RecommendationForm(
+            request.POST,
+            instance=review
+        )
 
         if form.is_valid() and recommendation_form.is_valid():
             logic.handle_generated_form_post(review, request)
             review.completed = timezone.now()
             review.save()
-            return redirect(reverse('editorial_review_thanks', kwargs={'review_id': review_id}))
+
+            return redirect(
+                reverse(
+                'editorial_review_thanks',
+                    kwargs={
+                        'review_id': review_id
+                    }
+                )
+            )
 
     template = 'editorialreview/editorial_review.html'
     context = {
@@ -240,6 +277,7 @@ def editorial_review(request, review_id):
         'form': form,
         'recommendation_form': recommendation_form,
         'peer_reviews': peer_reviews,
+        'completed_editorial_reviews': completed_editorial_reviews
     }
 
     return render(request, template, context)
