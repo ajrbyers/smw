@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from core import setting_util, email, models as core_models, logic as core_logic
 from core.decorators import is_reviewer, is_editor, is_book_editor
-from core.email import send_email
+from core.email import send_email_multiple
 from core.files import handle_attachment, handle_email_file
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
@@ -588,7 +588,7 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
         from_value = "{};".format(user.email)
 
     if editors:
-        to_value = str([editor.email for editor in editors])
+        to_value = ';'.join([editor.email for editor in editors])
 
     sent = False
 
@@ -601,9 +601,9 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
         cc_addresses = request.POST.get('cc_values').split(';')
         bcc_addresses = request.POST.get('bcc_values').split(';')
 
-        to_list = logic.clean_email_list(to_addresses)
-        cc_list = logic.clean_email_list(cc_addresses)
-        bcc_list = logic.clean_email_list(bcc_addresses)
+        to_list = core_logic.clean_email_list(to_addresses)
+        cc_list = core_logic.clean_email_list(cc_addresses)
+        bcc_list = core_logic.clean_email_list(bcc_addresses)
 
         attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles.
 
@@ -619,7 +619,7 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
 
         if to_addresses:
             if attachment_files:
-                send_email(
+                send_email_multiple(
                     subject=subject,
                     context={},
                     from_email=request.user.email,
@@ -631,7 +631,7 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
                 )
 
             else:
-                send_email(
+                send_email_multiple(
                     subject=subject,
                     context={},
                     from_email=request.user.email,
