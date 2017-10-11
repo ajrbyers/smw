@@ -357,20 +357,22 @@ def editorial_review(request, review_id):
 
     form = review_forms.GeneratedForm(form=review.review_form)
     recommendation_form = forms.RecommendationForm(instance=review)
+    submission = review.content_object
+    book = isinstance(submission, core_models.Book)
 
-    if review.content_type.model == 'book':
+    if book:
         peer_reviews = core_models.ReviewAssignment.objects.filter(
-            book=review.content_object,
+            book=submission,
             completed__isnull=False
         )
     else:
         peer_reviews = submission_models.ProposalReview.objects.filter(
-            proposal=review.content_object,
+            proposal=submission,
             completed__isnull=False
         )
 
     completed_editorial_reviews = models.EditorialReview.objects.filter(
-        object_id=review.content_object.id,
+        object_id=submission.id,
         content_type=review.content_type,
         completed__isnull=False
     )
@@ -386,10 +388,32 @@ def editorial_review(request, review_id):
             instance=review
         )
 
+        message = "Editorial review assignment for '{}' has been completed by {}.".format(
+            submission, request.user.profile.full_name()
+        )
+        short_message = "Editorial Review: Completed"
+
         if form.is_valid() and recommendation_form.is_valid():
             logic.handle_generated_form_post(review, request)
             review.completed = timezone.now()
             review.save()
+
+            if book:
+                log.add_log_entry(
+                    book=submission,
+                    user=request.user,
+                    kind='submission',
+                    message=message,
+                    short_name=short_message
+                )
+            else:
+                log.add_proposal_log_entry(
+                    proposal=submission,
+                    user=request.user,
+                    kind='proposal',
+                    message=message,
+                    short_name=short_message
+                )
 
             return redirect(
                 reverse(
