@@ -658,6 +658,7 @@ class ReviewAssignment(models.Model):
 
 
 class EditorialReviewAssignment(models.Model):
+    """ Now defunct because of editorialreview app. """
     book = models.ForeignKey(Book)  # TODO: Remove this as it is already linked to the book through the review round
 
     assigned = models.DateField(auto_now_add=True)

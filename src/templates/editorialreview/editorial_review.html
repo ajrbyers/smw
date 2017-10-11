@@ -4,7 +4,8 @@
 
 {% block css %}
 	<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+	<link rel="stylesheet" type="text/css"
+		  href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
@@ -16,7 +17,11 @@
 	{% csrf_token %}
 	<h4>1. View summary of this {{ review.content_type }}</h4>
 	<ul>
-		<li><a href="{% url 'view_content_summary' review.id %}?access_key={{ review.access_key }}" target="_blank">View Summary in New Tab</a></li>
+		<li>
+			<a href="{% url 'view_content_summary' review.id %}?access_key={{ review.access_key }}" target="_blank">
+				View Summary in New Tab
+			</a>
+		</li>
 	</ul>
 
 	<h4>2. View completed reviews for this {{ review.content_type }}</h4>
@@ -24,14 +29,21 @@
 		<h5>Peer Reviews</h5>
 		<ul>
 			{% for pr in peer_reviews %}
-				<li><a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}" target="_blank">{{ pr.user.profile.full_name }} - {{ pr.id }}</a></li>
+				<li><a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}"
+					   target="_blank">{{ pr.user.profile.full_name }} - {{ pr.id }}
+					</a>
+				</li>
 			{% endfor %}
 		</ul>
 	{% elif completed_editorial_reviews %}
 		<h5>Editorial Reviews</h5>
 		<ul>
 			{% for review in completed_editorial_reviews %}
-				<li><a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}" target="_blank">{{ review.user.profile.full_name }} - {{ review.id }}</a></li>
+				<li>
+					<a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}"
+					   target="_blank">{{ review.user.profile.full_name }} - {{ review.id }}
+					</a>
+				</li>
 			{% endfor %}
 		</ul>
 	{% else %}
@@ -47,7 +59,12 @@
 	{% endif %}
 	<div class="row">
 	{% for field in form %}
-		<div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
+		<div class="
+		{% if field.field.widget.attrs.div_class %}
+			{{ field.field.widget.attrs.div_class }}
+		{% else %}
+			col-md-12
+		{% endif %}">
 	{% if field.field.widget.attrs.is_checkbox %}
 	  {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
 	  {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
@@ -73,7 +90,9 @@
 	                  	</span>
 	                  	<input type="text" class="form-control" readonly>
 	              	</div>
-	              	<span class="help-block"><small>If you want to attach a file, you may do so here. This is not required.</small></span>
+	              	<span class="help-block">
+						<small>If you want to attach a file, you may do so here. This is not required.</small>
+					</span>
 	            </div>
 	          </div>
 	        </div>
@@ -86,10 +105,9 @@
 	      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
 		  <button class="btn btn-default" style="margin-left: 10px" href="core/email.html"
 				 onclick="return popitup(
-				 '/email/onetaskers/submission/{{ review.content_object.id }}/user/2/',
-				 'onetasker_2'
+				 '/editorial_review/email/{{ review.content_type }}/{{ review.id }}/{{ request.user.id }}',
 				 )">
-					<i class="fa fa-envelope" aria-hidden="true"></i>  Contact the editor
+					<i class="fa fa-envelope" aria-hidden="true"></i>  Contact the editors
 		  </button>
 	      <br/><br/>
 	      </form>

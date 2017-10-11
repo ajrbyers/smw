@@ -323,15 +323,16 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             review_assignment.save()
             message = "%s Review assignment with id %s has been completed by %s ."  % (review_assignment.review_type.title(),review_assignment.id,review_assignment.user.profile.full_name())
             press_editors = User.objects.filter(profile__roles__slug='press-editor')
+
             for editor in press_editors:
-                notification = core_models.Task(assignee=editor,creator=user,text=message,workflow='review', book = submission)
+                notification = core_models.Task(assignee=editor, creator=user, text=message, workflow='review', book=submission)
                 notification.save()
-                print "notify"
+
             if not review_type == 'proposal':
                 log.add_log_entry(book=submission, user=user, kind='review', message='Reviewer %s %s completed review for %s.' % (review_assignment.user.first_name, review_assignment.user.last_name, submission.title), short_name='Assignment Completed')
-
                 message = "Reviewer %s %s has completed a review for '%s'."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
                 logic.notify_editors(submission,message,editors,user,'review')
+
             if access_key:
                 return redirect(reverse('review_complete_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'access_key':access_key,'review_round':review_round}))
             else:
