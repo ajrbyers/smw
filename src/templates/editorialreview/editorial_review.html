@@ -105,7 +105,7 @@
 	      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
 		  <button class="btn btn-default" style="margin-left: 10px" href="core/email.html"
 				 onclick="return popitup(
-				 '/editorial_review/email/{{ review.content_type }}/{{ review.id }}/{% if request.user.id %}{{ request.user.id }}{% endif %}')">
+				 '/editorialreview/{{ review.id }}/email/editor/{% if request.user.id %}{{ request.user.id }}{% endif %}')">
 					<i class="fa fa-envelope" aria-hidden="true"></i>  Contact the editors
 		  </button>
 	      <br/><br/>

@@ -36,13 +36,20 @@ from editorialreview import models as editorialreview_models
 def reviewer_dashboard(request):
 
     reopened_tasks = core_models.ReviewAssignment.objects.filter(
-        user=request.user,completed__isnull=False, reopened=True,
-        declined__isnull=True, withdrawn = False
+        user=request.user,
+        completed__isnull=False,
+        reopened=True,
+        declined__isnull=True,
+        withdrawn=False
     ).select_related('book')
     incoming_tasks = core_models.ReviewAssignment.objects.filter(
-        user=request.user,completed__isnull=True, reopened=False,
-        declined__isnull=True, withdrawn = False
+        user=request.user,
+        completed__isnull=True,
+        reopened=False,
+        declined__isnull=True,
+        withdrawn=False
     ).select_related('book')
+
     pending_tasks = []
 
     for task in reopened_tasks:
@@ -52,25 +59,45 @@ def reviewer_dashboard(request):
         pending_tasks.append(task)
 
     completed_tasks = core_models.ReviewAssignment.objects.filter(
-        user=request.user,completed__isnull=False, reopened = False, withdrawn=False
+        user=request.user,
+        completed__isnull=False,
+        reopened = False,
+        withdrawn=False
     ).select_related('book')
     pending_proposal_tasks = submission_models.ProposalReview.objects.filter(
-        user=request.user,completed__isnull=True, declined__isnull=True, withdrawn=False
+        user=request.user,
+        completed__isnull=True,
+        declined__isnull=True,
+        withdrawn=False
     )
     completed_proposal_tasks = submission_models.ProposalReview.objects.filter(
-        user=request.user,completed__isnull=False, withdrawn = False
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False
     )
     pending_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
-        user=request.user, completed__isnull=True, withdrawn=False, content_type__model='book'
+        user=request.user,
+        completed__isnull=True,
+        withdrawn=False,
+        content_type__model='book'
     )
     pending_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
-        user=request.user, completed__isnull=True, withdrawn=False, content_type__model='proposal'
+        user=request.user,
+        completed__isnull=True,
+        withdrawn=False,
+        content_type__model='proposal'
     )
     completed_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
-        user=request.user, completed__isnull=False, withdrawn=False, content_type__model='book'
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False,
+        content_type__model='book'
     )
     completed_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
-        user=request.user, completed__isnull=False, withdrawn=False, content_type__model='proposal'
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False,
+        content_type__model='proposal'
     )
 
     template = 'review/dashboard.html'

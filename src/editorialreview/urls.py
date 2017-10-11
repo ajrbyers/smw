@@ -12,8 +12,6 @@ urlpatterns = patterns(
    url(r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/remove_files/(?P<file_id>\d+)/$',
        'editorialreview.views.remove_editorial_review_file',
        name='remove_editorial_review_file'),
-   url(r'(?P<review_id>\d+)/email/$', 'editorialreview.views.email_editorial_review',
-       name='email_editorial_review'),
    url(r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/editor/$',
        'editorialreview.views.download_editor_er_file',
        name='download_editor_er_file'),
@@ -47,10 +45,13 @@ urlpatterns = patterns(
        'editorialreview.views.editorial_review',
        name='editorial_review'),
 
-   url(r'email/(?P<submission_type>[-\w]+)/(?P<review_id>\d+)/$',
+   url(r'(?P<review_id>\d+)/email/$',
+       'editorialreview.views.email_editorial_review',
+       name='email_editorial_review'),
+   url(r'(?P<review_id>\d+)/email/editor/$',
        'editorialreview.views.editorial_reviewer_email_editor',
        name='editorial_reviewer_email_editor_not_logged_in'),
-   url(r'email/(?P<submission_type>[-\w]+)/(?P<review_id>\d+)/(?P<user_id>\d+)/$',
+   url(r'(?P<review_id>\d+)/email/editor/(?P<user_id>\d+)/$',
        'editorialreview.views.editorial_reviewer_email_editor',
        name='editorial_reviewer_email_editor_logged_in')
 )

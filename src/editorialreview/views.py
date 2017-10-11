@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse, StreamingHt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
-from core import setting_util, email, models as core_models, logic as core_logic
+from core import setting_util, log, email, models as core_models, logic as core_logic
 from core.decorators import is_reviewer, is_editor, is_book_editor
 from core.email import send_email_multiple
 from core.files import handle_attachment, handle_email_file
@@ -571,22 +571,23 @@ def editorial_review_thanks(request, review_id):
     return render(request, template, context)
 
 
-def editorial_reviewer_email_editor(request, submission_type, review_id, user_id=None):
+def editorial_reviewer_email_editor(request, review_id, user_id=None):
     """ Email a book or press editor as an editorial reviewer. """
 
     editorial_review = get_object_or_404(models.EditorialReview.objects, pk=review_id)
-    editors = editorial_review.content_object.book_editors.all()
+    submission = editorial_review.content_object
+    book = isinstance(submission, core_models.Book)
+    proposal = isinstance(submission, submission_models.Proposal)
+    editors = submission.book_editors.all()
+
     if not editors:
-        editors = editorial_review.content_object.press_editors.all()
+        editors = submission.press_editors.all()
 
     user = None
-    from_value = 'Please enter your email address'
-    to_value = ''
-
     if user_id:
         user = get_object_or_404(User, pk=user_id)
-        from_value = "{};".format(user.email)
 
+    to_value = ''
     if editors:
         to_value = ';'.join([editor.email for editor in editors])
 
@@ -624,9 +625,11 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
                     context={},
                     from_email=request.user.email,
                     to=to_list,
+                    html_template=body,
                     bcc=bcc_list,
                     cc=cc_list,
-                    html_template=body,
+                    book=submission if book else None,
+                    proposal=submission if proposal else None,
                     attachments=attachments
                 )
 
@@ -636,9 +639,11 @@ def editorial_reviewer_email_editor(request, submission_type, review_id, user_id
                     context={},
                     from_email=request.user.email,
                     to=to_list,
+                    html_template=body,
                     bcc=bcc_list,
                     cc=cc_list,
-                    html_template=body
+                    book=submission if book else None,
+                    proposal=submission if proposal else None,
                 )
             message = 'E-mail with subject {} was sent.'.format(subject)
 

@@ -15,7 +15,7 @@ urlpatterns = patterns('',
                        url(r'^editor/', include('editor.urls')),
                        url(r'^tasks/', include('onetasker.urls')),
                        url(r'^swiftsubmit/', include('swiftsubmit.urls')),
-                       url(r'^editorial_review/', include('editorialreview.urls')),
+                       url(r'^editorialreview/', include('editorialreview.urls')),
 
                        # 3rd Party Apps
                        url(r'^summernote/', include('django_summernote.urls')),
