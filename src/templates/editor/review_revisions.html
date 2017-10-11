@@ -64,14 +64,24 @@
 
     <table class="table table-bordered">
         <tr>
-          <th>ID</th>
-          <th>Assigned</th>
+          <th>Editorial Reviewer</th>
+          <th>Info</th>
           <th></th>
         </tr>
     {% for review in editorial_review_assignments %}
         <tr>
-        <td>{{review.pk}}</td>
-        <td>{{review.assigned}}</td>
+        <td>{{ review.user.profile.full_name }}</td>
+        <td>
+            {% if review.completed %}
+            <font color="green">Completed: {{ review.completed }}</font>
+            {% else %}
+                {% if review.is_overdue %}
+                    <font color="red">Overdue: {{ review.due }}</font>
+                {% else %}
+                    Due: {{ review.due }}
+                {% endif %}
+            {% endif %}
+        </td>
         <td width="25%"><a class="btn btn-task" href="{% url 'editor_view_editorial_review' submission.id review.id %}">View</a></td>
         </tr>
         {% empty %}
