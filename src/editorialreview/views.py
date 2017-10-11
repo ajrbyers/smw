@@ -140,6 +140,21 @@ def update_editorial_review_due_date(request, submission_id, review_id):
                 review_assignment.due = due_date
                 review_assignment.save()
 
+                message = 'Due date changed from {previous_due} to {new_due}' \
+                          ' for editorial review assignment: {review}'.format(
+                    previous_due=previous_due_date,
+                    new_due=due_date,
+                    review=review_assignment
+                )
+                short_message = 'Due Date Changed'
+                log.add_log_entry(
+                    book=review_assignment.content_object,
+                    user=request.user,
+                    kind='Editorial Review',
+                    message=message,
+                    short_name=short_message
+                )
+
                 if notify:
                     editor_logic.send_review_update(
                         submission,
@@ -391,7 +406,7 @@ def editorial_review(request, review_id):
         message = "Editorial review assignment for '{}' has been completed by {}.".format(
             submission, request.user.profile.full_name()
         )
-        short_message = "Editorial Review: Completed"
+        short_message = "Completed"
 
         if form.is_valid() and recommendation_form.is_valid():
             logic.handle_generated_form_post(review, request)
@@ -402,7 +417,7 @@ def editorial_review(request, review_id):
                 log.add_log_entry(
                     book=submission,
                     user=request.user,
-                    kind='submission',
+                    kind='Editorial Review',
                     message=message,
                     short_name=short_message
                 )
@@ -410,7 +425,7 @@ def editorial_review(request, review_id):
                 log.add_proposal_log_entry(
                     proposal=submission,
                     user=request.user,
-                    kind='proposal',
+                    kind='Editorial Review',
                     message=message,
                     short_name=short_message
                 )
