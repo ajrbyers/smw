@@ -385,6 +385,7 @@ def editorial_review(request, review_id):
     recommendation_form = forms.RecommendationForm(instance=review)
     submission = review.content_object
     book = isinstance(submission, core_models.Book)
+    proposal = isinstance(submission, submission_models.Proposal)
 
     if book:
         peer_reviews = core_models.ReviewAssignment.objects.filter(
@@ -481,6 +482,8 @@ def editorial_review(request, review_id):
                     html_template=email_text,
                     from_email=from_email,
                     to=editor.email,
+                    book=submission if book else None,
+                    proposal=submission if proposal else None
                 )
             return redirect(
                 reverse(
