@@ -14,6 +14,7 @@ from core import setting_util, log, email, models as core_models, logic as core_
 from core.decorators import is_reviewer, is_editor, is_book_editor
 from core.email import send_email_multiple
 from core.files import handle_attachment, handle_email_file
+from core.setting_util import get_setting
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
 from manager import models as manager_models
@@ -292,6 +293,11 @@ def email_editorial_review(request, review_id):
                 book=None,
                 proposal=review.content_object
             )
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Editorial review assignment sent for {} '.format(review)
+            )
             return redirect(
                 reverse(
                     'view_proposal',
@@ -309,6 +315,11 @@ def email_editorial_review(request, review_id):
                 attachments=attachments,
                 book=review.content_object,
                 proposal=None
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Editorial review assignment sent for {} '.format(review)
             )
             return redirect(
                 reverse(
@@ -392,7 +403,7 @@ def editorial_review(request, review_id):
         completed__isnull=False
     )
 
-    if request.POST:
+    if request.POST: # Handle completed review
         form = review_forms.GeneratedForm(
             request.POST,
             request.FILES,
@@ -403,20 +414,21 @@ def editorial_review(request, review_id):
             instance=review
         )
 
-        message = "Editorial review assignment for '{}' has been completed by {}.".format(
-            submission, request.user.profile.full_name()
-        )
-        short_message = "Completed"
-
         if form.is_valid() and recommendation_form.is_valid():
             logic.handle_generated_form_post(review, request)
             review.completed = timezone.now()
             review.save()
 
+            # Add to logs and notify editors
+            message = "Editorial review assignment for '{}' has been completed by {}.".format(
+                submission, review.user.profile.full_name()
+            )
+            short_message = "Completed"
+
             if book:
                 log.add_log_entry(
                     book=submission,
-                    user=request.user,
+                    user=review.user,
                     kind='Editorial Review',
                     message=message,
                     short_name=short_message
@@ -424,12 +436,52 @@ def editorial_review(request, review_id):
             else:
                 log.add_proposal_log_entry(
                     proposal=submission,
-                    user=request.user,
+                    user=review.user,
                     kind='Editorial Review',
                     message=message,
                     short_name=short_message
                 )
 
+            for editor in submission.book_editors.all():
+                notification = core_models.Task(
+                    assignee=editor,
+                    creator=review.user,
+                    text=message,
+                    book=submission
+                )
+                notification.save()
+
+            # Handle email notification to editors
+            subject = get_setting(
+                setting_name='editorialreview_completed_email_subject',
+                setting_group_name='email_subject',
+                default='Editorial review completed'
+            )
+
+            try:
+                email_text = core_models.Setting.objects.get(
+                    group__name='email', name='editorialreview_completed_email'
+                ).value
+            except core_models.Setting.DoesNotExist:
+                email_text = message
+
+            email_text.replace('\n', '<br />')
+            from_email = core_models.Setting.objects.get(group__name='email', name='from_address')
+
+            for editor in submission.book_editors.all():
+                context = {
+                    'salutation': editor.profile.salutation,
+                    'submission': submission,
+                    'review': review,
+                    'base_url': core_models.Setting.objects.get(name='base_url').value,
+                }
+                email.send_email(
+                    subject=subject,
+                    context=context,
+                    html_template=email_text,
+                    from_email=from_email,
+                    to=editor.email,
+                )
             return redirect(
                 reverse(
                 'editorial_review_thanks',
@@ -626,6 +678,10 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
     if user_id:
         user = get_object_or_404(User, pk=user_id)
 
+    from_value = 'Please enter a return address.'
+    if user:
+        from_value = user.email
+
     to_value = ''
     if editors:
         to_value = ';'.join([editor.email for editor in editors])
@@ -695,7 +751,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
 
     template = 'core/email.html'
     context = {
-        'from': request.user,
+        'from_value': from_value,
         'to_value': to_value,
         'source': source,
         'user_id': user_id,

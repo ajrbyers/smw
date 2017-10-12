@@ -499,7 +499,6 @@ def review_complete_no_redirect(request, review_type, submission_id,review_round
 def editorial_review(request, submission_id, access_key):
 
     ci_required = core_models.Setting.objects.get(group__name='general', name='ci_required')
-    print uuid4()
     # Check that this review is being access by the user, is not completed and has not been declined.
     review_assignment = get_object_or_404(core_models.EditorialReviewAssignment, Q(publishing_committee_access_key = access_key) |  Q(editorial_board_access_key = access_key))
     submission = get_object_or_404(core_models.Book, pk=submission_id)

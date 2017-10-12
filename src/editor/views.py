@@ -89,7 +89,7 @@ def editor_dashboard(request):
         'book_list': book_list,
         'recent_activity': models.Log.objects.filter(book__in=book_list).order_by('-date_logged')[:15],
         'notifications': models.Task.objects.filter(assignee=request.user, completed__isnull=True).select_related(
-            'book').order_by('due'),
+            'book').order_by('-pk'),
         'order': order,
         'filterby': filterby,
     }
