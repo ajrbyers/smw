@@ -16,7 +16,11 @@
             </h4>
             <span class="{% if review.reopened %}no-recommendation
                          {% else %}
-                            {% if review.recommendation %}recommendation{% else %}no-recommendation{% endif %}
+                            {% if review.recommendation %}
+                                recommendation
+                            {% else %}
+                                no-recommendation
+                            {% endif %}
                          {% endif %}">&nbsp;
                 {% if review.reopened %}
                     Awaiting recommendation

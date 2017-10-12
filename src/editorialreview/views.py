@@ -124,6 +124,7 @@ def withdraw_editorial_review(request, submission_id, review_id):
         )
     )
 
+
 @is_editor
 def update_editorial_review_due_date(request, submission_id, review_id):
     """ Update the due date of an editorial review. """
@@ -205,7 +206,7 @@ def add_editorial_review_files(request, submission_type, submission_id):
         for file in files:
             submission.editorial_review_files.add(file)
 
-        messages.add_message(request, messages.SUCCESS, '%s files added to Review' % files.count())
+        messages.add_message(request, messages.SUCCESS, '{} files added to Review'.format(files.count()))
 
         return redirect(
             reverse(
@@ -224,9 +225,10 @@ def add_editorial_review_files(request, submission_type, submission_id):
 
     return render(request, template, context)
 
+
 @is_editor
 def remove_editorial_review_file(request, submission_type, submission_id, file_id):
-    """ Remove a file from a submission's editorial review files list """
+    """ Remove a file from a submission's editorial review files list. """
     submission = get_object_or_404(core_models.Book, pk=submission_id)
     file = get_object_or_404(submission.editorial_review_files, pk=file_id)
 
@@ -279,16 +281,16 @@ def email_editorial_review(request, review_id):
                     file,
                     'other',
                     request.user,
-                    "Attachment: Uploaded by %s" % (request.user.username)
+                    "Attachment: Uploaded by {}".format(request.user.username)
                 )
                 attachments.append(attachment)
 
         if review.content_type.model == 'proposal':
             email.send_prerendered_email(
-                request,
-                email_text,
-                subject,
-                review.user.email,
+                request=request,
+                html_template=email_text,
+                subject=subject,
+                to=review.user.email,
                 attachments=attachments,
                 book=None,
                 proposal=review.content_object
@@ -308,10 +310,10 @@ def email_editorial_review(request, review_id):
             )
         else:
             email.send_prerendered_email(
-                request,
-                email_text,
-                subject,
-                review.user.email,
+                request=request,
+                html_template=email_text,
+                subject=subject,
+                to=review.user.email,
                 attachments=attachments,
                 book=review.content_object,
                 proposal=None
@@ -342,7 +344,7 @@ def email_editorial_review(request, review_id):
 
 @is_editor
 def view_editorial_review(request, review_id):
-    """ View a completed editorial review """
+    """ View a completed editorial review. """
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
 
@@ -362,7 +364,7 @@ def view_editorial_review(request, review_id):
 
 
 def editorial_review(request, review_id):
-    """ Complete an editorial review."""
+    """ Complete an editorial review. """
 
     access_key = request.GET.get('access_key')
 
@@ -424,7 +426,7 @@ def editorial_review(request, review_id):
             message = "Editorial review assignment for '{}' has been completed by {}.".format(
                 submission, review.user.profile.full_name()
             )
-            short_message = "Completed"
+            short_message = 'Completed'
 
             if book:
                 log.add_log_entry(
@@ -613,18 +615,12 @@ def download_er_file(request, file_id, review_id):
         fsock = open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = "attachment; filename=%s" % (_file.original_filename)
-        # log.add_log_entry(
-        #     book=book,
-        #     user=request.user,
-        #     kind='file',
-        #     message='File {} downloaded.'.format( _file.original_filename),
-        #     short_name='Download'
-        # )
+        response['Content-Disposition'] = 'attachment; filename={}'.format(_file.original_filename)
+
         return response
 
     except IOError:
-        messages.add_message(request, messages.ERROR, 'File not found. %s' % (file_path))
+        messages.add_message(request, messages.ERROR, 'File not found. {}'.format(file_path))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -639,18 +635,12 @@ def download_editor_er_file(request, file_id, review_id):
         fsock = open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = "attachment; filename=%s" % (_file.original_filename)
-        # log.add_log_entry(
-        #     book=book,
-        #     user=request.user,
-        #     kind='file',
-        #     message='File {} downloaded.'.format( _file.original_filename),
-        #     short_name='Download'
-        # )
+        response['Content-Disposition'] = "attachment; filename={}".format(_file.original_filename)
+
         return response
 
     except IOError:
-        messages.add_message(request, messages.ERROR, 'File not found. %s' % (file_path))
+        messages.add_message(request, messages.ERROR, 'File not found. {}'.format(file_path))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 

@@ -461,7 +461,6 @@ def editor_view_editorial_review(request, submission_id, editorial_review_id):
     editorial_review_assignments = editorial_models.EditorialReview.objects.filter(
         content_type__model='book', object_id=submission_id).order_by('-pk')
 
-
     template = 'editor/submission.html'
     context = {
         'review': editorial_review,
@@ -478,16 +477,28 @@ def editor_view_editorial_review(request, submission_id, editorial_review_id):
 @is_book_editor
 def editor_review_round(request, submission_id, round_number):
     book = get_object_or_404(models.Book, pk=submission_id)
-    review_round = get_object_or_404(models.ReviewRound, book=book, round_number=round_number)
+    review_round = get_object_or_404(
+        models.ReviewRound,
+        book=book,
+        round_number=round_number
+    )
     review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
     internal_review_assignments = models.ReviewAssignment.objects.filter(
-        book=book, review_type='internal', review_round__round_number=round_number).select_related('user', 'review_round')
+        book=book,
+        review_type='internal',
+        review_round__round_number=round_number
+    ).select_related('user', 'review_round')
 
     external_review_assignments = models.ReviewAssignment.objects.filter(
-        book=book, review_type='external', review_round__round_number=round_number).select_related('user', 'review_round')
+        book=book,
+        review_type='external',
+        review_round__round_number=round_number
+    ).select_related('user', 'review_round')
 
-    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(content_type__model='book',
-                                                                                   object_id=submission_id).order_by('-pk')
+    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(
+        content_type__model='book',
+        object_id=submission_id
+    ).order_by('-pk')
 
     template = 'editor/submission.html'
     context = {
