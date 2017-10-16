@@ -8,8 +8,6 @@ set -e # everything must past
 ./src/manage.py migrate
 
 
-
-
 ### initial once-off configuration
 
 if [ ! -f .configured.flag ]; then

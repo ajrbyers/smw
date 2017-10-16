@@ -1,0 +1,44 @@
+{% extends "secondary_page.html" %}
+{% load static from staticfiles %}
+
+{% block title %}Set Due Date{% endblock title %}
+
+{% block page-title %}Set Due Date{% endblock %}
+{% block page-content %}
+
+<h3>Editorial Review</h3>
+<h4>{{ review.user.profile.full_name }}</h4>
+
+<form method="POST">
+	{% csrf_token %}
+	<h5>Set Due Date</h5>
+	<p class="small">Set a due date for this editorial review assignment. The reviewer will be politely reminded to submit the review before the due date.</p>
+	<input type="text"
+           name="due_date" id="due_date" required="required" class="form-control" value="{{ review.due|date:"Y-m-d" }}" />
+	<br>
+	<div class="form-group" style="margin-left:15px">
+        <div class="checkbox">
+            <label for="email">
+                <input class="" id="email" name="email" type="checkbox"> Notify reviewer<br>
+                <span class="small">Email user with the updated due date.</span>
+            </label>
+        </div>
+    </div>
+	<br />
+	<input type="submit" style="width:120px" class="btn btn-accept btn-round" value="Update"/>
+    <a href="{% url 'editor_view_editorial_review' submission.id review.id %}" style="margin-left:5px;width:120px"
+       class="btn btn-primary btn-round pull-right">Go Back
+    </a>
+</form>
+
+{% endblock page-content %}
+
+{% block js %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+      $('#due_date').datepicker({ dateFormat: 'yy-mm-dd' }).val();
+  });
+</script>
+{% endblock js %}

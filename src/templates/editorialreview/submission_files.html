@@ -1,22 +1,20 @@
 <h4>FILES</h4>
-
- <br><br>
+ <br>
 <h5><b>Manuscript Files</b></h5>
 <ul>
-{% for file in submission.files.all %}
+{% for file in submission.editorial_review_files.all %}
   {% if file.kind == 'manuscript' %}
     <li><a href="{% url 'download_er_file' file.id review.id %}?access_key={{ review.access_key }}"><i class="fa fa-cloud-download">&nbsp;</i>Download {{ file.label }} ({{ file.original_filename }})</a></li>
   {% endif %}
 {% endfor %}
 </ul>
 <br>
-<h5><b>Additional Files</b></h5>
+<h5><b>Other Files</b></h5>
 <ul>
-{% for file in submission.files.all %}
-  {% if file.kind == 'additional' %}
+{% for file in submission.editorial_review_files.all %}
+  {% if file.kind != 'manuscript' %}
     <li><a href="{% url 'download_er_file' file.id review.id %}?access_key={{ review.access_key }}"><i class="fa fa-cloud-download">&nbsp;</i>Download {{ file.label }} ({{ file.original_filename }})</a></li>
   {% endif %}
 {% endfor %}
 </ul>
 <br>
-

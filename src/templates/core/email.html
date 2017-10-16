@@ -22,9 +22,13 @@
 				<div class="form-group">
 						<div class="input-group input-group-email-field">
 						<span class="input-group-addon" id="sizing-addon3">To</span>
-						<input class=" form-control" style="background-color:lightgrey!important"   type="text"  id="to_values" name="to_values" value="{{to_value}}" readonly>
+						<input class=" form-control" style="background-color:lightgrey!important"   type="text"
+							   id="to_values" name="to_values" value="{{ to_value }}" readonly>
 						<input type="text" class=" form-control" id="to" name="to">
-						<span class="input-group-btn"><div class="btn-group" role="group"> <a href="#" id="toClear"class="btn btn-default " >&nbsp;Clear&nbsp;</a><a href="#" id="toAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a>
+						<span class="input-group-btn">
+							<div class="btn-group" role="group">
+								<a href="#" id="toClear"class="btn btn-default " >&nbsp;Clear&nbsp;</a>
+								<a href="#" id="toAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a>
 				</div>< </span>
 				</div>	
 					
@@ -32,17 +36,22 @@
 			<div class="form-group">
 					<div class="input-group">
 					<span class="input-group-addon" id="sizing-addon3">From</span>
-					<input type="text" class=" form-control" style="background-color:lightgrey!important" readonly value="{{from.email}}">
-			
-					</div>	
+					<input type="text" class=" form-control" style="background-color:lightgrey!important" value="{{ from_value }}">
+					</div>
 			</div>
-			
+
 					<div class="form-group">
 							<div class="input-group input-group-email-field">
 						<span class="input-group-addon" id="sizing-addon3">Cc</span>
-						<input class=" form-control" style="background-color:lightgrey!important"   type="text"  id="cc_values" name="cc_values" value=" " readonly> 
+						<input class=" form-control" style="background-color:lightgrey!important"   type="text"
+							   id="cc_values" name="cc_values" value=" " readonly>
 						<input  id="cc"type="text" class=" form-control" name="cc">
-						<span class="input-group-btn"><div class="btn-group" role="group"> <a href="#" id="ccClear"class="btn btn-default " >&nbsp;Clear&nbsp;</a><a href="#" id="ccAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a></div></span>
+						<span class="input-group-btn">
+							<div class="btn-group" role="group">
+								<a href="#" id="ccClear"class="btn btn-default " >&nbsp;Clear&nbsp;</a>
+								<a href="#" id="ccAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a>
+							</div>
+						</span>
 				</div>	
 
 			
@@ -50,10 +59,16 @@
 				<div class="form-group">
 					<div class="input-group input-group-email-field">
 						<span class="input-group-addon" >Bcc</span>
-						<input class=" form-control" style="background-color:lightgrey!important"   type="text"  id="bcc_values" name="bcc_values" value=" " readonly> 
+						<input class=" form-control" style="background-color:lightgrey!important"   type="text"
+							   id="bcc_values" name="bcc_values" value=" " readonly>
 						<input type="text" class=" form-control" id="bcc" name="bcc">
-						<span class="input-group-btn"> <div class="btn-group" role="group"> <a href="#" id="bccClear"class="btn btn-default" >&nbsp;Clear&nbsp;</a> </br>
-							<a href="#" id="bccAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a></div></span>	
+						<span class="input-group-btn">
+							<div class="btn-group" role="group">
+								<a href="#" id="bccClear"class="btn btn-default" >&nbsp;Clear&nbsp;</a>
+								</br>
+							<a href="#" id="bccAdd"class="btn btn-decline " >&nbsp;Add&nbsp;&nbsp;&nbsp;&nbsp;</a>
+							</div>
+						</span>
 				</div>	
 					
 			</div>
@@ -79,8 +94,11 @@
 				
 		<hr/>	
 		
-			<button  class="btn btn-info btn-group-justified" type="submit" name="send" id="send">&nbsp;&nbsp;&nbsp;<i class="fa fa-paper-plane">&nbsp;</i>Send&nbsp;&nbsp;&nbsp;&nbsp;</button>
-		</form></div>	
+			<button  class="btn btn-info btn-group-justified" type="submit" name="send" id="send">&nbsp;&nbsp;&nbsp;
+				<i class="fa fa-paper-plane">&nbsp;</i>Send&nbsp;&nbsp;&nbsp;&nbsp;
+			</button>
+		</form>
+		</div>
 	</div>
 
 	</div>
