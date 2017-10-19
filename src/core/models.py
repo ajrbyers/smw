@@ -294,13 +294,6 @@ class Author(models.Model):
             return "%s %s" % (self.first_name, self.last_name)
 
 
-def table_contents_options():
-    return (
-        ('book-level', 'Book Level'),
-        ('chapter-level', 'Chapter Level'),
-    )
-
-
 class Book(models.Model):
     prefix = models.CharField(max_length=100, null=True, blank=True,
                               help_text='A prefix like "The" that shouldn\'t be used for searching')
@@ -333,7 +326,9 @@ class Book(models.Model):
                                  help_text="A monograph is a work authored, in its entirety, by one or more authors. An edited volume has different authors for each chapter.")
     review_type = models.CharField(max_length=50, choices=book_review_type_choices(), default='closed')
     languages = models.ManyToManyField('Language', null=True, blank=True)
-    table_contents = models.CharField(max_length=100, choices=table_contents_options(), null=True, blank=True)
+    table_contents_linked = models.BooleanField(default=False, verbose_name='Table of contents linked',
+                                            help_text='If enabled, will make chapters on table of contents link '
+                                                      'to individual chapter pages.')
 
     # Book Owner
     owner = models.ForeignKey(User, null=True, blank=True)
@@ -362,6 +357,7 @@ class Book(models.Model):
     production_files = models.ManyToManyField('File', null=True, blank=True, related_name='production_files')
     internal_review_files = models.ManyToManyField('File', null=True, blank=True, related_name='internal_review_files')
     external_review_files = models.ManyToManyField('File', null=True, blank=True, related_name='external_review_files')
+    editorial_review_files = models.ManyToManyField('File', null=True, blank=True, related_name='editorial_review_files')
     misc_files = models.ManyToManyField('File', null=True, blank=True, related_name='misc_files')
 
     # Contract
@@ -662,6 +658,7 @@ class ReviewAssignment(models.Model):
 
 
 class EditorialReviewAssignment(models.Model):
+    """ Now defunct because of editorialreview app. """
     book = models.ForeignKey(Book)  # TODO: Remove this as it is already linked to the book through the review round
 
     assigned = models.DateField(auto_now_add=True)
@@ -1198,6 +1195,7 @@ class Chapter(models.Model):
     keywords = models.ManyToManyField('Keyword', null=True, blank=True)
     disciplines = models.ManyToManyField('Subject', null=True, blank=True)
     sequence = models.IntegerField(default=999)
+    # Replaced by ChapterAuthor to allow ordering within chapters.
     authors = models.ManyToManyField('Author', null=True, blank=True)
     doi = models.CharField(max_length=300, null=True, blank=True)
 
@@ -1209,6 +1207,43 @@ class Chapter(models.Model):
 
     def __repr__(self):
         return u'%s - %s' % (self.book, self.sequence)
+
+
+class ChapterAuthor(models.Model):
+    # Very similar to author but containing chapter and sequence within chapter
+    chapter = models.ForeignKey(Chapter)
+    sequence = models.IntegerField(default=1, null=True, blank=True)
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    # Identifier if ChapterAuthor model has been automatically created from existing Author model
+    old_author_id = models.IntegerField(null=True, blank=True)
+    first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100)
+    salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True)
+    institution = models.CharField(max_length=1000, null=True, blank=True)
+    department = models.CharField(max_length=300, null=True, blank=True)
+    country = models.CharField(max_length=300, choices=COUNTRY_CHOICES, null=True, blank=True)
+    author_email = models.CharField(max_length=100)
+    biography = models.TextField(max_length=3000, null=True, blank=True)
+    orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name="ORCiD")
+    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
+    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
+    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Profile")
+
+    def __unicode__(self):
+        return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
+
+    def __repr__(self):
+        return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
+
+    def full_name(self):
+        if self.middle_name:
+            return "%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+        else:
+            return "%s %s" % (self.first_name, self.last_name)
+
+    class Meta:
+        ordering = ('sequence',)
 
 
 class ChapterFormat(models.Model):

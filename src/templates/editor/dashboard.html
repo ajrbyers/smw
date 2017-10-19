@@ -77,43 +77,66 @@
             </div>
 
             {% for book in book_list %}
-            <div class="project">
-                <a href="{% url 'editor_status' book.id %}">
-                <h5>Book {{ book.id }} - {{ book.full_title }}</h5>
-                <p>{{ book.owner.profile.full_name }}</p>
-                {% if book.stage.current_stage %}
-                <p class="pull-right small {% if book.revisions_requested %}revisions{% else %}{{ book.stage.current_stage }}{% endif %}">{% if book.revisions_requested %}REVISIONS{% else %}{{ book.stage.get_current_stage_display }}{% endif %}</p>
-                {% else %}
-                <p class="pull-right small in_progress">In Progress</p>
-                {% endif %}
-                <p><em>Submitted {{ book.submission_date }}</em></p>
-                </a>
-            </div>
+                <div class="project">
+                    <a href="{% url 'editor_status' book.id %}">
+                    <h5>Book {{ book.id }} - {{ book.full_title }}</h5>
+                    <p>{{ book.owner.profile.full_name }}</p>
+                    {% if book.stage.current_stage %}
+                        <p class="pull-right small
+                        {% if book.revisions_requested %}
+                            revisions
+                        {% else %}
+                            {{ book.stage.current_stage }}
+                        {% endif %}">
+                            {% if book.revisions_requested %}
+                                REVISIONS
+                            {% else %}
+                                {{ book.stage.get_current_stage_display }}
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p class="pull-right small in_progress">In Progress</p>
+                    {% endif %}
+                    <p><em>Submitted {{ book.submission_date }}</em></p>
+                    </a>
+                </div>
             {% empty %}
-            <div class="project">
-                <h5>No Projects initiated.</h5>
-            </div>
+                <div class="project">
+                    <h5>No Projects initiated.</h5>
+                </div>
             {% endfor %}
     </div>
 
     <div class="col-md-5 dash-center">
         <div class="dash-container"  id="task-list">
-            <h4>NOTIFICATIONS <sup><span class="badge" style="background-color:rgb(207,94,129);"><label id="notifications" style="height:7px">{{task_count}}</label></span></sup></h4>
+            <h4>
+                NOTIFICATIONS
+                <sup>
+                    <span class="badge" style="background-color:rgb(207,94,129);">
+                        <label id="notifications" style="height:7px">
+                            {{ task_count }}
+                        </label>
+                    </span>
+                </sup>
+            </h4>
             <hr/>
             {% for note in notifications %}
             <div class="notification" id="task-{{ note.id }}" id="callout-helper-bg-specificity">
                 <h5>{{ note.text|capfirst }}</h5>
-                {% if note.workflow == 'proposal' or note.workflow == 'editorial-review' %}
+                {% if note.workflow == 'proposal' %}
                 {% else %}
                 <p><em>Book {{ note.book}}{{ note.book.id }}: {{ note.book.full_title }}</em></p>
                 {% endif %}
                 <span class="pull-right" style="padding-right: 10px;margin-bottom:10px" >
                 <br />
                       {% ifequal note.workflow 'proposal' %}
-                   <a class="btn btn-xs btn-other" href="{% url 'proposals' %}">&nbsp;&nbsp;Go to Proposals&nbsp;&nbsp;</a> {% endifequal %}
-                     {% ifequal note.workflow 'editorial-review' %}
-                   <a class="btn btn-xs btn-review btn-round-half" href="{% url 'editorial_review' note.book.pk note.editorial_review.editorial_board_access_key %}">&nbsp;&nbsp;Go to Editorial Review &nbsp;&nbsp;</a> {% endifequal %}
-                       <button class="btn btn-xs btn-read" id="{{ note.id }}" value="{{ note.id }}">&nbsp;&nbsp;Mark as Read&nbsp;&nbsp;</button>
+                        <a class="btn btn-xs btn-other" href="{% url 'proposals' %}">
+                            &nbsp;&nbsp;Go to Proposals&nbsp;&nbsp;
+                        </a>
+                      {% endifequal %}
+                       <button class="btn btn-xs btn-read" id="{{ note.id }}" value="{{ note.id }}">
+                           &nbsp;&nbsp;Mark as Read&nbsp;&nbsp;
+                       </button>
                 </span>
                 <p><em>Posted {{ note.assigned }}</em></p> </br>
             </div>
@@ -131,7 +154,13 @@
                   </div>
                   <div class="timeline-panel">
                       <div class="timeline-heading">
-                          <h4 class="timeline-title">{% if item.proposal %}{{item.proposal.title}}: {{item.proposal.subtitle}}{% else %}{{ item.book.title }} {% endif %}</h4>
+                          <h4 class="timeline-title">
+                              {% if item.proposal %}
+                                {{item.proposal.title}}: {{item.proposal.subtitle}}
+                              {% else %}
+                                {{ item.book.title }}
+                              {% endif %}
+                          </h4>
                           <h4 class="timeline-title">{{ item.get_kind_display }}: {{ item.short_name }}</h4>
                           <p><small class="text-muted"><i class="fa fa-check"></i> {{ item.date_logged }}</small></p>
                           <p><small class="text-muted">Action by: {{ item.user.profile.full_name }}</small></p>

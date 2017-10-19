@@ -30,12 +30,26 @@ from review import forms
 from review import models
 from review import logic
 from submission import models as submission_models
+from editorialreview import models as editorialreview_models
 
 @has_reviewer_role
 def reviewer_dashboard(request):
 
-    reopened_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=False, reopened=True, declined__isnull=True, withdrawn = False).select_related('book')
-    incoming_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=True, reopened=False, declined__isnull=True, withdrawn = False).select_related('book')
+    reopened_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,
+        completed__isnull=False,
+        reopened=True,
+        declined__isnull=True,
+        withdrawn=False
+    ).select_related('book')
+    incoming_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,
+        completed__isnull=True,
+        reopened=False,
+        declined__isnull=True,
+        withdrawn=False
+    ).select_related('book')
+
     pending_tasks = []
 
     for task in reopened_tasks:
@@ -44,20 +58,64 @@ def reviewer_dashboard(request):
     for task in incoming_tasks:
         pending_tasks.append(task)
 
-    completed_tasks = core_models.ReviewAssignment.objects.filter(user=request.user,completed__isnull=False, reopened = False, withdrawn = False).select_related('book')
-    pending_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=True,declined__isnull=True, withdrawn = False)
-    completed_proposal_tasks = submission_models.ProposalReview.objects.filter(user=request.user,completed__isnull=False, withdrawn = False)
-
-
+    completed_tasks = core_models.ReviewAssignment.objects.filter(
+        user=request.user,
+        completed__isnull=False,
+        reopened = False,
+        withdrawn=False
+    ).select_related('book')
+    pending_proposal_tasks = submission_models.ProposalReview.objects.filter(
+        user=request.user,
+        completed__isnull=True,
+        declined__isnull=True,
+        withdrawn=False
+    )
+    completed_proposal_tasks = submission_models.ProposalReview.objects.filter(
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False
+    )
+    pending_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user,
+        completed__isnull=True,
+        withdrawn=False,
+        content_type__model='book'
+    )
+    pending_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user,
+        completed__isnull=True,
+        withdrawn=False,
+        content_type__model='proposal'
+    )
+    completed_submission_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False,
+        content_type__model='book'
+    )
+    completed_proposal_editorial_review_tasks = editorialreview_models.EditorialReview.objects.filter(
+        user=request.user,
+        completed__isnull=False,
+        withdrawn=False,
+        content_type__model='proposal'
+    )
 
     template = 'review/dashboard.html'
     context = {
         'pending_tasks': pending_tasks,
         'pending_proposal_tasks': pending_proposal_tasks,
-        'pending_count': len(pending_tasks)+len(pending_proposal_tasks),
+        'pending_submission_editorial_review_tasks': pending_submission_editorial_review_tasks,
+        'pending_proposal_editorial_review_tasks': pending_proposal_editorial_review_tasks,
+        'pending_count': len(pending_tasks) + len(pending_proposal_tasks)
+                         + len(pending_submission_editorial_review_tasks)
+                         + len(pending_proposal_editorial_review_tasks),
         'completed_tasks': completed_tasks,
         'completed_proposal_tasks': completed_proposal_tasks,
-        'completed_count':len(completed_tasks)+len(completed_proposal_tasks),
+        'completed_submission_editorial_review_tasks': completed_submission_editorial_review_tasks,
+        'completed_proposal_editorial_review_tasks': completed_proposal_editorial_review_tasks,
+        'completed_count':len(completed_tasks) + len(completed_proposal_tasks)
+                            + len(completed_submission_editorial_review_tasks)
+                            + len(completed_proposal_editorial_review_tasks),
     }
 
     return render(request, template, context)
@@ -292,15 +350,16 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             review_assignment.save()
             message = "%s Review assignment with id %s has been completed by %s ."  % (review_assignment.review_type.title(),review_assignment.id,review_assignment.user.profile.full_name())
             press_editors = User.objects.filter(profile__roles__slug='press-editor')
+
             for editor in press_editors:
-                notification = core_models.Task(assignee=editor,creator=user,text=message,workflow='review', book = submission)
+                notification = core_models.Task(assignee=editor, creator=user, text=message, workflow='review', book=submission)
                 notification.save()
-                print "notify"
+
             if not review_type == 'proposal':
                 log.add_log_entry(book=submission, user=user, kind='review', message='Reviewer %s %s completed review for %s.' % (review_assignment.user.first_name, review_assignment.user.last_name, submission.title), short_name='Assignment Completed')
-
                 message = "Reviewer %s %s has completed a review for '%s'."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
                 logic.notify_editors(submission,message,editors,user,'review')
+
             if access_key:
                 return redirect(reverse('review_complete_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'access_key':access_key,'review_round':review_round}))
             else:
@@ -440,7 +499,6 @@ def review_complete_no_redirect(request, review_type, submission_id,review_round
 def editorial_review(request, submission_id, access_key):
 
     ci_required = core_models.Setting.objects.get(group__name='general', name='ci_required')
-    print uuid4()
     # Check that this review is being access by the user, is not completed and has not been declined.
     review_assignment = get_object_or_404(core_models.EditorialReviewAssignment, Q(publishing_committee_access_key = access_key) |  Q(editorial_board_access_key = access_key))
     submission = get_object_or_404(core_models.Book, pk=submission_id)
@@ -599,7 +657,6 @@ def editorial_review(request, submission_id, access_key):
             for editor in press_editors:
                 notification = core_models.Task(assignee=editor,creator=request.user,text=message,workflow='editorial-review', book = submission, editorial_review = review_assignment)
                 notification.save()
-                print "notify"
             messages.add_message(request, messages.INFO, 'Submitted successfully')
             if editorial_board:
                 return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.editorial_board_access_key}))

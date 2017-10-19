@@ -1440,6 +1440,66 @@
 },
 {
   "fields": {
+    "doi": "10.5334/bbd.b",
+    "blurbs": "",
+    "name": "Infrastructure and Career Opportunities in Addiction Science: The Emergence of an Interdisciplinary Field",
+    "disciplines": [46],
+    "sequence": 2,
+    "authors": [],
+    "book": 1,
+    "formats": [304],
+    "keywords": [33]},
+  "model": "core.chapter",
+  "pk": 1
+},
+{
+  "fields": {
+    "chapter": 1,
+    "first_name": "Thomas",
+    "last_name": "Babor",
+    "middle_name": "F.",
+    "uuid": "c590f350-c08b-4802-9d3f-bbbb539f5df8",
+    "sequence": 1,
+    "author_email": "n/a",
+    "country": "US",
+    "twitter": "",
+    "linkedin": "",
+    "salutation": "None",
+    "department": "",
+    "facebook": "",
+    "old_author_id": 461,
+    "orcid": "",
+    "institution": "University of Connecticut School of Medicine",
+    "biography": "Thomas F. Babor is Professor and Chair, Department of Community Medicine and Health Care."
+  },
+  "model": "core.chapterauthor",
+  "pk": 1
+},
+  {
+    "fields": {
+      "chapter": 1,
+      "first_name": "Dominique",
+      "last_name": "Morisano",
+      "middle_name": "",
+      "uuid": "33bfedd7-0659-4ac1-92fe-5e8a4802647e",
+      "sequence": 2,
+      "author_email": "n/a",
+      "country": "CA",
+      "twitter": "",
+      "linkedin": "",
+      "salutation": "None",
+      "department": "Dalla Lana School of Public Health",
+      "facebook": "",
+      "old_author_id": 462,
+      "orcid": "",
+      "institution": "University of Toronto",
+      "biography": "Dominique Morisano is a clinical psychologist and research/evaluation consultant."
+    },
+    "model": "core.chapterauthor",
+    "pk": 2
+  },
+{
+  "fields": {
     "date_started": "2015-11-10T13:46:49.308Z",
     "book": 1,
     "round_number": 1

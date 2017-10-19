@@ -1583,12 +1583,26 @@ box-shadow: 0px 7px 5px 1px rgba(236,236,236,1);
   margin-left:-12.5px;
   width:100%;
 }
+.border-review-submission-long {
+  border-bottom: 4px #EEAD23 solid;
+  margin-bottom: 10px;
+  margin-top: -4px;
+  margin-left: 10px;
+  width: 92.5%;
+}
 .border-review-proposal-xs {
   border-bottom: 4px #6F12D2 solid;
   margin-bottom: 10px;
   margin-top: -4px;
   margin-left:-12.5px;
   width:100%;
+}
+.border-review-proposal-long {
+  border-bottom: 4px #6F12D2 solid;
+  margin-bottom: 10px;
+  margin-top: -4px;
+  margin-left: 10px;
+  width: 92.5%;
 }
 .border-review-editing-xs {
   border-bottom: 4px #B9DE24 solid;
@@ -1782,8 +1796,13 @@ box-shadow: 0px 7px 5px 1px rgba(236,236,236,1);
 /*Review Assignment Box Overrides*/
 .review-assignment {
     border-radius: 5px;
+    border-style: 1px solid gray;
     margin-bottom: 10px;
     padding-bottom: 5px;
-    background-color: white;
+}
+
+.editorial-review-assignment {
+    border-style: 1px solid gray;
+    border-radius: 5px;
 }
 

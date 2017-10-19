@@ -1,3 +1,4 @@
+from datetime import date
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -38,3 +39,6 @@ class EditorialReview(models.Model):
 
     def __str__(self):
         return '{0} - {1} ({2})'.format(self.content_object.title, self.user.profile.full_name(), self.content_type)
+
+    def is_overdue(self):
+        return date.today() > self.due
