@@ -9,7 +9,7 @@ import core.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0147_auto_20161026_0942'),
+        ('core', '0148_auto_20170519_0957'),
     ]
 
     operations = [
