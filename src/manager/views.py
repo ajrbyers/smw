@@ -23,7 +23,6 @@ import os
 import requests
 
 
-
 @is_press_editor
 def index(request):
     template = 'manager/index.html'
@@ -112,9 +111,11 @@ def group_members_assign(request, group_id, user_id):
         member = models.GroupMembership(user=user, group=group, sequence=9999)
         member.save()
     else:
-        messages.add_message(request, messages.WARNING, 'This user is already a member of %s' % group.name)
+        messages.add_message(request, messages.WARNING,
+                             'This user is already a member of %s' % group.name)
 
-    return redirect(reverse('manager_group_members', kwargs={'group_id': group.id}))
+    return redirect(
+        reverse('manager_group_members', kwargs={'group_id': group.id}))
 
 
 @is_press_editor
@@ -124,7 +125,8 @@ def manager_membership_delete(request, group_id, member_id):
 
     membership.delete()
 
-    return redirect(reverse('manager_group_members', kwargs={'group_id': group.id}))
+    return redirect(
+        reverse('manager_group_members', kwargs={'group_id': group.id}))
 
 
 @is_press_editor
@@ -142,7 +144,8 @@ def roles(request):
 def role(request, slug):
     role = get_object_or_404(core_models.Role, slug=slug)
     users_with_role = User.objects.filter(profile__roles__slug=slug)
-    users = User.objects.all().order_by('last_name').exclude(profile__roles__slug=slug)
+    users = User.objects.all().order_by('last_name').exclude(
+        profile__roles__slug=slug)
 
     template = 'manager/role.html'
     context = {
@@ -172,7 +175,8 @@ def role_action(request, slug, user_id, action):
 @is_press_editor
 def flush_cache(request):
     cache._cache.flush_all()
-    messages.add_message(request, messages.SUCCESS, 'Memcached has been flushed.')
+    messages.add_message(request, messages.SUCCESS,
+                         'Memcached has been flushed.')
 
     return redirect(reverse('manager_index'))
 
@@ -181,7 +185,8 @@ def flush_cache(request):
 def settings_index(request):
     template = 'manager/settings/index.html'
     context = {
-        'settings': [{group.name: core_models.Setting.objects.filter(group=group).order_by('name')} for group in
+        'settings': [{group.name: core_models.Setting.objects.filter(
+            group=group).order_by('name')} for group in
                      core_models.SettingGroup.objects.all().order_by('name')],
     }
 
@@ -191,7 +196,8 @@ def settings_index(request):
 @is_press_editor
 def edit_setting(request, setting_group, setting_name):
     group = get_object_or_404(core_models.SettingGroup, name=setting_group)
-    setting = get_object_or_404(core_models.Setting, group=group, name=setting_name)
+    setting = get_object_or_404(core_models.Setting, group=group,
+                                name=setting_name)
 
     edit_form = forms.EditKey(key_type=setting.types, value=setting.value)
 
@@ -228,11 +234,14 @@ def edit_setting(request, setting_group, setting_name):
 
 
 def edit_submission_checklist(request, item_id):
-    item = get_object_or_404(submission_models.SubmissionChecklistItem, pk=item_id)
-    checkitem_form = submission_forms.CreateSubmissionChecklistItem(instance=item)
+    item = get_object_or_404(submission_models.SubmissionChecklistItem,
+                             pk=item_id)
+    checkitem_form = submission_forms.CreateSubmissionChecklistItem(
+        instance=item)
 
     if request.POST:
-        checkitem_form = submission_forms.CreateSubmissionChecklistItem(request.POST, instance=item)
+        checkitem_form = submission_forms.CreateSubmissionChecklistItem(
+            request.POST, instance=item)
         if checkitem_form.is_valid():
             checkitem_form.save()
             return redirect(reverse('submission_checklist'))
@@ -249,7 +258,8 @@ def edit_submission_checklist(request, item_id):
 
 
 def delete_submission_checklist(request, item_id):
-    item = get_object_or_404(submission_models.SubmissionChecklistItem, pk=item_id)
+    item = get_object_or_404(submission_models.SubmissionChecklistItem,
+                             pk=item_id)
     item.delete()
 
     return redirect(reverse('submission_checklist'))
@@ -259,7 +269,8 @@ def submission_checklist(request):
     checkitem_form = submission_forms.CreateSubmissionChecklistItem()
 
     if request.POST:
-        checkitem_form = submission_forms.CreateSubmissionChecklistItem(request.POST)
+        checkitem_form = submission_forms.CreateSubmissionChecklistItem(
+            request.POST)
         if checkitem_form.is_valid():
             checkitem_form.save()
             return redirect(reverse('submission_checklist'))
@@ -415,7 +426,8 @@ def add_user(request):
                 user.is_active = True
                 user.save()
                 messages.add_message(request, messages.SUCCESS,
-                                     'New user %s, password set to %s.' % (user.username, new_pass))
+                                     'New user %s, password set to %s.' % (
+                                     user.username, new_pass))
 
             user.save()
             profile = profile_form.save(commit=False)
@@ -433,7 +445,8 @@ def add_user(request):
                 interests = request.POST.get('interests').split(',')
 
             for interest in interests:
-                new_interest, c = core_models.Interest.objects.get_or_create(name=interest)
+                new_interest, c = core_models.Interest.objects.get_or_create(
+                    name=interest)
                 profile.interest.add(new_interest)
 
             profile.save()
@@ -441,7 +454,8 @@ def add_user(request):
             if request.GET.get('next'):
                 return redirect(request.GET.get('next'))
             else:
-                return redirect("%s?username=%s&password=%s" % (reverse('manager_users'), user.username, new_pass))
+                return redirect("%s?username=%s&password=%s" % (
+                reverse('manager_users'), user.username, new_pass))
 
     template = 'manager/users/add.html'
     context = {
@@ -462,7 +476,8 @@ def user_edit(request, user_id):
 
     if request.method == 'POST':
         user_form = core_forms.UserProfileForm(request.POST, instance=user)
-        profile_form = core_forms.FullProfileForm(request.POST, request.FILES, instance=user.profile)
+        profile_form = core_forms.FullProfileForm(request.POST, request.FILES,
+                                                  instance=user.profile)
         if profile_form.is_valid() and user_form.is_valid():
             user = user_form.save()
             profile = profile_form.save()
@@ -472,7 +487,8 @@ def user_edit(request, user_id):
             interests = request.POST.get('interests')
             if interests:
                 for interest in interests.split(','):
-                    new_interest, c = core_models.Interest.objects.get_or_create(name=interest)
+                    new_interest, c = core_models.Interest.objects.get_or_create(
+                        name=interest)
                     profile.interest.add(new_interest)
             profile.save()
 
@@ -487,6 +503,7 @@ def user_edit(request, user_id):
     }
     return render(request, template, context)
 
+
 @is_press_editor
 def select_merge(request, user_id):
     user = User.objects.get(pk=user_id)
@@ -500,14 +517,16 @@ def select_merge(request, user_id):
 
     return render(request, template, context)
 
+
 @is_press_editor
 def merge_users(request, user_id, secondary_user_id):
     primary_user = User.objects.get(pk=user_id)
     secondary_user = User.objects.get(pk=secondary_user_id)
     related_objects = secondary_user._meta.get_all_related_objects()
 
-    blank_profile_local_fields = set([field.attname for field in primary_user.profile._meta.local_fields
-                                      if getattr(primary_user.profile, field.attname) in [None, '']])
+    blank_profile_local_fields = set(
+        [field.attname for field in primary_user.profile._meta.local_fields
+         if getattr(primary_user.profile, field.attname) in [None, '']])
 
     filled_up = set()
     for field_name in blank_profile_local_fields:
@@ -561,7 +580,8 @@ def activate_user(request, user_id):
 @is_press_editor
 def key_help(request):
     import json
-    with open('%s%s' % (settings.BASE_DIR, '/core/fixtures/key_help.json')) as data_file:
+    with open('%s%s' % (
+    settings.BASE_DIR, '/core/fixtures/key_help.json')) as data_file:
         data = json.load(data_file)
 
     template = "manager/keys.html"
@@ -611,8 +631,10 @@ def proposal_forms(request):
 def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
     get_object_or_404(core_models.ProposalForm, pk=form_id)
 
-    field_1 = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=field_1_id)
-    field_2 = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=field_2_id)
+    field_1 = get_object_or_404(core_models.ProposalFormElementsRelationship,
+                                pk=field_1_id)
+    field_2 = get_object_or_404(core_models.ProposalFormElementsRelationship,
+                                pk=field_2_id)
 
     order_1 = field_1.order
     order_2 = field_2.order
@@ -623,15 +645,18 @@ def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
     field_1.save()
     field_2.save()
 
-    return redirect(reverse('manager_edit_proposal_form', kwargs={'form_id': form_id}))
+    return redirect(
+        reverse('manager_edit_proposal_form', kwargs={'form_id': form_id}))
 
 
 @is_press_editor
 def reorder_review_form(request, form_id, field_1_id, field_2_id):
     get_object_or_404(review_models.Form, pk=form_id)
 
-    field_1 = get_object_or_404(review_models.FormElementsRelationship, pk=field_1_id)
-    field_2 = get_object_or_404(review_models.FormElementsRelationship, pk=field_2_id)
+    field_1 = get_object_or_404(review_models.FormElementsRelationship,
+                                pk=field_1_id)
+    field_2 = get_object_or_404(review_models.FormElementsRelationship,
+                                pk=field_2_id)
 
     order_1 = field_1.order
     order_2 = field_2.order
@@ -642,12 +667,14 @@ def reorder_review_form(request, form_id, field_1_id, field_2_id):
     field_1.save()
     field_2.save()
 
-    return redirect(reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
+    return redirect(
+        reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
 
 
 def proposal_order_field_list(form_id):
     form = get_object_or_404(core_models.ProposalForm, pk=form_id)
-    relations = core_models.ProposalFormElementsRelationship.objects.filter(form=form).order_by('order')
+    relations = core_models.ProposalFormElementsRelationship.objects.filter(
+        form=form).order_by('order')
     fields = []
     if relations > 0:
         for t, relation in enumerate(relations):
@@ -667,7 +694,8 @@ def proposal_order_field_list(form_id):
 
 def review_order_field_list(form_id):
     form = get_object_or_404(review_models.Form, pk=form_id)
-    relations = review_models.FormElementsRelationship.objects.filter(form=form).order_by('order')
+    relations = review_models.FormElementsRelationship.objects.filter(
+        form=form).order_by('order')
     fields = []
     if relations > 0:
         for t, relation in enumerate(relations):
@@ -690,7 +718,8 @@ def edit_proposal_form(request, form_id, relation_id=None):
     form = get_object_or_404(core_models.ProposalForm, pk=form_id)
 
     if relation_id:
-        relation = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=relation_id)
+        relation = get_object_or_404(
+            core_models.ProposalFormElementsRelationship, pk=relation_id)
         element_form = forms.ProposalElement(instance=relation.element)
         relation_form = forms.ProposalElementRelationship(instance=relation)
     else:
@@ -699,8 +728,10 @@ def edit_proposal_form(request, form_id, relation_id=None):
 
     if request.POST:
         if relation_id:
-            element_form = forms.ProposalElement(request.POST, instance=relation.element)
-            relation_form = forms.ProposalElementRelationship(request.POST, instance=relation)
+            element_form = forms.ProposalElement(request.POST,
+                                                 instance=relation.element)
+            relation_form = forms.ProposalElementRelationship(request.POST,
+                                                              instance=relation)
         else:
             element_form = forms.ProposalElement(request.POST)
             relation_form = forms.ProposalElementRelationship(request.POST)
@@ -715,7 +746,8 @@ def edit_proposal_form(request, form_id, relation_id=None):
 
             form.proposal_fields.add(new_relation)
 
-            return redirect(reverse('manager_edit_proposal_form', kwargs={'form_id': form_id}))
+            return redirect(reverse('manager_edit_proposal_form',
+                                    kwargs={'form_id': form_id}))
 
     template = 'manager/proposal/edit_form.html'
     context = {
@@ -731,8 +763,10 @@ def edit_proposal_form(request, form_id, relation_id=None):
 def preview_proposal_form(request, form_id):
     form = get_object_or_404(core_models.ProposalForm, pk=form_id)
 
-    preview_form = forms.GeneratedForm(form=core_models.ProposalForm.objects.get(pk=form_id))
-    fields = core_models.ProposalFormElementsRelationship.objects.filter(form=form)
+    preview_form = forms.GeneratedForm(
+        form=core_models.ProposalForm.objects.get(pk=form_id))
+    fields = core_models.ProposalFormElementsRelationship.objects.filter(
+        form=form)
     default_fields = forms.DefaultForm()
 
     template = 'manager/proposal/preview_form.html'
@@ -748,12 +782,14 @@ def preview_proposal_form(request, form_id):
 @is_press_editor
 def delete_proposal_form_element(request, form_id, relation_id):
     get_object_or_404(core_models.ProposalForm, pk=form_id)
-    relation = get_object_or_404(core_models.ProposalFormElementsRelationship, pk=relation_id)
+    relation = get_object_or_404(core_models.ProposalFormElementsRelationship,
+                                 pk=relation_id)
 
     relation.element.delete()
     relation.delete()
 
-    return redirect(reverse('manager_edit_proposal_form', kwargs={'form_id': form_id}))
+    return redirect(
+        reverse('manager_edit_proposal_form', kwargs={'form_id': form_id}))
 
 
 @is_press_editor
@@ -770,7 +806,8 @@ def edit_review_form(request, form_id, relation_id=None):
     form = get_object_or_404(review_models.Form, pk=form_id)
 
     if relation_id:
-        relation = get_object_or_404(review_models.FormElementsRelationship, pk=relation_id)
+        relation = get_object_or_404(review_models.FormElementsRelationship,
+                                     pk=relation_id)
         element_form = forms.FormElement(instance=relation.element)
         relation_form = forms.FormElementsRelationship(instance=relation)
     else:
@@ -779,8 +816,10 @@ def edit_review_form(request, form_id, relation_id=None):
 
     if request.POST:
         if relation_id:
-            element_form = forms.FormElement(request.POST, instance=relation.element)
-            relation_form = forms.FormElementsRelationship(request.POST, instance=relation)
+            element_form = forms.FormElement(request.POST,
+                                             instance=relation.element)
+            relation_form = forms.FormElementsRelationship(request.POST,
+                                                           instance=relation)
         else:
             element_form = forms.FormElement(request.POST)
             relation_form = forms.FormElementsRelationship(request.POST)
@@ -795,7 +834,8 @@ def edit_review_form(request, form_id, relation_id=None):
 
             form.form_fields.add(new_relation)
 
-            return redirect(reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
+            return redirect(reverse('manager_edit_review_form',
+                                    kwargs={'form_id': form_id}))
 
     template = 'manager/review/edit_form.html'
     context = {
@@ -811,7 +851,8 @@ def edit_review_form(request, form_id, relation_id=None):
 def preview_review_form(request, form_id):
     form = get_object_or_404(review_models.Form, pk=form_id)
 
-    preview_form = forms.GeneratedReviewForm(form=review_models.Form.objects.get(pk=form_id))
+    preview_form = forms.GeneratedReviewForm(
+        form=review_models.Form.objects.get(pk=form_id))
     fields = review_models.FormElementsRelationship.objects.filter(form=form)
 
     template = 'manager/review/preview_form.html'
@@ -826,19 +867,22 @@ def preview_review_form(request, form_id):
 @is_press_editor
 def delete_review_form_element(request, form_id, relation_id):
     get_object_or_404(review_models.Form, pk=form_id)
-    relation = get_object_or_404(review_models.FormElementsRelationship, pk=relation_id)
+    relation = get_object_or_404(review_models.FormElementsRelationship,
+                                 pk=relation_id)
 
     relation.element.delete()
     relation.delete()
 
-    return redirect(reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
+    return redirect(
+        reverse('manager_edit_review_form', kwargs={'form_id': form_id}))
 
 
 # File handler
 
 @is_press_editor
 def handle_file(request, file):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + '.' + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(settings.BASE_DIR, 'media', 'settings')
 

@@ -1,15 +1,20 @@
 from django.db import models
 
-class Form(models.Model):
 
+class Form(models.Model):
     name = models.CharField(max_length=100)
-    ref = models.CharField(max_length=20, help_text='for proposals: press_code-proposal eg. sup-proposal')
-    intro_text = models.TextField(max_length=1000, help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
-    completion_text = models.TextField(max_length=1000, help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
-    form_fields = models.ManyToManyField('FormElementsRelationship', blank=True, related_name='form_fields')
+    ref = models.CharField(max_length=20,
+                           help_text='for proposals: press_code-proposal eg. sup-proposal')
+    intro_text = models.TextField(max_length=1000,
+                                  help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
+    completion_text = models.TextField(max_length=1000,
+                                       help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
+    form_fields = models.ManyToManyField('FormElementsRelationship', blank=True,
+                                         related_name='form_fields')
 
     def __unicode__(self):
         return u'%s' % self.name
+
 
 class FormResult(models.Model):
     form = models.ForeignKey(Form)
@@ -18,6 +23,7 @@ class FormResult(models.Model):
 
     def __unicode__(self):
         return '%s' % (self.form.name)
+
 
 class FormElement(models.Model):
     field_choices = (
@@ -31,7 +37,8 @@ class FormElement(models.Model):
     )
 
     name = models.CharField(max_length=1000)
-    choices = models.CharField(max_length=500, null=True, blank=True, help_text='Seperate choices with the bar | character.')
+    choices = models.CharField(max_length=500, null=True, blank=True,
+                               help_text='Seperate choices with the bar | character.')
     field_type = models.CharField(max_length=100, choices=field_choices)
     required = models.BooleanField()
 
@@ -40,6 +47,7 @@ class FormElement(models.Model):
 
     def __repr__(self):
         return '<FormElement %s>' % (self.name)
+
 
 class FormElementsRelationship(models.Model):
     bs_class_choices = (
@@ -57,7 +65,8 @@ class FormElementsRelationship(models.Model):
         return '%s: %s' % (self.form.name, self.element.name)
 
     def __repr__(self):
-        return '<FormElementsRelation %s: %s' % (self.form.name, self.element.name)
+        return '<FormElementsRelation %s: %s' % (
+        self.form.name, self.element.name)
 
     class Meta:
         ordering = ('order',)

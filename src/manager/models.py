@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 def group_types():
     return (
         ('editorial_group', 'Editorial Group'),
         ('review_committee', 'Review Committee'),
         ('generic', 'Generic'),
     )
+
 
 class Group(models.Model):
     group_type = models.CharField(max_length=20, choices=group_types())
@@ -22,6 +24,7 @@ class Group(models.Model):
 
     def __repr__(self):
         return u'%s' % self.name
+
 
 class GroupMembership(models.Model):
     group = models.ForeignKey(Group)

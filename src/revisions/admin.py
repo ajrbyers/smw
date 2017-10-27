@@ -5,6 +5,7 @@ from models import Revision
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('book',)
 
+
 admin_list = [
     (Revision, RevisionAdmin),
 ]

@@ -8,11 +8,12 @@ import mimetypes as mime
 from uuid import uuid4
 import os
 
-def handle_marc21_file(content, name, book, owner):
 
+def handle_marc21_file(content, name, book, owner):
     original_filename = name
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -43,11 +44,12 @@ def handle_marc21_file(content, name, book, owner):
 
     return new_file
 
-def handle_onetasker_file(file, book, assignment, kind):
 
+def handle_onetasker_file(file, book, assignment, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -81,12 +83,14 @@ def handle_onetasker_file(file, book, assignment, kind):
 
     return new_file
 
+
 # File helpers
 def handle_file_update(file, old_file, book, kind, owner, label=None):
-
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -127,12 +131,14 @@ def handle_file_update(file, old_file, book, kind, owner, label=None):
 
     return path
 
+
 # File helpers
 def handle_file(file, book, kind, owner, label=None):
-
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -165,13 +171,14 @@ def handle_file(file, book, kind, owner, label=None):
     new_file.save()
 
     return new_file
+
 
 # File helpers
 def handle_email_file(file, kind, owner, label=None):
-
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'email', 'general')
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'email',
+                                    'general')
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -204,12 +211,14 @@ def handle_email_file(file, kind, owner, label=None):
     new_file.save()
 
     return new_file
+
 
 def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
-
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(proposal_review.proposal.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
+                                    str(proposal_review.proposal.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -242,12 +251,14 @@ def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
     new_file.save()
 
     return new_file
+
 
 def handle_proposal_file(file, proposal, kind, owner, label=None):
-
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(proposal.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
+                                    str(proposal.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -281,11 +292,12 @@ def handle_proposal_file(file, proposal, kind, owner, label=None):
 
     return new_file
 
-def handle_proposal_file_form(file, proposal, kind, owner, label=None):
 
+def handle_proposal_file_form(file, proposal, kind, owner, label=None):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals', str(proposal.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
+                                    str(proposal.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -319,6 +331,7 @@ def handle_proposal_file_form(file, proposal, kind, owner, label=None):
 
     return new_file.pk
 
+
 def handle_attachment(request, submission):
     if request.FILES.get('attachment_file'):
         attachment_file = request.FILES.get('attachment_file')
@@ -326,11 +339,12 @@ def handle_attachment(request, submission):
     else:
         return None
 
-def handle_copyedit_file(file, book, copyedit, kind):
 
+def handle_copyedit_file(file, book, copyedit, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -364,10 +378,10 @@ def handle_copyedit_file(file, book, copyedit, kind):
 
 
 def handle_index_file(file, book, index, kind):
-
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -401,10 +415,11 @@ def handle_index_file(file, book, index, kind):
 
 
 def handle_typeset_file(file, book, typeset, kind):
-
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(';', '_')
+    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
+        ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -439,7 +454,6 @@ def handle_typeset_file(file, book, typeset, kind):
 
 ### Helpers ###
 def get_owner(assignment):
-
     if assignment.type() == 'copyedit':
         return assignment.copyeditor
     elif assignment.type() == 'typesetting':

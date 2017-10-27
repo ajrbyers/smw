@@ -41,7 +41,6 @@ ORCID_CLIENT_ID = 'insert-client-id'
 
 INSTALLED_APPS = (
     'test_without_migrations',
-
     'flat',
     'django.contrib.sites',
     'django.contrib.admin',
@@ -51,9 +50,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_nose',
-
-
-    # Django
     'core',
     'submission',
     'manager',
@@ -66,19 +62,14 @@ INSTALLED_APPS = (
     'editor',
     'swiftsubmit',
     'editorialreview',
-
-    # 3rd Party
     'bootstrap3',
     'pymarc',
     'debug_toolbar',
     'django_summernote',
     'rest_framework',
-
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    
-    # allauth providers
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.orcid',
@@ -106,8 +97,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': 'rua.sqlite',
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rua',
         'USER': 'root',

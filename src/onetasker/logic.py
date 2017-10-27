@@ -11,9 +11,11 @@ def get_assignment(assignment_type, assignment_id):
     ''' given one of the 3 assignment types and it's id it returns an Assignment object'''
 
     if assignment_type == 'copyedit':
-        assignment = get_object_or_404(models.CopyeditAssignment, pk=assignment_id)
+        assignment = get_object_or_404(models.CopyeditAssignment,
+                                       pk=assignment_id)
     elif assignment_type == 'typesetting':
-        assignment = get_object_or_404(models.TypesetAssignment, pk=assignment_id)
+        assignment = get_object_or_404(models.TypesetAssignment,
+                                       pk=assignment_id)
     elif assignment_type == 'indexing':
         assignment = get_object_or_404(models.IndexAssignment, pk=assignment_id)
     else:
@@ -21,8 +23,8 @@ def get_assignment(assignment_type, assignment_id):
 
     return assignment
 
-def get_assignemnt_form(request, assignment_type, assignment):
 
+def get_assignemnt_form(request, assignment_type, assignment):
     if assignment_type == 'copyedit':
         form = forms.Copyedit(request.POST, instance=assignment)
     elif assignment_type == 'typesetting':
@@ -34,8 +36,8 @@ def get_assignemnt_form(request, assignment_type, assignment):
 
     return form
 
-def get_unposted_form(request, assignment_type, assignment):
 
+def get_unposted_form(request, assignment_type, assignment):
     if assignment_type == 'copyedit':
         form = forms.Copyedit(instance=assignment)
     elif assignment_type == 'typesetting':
@@ -47,6 +49,7 @@ def get_unposted_form(request, assignment_type, assignment):
 
     return form
 
+
 def handle_files(assignment, files):
     for _file in files:
         new_file = handle_file(_file, assignment)
@@ -55,18 +58,22 @@ def handle_files(assignment, files):
 
     return assignment
 
-def handle_file(_file, assignment):
 
+def handle_file(_file, assignment):
     if assignment.type() == 'copyedit':
-        handled_file = files.handle_onetasker_file(_file, assignment.book, assignment, 'copyedit')
+        handled_file = files.handle_onetasker_file(_file, assignment.book,
+                                                   assignment, 'copyedit')
     elif assignment.type() == 'typesetting':
-        handled_file = files.handle_onetasker_file(_file, assignment.book, assignment, 'typeset')
+        handled_file = files.handle_onetasker_file(_file, assignment.book,
+                                                   assignment, 'typeset')
     elif assignment.type() == 'indexing':
-        handled_file = files.handle_onetasker_file(_file, assignment.book, assignment, 'index')
+        handled_file = files.handle_onetasker_file(_file, assignment.book,
+                                                   assignment, 'index')
     else:
         raise Http404
 
     return handled_file
+
 
 def add_file(assignment, new_file, author=None):
     if assignment.type() == 'copyedit':
@@ -85,6 +92,7 @@ def add_file(assignment, new_file, author=None):
 
     return assignment
 
+
 def complete_task(assignment):
     if assignment.type() == 'copyedit':
         assignment.completed = datetime.now()
@@ -98,11 +106,12 @@ def complete_task(assignment):
 
     return assignment
 
-def right_block(assignment):
 
+def right_block(assignment):
     if assignment.completed:
         right_block = 'onetasker/elements/completed.html'
-        if assignment.type() == 'typesetting' and not assignment.typesetter_completed and assignment.state().get('state') == 'typesetter_second':
+        if assignment.type() == 'typesetting' and not assignment.typesetter_completed and assignment.state().get(
+                'state') == 'typesetter_second':
             right_block = 'onetasker/elements/task_form.html'
     elif assignment.accepted:
         right_block = 'onetasker/elements/task_form.html'
@@ -110,6 +119,7 @@ def right_block(assignment):
         right_block = None
 
     return right_block
+
 
 def notify_editor(assignment, text):
     if assignment.type() == 'copyedit':
@@ -119,10 +129,11 @@ def notify_editor(assignment, text):
     elif assignment.type() == 'indexing':
         assignee = assignment.indexer
 
-    return task.create_new_task(assignment.book, assignment.requestor, assignee, text, assignment.type())
+    return task.create_new_task(assignment.book, assignment.requestor, assignee,
+                                text, assignment.type())
+
 
 def get_submitted_files(assignment):
-
     if assignment.type() == 'copyedit':
         files = assignment.copyedit_files.all()
     elif assignment.type() == 'typesetting':

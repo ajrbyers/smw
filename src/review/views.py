@@ -17,13 +17,14 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.http import Http404, HttpResponse, StreamingHttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, StreamingHttpResponse, \
+    HttpResponseRedirect
 
 from core import logic as core_logic
 from core import models as core_models
 from core import views as core_views
 from core import forms as core_forms
-from core.decorators import is_reviewer,has_reviewer_role,is_editor
+from core.decorators import is_reviewer, has_reviewer_role, is_editor
 from core import log
 from core import models as core_models
 from review import forms
@@ -32,9 +33,9 @@ from review import logic
 from submission import models as submission_models
 from editorialreview import models as editorialreview_models
 
+
 @has_reviewer_role
 def reviewer_dashboard(request):
-
     reopened_tasks = core_models.ReviewAssignment.objects.filter(
         user=request.user,
         completed__isnull=False,
@@ -61,7 +62,7 @@ def reviewer_dashboard(request):
     completed_tasks = core_models.ReviewAssignment.objects.filter(
         user=request.user,
         completed__isnull=False,
-        reopened = False,
+        reopened=False,
         withdrawn=False
     ).select_related('book')
     pending_proposal_tasks = submission_models.ProposalReview.objects.filter(
@@ -113,50 +114,80 @@ def reviewer_dashboard(request):
         'completed_proposal_tasks': completed_proposal_tasks,
         'completed_submission_editorial_review_tasks': completed_submission_editorial_review_tasks,
         'completed_proposal_editorial_review_tasks': completed_proposal_editorial_review_tasks,
-        'completed_count':len(completed_tasks) + len(completed_proposal_tasks)
-                            + len(completed_submission_editorial_review_tasks)
-                            + len(completed_proposal_editorial_review_tasks),
+        'completed_count': len(completed_tasks) + len(completed_proposal_tasks)
+                           + len(completed_submission_editorial_review_tasks)
+                           + len(completed_proposal_editorial_review_tasks),
     }
 
     return render(request, template, context)
 
-@is_reviewer
-def reviewer_decision(request, review_type, submission_id, review_assignment_id, decision=None, access_key=None):
 
+@is_reviewer
+def reviewer_decision(request, review_type, submission_id, review_assignment_id,
+                      decision=None, access_key=None):
     # Check the review assignment has not been completed and is being accessed by the assigned user
     review_assignment = None
 
     submission = get_object_or_404(core_models.Book, pk=submission_id)
-    one_click_no_login = core_models.Setting.objects.filter(name='one_click_review_url')
+    one_click_no_login = core_models.Setting.objects.filter(
+        name='one_click_review_url')
 
     if one_click_no_login:
         if one_click_no_login[0].value == 'on':
             one_click = True
             if access_key:
-                review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key,pk=review_assignment_id, declined__isnull=True, review_type=review_type, withdrawn=False)
+                review_assignment = get_object_or_404(
+                    core_models.ReviewAssignment, access_key=access_key,
+                    pk=review_assignment_id, declined__isnull=True,
+                    review_type=review_type, withdrawn=False)
                 user = review_assignment.user
             else:
                 if request.user.is_authenticated():
-                    review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=request.user), Q(book=submission),Q(pk=review_assignment_id), Q(declined__isnull=True), Q(review_type=review_type),Q(withdrawn=False),Q(access_key__isnull=True) | Q(access_key__exact=''))
+                    review_assignment = get_object_or_404(
+                        core_models.ReviewAssignment, Q(user=request.user),
+                        Q(book=submission), Q(pk=review_assignment_id),
+                        Q(declined__isnull=True), Q(review_type=review_type),
+                        Q(withdrawn=False),
+                        Q(access_key__isnull=True) | Q(access_key__exact=''))
                     user = request.user
                 else:
                     raise Http404
         else:
             one_click = False
             if access_key:
-                review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key,pk=review_assignment_id, declined__isnull=True, review_type=review_type, withdrawn=False)
+                review_assignment = get_object_or_404(
+                    core_models.ReviewAssignment, access_key=access_key,
+                    pk=review_assignment_id, declined__isnull=True,
+                    review_type=review_type, withdrawn=False)
                 user = review_assignment.user
             elif request.user.is_authenticated():
-                review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=request.user), Q(book=submission),Q(pk=review_assignment_id), Q(declined__isnull=True), Q(review_type=review_type),Q(withdrawn=False),Q(access_key__isnull=True) | Q(access_key__exact=''))
+                review_assignment = get_object_or_404(
+                    core_models.ReviewAssignment, Q(user=request.user),
+                    Q(book=submission), Q(pk=review_assignment_id),
+                    Q(declined__isnull=True), Q(review_type=review_type),
+                    Q(withdrawn=False),
+                    Q(access_key__isnull=True) | Q(access_key__exact=''))
                 user = request.user
             else:
                 raise Http404
     else:
         user = request.user
         if access_key:
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key,pk=review_assignment_id, declined__isnull=True, review_type=review_type, withdrawn=False)
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  access_key=access_key,
+                                                  pk=review_assignment_id,
+                                                  declined__isnull=True,
+                                                  review_type=review_type,
+                                                  withdrawn=False)
         else:
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=user), Q(book=submission),Q(pk=review_assignment_id), Q(declined__isnull=True), Q(review_type=review_type),Q(withdrawn=False),Q(access_key__isnull=True) | Q(access_key__exact=''))
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  Q(user=user),
+                                                  Q(book=submission),
+                                                  Q(pk=review_assignment_id),
+                                                  Q(declined__isnull=True),
+                                                  Q(review_type=review_type),
+                                                  Q(withdrawn=False), Q(
+                    access_key__isnull=True) | Q(access_key__exact=''))
 
     if review_assignment:
         editors = logic.get_editors(review_assignment)
@@ -165,48 +196,72 @@ def reviewer_decision(request, review_type, submission_id, review_assignment_id,
 
     if review_assignment.accepted:
         if access_key:
-            return redirect(reverse('review_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'access_key':access_key,'review_round':review_assignment.review_round.round_number}))
+            return redirect(reverse('review_with_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.pk,
+                                            'access_key': access_key,
+                                            'review_round': review_assignment.review_round.round_number}))
         else:
-            return redirect(reverse('review_without_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'review_round':review_assignment.review_round.round_number}))
+            return redirect(reverse('review_without_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.pk,
+                                            'review_round': review_assignment.review_round.round_number}))
     elif review_assignment.declined:
         return redirect(reverse('reviewer_dashboard'))
 
     if decision and decision == 'accept':
         review_assignment.accepted = timezone.now()
-        message = "Review Assignment request for '%s' has been accepted by %s %s."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
-        log.add_log_entry(book=submission, user=user, kind='review', message=message, short_name='Assignment accepted')
-        logic.notify_editors(submission,message,editors,user,'review')
+        message = "Review Assignment request for '%s' has been accepted by %s %s." % (
+        submission.title, review_assignment.user.first_name,
+        review_assignment.user.last_name)
+        log.add_log_entry(book=submission, user=user, kind='review',
+                          message=message, short_name='Assignment accepted')
+        logic.notify_editors(submission, message, editors, user, 'review')
 
     elif decision and decision == 'decline':
         review_assignment.declined = timezone.now()
-        message = "Review Assignment request for '%s' has been declined by %s %s."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
-        logic.notify_editors(submission,message,editors,user,'review')
+        message = "Review Assignment request for '%s' has been declined by %s %s." % (
+        submission.title, review_assignment.user.first_name,
+        review_assignment.user.last_name)
+        logic.notify_editors(submission, message, editors, user, 'review')
 
-        log.add_log_entry(book=submission, user=user, kind='review', message=message, short_name='Assignment declined')
-
+        log.add_log_entry(book=submission, user=user, kind='review',
+                          message=message, short_name='Assignment declined')
 
     # If we didn't get a decision above, offer the user a choice.
     if request.POST:
         if 'accept' in request.POST:
             review_assignment.accepted = timezone.now()
-            message = "Review Assignment request for '%s' has been accepted by %s %s."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
-            log.add_log_entry(book=submission, user=user, kind='review', message=message, short_name='Assignment accepted')
-            logic.notify_editors(submission,message,editors,user,'review')
+            message = "Review Assignment request for '%s' has been accepted by %s %s." % (
+            submission.title, review_assignment.user.first_name,
+            review_assignment.user.last_name)
+            log.add_log_entry(book=submission, user=user, kind='review',
+                              message=message, short_name='Assignment accepted')
+            logic.notify_editors(submission, message, editors, user, 'review')
 
         elif 'decline' in request.POST:
             review_assignment.declined = timezone.now()
-            message = "Review Assignment request for '%s' has been declined by %s %s."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
-            logic.notify_editors(submission,message,editors,user,'review')
-            log.add_log_entry(book=submission, user=user, kind='review', message=message, short_name='Assignment declined')
-
+            message = "Review Assignment request for '%s' has been declined by %s %s." % (
+            submission.title, review_assignment.user.first_name,
+            review_assignment.user.last_name)
+            logic.notify_editors(submission, message, editors, user, 'review')
+            log.add_log_entry(book=submission, user=user, kind='review',
+                              message=message, short_name='Assignment declined')
 
     if request.POST or decision:
         review_assignment.save()
         if review_assignment.accepted:
             if access_key:
-                return redirect(reverse('review_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'access_key':access_key,'review_round':review_assignment.review_round.round_number}))
+                return redirect(reverse('review_with_access_key',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'access_key': access_key,
+                                                'review_round': review_assignment.review_round.round_number}))
             else:
-                return redirect(reverse('review_without_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'review_round':review_assignment.review_round.round_number}))
+                return redirect(reverse('review_without_access_key',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'review_round': review_assignment.review_round.round_number}))
         elif review_assignment.declined:
             return redirect(reverse('review_request_declined'))
 
@@ -218,59 +273,101 @@ def reviewer_decision(request, review_type, submission_id, review_assignment_id,
         'editors': editors,
         'access_key': access_key,
         'one_click': one_click,
-        'file_preview': core_models.Setting.objects.get(group__name='general', name='preview_review_files').value,
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'file_preview': core_models.Setting.objects.get(group__name='general',
+                                                        name='preview_review_files').value,
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
 
     }
 
     return render(request, template, context)
 
+
 @is_reviewer
 def review(request, review_type, submission_id, review_round, access_key=None):
-
-    ci_required = core_models.Setting.objects.get(group__name='general', name='ci_required')
-    one_click_no_login = core_models.Setting.objects.filter(name='one_click_review_url')
+    ci_required = core_models.Setting.objects.get(group__name='general',
+                                                  name='ci_required')
+    one_click_no_login = core_models.Setting.objects.filter(
+        name='one_click_review_url')
 
     if one_click_no_login[0].value == 'on' and access_key:
         one_click = True
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key,review_round__round_number=review_round, declined__isnull=True, review_type=review_type, withdrawn=False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              access_key=access_key,
+                                              review_round__round_number=review_round,
+                                              declined__isnull=True,
+                                              review_type=review_type,
+                                              withdrawn=False)
         submission = get_object_or_404(core_models.Book, pk=submission_id)
         user = review_assignment.user
 
         if review_assignment.completed and not review_assignment.reopened:
-            return redirect(reverse('review_complete_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'access_key':access_key,'review_round':review_round}))
+            return redirect(reverse('review_complete_with_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.pk,
+                                            'access_key': access_key,
+                                            'review_round': review_round}))
 
     else:
         one_click = False
         user = request.user
 
         if access_key:
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key,review_round__round_number=review_round, declined__isnull=True, review_type=review_type, withdrawn=False)
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  access_key=access_key,
+                                                  review_round__round_number=review_round,
+                                                  declined__isnull=True,
+                                                  review_type=review_type,
+                                                  withdrawn=False)
             submission = get_object_or_404(core_models.Book, pk=submission_id)
 
             if review_assignment.completed and not review_assignment.reopened:
-                return redirect(reverse('review_complete_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'access_key':access_key,'review_round':review_round}))
+                return redirect(reverse('review_complete_with_access_key',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'access_key': access_key,
+                                                'review_round': review_round}))
 
         elif review_type == 'proposal':
-            submission = get_object_or_404(submission_models.Proposal, pk=submission_id)
-            review_assignment = get_object_or_404(submission_models.ProposalReview, user=user, proposal=submission, completed__isnull=True, declined__isnull=True, withdrawn = False)
+            submission = get_object_or_404(submission_models.Proposal,
+                                           pk=submission_id)
+            review_assignment = get_object_or_404(
+                submission_models.ProposalReview, user=user,
+                proposal=submission, completed__isnull=True,
+                declined__isnull=True, withdrawn=False)
 
         else:
             submission = get_object_or_404(core_models.Book, pk=submission_id)
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=user), Q(book=submission),Q(review_round__round_number=review_round), Q(declined__isnull=True), Q(review_type=review_type),Q(withdrawn=False),Q(access_key__isnull=True) | Q(access_key__exact=''))
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  Q(user=user),
+                                                  Q(book=submission), Q(
+                    review_round__round_number=review_round),
+                                                  Q(declined__isnull=True),
+                                                  Q(review_type=review_type),
+                                                  Q(withdrawn=False), Q(
+                    access_key__isnull=True) | Q(access_key__exact=''))
 
             if review_assignment.completed and not review_assignment.reopened:
-                return redirect(reverse('review_complete', kwargs={'review_type': review_type, 'submission_id': submission.pk,'review_round':review_round}))
-
+                return redirect(reverse('review_complete',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'review_round': review_round}))
 
     # Check that this review is being access by the user, is not completed and has not been declined.
 
     if review_assignment:
         if not review_assignment.accepted and not review_assignment.declined:
             if access_key:
-                return redirect(reverse('reviewer_decision_without_access_key', kwargs={'review_type': review_type, 'submission_id': submission.pk,'access_key':access_key,'review_assignment_id':review_assignment.pk}))
+                return redirect(reverse('reviewer_decision_without_access_key',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'access_key': access_key,
+                                                'review_assignment_id': review_assignment.pk}))
             else:
-                return redirect(reverse('reviewer_decision_without', kwargs={'review_type': review_type, 'submission_id': submission.pk,'review_assignment_id':review_assignment.pk}))
+                return redirect(reverse('reviewer_decision_without',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.pk,
+                                                'review_assignment_id': review_assignment.pk}))
 
     editors = logic.get_editors(review_assignment)
     if review_assignment.review_form:
@@ -285,86 +382,122 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         if result:
             initial_data = {}
             data = json.loads(result.data)
-            for k,v in data.items():
+            for k, v in data.items():
                 initial_data[k] = v[0]
             form.initial = initial_data
 
-    recommendation_form = core_forms.RecommendationForm(ci_required=ci_required.value)
+    recommendation_form = core_forms.RecommendationForm(
+        ci_required=ci_required.value)
 
     if review_assignment.reopened:
         initial_data = {}
-        initial_data[u'recommendation']=review_assignment.recommendation
-        initial_data[u'competing_interests']=review_assignment.competing_interests
-        recommendation_form.initial=initial_data
+        initial_data[u'recommendation'] = review_assignment.recommendation
+        initial_data[
+            u'competing_interests'] = review_assignment.competing_interests
+        recommendation_form.initial = initial_data
 
     if not request.POST and request.GET.get('download') == 'docx':
         path = create_completed_review_form(submission, review_assignment.pk)
         return serve_file(request, path)
 
     elif request.POST:
-        form = forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.review_form)
-        recommendation_form = core_forms.RecommendationForm(request.POST, ci_required=ci_required.value)
+        form = forms.GeneratedForm(request.POST, request.FILES,
+                                   form=review_assignment.review_form)
+        recommendation_form = core_forms.RecommendationForm(request.POST,
+                                                            ci_required=ci_required.value)
         if form.is_valid() and recommendation_form.is_valid():
             save_dict = {}
-            file_fields = models.FormElementsRelationship.objects.filter(form=review_assignment.review_form, element__field_type='upload')
-            data_fields = models.FormElementsRelationship.objects.filter(~Q(element__field_type='upload'), form=review_assignment.review_form)
+            file_fields = models.FormElementsRelationship.objects.filter(
+                form=review_assignment.review_form,
+                element__field_type='upload')
+            data_fields = models.FormElementsRelationship.objects.filter(
+                ~Q(element__field_type='upload'),
+                form=review_assignment.review_form)
 
             for field in file_fields:
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [logic.handle_review_file(request.FILES[field.element.name], 'book', review_assignment, 'reviewer')]
+                    save_dict[field.element.name] = [logic.handle_review_file(
+                        request.FILES[field.element.name], 'book',
+                        review_assignment, 'reviewer')]
 
             for field in data_fields:
                 if field.element.name in request.POST:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [request.POST.get(field.element.name), 'text']
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name), 'text']
 
             json_data = smart_text(json.dumps(save_dict))
             if review_assignment.reopened:
                 if review_assignment.results:
                     review_assignment.results.data = json_data
                     review_assignment.results.save()
-                    review_assignment.reopened=False
+                    review_assignment.reopened = False
                     review_assignment.save()
                 else:
-                    form_results = models.FormResult(form=review_assignment.review_form, data=json_data)
+                    form_results = models.FormResult(
+                        form=review_assignment.review_form, data=json_data)
                     form_results.save()
                     review_assignment.results = form_results
-                    review_assignment.reopened=False
+                    review_assignment.reopened = False
                     review_assignment.save()
             else:
-                form_results = models.FormResult(form=review_assignment.review_form, data=json_data)
+                form_results = models.FormResult(
+                    form=review_assignment.review_form, data=json_data)
                 form_results.save()
                 review_assignment.results = form_results
                 review_assignment.save()
 
             if request.FILES.get('review_file_upload'):
-                logic.handle_review_file(request.FILES.get('review_file_upload'), 'book', review_assignment, 'reviewer')
+                logic.handle_review_file(
+                    request.FILES.get('review_file_upload'), 'book',
+                    review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
                 review_assignment.accepted = timezone.now()
-            review_assignment.recommendation = request.POST.get('recommendation')
-            review_assignment.competing_interests = request.POST.get('competing_interests')
+            review_assignment.recommendation = request.POST.get(
+                'recommendation')
+            review_assignment.competing_interests = request.POST.get(
+                'competing_interests')
 
             review_assignment.save()
-            message = "%s Review assignment with id %s has been completed by %s ."  % (review_assignment.review_type.title(),review_assignment.id,review_assignment.user.profile.full_name())
-            press_editors = User.objects.filter(profile__roles__slug='press-editor')
+            message = "%s Review assignment with id %s has been completed by %s ." % (
+            review_assignment.review_type.title(), review_assignment.id,
+            review_assignment.user.profile.full_name())
+            press_editors = User.objects.filter(
+                profile__roles__slug='press-editor')
 
             for editor in press_editors:
-                notification = core_models.Task(assignee=editor, creator=user, text=message, workflow='review', book=submission)
+                notification = core_models.Task(assignee=editor, creator=user,
+                                                text=message, workflow='review',
+                                                book=submission)
                 notification.save()
 
             if not review_type == 'proposal':
-                log.add_log_entry(book=submission, user=user, kind='review', message='Reviewer %s %s completed review for %s.' % (review_assignment.user.first_name, review_assignment.user.last_name, submission.title), short_name='Assignment Completed')
-                message = "Reviewer %s %s has completed a review for '%s'."  % (submission.title,review_assignment.user.first_name, review_assignment.user.last_name)
-                logic.notify_editors(submission,message,editors,user,'review')
+                log.add_log_entry(book=submission, user=user, kind='review',
+                                  message='Reviewer %s %s completed review for %s.' % (
+                                  review_assignment.user.first_name,
+                                  review_assignment.user.last_name,
+                                  submission.title),
+                                  short_name='Assignment Completed')
+                message = "Reviewer %s %s has completed a review for '%s'." % (
+                submission.title, review_assignment.user.first_name,
+                review_assignment.user.last_name)
+                logic.notify_editors(submission, message, editors, user,
+                                     'review')
 
             if access_key:
-                return redirect(reverse('review_complete_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'access_key':access_key,'review_round':review_round}))
+                return redirect(reverse('review_complete_with_access_key',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.id,
+                                                'access_key': access_key,
+                                                'review_round': review_round}))
             else:
-                return redirect(reverse('review_complete', kwargs={'review_type': review_type, 'submission_id': submission.id,'review_round':review_round}))
-
+                return redirect(reverse('review_complete',
+                                        kwargs={'review_type': review_type,
+                                                'submission_id': submission.id,
+                                                'review_round': review_round}))
 
     template = 'review/review.html'
     context = {
@@ -377,63 +510,96 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         'access_key': access_key,
         'one_click': one_click,
         'has_additional_files': logic.has_additional_files(submission),
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
 
     }
 
     return render(request, template, context)
 
+
 def review_request_declined(request):
     template = 'review/review_request_declined.html'
     return render(request, template)
 
-@is_reviewer
-def review_complete(request, review_type, submission_id, review_round, access_key=None):
 
-    one_click_no_login = core_models.Setting.objects.filter(name='one_click_review_url')
+@is_reviewer
+def review_complete(request, review_type, submission_id, review_round,
+                    access_key=None):
+    one_click_no_login = core_models.Setting.objects.filter(
+        name='one_click_review_url')
 
     if one_click_no_login[0].value == 'on' and access_key:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              access_key=access_key)
         submission = get_object_or_404(core_models.Book, pk=submission_id)
         user = review_assignment.user
     else:
         user = request.user
 
         if access_key:
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key, declined__isnull=True, review_type=review_type, review_round=review_round, withdrawn = False)
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  access_key=access_key,
+                                                  declined__isnull=True,
+                                                  review_type=review_type,
+                                                  review_round=review_round,
+                                                  withdrawn=False)
             submission = get_object_or_404(core_models.Book, pk=submission_id)
 
         elif review_type == 'proposal':
-            submission = get_object_or_404(submission_models.Proposal, pk=submission_id)
-            review_assignment = get_object_or_404(submission_models.ProposalReview, user=user, proposal=submission)
+            submission = get_object_or_404(submission_models.Proposal,
+                                           pk=submission_id)
+            review_assignment = get_object_or_404(
+                submission_models.ProposalReview, user=user,
+                proposal=submission)
 
         else:
             submission = get_object_or_404(core_models.Book, pk=submission_id)
-            review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=user), Q(review_round__round_number=review_round), Q(book=submission), Q(withdrawn = False), Q(review_type=review_type), Q(access_key__isnull=True) | Q(access_key__exact=''))
-
+            review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                                  Q(user=user), Q(
+                    review_round__round_number=review_round),
+                                                  Q(book=submission),
+                                                  Q(withdrawn=False),
+                                                  Q(review_type=review_type), Q(
+                    access_key__isnull=True) | Q(access_key__exact=''))
 
     result = review_assignment.results
     if not result or not review_assignment.completed:
         if not result:
-            review_assignment.completed=None
+            review_assignment.completed = None
             review_assignment.save()
         if access_key:
-            return redirect(reverse('review_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'access_key':access_key,'review_round':review_round}))
+            return redirect(reverse('review_with_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.id,
+                                            'access_key': access_key,
+                                            'review_round': review_round}))
         else:
-            return redirect(reverse('review_without_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'review_round':review_round}))
+            return redirect(reverse('review_without_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.id,
+                                            'review_round': review_round}))
 
     elif review_assignment.completed and review_assignment.reopened:
         if access_key:
-            return redirect(reverse('review_with_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'access_key':access_key,'review_round':review_round}))
+            return redirect(reverse('review_with_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.id,
+                                            'access_key': access_key,
+                                            'review_round': review_round}))
         else:
-            return redirect(reverse('review_without_access_key', kwargs={'review_type': review_type, 'submission_id': submission.id,'review_round':review_round}))
+            return redirect(reverse('review_without_access_key',
+                                    kwargs={'review_type': review_type,
+                                            'submission_id': submission.id,
+                                            'review_round': review_round}))
 
     if not request.POST and request.GET.get('download') == 'docx':
-        path = create_completed_review_form(submission,review_assignment.pk)
+        path = create_completed_review_form(submission, review_assignment.pk)
         return serve_file(request, path)
 
     relations = models.FormElementsRelationship.objects.filter(form=result.form)
-    data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
+    data_ordered = core_logic.order_data(core_logic.decode_json(result.data),
+                                         relations)
 
     if not review_assignment.review_form:
         review_assignment.review_form = submission.review_form
@@ -448,25 +614,42 @@ def review_complete(request, review_type, submission_id, review_round, access_ke
         'result': result,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
     }
 
-    return render(request,template, context)
+    return render(request, template, context)
 
 
 @is_reviewer
-def review_complete_no_redirect(request, review_type, submission_id,review_round,access_key=None):
+def review_complete_no_redirect(request, review_type, submission_id,
+                                review_round, access_key=None):
     user = request.user
     if access_key:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, access_key=access_key, results__isnull=False, declined__isnull=True, review_type=review_type, review_round=review_round, withdrawn = False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              access_key=access_key,
+                                              results__isnull=False,
+                                              declined__isnull=True,
+                                              review_type=review_type,
+                                              review_round=review_round,
+                                              withdrawn=False)
         submission = get_object_or_404(core_models.Book, pk=submission_id)
     elif review_type == 'proposal':
-        submission = get_object_or_404(submission_models.Proposal, pk=submission_id)
-        review_assignment = get_object_or_404(submission_models.ProposalReview, user=user, proposal=submission, results__isnull=False)
+        submission = get_object_or_404(submission_models.Proposal,
+                                       pk=submission_id)
+        review_assignment = get_object_or_404(submission_models.ProposalReview,
+                                              user=user, proposal=submission,
+                                              results__isnull=False)
     else:
         submission = get_object_or_404(core_models.Book, pk=submission_id)
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, Q(user=user), Q(results__isnull=False), Q(review_round__round_number=review_round), Q(book=submission), Q(withdrawn = False), Q(review_type=review_type), Q(access_key__isnull=True) | Q(access_key__exact=''))
-
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              Q(user=user),
+                                              Q(results__isnull=False), Q(
+                review_round__round_number=review_round), Q(book=submission),
+                                              Q(withdrawn=False),
+                                              Q(review_type=review_type),
+                                              Q(access_key__isnull=True) | Q(
+                                                  access_key__exact=''))
 
     result = review_assignment.results
 
@@ -475,7 +658,8 @@ def review_complete_no_redirect(request, review_type, submission_id,review_round
         return serve_file(request, path)
 
     relations = models.FormElementsRelationship.objects.filter(form=result.form)
-    data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
+    data_ordered = core_logic.order_data(core_logic.decode_json(result.data),
+                                         relations)
 
     if not review_assignment.review_form:
         review_assignment.review_form = submission.review_form
@@ -490,26 +674,32 @@ def review_complete_no_redirect(request, review_type, submission_id,review_round
         'result': result,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
     }
 
-    return render(request,template, context)
+    return render(request, template, context)
 
 
 def editorial_review(request, submission_id, access_key):
-
-    ci_required = core_models.Setting.objects.get(group__name='general', name='ci_required')
+    ci_required = core_models.Setting.objects.get(group__name='general',
+                                                  name='ci_required')
     # Check that this review is being access by the user, is not completed and has not been declined.
-    review_assignment = get_object_or_404(core_models.EditorialReviewAssignment, Q(publishing_committee_access_key = access_key) |  Q(editorial_board_access_key = access_key))
+    review_assignment = get_object_or_404(core_models.EditorialReviewAssignment,
+                                          Q(
+                                              publishing_committee_access_key=access_key) | Q(
+                                              editorial_board_access_key=access_key))
     submission = get_object_or_404(core_models.Book, pk=submission_id)
 
     if review_assignment.completed and not review_assignment.reopened:
-        return redirect(reverse('editorial_review_complete', kwargs={'submission_id': submission.pk,'access_key':access_key}))
+        return redirect(reverse('editorial_review_complete',
+                                kwargs={'submission_id': submission.pk,
+                                        'access_key': access_key}))
     editorial_board = False
 
-    if access_key  == review_assignment.editorial_board_access_key:
+    if access_key == review_assignment.editorial_board_access_key:
         editorial_board = True
-    elif access_key  == review_assignment.publishing_committee_access_key:
+    elif access_key == review_assignment.publishing_committee_access_key:
         editorial_board = False
 
     resubmit = True
@@ -521,25 +711,30 @@ def editorial_review(request, submission_id, access_key):
         editorial_data_ordered = None
 
         form_info = review_assignment.editorial_board_review_form
-        form = forms.GeneratedForm(form=review_assignment.editorial_board_review_form)
+        form = forms.GeneratedForm(
+            form=review_assignment.editorial_board_review_form)
     else:
         editorial_result = review_assignment.editorial_board_results
-        editorial_relations = models.FormElementsRelationship.objects.filter(form=editorial_result.form)
-        editorial_data_ordered = core_logic.order_data(core_logic.decode_json(editorial_result.data), editorial_relations)
+        editorial_relations = models.FormElementsRelationship.objects.filter(
+            form=editorial_result.form)
+        editorial_data_ordered = core_logic.order_data(
+            core_logic.decode_json(editorial_result.data), editorial_relations)
 
         if not review_assignment.publication_committee_review_form:
             form_info = review_assignment.editorial_board_review_form
-            form = forms.GeneratedForm(form=review_assignment.editorial_board_review_form)
+            form = forms.GeneratedForm(
+                form=review_assignment.editorial_board_review_form)
         else:
             form_info = review_assignment.publication_committee_review_form
-            form = forms.GeneratedForm(form=review_assignment.publication_committee_review_form)
+            form = forms.GeneratedForm(
+                form=review_assignment.publication_committee_review_form)
 
     if editorial_board:
         result = review_assignment.editorial_board_results
         if result and not review_assignment.editorial_board_passed:
             initial_data = {}
             data = json.loads(result.data)
-            for k,v in data.items():
+            for k, v in data.items():
                 initial_data[k] = v[0]
             form.initial = initial_data
         elif not result:
@@ -551,7 +746,7 @@ def editorial_review(request, submission_id, access_key):
         if result and not review_assignment.publication_committee_passed:
             initial_data = {}
             data = json.loads(result.data)
-            for k,v in data.items():
+            for k, v in data.items():
                 initial_data[k] = v[0]
             form.initial = initial_data
         elif not result:
@@ -559,57 +754,84 @@ def editorial_review(request, submission_id, access_key):
         elif result and review_assignment.publication_committee_passed:
             resubmit = False
 
-    recommendation_form = core_forms.RecommendationForm(ci_required=ci_required.value)
+    recommendation_form = core_forms.RecommendationForm(
+        ci_required=ci_required.value)
 
     initial_data = {}
     if editorial_board and not review_assignment.editorial_board_passed:
-        initial_data[u'recommendation']=review_assignment.editorial_board_recommendation
-        initial_data[u'competing_interests']=review_assignment.editorial_board_competing_interests
+        initial_data[
+            u'recommendation'] = review_assignment.editorial_board_recommendation
+        initial_data[
+            u'competing_interests'] = review_assignment.editorial_board_competing_interests
     elif not editorial_board and not review_assignment.publication_committee_passed:
-        initial_data[u'recommendation']=review_assignment.publication_committee_recommendation
-        initial_data[u'competing_interests']=review_assignment.publication_committee_competing_interests
+        initial_data[
+            u'recommendation'] = review_assignment.publication_committee_recommendation
+        initial_data[
+            u'competing_interests'] = review_assignment.publication_committee_competing_interests
 
-    recommendation_form.initial=initial_data
+    recommendation_form.initial = initial_data
 
     if not request.POST and request.GET.get('download') == 'docx':
         if editorial_board:
-            path = create_review_form(submission, review_assignment.editorial_board_review_form)
+            path = create_review_form(submission,
+                                      review_assignment.editorial_board_review_form)
         else:
-            path = create_review_form(submission, review_assignment.publication_committee_review_form)
+            path = create_review_form(submission,
+                                      review_assignment.publication_committee_review_form)
 
         return serve_file(request, path)
     elif request.POST:
         if editorial_board:
-            form = forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.editorial_board_review_form)
+            form = forms.GeneratedForm(request.POST, request.FILES,
+                                       form=review_assignment.editorial_board_review_form)
         else:
             if not review_assignment.publication_committee_review_form:
-                form = forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.editorial_board_review_form)
+                form = forms.GeneratedForm(request.POST, request.FILES,
+                                           form=review_assignment.editorial_board_review_form)
             else:
-                form = forms.GeneratedForm(request.POST, request.FILES, form=review_assignment.publication_committee_review_form)
+                form = forms.GeneratedForm(request.POST, request.FILES,
+                                           form=review_assignment.publication_committee_review_form)
 
-        recommendation_form = core_forms.RecommendationForm(request.POST, ci_required=ci_required.value)
+        recommendation_form = core_forms.RecommendationForm(request.POST,
+                                                            ci_required=ci_required.value)
         if form.is_valid() and recommendation_form.is_valid():
             save_dict = {}
             if editorial_board:
-                file_fields = models.FormElementsRelationship.objects.filter(form=review_assignment.editorial_board_review_form, element__field_type='upload')
-                data_fields = models.FormElementsRelationship.objects.filter(~Q(element__field_type='upload'), form=review_assignment.editorial_board_review_form)
+                file_fields = models.FormElementsRelationship.objects.filter(
+                    form=review_assignment.editorial_board_review_form,
+                    element__field_type='upload')
+                data_fields = models.FormElementsRelationship.objects.filter(
+                    ~Q(element__field_type='upload'),
+                    form=review_assignment.editorial_board_review_form)
             else:
                 if not review_assignment.publication_committee_review_form:
-                    file_fields = models.FormElementsRelationship.objects.filter(form=review_assignment.editorial_board_review_form, element__field_type='upload')
-                    data_fields = models.FormElementsRelationship.objects.filter(~Q(element__field_type='upload'), form=review_assignment.editorial_board_review_form)
+                    file_fields = models.FormElementsRelationship.objects.filter(
+                        form=review_assignment.editorial_board_review_form,
+                        element__field_type='upload')
+                    data_fields = models.FormElementsRelationship.objects.filter(
+                        ~Q(element__field_type='upload'),
+                        form=review_assignment.editorial_board_review_form)
                 else:
-                    file_fields = models.FormElementsRelationship.objects.filter(form=review_assignment.publication_committee_review_form, element__field_type='upload')
-                    data_fields = models.FormElementsRelationship.objects.filter(~Q(element__field_type='upload'), form=review_assignment.publication_committee_review_form)
+                    file_fields = models.FormElementsRelationship.objects.filter(
+                        form=review_assignment.publication_committee_review_form,
+                        element__field_type='upload')
+                    data_fields = models.FormElementsRelationship.objects.filter(
+                        ~Q(element__field_type='upload'),
+                        form=review_assignment.publication_committee_review_form)
 
             for field in file_fields:
                 if field.element.name in request.FILES:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [handle_editorial_review_file(request.FILES[field.element.name], submission, review_assignment, 'reviewer',editorial_board)]
+                    save_dict[field.element.name] = [
+                        handle_editorial_review_file(
+                            request.FILES[field.element.name], submission,
+                            review_assignment, 'reviewer', editorial_board)]
 
             for field in data_fields:
                 if field.element.name in request.POST:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [request.POST.get(field.element.name), 'text']
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name), 'text']
 
             json_data = smart_text(json.dumps(save_dict))
             if review_assignment.reopened:
@@ -617,52 +839,74 @@ def editorial_review(request, submission_id, access_key):
                 if editorial_board:
                     review_assignment.editorial_board_results.data = json_data
                     review_assignment.editorial_board_results.save()
-                    review_assignment.reopened=False
+                    review_assignment.reopened = False
                     review_assignment.save()
                 else:
                     review_assignment.publication_committee_results.data = json_data
                     review_assignment.publication_committee_results.save()
-                    review_assignment.reopened=False
+                    review_assignment.reopened = False
                     review_assignment.save()
 
             else:
                 if editorial_board:
-                    form_results = models.FormResult(form=review_assignment.editorial_board_review_form, data=json_data)
+                    form_results = models.FormResult(
+                        form=review_assignment.editorial_board_review_form,
+                        data=json_data)
                     form_results.save()
                     review_assignment.editorial_board_results = form_results
                     review_assignment.save()
                 else:
                     if not review_assignment.publication_committee_review_form:
-                        form_results = models.FormResult(form=review_assignment.editorial_board_review_form, data=json_data)
+                        form_results = models.FormResult(
+                            form=review_assignment.editorial_board_review_form,
+                            data=json_data)
                     else:
-                        form_results = models.FormResult(form=review_assignment.publication_committee_review_form, data=json_data)
+                        form_results = models.FormResult(
+                            form=review_assignment.publication_committee_review_form,
+                            data=json_data)
                     form_results.save()
                     review_assignment.publication_committee_results = form_results
                     review_assignment.save()
 
-
             if request.FILES.get('review_file_upload'):
-                handle_editorial_review_file(request.FILES.get('review_file_upload'), submission, review_assignment, 'reviewer',editorial_board)
+                handle_editorial_review_file(
+                    request.FILES.get('review_file_upload'), submission,
+                    review_assignment, 'reviewer', editorial_board)
 
             if editorial_board:
-                review_assignment.editorial_board_recommendation = request.POST.get('recommendation')
-                review_assignment.editorial_board_competing_interests = request.POST.get('competing_interests')
+                review_assignment.editorial_board_recommendation = request.POST.get(
+                    'recommendation')
+                review_assignment.editorial_board_competing_interests = request.POST.get(
+                    'competing_interests')
             else:
-                review_assignment.publication_committee_recommendation = request.POST.get('recommendation')
-                review_assignment.publication_committee_competing_interests = request.POST.get('competing_interests')
+                review_assignment.publication_committee_recommendation = request.POST.get(
+                    'recommendation')
+                review_assignment.publication_committee_competing_interests = request.POST.get(
+                    'competing_interests')
 
             review_assignment.save()
-            message = "Editorial review assignment #%s has been completed."  % (review_assignment.id)
-            press_editors = User.objects.filter(profile__roles__slug='press-editor')
+            message = "Editorial review assignment #%s has been completed." % (
+            review_assignment.id)
+            press_editors = User.objects.filter(
+                profile__roles__slug='press-editor')
             for editor in press_editors:
-                notification = core_models.Task(assignee=editor,creator=request.user,text=message,workflow='editorial-review', book = submission, editorial_review = review_assignment)
+                notification = core_models.Task(assignee=editor,
+                                                creator=request.user,
+                                                text=message,
+                                                workflow='editorial-review',
+                                                book=submission,
+                                                editorial_review=review_assignment)
                 notification.save()
-            messages.add_message(request, messages.INFO, 'Submitted successfully')
+            messages.add_message(request, messages.INFO,
+                                 'Submitted successfully')
             if editorial_board:
-                return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.editorial_board_access_key}))
+                return redirect(reverse('editorial_review',
+                                        kwargs={'submission_id': submission.id,
+                                                'access_key': review_assignment.editorial_board_access_key}))
             else:
-                return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.publishing_committee_access_key}))
-
+                return redirect(reverse('editorial_review',
+                                        kwargs={'submission_id': submission.id,
+                                                'access_key': review_assignment.publishing_committee_access_key}))
 
     template = 'review/editorial_review.html'
     context = {
@@ -672,47 +916,59 @@ def editorial_review(request, submission_id, access_key):
         'editorial_board': editorial_board,
         'form_info': form_info,
         'recommendation_form': recommendation_form,
-        'editors':editors,
+        'editors': editors,
         'resubmit': resubmit,
 
         'editorial_data_ordered': editorial_data_ordered,
         'editorial_result': editorial_result,
 
         'has_additional_files': logic.has_additional_files(submission),
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
 
     }
 
     return render(request, template, context)
 
-def editorial_review_complete(request, submission_id, access_key):
 
-    review_assignment = get_object_or_404(core_models.EditorialReviewAssignment, Q(publishing_committee_access_key = access_key) |  Q(editorial_board_access_key = access_key))
+def editorial_review_complete(request, submission_id, access_key):
+    review_assignment = get_object_or_404(core_models.EditorialReviewAssignment,
+                                          Q(
+                                              publishing_committee_access_key=access_key) | Q(
+                                              editorial_board_access_key=access_key))
     submission = get_object_or_404(core_models.Book, pk=submission_id)
 
-    if access_key  == review_assignment.editorial_board_access_key:
+    if access_key == review_assignment.editorial_board_access_key:
         editorial_board = True
         result = review_assignment.editorial_board_results
         review_form = review_assignment.editorial_board_review_form
-    elif access_key  == review_assignment.publishing_committee_access_key:
+    elif access_key == review_assignment.publishing_committee_access_key:
         editorial_board = False
         result = review_assignment.publication_committee_results
         review_form = review_assignment.publication_committee_review_form
 
-
     if not result and not editorial_board:
-        return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.publishing_committee_access_key}))
+        return redirect(reverse('editorial_review',
+                                kwargs={'submission_id': submission.id,
+                                        'access_key': review_assignment.publishing_committee_access_key}))
     elif not result and editorial_board:
-        return redirect(reverse('editorial_review', kwargs={'submission_id': submission.id,'access_key':review_assignment.editorial_board_access_key}))
+        return redirect(reverse('editorial_review',
+                                kwargs={'submission_id': submission.id,
+                                        'access_key': review_assignment.editorial_board_access_key}))
 
     elif review_assignment.completed and review_assignment.reopened:
         if editorial_board:
-            return redirect(reverse('editorial_review_complete', kwargs={'submission_id': submission.id,'access_key':review_assignment.publishing_committee_access_key}))
+            return redirect(reverse('editorial_review_complete',
+                                    kwargs={'submission_id': submission.id,
+                                            'access_key': review_assignment.publishing_committee_access_key}))
         else:
-            return redirect(reverse('editorial_review_complete', kwargs={'submission_id': submission.id,'access_key':review_assignment.editorial_board_access_key}))
+            return redirect(reverse('editorial_review_complete',
+                                    kwargs={'submission_id': submission.id,
+                                            'access_key': review_assignment.editorial_board_access_key}))
 
     relations = models.FormElementsRelationship.objects.filter(form=result.form)
-    data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
+    data_ordered = core_logic.order_data(core_logic.decode_json(result.data),
+                                         relations)
 
     template = 'review/editorial_complete.html'
     context = {
@@ -721,14 +977,14 @@ def editorial_review_complete(request, submission_id, access_key):
         'form_info': review_form,
         'data_ordered': data_ordered,
         'result': result,
-        'editorial_board':editorial_board,
+        'editorial_board': editorial_board,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(group__name='general', name='instructions_for_task_review').value
+        'instructions': core_models.Setting.objects.get(group__name='general',
+                                                        name='instructions_for_task_review').value
     }
 
-    return render(request,template, context)
-
+    return render(request, template, context)
 
 
 def render_choices(choices):
@@ -736,40 +992,52 @@ def render_choices(choices):
     return [(choice.capitalize(), choice) for choice in c_split]
 
 
-def create_completed_review_form(submission,review_id):
+def create_completed_review_form(submission, review_id):
     document = Document()
     document.add_heading(submission.title, 0)
-    review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id)
+    review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                          pk=review_id)
     if review_assignment.review_form:
-        relations = models.FormElementsRelationship.objects.filter(form=review_assignment.review_form).order_by('order')
+        relations = models.FormElementsRelationship.objects.filter(
+            form=review_assignment.review_form).order_by('order')
     else:
         review_assignment.review_form = submission.review_form
         review_assignment.save()
-        relations = models.FormElementsRelationship.objects.filter(form=submission.review_form).order_by('order')
+        relations = models.FormElementsRelationship.objects.filter(
+            form=submission.review_form).order_by('order')
 
     if review_assignment.results:
-        p = document.add_paragraph('%s completed this review assignment form.'% review_assignment.user.profile.full_name())
+        p = document.add_paragraph(
+            '%s completed this review assignment form.' % review_assignment.user.profile.full_name())
 
         data = json.loads(review_assignment.results.data)
         for relation in relations:
             v = data[relation.element.name]
             document.add_heading(relation.element.name, level=1)
-            text = BeautifulSoup((v[0]).encode('utf-8'), 'html.parser').get_text()
+            text = BeautifulSoup((v[0]).encode('utf-8'),
+                                 'html.parser').get_text()
             document.add_paragraph(text).bold = True
-            recommendations = {'accept': 'Accept','reject': 'Reject', 'revisions':'Revisions Required'}
+            recommendations = {'accept': 'Accept', 'reject': 'Reject',
+                               'revisions': 'Revisions Required'}
 
         document.add_heading("Recommendation", level=1)
-        document.add_paragraph(recommendations[review_assignment.recommendation]).italic = True
+        document.add_paragraph(
+            recommendations[review_assignment.recommendation]).italic = True
         document.add_heading("Competing Interests", level=1)
-        document.add_paragraph(review_assignment.competing_interests).italic = True
+        document.add_paragraph(
+            review_assignment.competing_interests).italic = True
 
     else:
-        p = document.add_paragraph('You should complete this form and then use the review assignment page to upload it.')
+        p = document.add_paragraph(
+            'You should complete this form and then use the review assignment page to upload it.')
 
         for relation in relations:
 
-            if relation.element.field_type in ['text', 'textarea', 'date', 'email']:
-                document.add_heading(relation.element.name+": _______________________________", level=1)
+            if relation.element.field_type in ['text', 'textarea', 'date',
+                                               'email']:
+                document.add_heading(
+                    relation.element.name + ": _______________________________",
+                    level=1)
                 document.add_paragraph(relation.help_text).italic = True
 
             if relation.element.field_type in ['select', 'check']:
@@ -780,43 +1048,57 @@ def create_completed_review_form(submission,review_id):
                     choices = ['Y', 'N']
 
                 p = document.add_paragraph(relation.help_text)
-                p.add_run(' Mark your choice however you like, as long as it is clear.').italic = True
+                p.add_run(
+                    ' Mark your choice however you like, as long as it is clear.').italic = True
                 table = document.add_table(rows=2, cols=len(choices))
                 hdr_cells = table.rows[0].cells
                 for i, choice in enumerate(choices):
                     hdr_cells[i].text = choice[0]
                 table.style = 'TableGrid'
 
-
-
     document.add_page_break()
     if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'forms')):
         os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'forms'))
-    path = os.path.join(settings.BASE_DIR, 'files', 'forms', '%s.docx' % str(uuid4()))
+    path = os.path.join(settings.BASE_DIR, 'files', 'forms',
+                        '%s.docx' % str(uuid4()))
 
     document.save(path)
     return path
 
-def generate_review_form(request, review_type, submission_id, review_id, access_key=None):
+
+def generate_review_form(request, review_type, submission_id, review_id,
+                         access_key=None):
     submission = get_object_or_404(core_models.Book, pk=submission_id)
 
     if access_key:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, access_key=access_key, review_type=review_type, withdrawn=False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              pk=review_id,
+                                              access_key=access_key,
+                                              review_type=review_type,
+                                              withdrawn=False)
     else:
-        review_assignment = get_object_or_404(core_models.ReviewAssignment, pk=review_id, review_type=review_type, withdrawn=False)
+        review_assignment = get_object_or_404(core_models.ReviewAssignment,
+                                              pk=review_id,
+                                              review_type=review_type,
+                                              withdrawn=False)
 
     path = create_completed_review_form(submission, review_assignment.pk)
     return serve_file(request, path)
 
+
 def create_review_form(submission, review_form):
     document = Document()
     document.add_heading(submission.title, 0)
-    p = document.add_paragraph('You should complete this form and then use the review page to upload it.')
-    relations = models.FormElementsRelationship.objects.filter(form=review_form).order_by('order')
+    p = document.add_paragraph(
+        'You should complete this form and then use the review page to upload it.')
+    relations = models.FormElementsRelationship.objects.filter(
+        form=review_form).order_by('order')
     for relation in relations:
 
         if relation.element.field_type in ['text', 'textarea', 'date', 'email']:
-            document.add_heading(relation.element.name+": _______________________________", level=1)
+            document.add_heading(
+                relation.element.name + ": _______________________________",
+                level=1)
             document.add_paragraph(relation.help_text).italic = True
 
         if relation.element.field_type in ['select', 'check']:
@@ -827,7 +1109,8 @@ def create_review_form(submission, review_form):
                 choices = ['Y', 'N']
 
             p = document.add_paragraph(relation.help_text)
-            p.add_run(' Mark your choice however you like, as long as it is clear.').italic = True
+            p.add_run(
+                ' Mark your choice however you like, as long as it is clear.').italic = True
             table = document.add_table(rows=2, cols=len(choices))
             hdr_cells = table.rows[0].cells
             for i, choice in enumerate(choices):
@@ -837,10 +1120,12 @@ def create_review_form(submission, review_form):
     document.add_page_break()
     if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'forms')):
         os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'forms'))
-    path = os.path.join(settings.BASE_DIR, 'files', 'forms', '%s.docx' % str(uuid4()))
+    path = os.path.join(settings.BASE_DIR, 'files', 'forms',
+                        '%s.docx' % str(uuid4()))
 
     document.save(path)
     return path
+
 
 @is_reviewer
 def serve_file(request, file_path):
@@ -848,18 +1133,21 @@ def serve_file(request, file_path):
         fsock = open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = "attachment; filename=review_form.docx"
+        response[
+            'Content-Disposition'] = "attachment; filename=review_form.docx"
 
         return response
     except IOError:
         messages.add_message(request, messages.ERROR, 'File not found.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-def handle_editorial_review_file(file, proposal, review_assignment, kind, editorial):
 
+def handle_editorial_review_file(file, proposal, review_assignment, kind,
+                                 editorial):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books', str(review_assignment.book.id))
+    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
+                                    str(review_assignment.book.id))
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -893,6 +1181,4 @@ def handle_editorial_review_file(file, proposal, review_assignment, kind, editor
     else:
         review_assignment.publication_committee_files.add(new_file)
 
-
     return path
-

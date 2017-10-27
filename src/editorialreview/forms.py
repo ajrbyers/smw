@@ -2,8 +2,8 @@ from django import forms
 
 from editorialreview import models
 
-class EditorialReviewForm(forms.ModelForm):
 
+class EditorialReviewForm(forms.ModelForm):
     class Meta:
         model = models.EditorialReview
         fields = ('due',)
@@ -11,6 +11,7 @@ class EditorialReviewForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditorialReviewForm, self).__init__(*args, **kwargs)
         self.fields['due'].required = True
+
 
 class RecommendationForm(forms.ModelForm):
     class Meta:
@@ -22,5 +23,6 @@ class RecommendationForm(forms.ModelForm):
         super(RecommendationForm, self).__init__(*args, **kwargs)
 
         if ci_required == 'on':
-            self.fields['competing_interests'] = forms.CharField(widget=forms.Textarea, required=True)
+            self.fields['competing_interests'] = forms.CharField(
+                widget=forms.Textarea, required=True)
         self.fields['recommendation'].required = True

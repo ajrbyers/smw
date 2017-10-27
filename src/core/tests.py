@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 import tempfile
 from django.test.utils import setup_test_environment
 from django.core import management
-# Create your tests here.
+
 
 class CoreTests(TestCase):
 

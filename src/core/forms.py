@@ -22,11 +22,11 @@ class UserCreationForm(forms.ModelForm):
     password.
     """
     error_messages = {
-        'password_mismatch': ("The two password fields didn't match."),
+        'password_mismatch': "The two password fields didn't match.",
     }
-    password1 = forms.CharField(label=("Password"),
+    password1 = forms.CharField(label="Password",
                                 widget=forms.PasswordInput)
-    password2 = forms.CharField(label=("Password confirmation"),
+    password2 = forms.CharField(label="Password confirmation",
                                 widget=forms.PasswordInput,
                                 help_text=("Enter the same password as above, for verification."))
 
@@ -187,8 +187,6 @@ class TypesetTypesetter(forms.ModelForm):
         model = models.TypesetAssignment
         fields = ('note_from_typesetter',)
 
-
-#####WORKFLOW forms #####
 
 class FormatForm(forms.ModelForm):
     format_file = forms.FileField(required=True)

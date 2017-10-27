@@ -6,7 +6,7 @@ from submission import models as submission_models
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-# Create your tests here.
+
 
 class ManagerTests(TestCase):
 
