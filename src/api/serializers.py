@@ -1,7 +1,10 @@
 from django.contrib.auth.models import User
+
+from rest_framework import serializers
+
 from core import models
 from review import models as review_models
-from rest_framework import serializers
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -13,6 +16,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'last_name',
             'email',
         )
+
 
 class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -37,6 +41,7 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
             'full_name',
         )
 
+
 class EditorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -59,6 +64,7 @@ class EditorSerializer(serializers.HyperlinkedModelSerializer):
             'sequence',
         )
 
+
 class ReviewRoundSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -68,6 +74,7 @@ class ReviewRoundSerializer(serializers.HyperlinkedModelSerializer):
             'date_started',
         )
 
+
 class FormResultSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -76,6 +83,7 @@ class FormResultSerializer(serializers.HyperlinkedModelSerializer):
             'data',
             'date',
         )
+
 
 class ReviewAssignmentSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -99,11 +107,13 @@ class ReviewAssignmentSerializer(serializers.HyperlinkedModelSerializer):
             'results',
         )
 
+
 class KeywordSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Keyword
         fields = ('name',)
+
 
 class DisciplineSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -111,11 +121,13 @@ class DisciplineSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Subject
         fields = ('name',)
 
+
 class SubjectSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Subject
         fields = ('name',)
+
 
 class FileSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -130,6 +142,7 @@ class FileSerializer(serializers.HyperlinkedModelSerializer):
             'kind',
             'sequence',
         )
+
 
 class FormatSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -162,6 +175,7 @@ class ChapterFormatSerializer(serializers.HyperlinkedModelSerializer):
             'sequence',
         )
 
+
 class ChapterAuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -192,11 +206,22 @@ class ChapterAuthorSerializer(serializers.ModelSerializer):
 
 class ChapterSerializer(serializers.ModelSerializer):
 
-    authors = AuthorSerializer(many=True)
-    chapter_authors = ChapterAuthorSerializer(many=True, source='chapterauthor_set')
-    keywords = KeywordSerializer(many=True)
-    disciplines = DisciplineSerializer(many=True)
-    formats = ChapterFormatSerializer(many=True)
+    authors = AuthorSerializer(
+        many=True,
+    )
+    chapter_authors = ChapterAuthorSerializer(
+        many=True,
+        source='chapterauthor_set',
+    )
+    keywords = KeywordSerializer(
+        many=True,
+    )
+    disciplines = DisciplineSerializer(
+        many=True,
+    )
+    formats = ChapterFormatSerializer(
+        many=True,
+    )
 
     class Meta:
         model = models.Chapter
@@ -225,6 +250,7 @@ class PhysicalFormatSerializer(serializers.HyperlinkedModelSerializer):
             'sequence',
         )
 
+
 class StageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -242,6 +268,7 @@ class StageSerializer(serializers.HyperlinkedModelSerializer):
             'declined',
         )
 
+
 class IdentiferSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -255,6 +282,7 @@ class IdentiferSerializer(serializers.HyperlinkedModelSerializer):
             'object_id',
         )
 
+
 class LanguageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -264,7 +292,9 @@ class LanguageSerializer(serializers.HyperlinkedModelSerializer):
             'display',
         )
 
+
 class LicenseSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
         model = models.License
         fields = (
@@ -275,13 +305,29 @@ class LicenseSerializer(serializers.HyperlinkedModelSerializer):
             'description',
         )
 
+
 class BookSerializer(serializers.HyperlinkedModelSerializer):
-    license = serializers.ReadOnlyField(source='license.short_name')
-    author = AuthorSerializer(many=True)
-    editor = EditorSerializer(many=True)
-    keywords = KeywordSerializer(many=True)
-    subject = SubjectSerializer(many=True)
-    identifier = IdentiferSerializer(many=True, source='identifier_set', required=False)
+
+    license = serializers.ReadOnlyField(
+        source='license.short_name',
+    )
+    author = AuthorSerializer(
+        many=True,
+    )
+    editor = EditorSerializer(
+        many=True,
+    )
+    keywords = KeywordSerializer(
+        many=True,
+    )
+    subject = SubjectSerializer(
+        many=True,
+    )
+    identifier = IdentiferSerializer(
+        many=True,
+        source='identifier_set',
+        required=False,
+    )
 
     class Meta:
         model = models.Book
@@ -295,7 +341,6 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'publication_date',
             'publisher_name'
             'publisher_location',
-            #'series',
             'license',
             'pages',
             'book_type',
@@ -309,22 +354,49 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'peer_review_override',
         )
 
+
 class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    This serializer is used only by Ubiquity press
-    """
-    license = serializers.ReadOnlyField(source='license.code')
-    author = AuthorSerializer(many=True)
-    editor = EditorSerializer(many=True)
-    keywords = KeywordSerializer(many=True)
-    subject = SubjectSerializer(many=True)
-    formats = FormatSerializer(many=True)
-    chapters = ChapterSerializer(many=True)
-    physical_formats = PhysicalFormatSerializer(many=True, source='physicalformat_set')
-    stage = StageSerializer(many=False)
-    identifier = IdentiferSerializer(many=True, source='identifier_set', required=False)
-    languages = LanguageSerializer(many=True)
-    review_assignments = ReviewAssignmentSerializer(many=True)
+    """ This serializer is used only by Ubiquity Press. """
+
+    license = serializers.ReadOnlyField(
+        source='license.code',
+    )
+    author = AuthorSerializer(
+        many=True,
+    )
+    editor = EditorSerializer(
+        many=True,
+    )
+    keywords = KeywordSerializer(
+        many=True,
+    )
+    subject = SubjectSerializer(
+        many=True,
+    )
+    formats = FormatSerializer(
+        many=True,
+    )
+    chapters = ChapterSerializer(
+        many=True,
+    )
+    physical_formats = PhysicalFormatSerializer(
+        many=True,
+        source='physicalformat_set',
+    )
+    stage = StageSerializer(
+        many=False,
+    )
+    identifier = IdentiferSerializer(
+        many=True,
+        source='identifier_set',
+        required=False,
+    )
+    languages = LanguageSerializer(
+        many=True,
+    )
+    review_assignments = ReviewAssignmentSerializer(
+        many=True,
+    )
 
     class Meta:
         model = models.Book
@@ -337,7 +409,6 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
             'cover',
             'submission_date',
             'publication_date',
-            #'series',
             'license',
             'pages',
             'book_type',
@@ -368,23 +439,38 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
         book = models.Book.objects.create(**validated_data)
         models.Stage.objects.create(book=book, current_stage="published")
 
-        for author in author_data:
+        for _ in author_data:
             models.Author.objects.create(book=book, **author_data)
 
         return book
 
 
 class OMPSerializer(serializers.HyperlinkedModelSerializer):
-    """
-    This serializer is used only by Ubiquity press
-    """
-    license = serializers.ReadOnlyField(source='license.code')
-    author = AuthorSerializer(many=True)
-    keywords = KeywordSerializer(many=True)
-    subject = SubjectSerializer(many=True)
-    stage = StageSerializer(many=False)
-    identifier = IdentiferSerializer(many=True, source='identifier_set', required=False)
-    languages = LanguageSerializer(many=True)
+    """ This serializer is used only by Ubiquity Press. """
+
+    license = serializers.ReadOnlyField(
+        source='license.code',
+    )
+    author = AuthorSerializer(
+        many=True,
+    )
+    keywords = KeywordSerializer(
+        many=True,
+    )
+    subject = SubjectSerializer(
+        many=True,
+    )
+    stage = StageSerializer(
+        many=False,
+    )
+    identifier = IdentiferSerializer(
+        many=True,
+        source='identifier_set',
+        required=False,
+    )
+    languages = LanguageSerializer(
+        many=True,
+    )
 
     class Meta:
         model = models.Book
@@ -397,7 +483,6 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
             'cover',
             'submission_date',
             'publication_date',
-            #'series',
             'license',
             'pages',
             'book_type',
@@ -439,4 +524,5 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
             book.keywords.add(keyw)
 
         book.save()
+
         return book

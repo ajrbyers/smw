@@ -1,35 +1,44 @@
+import uuid
+
 from django import forms
 from django.contrib.auth.models import User
-from submission import models as submission_models
-from core import models, logic
 
-import uuid
+from core import models, logic
+from submission import models as submission_models
 
 
 class UploadMiscFile(forms.Form):
+
     label = forms.CharField(required=True)
-    file_type = forms.ChoiceField(required=True, choices=(
-        ('marketing', 'Marketing'), ('agreements', 'Agreements'), ('other', 'Other')))
+    file_type = forms.ChoiceField(
+        required=True, choices=(
+            ('marketing', 'Marketing'),
+            ('agreements', 'Agreements'),
+            ('other', 'Other')
+        )
+    )
 
 
 class UploadFile(forms.Form):
+
     label = forms.CharField(required=True)
 
 
 class UserCreationForm(forms.ModelForm):
-    """
-    A form that creates a user, with no privileges, from the given username and
-    password.
-    """
+    """ Creates a user, with no privileges, from the given username and pw. """
+
     error_messages = {
         'password_mismatch': "The two password fields didn't match.",
     }
-    password1 = forms.CharField(label="Password",
-                                widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Password confirmation",
-                                widget=forms.PasswordInput,
-                                help_text=("Enter the same password as above, for verification."))
-
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+    )
+    password2 = forms.CharField(
+        label="Password confirmation",
+        widget=forms.PasswordInput,
+        help_text="Enter the same password as above, for verification."
+    )
     email = forms.CharField(max_length=100, required=True)
 
     class Meta:
@@ -39,7 +48,10 @@ class UserCreationForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
         username = self.cleaned_data.get("username")
-        if email and User.objects.filter(email=email).exclude(username=username).count():
+        if (
+            email and
+            User.objects.filter(email=email).exclude(username=username).count()
+        ):
             raise forms.ValidationError(u'Email address already registered')
         return email
 
@@ -65,7 +77,10 @@ class UserCreationForm(forms.ModelForm):
         profile.save()
 
         # Send email to the user
-        email_text = models.Setting.objects.get(group__name='email', name='new_user_email').value
+        email_text = models.Setting.objects.get(
+            group__name='email',
+            name='new_user_email',
+        ).value
         logic.send_new_user_ack(email_text, user, profile)
 
         if commit:
@@ -74,12 +89,14 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
+
     class Meta:
         model = User
         fields = ("first_name", "last_name", "email")
 
 
 class FullUserProfileForm(forms.ModelForm):
+
     class Meta:
         model = User
         fields = ("username", "first_name", "last_name", "email")
@@ -93,28 +110,42 @@ class FullUserProfileForm(forms.ModelForm):
 
 
 class RegistrationProfileForm(forms.ModelForm):
+
     class Meta:
         model = models.Profile
-        fields = ("salutation", "middle_name", "orcid", "institution", "department", "country", "twitter",
-                  "facebook", "linkedin", "impactstory", "github", "website")
+        fields = (
+            "salutation", "middle_name", "orcid", "institution", "department",
+            "country", "twitter", "facebook", "linkedin", "impactstory",
+            "github", "website"
+        )
 
 
 class ProfileForm(forms.ModelForm):
+
     class Meta:
         model = models.Profile
-        fields = ("salutation", "middle_name", "biography", "interest", "orcid", "institution", "department", "country",
-                  "twitter", "facebook", "linkedin", "impactstory", "github", "profile_image", "signature", "website")
+        fields = (
+            "salutation", "middle_name", "biography", "interest", "orcid",
+            "institution", "department", "country", "twitter", "facebook",
+            "linkedin", "impactstory", "github", "profile_image", "signature",
+            "website"
+        )
 
 
 class FullProfileForm(forms.ModelForm):
+
     class Meta:
         model = models.Profile
-        fields = ("salutation", "middle_name", "biography", "orcid", "institution", "department", "interest", "country",
-                  "twitter", "facebook", "linkedin", "impactstory", "github", "profile_image", "signature", "website",
-                  "roles")
+        fields = (
+            "salutation", "middle_name", "biography", "orcid", "institution",
+            "department", "interest", "country", "twitter", "facebook",
+            "linkedin", "impactstory", "github", "profile_image",
+            "signature", "website", "roles"
+        )
 
 
 class TaskForm(forms.ModelForm):
+
     class Meta:
         model = models.Task
         fields = ("text", "workflow")
@@ -122,6 +153,7 @@ class TaskForm(forms.ModelForm):
 
 
 class RecommendationForm(forms.ModelForm):
+
     class Meta:
         model = models.ReviewAssignment
         fields = ("recommendation", "competing_interests")
@@ -131,64 +163,77 @@ class RecommendationForm(forms.ModelForm):
         super(RecommendationForm, self).__init__(*args, **kwargs)
 
         if ci_required == 'on':
-            self.fields['competing_interests'] = forms.CharField(widget=forms.Textarea, required=True)
+            self.fields['competing_interests'] = forms.CharField(
+                widget=forms.Textarea,
+                required=True,
+            )
 
 
 class MessageForm(forms.ModelForm):
+
     class Meta:
         model = models.Message
         fields = ('message',)
 
 
 class Copyedit(forms.ModelForm):
+
     class Meta:
         model = models.CopyeditAssignment
         fields = ('note',)
 
 
 class CopyeditAuthorInvite(forms.ModelForm):
+
     class Meta:
         model = models.CopyeditAssignment
         fields = ('note_to_author',)
 
 
 class CopyeditAuthor(forms.ModelForm):
+
     class Meta:
         model = models.CopyeditAssignment
         fields = ('note_from_author',)
 
 
 class Typeset(forms.ModelForm):
+
     class Meta:
         model = models.TypesetAssignment
         fields = ('note',)
 
 
 class TypesetAuthorInvite(forms.ModelForm):
+
     class Meta:
         model = models.TypesetAssignment
         fields = ('note_to_author',)
 
 
 class TypesetAuthor(forms.ModelForm):
+
     class Meta:
         model = models.TypesetAssignment
         fields = ('note_from_author',)
 
 
 class TypesetTypesetterInvite(forms.ModelForm):
+
     class Meta:
         model = models.TypesetAssignment
         fields = ('note_to_typesetter',)
 
 
 class TypesetTypesetter(forms.ModelForm):
+
     class Meta:
         model = models.TypesetAssignment
         fields = ('note_from_typesetter',)
 
 
 class FormatForm(forms.ModelForm):
+
     format_file = forms.FileField(required=True)
 
     class Meta:
@@ -197,18 +242,21 @@ class FormatForm(forms.ModelForm):
 
 
 class FormatFormInitial(forms.ModelForm):
+
     class Meta:
         model = models.Format
         exclude = ('book', 'file')
 
 
 class ChapterForm(forms.ModelForm):
+
     class Meta:
         model = models.Chapter
         exclude = ('book', 'formats')
 
 
 class ChapterFormatForm(forms.ModelForm):
+
     chapter_file = forms.FileField(required=True)
 
     class Meta:
@@ -217,30 +265,35 @@ class ChapterFormatForm(forms.ModelForm):
 
 
 class ChapterFormInitial(forms.ModelForm):
+
     class Meta:
         model = models.Chapter
         exclude = ('book', 'formats')
 
 
 class UpdateChapterFormat(forms.Form):
+
     file = forms.FileField(required=True)
     file_label = forms.CharField(required=False)
     name = forms.CharField(required=True)
 
 
 class UploadContract(forms.ModelForm):
+
     class Meta:
         model = models.Contract
         exclude = ('author_file',)
 
 
 class AuthorContractSignoff(forms.ModelForm):
+
     class Meta:
         model = models.Contract
         fields = ('author_file',)
 
 
 class EditMetadata(forms.ModelForm):
+
     class Meta:
         model = models.Book
         fields = (
@@ -257,30 +310,32 @@ class EditMetadata(forms.ModelForm):
             'publication_date'
         )
 
-        widgets = {
-            'languages': forms.CheckboxSelectMultiple(),
-        }
+        widgets = {'languages': forms.CheckboxSelectMultiple()}
 
 
 class IdentifierForm(forms.ModelForm):
+
     class Meta:
         model = models.Identifier
         fields = ('identifier', 'value', 'displayed')
 
 
 class CoverForm(forms.ModelForm):
+
     class Meta:
         model = models.Book
         fields = ('cover',)
 
 
 class RetailerForm(forms.ModelForm):
+
     class Meta:
         model = models.Retailer
         fields = ('name', 'link', 'price', 'enabled')
 
 
 class ChangeReviewDueDateForm(forms.ModelForm):
+
     class Meta:
         model = submission_models.ProposalReview
         fields = ('due',)

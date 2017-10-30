@@ -1,8 +1,9 @@
+from hashlib import sha1
+import math
+from random import randint
+
 from django.core.cache import cache
 from django.db.models import Model
-from hashlib import sha1
-from random import randint
-import math
 
 
 def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):

@@ -1,5 +1,15 @@
 import os
 
+import raven
+
+# ## GENERIC CONFIG ##
+
+TECH_EMAIL = 'tech@ubiquitypress.com'
+
+ADMINS = (
+    ('UP Tech', TECH_EMAIL)
+)
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 INSTALLED_APPS = (
@@ -11,8 +21,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Django
     'core',
     'submission',
     'manager',
@@ -25,10 +33,7 @@ INSTALLED_APPS = (
     'editor',
     'swiftsubmit',
     'editorialreview',
-
-    # 3rd Party
     'bootstrap3',
-    #'debug_toolbar',
     'django_summernote',
     'rest_framework',
     'pymarc',
@@ -63,7 +68,6 @@ TEMPLATES = [
                 "django.core.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "django.core.context_processors.request",
-
                 "core.context_processors.press",
                 "core.context_processors.task_count",
                 "core.context_processors.review_assignment_count",
@@ -76,13 +80,15 @@ TEMPLATES = [
     },
 ]
 
-TECH_EMAIL = 'tech@ubiquitypress.com'
-ADMINS = (
-    ('Andy Byers', 'andy.byers@ubiquitypress.com'),
-    ('Mauro Sanchez', 'mauro.sanchez@ubiquitypress.com'),
-    ('UP Tech', 'tech@ubiquitypress.com')
-)
 
+# ## VERSION ##
+
+# Updated, committed and tagged using 'bumpversion [major | minor | patch]'
+# run on master branch
+RUA_VERSION = '1.0.0'
+
+
+# ## LOGGING ##
 
 LOGGING = {
     'version': 1,
@@ -92,18 +98,57 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+                      '%(process)d %(thread)d %(message)s'
+        },
+    },
     'handlers': {
-        'mail_admins': {
+        'sentry': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
+        'django.db.backends': {
             'level': 'ERROR',
-            'propagate': True,
+            'handlers': ['console'],
+            'propagate': False,
         },
-    }
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}
+
+SENTRY_RELEASE = (
+    '{main}-{sha}'.format(
+        main=RUA_VERSION,
+        sha=raven.fetch_git_sha(
+            os.path.join(
+                '/',
+                *os.path.dirname(os.path.realpath(__file__)).split('/')[:-2]
+            )
+        )
+    )
+)
+
+RAVEN_CONFIG = {  # Sentry.
+    'dsn': 'http://6f4e629b9384499ea7d6aaa72c820839:'
+           '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press:8081/5',
+    'release': SENTRY_RELEASE
 }

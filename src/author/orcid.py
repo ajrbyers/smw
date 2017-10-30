@@ -1,21 +1,23 @@
 import json
-import requests
 from urllib import urlencode
+
 from django.conf import settings
+
+import requests
 
 ORCID_API = settings.ORCID_API_URL
 ORCID_REQ = '/orcid-profile'
 R_HEADERS = {'Accept': 'application/orcid+json'}
+
 
 def request_profile(orcid_id):
     url = '%s%s%s' % (ORCID_API, orcid_id, ORCID_REQ)
     request = requests.get(url, headers=R_HEADERS)
     if request.status_code == 200:
         _dict = json.loads(request.text)
-        print _dict
         return parse_profile(_dict['orcid-profile'])
-    else:
-        return None
+    return None
+
 
 def dict_getter(_dict, path_list):
     to_return = _dict
@@ -27,22 +29,32 @@ def dict_getter(_dict, path_list):
 
     if to_return:
         return to_return
-    else:
-        return ''
+    return ''
+
 
 def parse_profile(profile):
-
-    first_name = dict_getter(profile, ['orcid-bio', 'personal-details', 'given-names', 'value'])
-    last_name = dict_getter(profile, ['orcid-bio', 'personal-details', 'family-name', 'value'])
-    country = dict_getter(profile, ['orcid-bio', 'contact-details', 'address', 'country', 'value'])
+    first_name = dict_getter(
+        profile,
+        ['orcid-bio', 'personal-details', 'given-names', 'value']
+    )
+    last_name = dict_getter(
+        profile,
+        ['orcid-bio', 'personal-details', 'family-name', 'value']
+    )
+    country = dict_getter(
+        profile,
+        ['orcid-bio', 'contact-details', 'address', 'country', 'value']
+    )
 
     try:
-        inst = dict_getter(profile, ['orcid-activities', 'affiliations', 'affiliation'])[0]
+        inst = dict_getter(
+            profile,
+            ['orcid-activities', 'affiliations', 'affiliation']
+        )[0]
     except IndexError:
         inst = ''
 
     bio = dict_getter(profile, ['orcid-bio', 'biography', 'value'])
-
     org_name = dict_getter(inst, ['organization', 'name'])
     city = dict_getter(inst, ['organization', 'address', 'city'])
     region = dict_getter(inst, ['organization', 'address', 'region'])
@@ -59,13 +71,14 @@ def parse_profile(profile):
         'orcid': orcid_id,
     }
 
-def retrieve_tokens(authorization_code, domain=None):
 
+def retrieve_tokens(authorization_code, domain=None):
     access_token_req = {
         "code": authorization_code,
         "client_id": settings.ORCID_CLIENT_ID,
         "client_secret": settings.ORCID_CLIENT_SECRET,
-        "redirect_uri": 'http://%s/login/orcid/' % domain if domain else settings.ORCID_REDIRECT_URI,
+        "redirect_uri": 'http://%s/login/orcid/' % domain
+        if domain else settings.ORCID_REDIRECT_URI,
         "grant_type": "authorization_code",
     }
 

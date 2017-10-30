@@ -1,19 +1,24 @@
-from django.shortcuts import Http404
+import mimetypes as mime
+import os
+from uuid import uuid4
+
 from django.conf import settings
+from django.shortcuts import Http404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 
 from core import models
-import mimetypes as mime
-from uuid import uuid4
-import os
 
 
 def handle_marc21_file(content, name, book, owner):
     original_filename = name
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
@@ -48,18 +53,23 @@ def handle_marc21_file(content, name, book, owner):
 def handle_onetasker_file(file, book, assignment, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
-    fd.close()
 
+    fd.close()
     file_mime = mime.guess_type(filename)
 
     try:
@@ -70,7 +80,6 @@ def handle_onetasker_file(file, book, assignment, kind):
         file_mime = 'unknown'
 
     owner = get_owner(assignment)
-
     new_file = models.File(
         mime_type=file_mime,
         original_filename=original_filename,
@@ -84,23 +93,32 @@ def handle_onetasker_file(file, book, assignment, kind):
     return new_file
 
 
-# File helpers
 def handle_file_update(file, old_file, book, kind, owner, label=None):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id)
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
-    fd.close()
 
+    fd.close()
     file_mime = mime.guess_type(filename)
 
     try:
@@ -117,7 +135,6 @@ def handle_file_update(file, old_file, book, kind, owner, label=None):
     )
 
     new_version.save()
-
     old_file.mime_type = file_mime
     old_file.original_filename = original_filename
     old_file.uuid_filename = filename
@@ -132,23 +149,32 @@ def handle_file_update(file, old_file, book, kind, owner, label=None):
     return path
 
 
-# File helpers
 def handle_file(file, book, kind, owner, label=None):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
-    fd.close()
 
+    fd.close()
     file_mime = mime.guess_type(filename)
 
     try:
@@ -173,18 +199,22 @@ def handle_file(file, book, kind, owner, label=None):
     return new_file
 
 
-# File helpers
 def handle_email_file(file, kind, owner, label=None):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'email',
-                                    'general')
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'email',
+        'general',
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -214,17 +244,27 @@ def handle_email_file(file, kind, owner, label=None):
 
 
 def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
-                                    str(proposal_review.proposal.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'proposals',
+        str(proposal_review.proposal.id)
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -254,17 +294,27 @@ def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
 
 
 def handle_proposal_file(file, proposal, kind, owner, label=None):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
-                                    str(proposal.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'proposals',
+        str(proposal.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -296,14 +346,19 @@ def handle_proposal_file(file, proposal, kind, owner, label=None):
 def handle_proposal_file_form(file, proposal, kind, owner, label=None):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
-                                    str(proposal.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'proposals',
+        str(proposal.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -336,21 +391,25 @@ def handle_attachment(request, submission):
     if request.FILES.get('attachment_file'):
         attachment_file = request.FILES.get('attachment_file')
         return handle_file(attachment_file, submission, 'misc', request.user)
-    else:
-        return None
+    return None
 
 
 def handle_copyedit_file(file, book, copyedit, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -380,14 +439,19 @@ def handle_copyedit_file(file, book, copyedit, kind):
 def handle_index_file(file, book, index, kind):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -415,17 +479,27 @@ def handle_index_file(file, book, index, kind):
 
 
 def handle_typeset_file(file, book, typeset, kind):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                    str(book.id))
+    folder_structure = os.path.join(
+        settings.BASE_DIR,
+        'files',
+        'books',
+        str(book.id),
+    )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -452,7 +526,6 @@ def handle_typeset_file(file, book, typeset, kind):
     return new_file
 
 
-### Helpers ###
 def get_owner(assignment):
     if assignment.type() == 'copyedit':
         return assignment.copyeditor
@@ -460,5 +533,4 @@ def get_owner(assignment):
         return assignment.typesetter
     elif assignment.type() == 'indexing':
         return assignment.indexer
-    else:
-        raise Http404
+    raise Http404
