@@ -5,6 +5,7 @@ from django.conf import settings
 
 import requests
 
+
 ORCID_API = settings.ORCID_API_URL
 ORCID_REQ = '/orcid-profile'
 R_HEADERS = {'Accept': 'application/orcid+json'}
@@ -13,6 +14,7 @@ R_HEADERS = {'Accept': 'application/orcid+json'}
 def request_profile(orcid_id):
     url = '%s%s%s' % (ORCID_API, orcid_id, ORCID_REQ)
     request = requests.get(url, headers=R_HEADERS)
+
     if request.status_code == 200:
         _dict = json.loads(request.text)
         return parse_profile(_dict['orcid-profile'])
@@ -21,6 +23,7 @@ def request_profile(orcid_id):
 
 def dict_getter(_dict, path_list):
     to_return = _dict
+
     for path in path_list:
         try:
             to_return = to_return.get(path)
