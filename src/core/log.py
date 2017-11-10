@@ -127,6 +127,7 @@ def add_email_log_entry_multiple(
         for attachment in attachments:
             if attachment:
                 new_log_entry.attachment.add(attachment)
+
     new_log_entry.save()
 
     return new_log_entry

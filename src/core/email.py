@@ -1,25 +1,32 @@
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import Context, Template, RequestContext
-from django.conf import settings
 
-from core import models
-from core import log
+from core import log, models
 from setting_util import get_setting
 
 
 def filepath(book, attachment):
-    return '%s/%s/%s' % (settings.BOOK_DIR, book.id, attachment.uuid_filename)
+    return '{dir}/{id}/{uuid}'.format(
+        dir=settings.BOOK_DIR,
+        id=book.id,
+        uuid=attachment.uuid_filename,
+    )
 
 
 def filepath_proposal(proposal, attachment):
-    return '%s/%s/%s' % (
-        settings.PROPOSAL_DIR, proposal.id,
-        attachment.uuid_filename,
+    return '{proposal}/{id}/{uuid}'.format(
+        proposal=settings.PROPOSAL_DIR,
+        id=proposal.id,
+        uuid=attachment.uuid_filename,
     )
 
 
 def filepath_general(attachment):
-    return '%s/%s' % (settings.EMAIL_DIR, attachment.uuid_filename)
+    return '{dir}/{uuid}'.format(
+        dir=settings.EMAIL_DIR,
+        uuid=attachment.uuid_filename,
+    )
 
 
 def send_email(
@@ -66,6 +73,7 @@ def send_email(
     if access_key:
         # Hide access key in email log
         html_content = html_content.replace(str(access_key), '')
+
         if book:
             log.add_email_log_entry(
                 book=book,
@@ -78,6 +86,7 @@ def send_email(
                 attachment=attachment,
                 kind=kind,
             )
+
         if proposal:
             log.add_email_log_entry(
                 proposal=proposal,
@@ -103,6 +112,7 @@ def send_email(
                 attachment=attachment,
                 kind=kind,
             )
+
         if proposal:
             log.add_email_log_entry(
                 proposal=proposal,
@@ -277,6 +287,7 @@ def send_prerendered_email(
             content=html_content,
             attachments=attachments if attachments else None,
         )
+
     if proposal:
         log.add_email_log_entry_multiple(
             proposal=proposal,

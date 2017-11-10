@@ -33,10 +33,13 @@ def record_control_field(tag, field):
 
 
 def book_to_mark21_file(book, owner, xml=False):
+    """
+    Number and value explanation:
+    http://www.loc.gov/marc/bibliographic/bdleader.html
+    Adding Leader tags.
+    """
     record = Record()  # New record.
 
-    # Number and value explanation: http://www.loc.gov/marc/bibliographic/bdleader.html
-    # Adding Leader tags.
     l = list(record.leader)
     l[5] = 'n'  # New
     l[6] = 'a'  # For manuscript file use 't'
