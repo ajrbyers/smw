@@ -148,7 +148,7 @@ SENTRY_RELEASE = (
 )
 
 RAVEN_CONFIG = {  # Sentry.
-    'dsn': 'http://6f4e629b9384499ea7d6aaa72c820839:'
-           '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press:8081/5',
+    'dsn': 'https://6f4e629b9384499ea7d6aaa72c820839:'
+           '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press/5',
     'release': SENTRY_RELEASE
 }
