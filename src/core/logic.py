@@ -1,20 +1,19 @@
 from __builtin__ import any as string_any
 import datetime
 import json
-from pymarc import Record, Field
-from pymarc import record_to_xml
 import re
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from django.db.models import Max
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
-from django.utils.encoding import smart_text
 from django.utils import timezone
+from django.utils.encoding import smart_text
+
+from pymarc import Record, Field, record_to_xml
 
 from core import email, models, log
 from core.cache import cache_result
@@ -148,17 +147,14 @@ def book_to_mark21_file(book, owner, xml=False):
         city = None
 
     publication_info = []
-    if book.publication_date:
-        # Press' city
+    if book.publication_date:  # Press' city.
         if city:
             publication_info.append('a')
             publication_info.append(str(city))
-        # Press' name
-        if press_name:
+        if press_name:  # Press' name.
             publication_info.append('b')
             publication_info.append(str(press_name))
-        # Date of Publication
-        publication_info.append('c')
+        publication_info.append('c')  # Date of Publication.
         publication_info.append(str(book.publication_date))
         record.add_field(record_field('260', ['#', '#'], publication_info))
 
@@ -225,6 +221,7 @@ def book_to_mark21_file(book, owner, xml=False):
         ) + '_marc21.xml'
         content = record_to_xml(record, quiet=False, namespace=False)
         file = handle_marc21_file(content, filename, book, owner)
+
     return file.pk
     # add handle_file ?
 
@@ -398,6 +395,7 @@ def book_to_mark21_file_content(book, owner, xml=False):
         record.add_field(record_field('546', ['#', '#'], ['a', 'In English']))
 
     press_editors = book.press_editors.all()
+
     for editor in press_editors:  # Editors.
         record.add_field(record_field(
             '700',
@@ -431,7 +429,6 @@ def book_to_mark21_file_content(book, owner, xml=False):
             ))
 
     title = book.title  # Add record to file.
-    content = None
 
     if not xml:
         filename = 'book_' + str(book.id) + '_' + re.sub(
@@ -446,7 +443,7 @@ def book_to_mark21_file_content(book, owner, xml=False):
         content = record_to_xml(record, quiet=False, namespace=False)
         handle_marc21_file(content, filename, book, owner)
 
-    return content
+    return content or None
 
 
 def get_author_emails(submission_id, term):
@@ -550,8 +547,8 @@ def get_proposal_emails(proposal_id, term):
     }
 
     if (
-        not string_any(user_json['value'] for _ in results) and
-        term.lower() in name.lower()
+            not string_any(user_json['value'] for _ in results) and
+            term.lower() in name.lower()
     ):
         results.append(user_json)
 
@@ -564,8 +561,8 @@ def get_proposal_emails(proposal_id, term):
             'value': user.email,
         }
         if (
-            not string_any(user_json['value'] for result in results) and
-            term.lower() in name.lower()
+                not string_any(user_json['value'] for result in results) and
+                term.lower() in name.lower()
         ):
             results.append(user_json)
 
@@ -588,7 +585,6 @@ def get_editors(book):
         else:
             series_editor_list = []
             press_editor_list = [editor for editor in press_editors]
-
     else:
         series_editor_list = []
         press_editor_list = [editor for editor in press_editors]
@@ -614,8 +610,8 @@ def clean_email_list(addresses):
 
     if len(list_of_email_addresses) < 1:
         return None
-    else:
-        return list_of_email_addresses
+
+    return list_of_email_addresses
 
 
 def send_email(
@@ -655,6 +651,7 @@ def send_author_sign_off(proposal, email_text, sender):
 @cache_result(300)
 def press_settings():
     _dict = {}
+
     for group in models.SettingGroup.objects.all():
         _dict[group.name] = {
             setting.name: setting.value for setting in
@@ -669,8 +666,10 @@ def task_count(request):
     TODO: change to be handled based on whether the user is logged in or not.
     """
     try:
-        return models.Task.objects.filter(assignee=request.user,
-                                          completed__isnull=True).count()
+        return models.Task.objects.filter(
+            assignee=request.user,
+            completed__isnull=True,
+        ).count()
     except TypeError:
         return 0
 
@@ -1021,6 +1020,7 @@ def build_time_line_editing_indexer(index):
         timeline.append({'stage': 'Due', 'date': index.due, 'overdue': overdue})
 
     clean_timeline = []
+
     for time in timeline:
         if time['date']:
             if isinstance(time['date'], datetime.datetime):
@@ -1136,7 +1136,7 @@ def send_proposal_review_request(
             kwargs={
                 'proposal_id': proposal.id,
                 'assignment_id': review_assignment.id,
-                'access_key': access_key
+                'access_key': access_key,
             }
         ))
     else:
@@ -1144,7 +1144,7 @@ def send_proposal_review_request(
             'view_proposal_review_decision',
             kwargs={
                 'proposal_id': proposal.id,
-                'assignment_id': review_assignment.id
+                'assignment_id': review_assignment.id,
             }
         ))
 
@@ -1304,7 +1304,6 @@ def handle_typeset_assignment(
         new_typesetter.files.add(_file)
 
     new_typesetter.save()
-
     send_invite_typesetter(
         book,
         new_typesetter,
@@ -1331,7 +1330,7 @@ def send_decision_ack(book, decision, email_text, url=None, attachment=None):
         group__name='email',
         name='from_address',
     )
-    decision_full = decision
+
     if not decision == 'decline':
         decision_full = "Move to " + decision
     else:
@@ -1392,8 +1391,8 @@ def send_editorial_decision_ack(
         group__name='general',
         name='publishing_committee'
     ).value
-
     decision_full = decision
+
     if contact == 'editorial-board':
         editors = review_assignment.editorial_board.all()
 
@@ -1548,7 +1547,7 @@ def send_review_request(
         subject=get_setting(
             'review_request_subject',
             'email_subject',
-            'Review Request'
+            'Review Request',
         ),
         context=context,
         from_email=from_email.value,
@@ -1729,7 +1728,7 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
     )
 
 
-def send_task_decline(assignment, type, email_text, sender, request):
+def send_task_decline(assignment, _type, email_text, sender, request):
     from_email = models.Setting.objects.get(
         group__name='email',
         name='from_address',
@@ -1745,8 +1744,8 @@ def send_task_decline(assignment, type, email_text, sender, request):
         'assignment_declined_subject',
         'email_subject',
         '[abp] %s Assignment [id<%s>] Declined') % (
-              type.title(),
-              assignment.id,
+             _type.title(),
+             assignment.id,
     )
     email.send_email(
         subject,
@@ -1778,8 +1777,10 @@ def send_proposal_accept(
         )
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'proposal': proposal,
         'submission': submission,
         'sender': sender,

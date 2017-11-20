@@ -1,4 +1,3 @@
-
 class Roles(object):
 
     def process_request(self, request):

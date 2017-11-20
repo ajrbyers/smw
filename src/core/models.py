@@ -1084,7 +1084,7 @@ class Book(models.Model):
         if book_editors:
             book_editor_list = [
                 editor for editor in book_editors
-                if not editor in press_editor_list
+                if press_editor_list not in editor
             ]
         else:
             book_editor_list = []
@@ -1220,6 +1220,7 @@ def physical_book_types():
 
 
 class Retailer(models.Model):
+
     book = models.ForeignKey(
         Book
     )
@@ -1532,10 +1533,11 @@ class EditorialReviewAssignment(models.Model):
         blank=True,
         null=True,
         help_text=mark_safe(
-            "If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <a href='/page/competing_interests/'>More info</a>"
+            "If any of the authors or editors have any competing interests "
+            "please add them here. e.g.. 'This study was paid for by corp "
+            "xyz.'. <a href='/page/competing_interests/'>More info</a>"
+        )
     )
-    )
-
     editorial_board_review_form = models.ForeignKey(
         'review.Form',
         null=True,
@@ -1546,92 +1548,222 @@ class EditorialReviewAssignment(models.Model):
         'review.Form',
         null=True,
         blank=True,
-                                                          related_name="pc_review_form"
+        related_name="pc_review_form"
     )
-
-    # Used to ensure that an email is not sent more than once.
-    unaccepted_reminder = models.BooleanField(
-        default=False)
+    unaccepted_reminder = models.BooleanField(  # Ensure are sent only once.
+        default=False,
+    )
     accepted_reminder = models.BooleanField(
-        default=False)
+        default=False,
+    )
     overdue_reminder = models.BooleanField(
-        default=False)
-
-    # Reopened
-    reopened = models.BooleanField(
+        default=False,
+    )
+    reopened = models.BooleanField(  # Reopened.
         default=False)
     withdrawn = models.BooleanField(
         default=False)
 
     def __unicode__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.management_editor.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.management_editor.username
+        )
 
     def __repr__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.management_editor.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.management_editor.username
+        )
 
 
 class CopyeditAssignment(models.Model):
+
     book = models.ForeignKey(Book)
-    copyeditor = models.ForeignKey(User, related_name='copyeditor')
-    requestor = models.ForeignKey(User, related_name='copyedit_requestor')
-    requested = models.DateField(auto_now_add=True)
-    accepted = models.DateField(blank=True, null=True)
-    declined = models.DateField(blank=True, null=True)
-    due = models.DateField(blank=True, null=True)
-    completed = models.DateField(blank=True, null=True)
-    editor_review = models.DateField(blank=True, null=True)
-    author_invited = models.DateField(blank=True, null=True)
-    author_completed = models.DateField(blank=True, null=True)
-    note = models.TextField(blank=True, null=True)
-    note_from_copyeditor = models.TextField(blank=True, null=True)
-
-    note_to_author = models.TextField(blank=True, null=True)
-    note_from_author = models.TextField(blank=True, null=True)
-
-    files = models.ManyToManyField('File', blank=True, null=True, related_name='cp_assigned_files')
-    copyedit_files = models.ManyToManyField('File', blank=True, null=True, related_name='copyedit_files')
-    author_files = models.ManyToManyField('File', blank=True, null=True, related_name='author_copyedit_files')
+    copyeditor = models.ForeignKey(
+        User,
+        related_name='copyeditor',
+    )
+    requestor = models.ForeignKey(
+        User,
+        related_name='copyedit_requestor',
+    )
+    requested = models.DateField(
+        auto_now_add=True,
+    )
+    accepted = models.DateField(
+        blank=True,
+        null=True,
+    )
+    declined = models.DateField(
+        blank=True,
+        null=True,
+    )
+    due = models.DateField(
+        blank=True,
+        null=True,
+    )
+    completed = models.DateField(
+        blank=True,
+        null=True,
+    )
+    editor_review = models.DateField(
+        blank=True,
+        null=True,
+    )
+    author_invited = models.DateField(
+        blank=True,
+        null=True,
+    )
+    author_completed = models.DateField(
+        blank=True,
+        null=True,
+    )
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_from_copyeditor = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_to_author = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_from_author = models.TextField(
+        blank=True,
+        null=True,
+    )
+    files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='cp_assigned_files',
+    )
+    copyedit_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='copyedit_files'
+    )
+    author_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='author_copyedit_files'
+    )
 
     def __unicode__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.copyeditor.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.copyeditor.username,
+        )
 
     def __repr__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.copyeditor.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.copyeditor.username,
+        )
 
     def type(self):
         return 'copyedit'
 
     def state(self):
         if self.declined:
-            return {'state': 'declined', 'friendly': 'Assignment declined', 'date': self.declined}
+            return {
+                'state': 'declined',
+                'friendly': 'Assignment declined',
+                'date': self.declined,
+            }
         elif self.author_completed:
-            return {'state': 'complete', 'friendly': 'Assignment Complete', 'date': self.author_completed}
+            return {
+                'state': 'complete',
+                'friendly': 'Assignment Complete',
+                'date': self.author_completed,
+            }
         elif self.author_invited:
-            return {'state': 'author_invited', 'friendly': 'Awaiting author review', 'date': self.author_invited}
+            return {
+                'state': 'author_invited',
+                'friendly': 'Awaiting author review',
+                'date': self.author_invited,
+            }
         elif self.completed and not self.editor_review:
-            return {'state': 'editor_review', 'friendly': 'Awaiting editor review', 'date': self.completed}
+            return {
+                'state': 'editor_review',
+                'friendly': 'Awaiting editor review',
+                'date': self.completed},
         elif self.accepted:
-            return {'state': 'accepted', 'friendly': 'Copyeditor has accepted', 'date': self.accepted}
+            return {
+                'state': 'accepted',
+                'friendly': 'Copyeditor has accepted',
+                'date': self.accepted,
+            }
         else:
-            return {'state': 'assigned', 'friendly': 'Awaiting response from copyeditor', 'date': self.requested}
+            return {
+                'state': 'assigned',
+                'friendly': 'Awaiting response from copyeditor',
+                'date': self.requested,
+            }
 
 
 class IndexAssignment(models.Model):
+
     book = models.ForeignKey(Book)
-    indexer = models.ForeignKey(User, related_name='indexer')
-    requestor = models.ForeignKey(User, related_name='index_requestor')
-    requested = models.DateField(auto_now_add=True)
-    accepted = models.DateField(blank=True, null=True)
-    declined = models.DateField(blank=True, null=True)
-    due = models.DateField(blank=True, null=True)
-    completed = models.DateField(blank=True, null=True)
-
-    note = models.TextField(blank=True, null=True)
-    note_from_indexer = models.TextField(blank=True, null=True)
-    note_to_indexer = models.TextField(blank=True, null=True)
-
-    files = models.ManyToManyField('File', blank=True, null=True)
-    index_files = models.ManyToManyField('File', blank=True, null=True, related_name='index_files')
+    indexer = models.ForeignKey(
+        User,
+        related_name='indexer'
+    )
+    requestor = models.ForeignKey(
+        User,
+        related_name='index_requestor'
+    )
+    requested = models.DateField(
+        auto_now_add=True
+    )
+    accepted = models.DateField(
+        blank=True,
+        null=True
+    )
+    declined = models.DateField(
+        blank=True,
+        null=True
+    )
+    due = models.DateField(
+        blank=True,
+        null=True
+    )
+    completed = models.DateField(
+        blank=True,
+        null=True
+    )
+    note = models.TextField(
+        blank=True,
+        null=True
+    )
+    note_from_indexer = models.TextField(
+        blank=True,
+        null=True
+    )
+    note_to_indexer = models.TextField(
+        blank=True,
+        null=True
+    )
+    files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True
+    )
+    index_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='index_files'
+    )
 
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.book.title, self.indexer.username)
@@ -1644,82 +1776,231 @@ class IndexAssignment(models.Model):
 
     def state(self):
         if self.declined:
-            return {'state': 'declined', 'friendly': 'Assignment declined', 'date': self.declined}
+            return {
+                'state': 'declined',
+                'friendly': 'Assignment declined',
+                'date': self.declined,
+            }
         elif self.completed:
-            return {'state': 'completed', 'friendly': 'Assignment completed', 'date': self.completed}
+            return {
+                'state': 'completed',
+                'friendly': 'Assignment completed',
+                'date': self.completed,
+            }
         elif self.accepted:
-            return {'state': 'accepted', 'friendly': 'Indexing has accepted', 'date': self.accepted}
+            return {
+                'state': 'accepted',
+                'friendly': 'Indexing has accepted',
+                'date': self.accepted,
+            }
         else:
-            return {'state': 'assigned', 'friendly': 'Awaiting response from indexer', 'date': self.requested}
+            return {
+                'state': 'assigned',
+                'friendly': 'Awaiting response from indexer',
+                'date': self.requested,
+            }
 
 
 class TypesetAssignment(models.Model):
+
     book = models.ForeignKey(Book)
-    typesetter = models.ForeignKey(User, related_name='typesetter')
-    requestor = models.ForeignKey(User, related_name='typeset_requestor')
-    requested = models.DateField(auto_now_add=True)
-    accepted = models.DateField(blank=True, null=True)
-    declined = models.DateField(blank=True, null=True)
-    due = models.DateField(blank=True, null=True)
-    completed = models.DateField(blank=True, null=True)
-    editor_review = models.DateField(blank=True, null=True)
-    author_invited = models.DateField(blank=True, null=True)
-    author_due = models.DateField(blank=True, null=True)
-    author_completed = models.DateField(blank=True, null=True)
-    editor_second_review = models.DateField(blank=True, null=True)
-    typesetter_invited = models.DateField(blank=True, null=True)
-    typesetter_completed = models.DateField(blank=True, null=True)
-
-    note = models.TextField(blank=True, null=True)
-    note_to_author = models.TextField(blank=True, null=True)
-    note_from_author = models.TextField(blank=True, null=True)
-    note_to_typesetter = models.TextField(blank=True, null=True)
-    note_from_typesetter = models.TextField(blank=True, null=True)
-
-    files = models.ManyToManyField('File', blank=True, null=True)
-    typeset_files = models.ManyToManyField('File', blank=True, null=True, related_name='typeset_files')
-    author_files = models.ManyToManyField('File', blank=True, null=True, related_name='author_typeset_files')
-    typesetter_files = models.ManyToManyField('File', blank=True, null=True, related_name='typesetter_files')
+    typesetter = models.ForeignKey(
+        User,
+        related_name='typesetter',
+    )
+    requestor = models.ForeignKey(
+        User,
+        related_name='typeset_requestor',
+    )
+    requested = models.DateField(
+        auto_now_add=True,
+    )
+    accepted = models.DateField(
+        blank=True,
+        null=True,
+    )
+    declined = models.DateField(
+        blank=True,
+        null=True,
+    )
+    due = models.DateField(
+        blank=True,
+        null=True,
+    )
+    completed = models.DateField(
+        blank=True,
+        null=True,
+    )
+    editor_review = models.DateField(
+        blank=True,
+        null=True,
+    )
+    author_invited = models.DateField(
+        blank=True,
+        null=True,
+    )
+    author_due = models.DateField(
+        blank=True,
+        null=True,
+    )
+    author_completed = models.DateField(
+        blank=True,
+        null=True,
+    )
+    editor_second_review = models.DateField(
+        blank=True,
+        null=True,
+    )
+    typesetter_invited = models.DateField(
+        blank=True,
+        null=True,
+    )
+    typesetter_completed = models.DateField(
+        blank=True,
+        null=True,
+    )
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_to_author = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_from_author = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_to_typesetter = models.TextField(
+        blank=True,
+        null=True,
+    )
+    note_from_typesetter = models.TextField(
+        blank=True,
+        null=True,
+    )
+    files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+    )
+    typeset_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='typeset_files',
+    )
+    author_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='author_typeset_files',
+    )
+    typesetter_files = models.ManyToManyField(
+        'File',
+        blank=True,
+        null=True,
+        related_name='typesetter_files',
+    )
 
     def __unicode__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.typesetter.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.typesetter.username,
+        )
 
     def __repr__(self):
-        return u'%s - %s %s' % (self.pk, self.book.title, self.typesetter.username)
+        return u'%s - %s %s' % (
+            self.pk,
+            self.book.title,
+            self.typesetter.username,
+        )
 
     def type(self):
         return 'typesetting'
 
     def state(self):
         if self.declined:
-            return {'state': 'declined', 'friendly': 'Assignment declined', 'date': self.declined}
+            return {
+                'state': 'declined',
+                'friendly': 'Assignment declined',
+                'date': self.declined,
+            }
         elif self.typesetter_completed:
-            return {'state': 'complete', 'friendly': 'Assignment Complete', 'date': self.typesetter_completed}
+            return {
+                'state': 'complete',
+                'friendly': 'Assignment Complete',
+                'date': self.typesetter_completed,
+            }
         elif self.typesetter_invited:
-            return {'state': 'typesetter_second', 'friendly': 'Awaiting final typesetting',
-                    'date': self.typesetter_invited}
+            return {
+                'state': 'typesetter_second',
+                'friendly': 'Awaiting final typesetting',
+                'date': self.typesetter_invited,
+            }
         elif self.author_completed and not self.editor_second_review:
-            return {'state': 'editor_second_review', 'friendly': 'Awaiting editor review',
-                    'date': self.author_completed}
+            return {
+                'state': 'editor_second_review',
+                'friendly': 'Awaiting editor review',
+                'date': self.author_completed,
+            }
         elif self.author_completed:
-            return {'state': 'author_complete', 'friendly': 'Author Review Complete', 'date': self.author_completed}
+            return {
+                'state': 'author_complete',
+                'friendly': 'Author Review Complete',
+                'date': self.author_completed,
+            }
         elif self.author_invited:
-            return {'state': 'author_invited', 'friendly': 'Awaiting author review', 'date': self.author_invited}
+            return {
+                'state': 'author_invited',
+                'friendly': 'Awaiting author review',
+                'date': self.author_invited,
+            }
         elif self.completed and not self.editor_review:
-            return {'state': 'editor_review', 'friendly': 'Awaiting editor review', 'date': self.completed}
+            return {
+                'state': 'editor_review',
+                'friendly': 'Awaiting editor review',
+                'date': self.completed,
+            }
         elif self.accepted:
-            return {'state': 'accepted', 'friendly': 'Typesetter has accepted', 'date': self.accepted}
+            return {
+                'state': 'accepted',
+                'friendly': 'Typesetter has accepted',
+                'date': self.accepted,
+            }
         else:
-            return {'state': 'assigned', 'friendly': 'Awaiting response from typesetter', 'date': self.requested}
+            return {
+                'state': 'assigned',
+                'friendly': 'Awaiting response from typesetter',
+                'date': self.requested,
+            }
 
 
 class License(models.Model):
-    name = models.CharField(max_length=1000)
-    short_name = models.CharField(max_length=100)
-    code = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(null=True, blank=True)
-    version = models.CharField(max_length=10)
-    url = models.URLField(null=True, blank=True)
+
+    name = models.CharField(
+        max_length=1000,
+    )
+    short_name = models.CharField(
+        max_length=100,
+    )
+    code = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
+    version = models.CharField(
+        max_length=10,
+    )
+    url = models.URLField(
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return u'%s' % self.short_name
@@ -1729,11 +2010,26 @@ class License(models.Model):
 
 
 class Series(models.Model):
-    name = models.CharField(max_length=100)
-    editor = models.ForeignKey(User, null=True, blank=True)
-    issn = models.CharField(max_length=15)
-    description = models.TextField(null=True, blank=True)
-    url = models.URLField(null=True, blank=True)
+
+    name = models.CharField(
+        max_length=100,
+    )
+    editor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+    )
+    issn = models.CharField(
+        max_length=15,
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
+    url = models.URLField(
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -1743,20 +2039,73 @@ class Series(models.Model):
 
 
 class Editor(models.Model):
-    first_name = models.CharField(max_length=100)
-    middle_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100)
-    salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True)
-    institution = models.CharField(max_length=1000)
-    department = models.CharField(max_length=300, null=True, blank=True)
-    country = models.CharField(max_length=300, choices=COUNTRY_CHOICES)
-    author_email = models.CharField(max_length=100)
-    biography = models.TextField(max_length=3000, null=True, blank=True)
-    orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name="ORCiD")
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Profile")
-    sequence = models.IntegerField(default=1, null=True, blank=True)
+
+    first_name = models.CharField(
+        max_length=100
+    )
+    middle_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
+    last_name = models.CharField(
+        max_length=100
+    )
+    salutation = models.CharField(
+        max_length=10,
+        choices=SALUTATION_CHOICES,
+        null=True,
+        blank=True
+    )
+    institution = models.CharField(
+        max_length=1000
+    )
+    department = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True
+    )
+    country = models.CharField(
+        max_length=300,
+        choices=COUNTRY_CHOICES
+    )
+    author_email = models.CharField(
+        max_length=100
+    )
+    biography = models.TextField(
+        max_length=3000,
+        null=True,
+        blank=True
+    )
+    orcid = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        verbose_name="ORCiD"
+    )
+    twitter = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Twitter Handle"
+    )
+    linkedin = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Linkedin Profile"
+    )
+    facebook = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Facebook Profile"
+    )
+    sequence = models.IntegerField(
+        default=1,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         ordering = ('sequence',)
@@ -1769,27 +2118,54 @@ class Editor(models.Model):
 
     def full_name(self):
         if self.middle_name:
-            return "%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+            return "%s %s %s" % (
+                self.first_name,
+                self.middle_name,
+                self.last_name,
+            )
         else:
             return "%s %s" % (self.first_name, self.last_name)
 
 
 class File(models.Model):
-    mime_type = models.CharField(max_length=100)
-    original_filename = models.CharField(max_length=1000)
-    uuid_filename = models.CharField(max_length=100)
-    label = models.CharField(max_length=200, null=True, blank=True)
-    description = models.CharField(max_length=1000, null=True, blank=True)
-    date_uploaded = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
+
+    mime_type = models.CharField(
+        max_length=100,
+    )
+    original_filename = models.CharField(
+        max_length=1000,
+    )
+    uuid_filename = models.CharField(
+        max_length=100,
+    )
+    label = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+    )
+    description = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
+    date_uploaded = models.DateTimeField(
+        auto_now_add=True,
+    )
+    date_modified = models.DateTimeField(
+        auto_now=True,
+    )
     stage_uploaded = models.IntegerField()
-    kind = models.CharField(max_length=100)
-    sequence = models.IntegerField(default=1)
+    kind = models.CharField(
+        max_length=100,
+    )
+    sequence = models.IntegerField(
+        default=1,
+    )
     owner = models.ForeignKey(User)
 
     def truncated_filename(self):
         name, extension = os.path.splitext(self.original_filename)
-        file_name = ''
+
         if len(name) > 14:
             file_name = name[:14] + '...' + ' ' + extension
         else:
@@ -1799,7 +2175,7 @@ class File(models.Model):
 
     def truncated_filename_long(self):
         name, extension = os.path.splitext(self.original_filename)
-        file_name = ''
+
         if len(name) > 32:
             file_name = name[:32] + '...' + ' ' + extension
         else:
@@ -1809,8 +2185,10 @@ class File(models.Model):
 
     def truncated_label(self):
         name = str(self.label)
+
         if len(name) >= 22:
             name = name[:22] + '...'
+
         return name
 
     def __unicode__(self):
@@ -1824,17 +2202,23 @@ class File(models.Model):
 
 
 class FileVersion(models.Model):
-    file = models.ForeignKey(File)
-    original_filename = models.CharField(max_length=1000)
-    uuid_filename = models.CharField(max_length=100)
-    date_uploaded = models.DateTimeField()
-    owner = models.ForeignKey(User)
 
     class Meta:
         ordering = ('-date_uploaded',)
 
+    file = models.ForeignKey(File)
+    original_filename = models.CharField(
+        max_length=1000,
+    )
+    uuid_filename = models.CharField(
+        max_length=100,
+    )
+    date_uploaded = models.DateTimeField()
+    owner = models.ForeignKey(User)
+
 
 class Subject(models.Model):
+
     name = models.CharField(max_length=250)
 
     def __unicode__(self):
@@ -1845,6 +2229,7 @@ class Subject(models.Model):
 
 
 class Interest(models.Model):
+
     name = models.CharField(max_length=250)
 
     def __unicode__(self):
@@ -1855,6 +2240,7 @@ class Interest(models.Model):
 
 
 class Keyword(models.Model):
+
     name = models.CharField(max_length=250)
 
     def __unicode__(self):
@@ -1876,22 +2262,65 @@ stage_choices = (
 
 
 class Stage(models.Model):
-    current_stage = models.CharField(max_length="20", choices=stage_choices, null=True, blank=True)
-    proposal = models.DateTimeField(null=True, blank=True)
-    submission = models.DateTimeField(null=True, blank=True)
-    review = models.DateTimeField(null=True, blank=True)
-    internal_review = models.DateTimeField(null=True, blank=True)
-    external_review = models.DateTimeField(null=True, blank=True)
-    editorial_review = models.DateTimeField(null=True, blank=True)
-    editing = models.DateTimeField(null=True, blank=True)
-    production = models.DateTimeField(null=True, blank=True)
-    publication = models.DateTimeField(null=True, blank=True)
-    declined = models.DateTimeField(null=True, blank=True)
 
-    # Optional stages
-    copyediting = models.DateTimeField(null=True, blank=True)
-    indexing = models.DateTimeField(null=True, blank=True)
-    typesetting = models.DateTimeField(null=True, blank=True)
+    current_stage = models.CharField(
+        max_length="20",
+        choices=stage_choices,
+        null=True,
+        blank=True,
+    )
+    proposal = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    submission = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    review = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    internal_review = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    external_review = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    editorial_review = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    editing = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    production = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    publication = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    declined = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    copyediting = models.DateTimeField(  # Optional stages.
+        null=True,
+        blank=True,
+    )
+    indexing = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    typesetting = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         try:
@@ -1905,28 +2334,74 @@ class Stage(models.Model):
 
 
 class Task(models.Model):
-    book = models.ForeignKey(Book, null=True, blank=True)
-    creator = models.ForeignKey(User, related_name='creator')
-    assignee = models.ForeignKey(User, related_name='assignee')
-    text = models.CharField(max_length=200)
-    workflow = models.CharField(max_length=50, choices=task_choices(), null=True, blank=True)
-    assigned = models.DateField(auto_now_add=True, null=True, blank=True)
-    accepted = models.DateTimeField(blank=True, null=True)
-    rejected = models.DateTimeField(blank=True, null=True)
-    due = models.DateField(null=True, blank=True)
-    completed = models.DateField(null=True, blank=True)
-    emailed = models.BooleanField(default=False)
-    editorial_review = models.ForeignKey(EditorialReviewAssignment, null=True, blank=True)
+
+    book = models.ForeignKey(
+        Book,
+        null=True,
+        blank=True,
+    )
+    creator = models.ForeignKey(
+        User,
+        related_name='creator',
+    )
+    assignee = models.ForeignKey(
+        User,
+        related_name='assignee',
+    )
+    text = models.CharField(
+        max_length=200,
+    )
+    workflow = models.CharField(
+        max_length=50,
+        choices=task_choices(),
+        null=True,
+        blank=True,
+    )
+    assigned = models.DateField(
+        auto_now_add=True,
+        null=True,
+        blank=True,
+    )
+    accepted = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    rejected = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    due = models.DateField(
+        null=True,
+        blank=True,
+    )
+    completed = models.DateField(
+        null=True,
+        blank=True,
+    )
+    emailed = models.BooleanField(
+        default=False,
+    )
+    editorial_review = models.ForeignKey(
+        EditorialReviewAssignment,
+        null=True,
+        blank=True,
+    )
 
     def status_color(self):
         now = date.today()
         difference = self.due - now
+
         return difference
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=100)
+
+    name = models.CharField(
+        max_length=100,
+    )
+    slug = models.CharField(
+        max_length=100,
+    )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -1951,13 +2426,34 @@ log_choices = (
 
 
 class Log(models.Model):
-    book = models.ForeignKey(Book, null=True, blank=True)
-    proposal = models.ForeignKey(submission_models.Proposal, null=True, blank=True, related_name='proposal_log')
-    user = models.ForeignKey(User)
-    kind = models.CharField(max_length=100, choices=log_choices)
-    short_name = models.CharField(max_length=100)
+
+    book = models.ForeignKey(
+        Book,
+        null=True,
+        blank=True,
+    )
+    proposal = models.ForeignKey(
+        submission_models.Proposal,
+        null=True,
+        blank=True,
+        related_name='proposal_log',
+    )
+    user = models.ForeignKey(
+        User,
+    )
+    kind = models.CharField(
+        max_length=100,
+        choices=log_choices,
+    )
+    short_name = models.CharField(
+        max_length=100,
+    )
     message = models.TextField()
-    date_logged = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    date_logged = models.DateTimeField(
+        auto_now_add=True,
+        null=True,
+        blank=True,
+    )
 
 
 setting_types = (
@@ -1971,9 +2467,17 @@ setting_types = (
 
 
 class SettingGroup(models.Model):
-    id = models.CharField(primary_key=True, max_length=20)
-    name = models.CharField(max_length=100)
-    enabled = models.BooleanField(default=True)
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=20,
+    )
+    name = models.CharField(
+        max_length=100,
+    )
+    enabled = models.BooleanField(
+        default=True,
+    )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -1983,14 +2487,29 @@ class SettingGroup(models.Model):
 
 
 class Setting(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    group = models.ForeignKey(SettingGroup)
-    types = models.CharField(max_length=20, choices=setting_types)
-    value = models.TextField(null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ('group', 'name')
+
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+    group = models.ForeignKey(
+        SettingGroup,
+    )
+    types = models.CharField(
+        max_length=20,
+        choices=setting_types,
+    )
+    value = models.TextField(
+        null=True,
+        blank=True,
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -1999,7 +2518,9 @@ class Setting(models.Model):
         return u'%s' % self.name
 
 
-HTML, XML, PDF, EPUB, MOBI, KINDLE = 'html', 'xml', 'pdf', 'epub', 'mobi', 'kindle'
+HTML, XML, PDF, EPUB, MOBI, KINDLE = (
+    'html', 'xml', 'pdf', 'epub', 'mobi', 'kindle'
+)
 HBACK, PBACK = 'hardback', 'paperback'
 DOWNLOADABLE_FORMATS = [HTML, XML, PDF, EPUB, MOBI]
 
@@ -2023,15 +2544,30 @@ def digital_file_type():
 
 
 class Format(models.Model):
-    book = models.ForeignKey(Book)
-    file = models.ForeignKey(File)
-    name = models.CharField(max_length=200)
-    identifier = models.CharField(max_length=200, unique=True)
-    sequence = models.IntegerField(default=9999)
-    file_type = models.CharField(max_length=100, choices=digital_file_type())
 
     class Meta:
         ordering = ('sequence', 'name')
+
+    book = models.ForeignKey(
+        Book,
+    )
+    file = models.ForeignKey(
+        File,
+    )
+    name = models.CharField(
+        max_length=200,
+    )
+    identifier = models.CharField(
+        max_length=200,
+        unique=True,
+    )
+    sequence = models.IntegerField(
+        default=9999,
+    )
+    file_type = models.CharField(
+        max_length=100,
+        choices=digital_file_type(),
+    )
 
     def __unicode__(self):
         return u'%s - %s' % (self.book, self.identifier)
@@ -2063,25 +2599,93 @@ class Chapter(models.Model):
 
 
 class ChapterAuthor(models.Model):
-    # Very similar to author but containing chapter and sequence within chapter
-    chapter = models.ForeignKey(Chapter)
-    sequence = models.IntegerField(default=1, null=True, blank=True)
-    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    # Identifier if ChapterAuthor model has been automatically created from existing Author model
-    old_author_id = models.IntegerField(null=True, blank=True)
-    first_name = models.CharField(max_length=100)
-    middle_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100)
-    salutation = models.CharField(max_length=10, choices=SALUTATION_CHOICES, null=True, blank=True)
-    institution = models.CharField(max_length=1000, null=True, blank=True)
-    department = models.CharField(max_length=300, null=True, blank=True)
-    country = models.CharField(max_length=300, choices=COUNTRY_CHOICES, null=True, blank=True)
-    author_email = models.CharField(max_length=100)
-    biography = models.TextField(max_length=3000, null=True, blank=True)
-    orcid = models.CharField(max_length=40, null=True, blank=True, verbose_name="ORCiD")
-    twitter = models.CharField(max_length=300, null=True, blank=True, verbose_name="Twitter Handle")
-    linkedin = models.CharField(max_length=300, null=True, blank=True, verbose_name="Linkedin Profile")
-    facebook = models.CharField(max_length=300, null=True, blank=True, verbose_name="Facebook Profile")
+    """
+    Very similar to author but containing chapter and sequence within chapter
+    """
+    chapter = models.ForeignKey(
+        Chapter,
+    )
+    sequence = models.IntegerField(
+        default=1,
+        null=True,
+        blank=True,
+    )
+    uuid = models.UUIDField(
+        unique=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    # Identifier if ChapterAuthor model has been automatically created
+    # from existing Author model
+    old_author_id = models.IntegerField(
+        null=True,
+        blank=True,
+    )
+    first_name = models.CharField(
+        max_length=100,
+    )
+    middle_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    last_name = models.CharField(
+        max_length=100,
+    )
+    salutation = models.CharField(
+        max_length=10,
+        choices=SALUTATION_CHOICES,
+        null=True,
+        blank=True,
+    )
+    institution = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
+    department = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+    )
+    country = models.CharField(
+        max_length=300,
+        choices=COUNTRY_CHOICES,
+        null=True,
+        blank=True,
+    )
+    author_email = models.CharField(
+        max_length=100,
+    )
+    biography = models.TextField(
+        max_length=3000,
+        null=True,
+        blank=True,
+    )
+    orcid = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        verbose_name="ORCiD",
+    )
+    twitter = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Twitter Handle",
+    )
+    linkedin = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Linkedin Profile",
+    )
+    facebook = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+        verbose_name="Facebook Profile",
+    )
 
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)

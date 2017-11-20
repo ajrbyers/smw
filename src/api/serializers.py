@@ -162,8 +162,6 @@ class FormatSerializer(serializers.HyperlinkedModelSerializer):
 
 class ChapterFormatSerializer(serializers.HyperlinkedModelSerializer):
 
-    file = FileSerializer(many=False)
-
     class Meta:
         model = models.ChapterFormat
         fields = (
@@ -174,6 +172,8 @@ class ChapterFormatSerializer(serializers.HyperlinkedModelSerializer):
             'file_type',
             'sequence',
         )
+
+    file = FileSerializer(many=False)
 
 
 class ChapterAuthorSerializer(serializers.ModelSerializer):
@@ -206,6 +206,21 @@ class ChapterAuthorSerializer(serializers.ModelSerializer):
 
 class ChapterSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = models.Chapter
+        fields = (
+            'id',
+            'doi',
+            'name',
+            'formats',
+            'blurbs',
+            'keywords',
+            'disciplines',
+            'sequence',
+            'authors',
+            'chapter_authors',
+        )
+
     authors = AuthorSerializer(
         many=True,
     )
@@ -222,21 +237,6 @@ class ChapterSerializer(serializers.ModelSerializer):
     formats = ChapterFormatSerializer(
         many=True,
     )
-
-    class Meta:
-        model = models.Chapter
-        fields = (
-            'id',
-            'doi',
-            'name',
-            'formats',
-            'blurbs',
-            'keywords',
-            'disciplines',
-            'sequence',
-            'authors',
-            'chapter_authors',
-        )
 
 
 class PhysicalFormatSerializer(serializers.HyperlinkedModelSerializer):
@@ -308,27 +308,6 @@ class LicenseSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookSerializer(serializers.HyperlinkedModelSerializer):
 
-    license = serializers.ReadOnlyField(
-        source='license.short_name',
-    )
-    author = AuthorSerializer(
-        many=True,
-    )
-    editor = EditorSerializer(
-        many=True,
-    )
-    keywords = KeywordSerializer(
-        many=True,
-    )
-    subject = SubjectSerializer(
-        many=True,
-    )
-    identifier = IdentiferSerializer(
-        many=True,
-        source='identifier_set',
-        required=False,
-    )
-
     class Meta:
         model = models.Book
         fields = (
@@ -354,9 +333,61 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'peer_review_override',
         )
 
+    license = serializers.ReadOnlyField(
+        source='license.short_name',
+    )
+    author = AuthorSerializer(
+        many=True,
+    )
+    editor = EditorSerializer(
+        many=True,
+    )
+    keywords = KeywordSerializer(
+        many=True,
+    )
+    subject = SubjectSerializer(
+        many=True,
+    )
+    identifier = IdentiferSerializer(
+        many=True,
+        source='identifier_set',
+        required=False,
+    )
+
 
 class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
     """ This serializer is used only by Ubiquity Press. """
+
+    class Meta:
+        model = models.Book
+        fields = (
+            'id',
+            'slug',
+            'prefix',
+            'title',
+            'subtitle',
+            'cover',
+            'submission_date',
+            'publication_date',
+            'license',
+            'pages',
+            'book_type',
+            'author',
+            'editor',
+            'description',
+            'keywords',
+            'subject',
+            'languages',
+            'review_type',
+            'formats',
+            'chapters',
+            'physical_formats',
+            'stage',
+            'identifier',
+            'peer_review_override',
+            'review_assignments',
+            'table_contents_linked',
+        )
 
     license = serializers.ReadOnlyField(
         source='license.code',
@@ -398,37 +429,6 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
     )
 
-    class Meta:
-        model = models.Book
-        fields = (
-            'id',
-            'slug',
-            'prefix',
-            'title',
-            'subtitle',
-            'cover',
-            'submission_date',
-            'publication_date',
-            'license',
-            'pages',
-            'book_type',
-            'author',
-            'editor',
-            'description',
-            'keywords',
-            'subject',
-            'languages',
-            'review_type',
-            'formats',
-            'chapters',
-            'physical_formats',
-            'stage',
-            'identifier',
-            'peer_review_override',
-            'review_assignments',
-            'table_contents_linked',
-        )
-
     def create(self, validated_data):
         author_data = validated_data.pop('author')
         validated_data.pop('keywords')
@@ -447,6 +447,30 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
 
 class OMPSerializer(serializers.HyperlinkedModelSerializer):
     """ This serializer is used only by Ubiquity Press. """
+
+    class Meta:
+        model = models.Book
+        fields = (
+            'id',
+            'slug',
+            'prefix',
+            'title',
+            'subtitle',
+            'cover',
+            'submission_date',
+            'publication_date',
+            'license',
+            'pages',
+            'book_type',
+            'author',
+            'description',
+            'keywords',
+            'subject',
+            'languages',
+            'review_type',
+            'stage',
+            'identifier',
+        )
 
     license = serializers.ReadOnlyField(
         source='license.code',
@@ -471,30 +495,6 @@ class OMPSerializer(serializers.HyperlinkedModelSerializer):
     languages = LanguageSerializer(
         many=True,
     )
-
-    class Meta:
-        model = models.Book
-        fields = (
-            'id',
-            'slug',
-            'prefix',
-            'title',
-            'subtitle',
-            'cover',
-            'submission_date',
-            'publication_date',
-            'license',
-            'pages',
-            'book_type',
-            'author',
-            'description',
-            'keywords',
-            'subject',
-            'languages',
-            'review_type',
-            'stage',
-            'identifier',
-        )
 
     def create(self, validated_data):
         author_data = validated_data.pop('author')

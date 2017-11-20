@@ -1,5 +1,6 @@
-from core import models
 from datetime import datetime
+
+from core import models
 from editor import models as editor_models
 from revisions import models as revisions_models
 from submission import models as submission_models

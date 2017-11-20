@@ -50,8 +50,8 @@ def handle_marc21_file(content, name, book, owner):
     return new_file
 
 
-def handle_onetasker_file(file, book, assignment, kind):
-    original_filename = smart_text(file._get_name())
+def handle_onetasker_file(_file, book, assignment, kind):
+    original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
         settings.BASE_DIR,
@@ -66,7 +66,7 @@ def handle_onetasker_file(file, book, assignment, kind):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
 
     fd.close()
@@ -93,9 +93,9 @@ def handle_onetasker_file(file, book, assignment, kind):
     return new_file
 
 
-def handle_file_update(file, old_file, book, kind, owner, label=None):
+def handle_file_update(_file, old_file, book, kind, owner, label=None):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -115,7 +115,7 @@ def handle_file_update(file, old_file, book, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
 
     fd.close()
@@ -149,9 +149,9 @@ def handle_file_update(file, old_file, book, kind, owner, label=None):
     return path
 
 
-def handle_file(file, book, kind, owner, label=None):
+def handle_file(_file, book, kind, owner, label=None):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -171,7 +171,7 @@ def handle_file(file, book, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
 
     fd.close()
@@ -199,8 +199,8 @@ def handle_file(file, book, kind, owner, label=None):
     return new_file
 
 
-def handle_email_file(file, kind, owner, label=None):
-    original_filename = smart_text(file._get_name())
+def handle_email_file(_file, kind, owner, label=None):
+    original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
         settings.BASE_DIR,
@@ -215,7 +215,7 @@ def handle_email_file(file, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -243,9 +243,9 @@ def handle_email_file(file, kind, owner, label=None):
     return new_file
 
 
-def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
+def handle_proposal_review_file(_file, proposal_review, kind, owner, label=None):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -265,7 +265,7 @@ def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -293,9 +293,9 @@ def handle_proposal_review_file(file, proposal_review, kind, owner, label=None):
     return new_file
 
 
-def handle_proposal_file(file, proposal, kind, owner, label=None):
+def handle_proposal_file(_file, proposal, kind, owner, label=None):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -315,7 +315,7 @@ def handle_proposal_file(file, proposal, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -343,8 +343,8 @@ def handle_proposal_file(file, proposal, kind, owner, label=None):
     return new_file
 
 
-def handle_proposal_file_form(file, proposal, kind, owner, label=None):
-    original_filename = smart_text(file._get_name())
+def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
+    original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
         settings.BASE_DIR,
@@ -359,7 +359,7 @@ def handle_proposal_file_form(file, proposal, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -394,8 +394,8 @@ def handle_attachment(request, submission):
     return None
 
 
-def handle_copyedit_file(file, book, copyedit, kind):
-    original_filename = smart_text(file._get_name())
+def handle_copyedit_file(_file, book, copyedit, kind):
+    original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
         settings.BASE_DIR,
@@ -410,7 +410,7 @@ def handle_copyedit_file(file, book, copyedit, kind):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -436,8 +436,8 @@ def handle_copyedit_file(file, book, copyedit, kind):
     return new_file
 
 
-def handle_index_file(file, book, index, kind):
-    original_filename = smart_text(file._get_name())
+def handle_index_file(_file, book, index, kind):
+    original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(
         settings.BASE_DIR,
@@ -452,7 +452,7 @@ def handle_index_file(file, book, index, kind):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -478,9 +478,9 @@ def handle_index_file(file, book, index, kind):
     return new_file
 
 
-def handle_typeset_file(file, book, typeset, kind):
+def handle_typeset_file(_file, book, typeset, kind):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -500,7 +500,7 @@ def handle_typeset_file(file, book, typeset, kind):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in file.chunks():
+    for chunk in _file.chunks():
         fd.write(chunk)
     fd.close()
 
@@ -533,4 +533,5 @@ def get_owner(assignment):
         return assignment.typesetter
     elif assignment.type() == 'indexing':
         return assignment.indexer
+
     raise Http404
