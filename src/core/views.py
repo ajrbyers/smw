@@ -1,48 +1,74 @@
-from django.contrib.auth import authenticate, logout as logout_user, login as login_user
-from django.contrib.auth.models import User
-from django.shortcuts import redirect, render, get_object_or_404
-from django.http import HttpResponseRedirect, Http404, HttpResponse, StreamingHttpResponse
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
-from django.conf import settings
-from django.db import IntegrityError
-from django.utils.encoding import smart_text
-
-from editor import forms as editor_forms
-from review import models as review_models
-from review import logic as review_logic
-from core import log, models, forms, logic
-from author import orcid
-from email import send_email, send_email_multiple, send_reset_email, get_email_content
-from files import handle_file_update, handle_attachment, handle_file, handle_email_file, handle_proposal_review_file, \
-    handle_proposal_file, handle_proposal_file_form
-from submission import models as submission_models
-from core.decorators import is_reviewer, is_editor, is_book_editor, is_book_editor_or_author, is_onetasker, is_press_editor
-from review import forms as review_forms
-from datetime import datetime
-from manager import models as manager_models
-from manager import forms as manager_forms
-from submission import forms as submission_forms
-from editorialreview import models as er_models
-
-from docx import Document
-import json
-from uuid import uuid4
-import os
-import mimetypes
-from bs4 import BeautifulSoup
-import zipfile
-import StringIO
-
 from __builtin__ import any as string_any
+from datetime import datetime
+import json
+import mimetypes
+import os
 import string
+import StringIO
+from uuid import uuid4
 
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import (
+    authenticate,
+    logout as logout_user,
+    login as login_user,
+)
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db import IntegrityError
+from django.db.models import Q
+from django.http import (
+    HttpResponseRedirect,
+    Http404,
+    HttpResponse,
+    StreamingHttpResponse,
+)
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render, get_object_or_404
+from django.utils import timezone
+from django.utils.encoding import smart_text
+from django.views.decorators.csrf import csrf_exempt
 
-# Website Views
+from bs4 import BeautifulSoup
+from docx import Document
+import zipfile
+
+from author import orcid
+from core import log, models, forms, logic
+from core.decorators import (
+    is_reviewer,
+    is_editor,
+    is_book_editor,
+    is_book_editor_or_author,
+    is_onetasker,
+    is_press_editor,
+)
+from editor import forms as editor_forms
+from editorialreview import models as er_models
+from email import (
+    send_email,
+    send_email_multiple,
+    send_reset_email,
+    get_email_content,
+)
+from files import (
+    handle_attachment,
+    handle_file,
+    handle_file_update,
+    handle_email_file,
+    handle_proposal_review_file,
+    handle_proposal_file,
+    handle_proposal_file_form,
+)
+from manager import models as manager_models, forms as manager_forms
+from submission import models as submission_models, forms as submission_forms
+from review import (
+    forms as review_forms,
+    models as review_models,
+    logic as review_logic
+)
+
 
 def index(request):
     return redirect(reverse('login'))
@@ -76,16 +102,19 @@ def login(request):
         messages.info(request, 'You are already logged in.')
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
-        else:
-            return redirect(reverse('user_dashboard'))
+        return redirect(reverse('user_dashboard'))
 
     if request.POST:
         user = request.POST.get('user_name')
         pawd = request.POST.get('user_pass')
+
         if '@' in user:
             existing_user = User.objects.filter(email=user)
             if existing_user:
-                user = authenticate(username=existing_user[0].username, password=pawd)
+                user = authenticate(
+                    username=existing_user[0].username,
+                    password=pawd,
+                )
             else:
                 user = None
         else:
@@ -97,12 +126,19 @@ def login(request):
                 messages.info(request, 'Login successful.')
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
-                else:
-                    return redirect(reverse('user_dashboard'))
+                return redirect(reverse('user_dashboard'))
             else:
-                messages.add_message(request, messages.ERROR, 'User account is not active.')
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'User account is not active.',
+                )
         else:
-            messages.add_message(request, messages.ERROR, 'Account not found with those details.')
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Account not found with those details.',
+            )
 
     context = {}
     template = 'core/login.html'
@@ -120,13 +156,21 @@ def switch_account(request):
 
     for profile in users:
         user_roles = [role.slug for role in profile.roles.all()]
-        if not 'press-editor' in user_roles and not 'book-editor' in user_roles and not 'production-editor' in user_roles:
-            if 'author' in user_roles or 'reviewer' in user_roles or 'indexer' in user_roles or 'typesetter' in user_roles or 'copyeditor' in user_roles:
+        if (
+                not 'press-editor' in user_roles and
+                not 'book-editor' in user_roles and
+                not 'production-editor' in user_roles
+        ):
+            if (
+                    'author' in user_roles or
+                    'reviewer' in user_roles or
+                    'indexer' in user_roles or
+                    'typesetter' in user_roles or
+                    'copyeditor' in user_roles
+            ):
                 clean_users.append(profile.user)
-    context = {
-        'users': clean_users,
 
-    }
+    context = {'users': clean_users}
     template = 'core/switch_account.html'
 
     return render(request, template, context)
@@ -155,18 +199,29 @@ def login_orcid(request):
 
                 if request.GET.get('next'):
                     return redirect(request.GET.get('next'))
-                else:
-                    return redirect(reverse('user_dashboard'))
+                return redirect(reverse('user_dashboard'))
             except User.DoesNotExist:
-                messages.add_message(request, messages.WARNING, 'No user foud with the supplied ORCiD.')
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    'No user foud with the supplied ORCiD.',
+                )
                 return redirect(reverse('login'))
         else:
-            messages.add_message(request, messages.WARNING,
-                                 'Valid ORCiD not returned, please try again, or login with your username and password.')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'Valid ORCiD not returned, please try again, '
+                'or login with your username and password.'
+            )
             return redirect(reverse('login'))
     else:
-        messages.add_message(request, messages.WARNING,
-                             'No authorisation code provided, please try again or login with your username and password.')
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'No authorisation code provided, please try again or '
+            'login with your username and password.'
+        )
         return redirect(reverse('login'))
 
 
@@ -187,55 +242,83 @@ def register(request):
         profile_form = forms.RegistrationProfileForm(request.POST)
 
         if 'interests' in request.POST:
-            display_interests = request.POST.get('interests').split(',')  # To keep interests field filled if validation error is raised.
+            # To keep interests field filled if validation error is raised.
+            display_interests = request.POST.get('interests').split(',')
 
         if form.is_valid() and profile_form.is_valid():
             author_role = models.Role.objects.get(slug='author')
             new_user = form.save()
-            profile_form = forms.RegistrationProfileForm(request.POST, instance=new_user.profile)
+            profile_form = forms.RegistrationProfileForm(
+                request.POST,
+                instance=new_user.profile,
+            )
             profile_form.save()
             new_user.profile.roles.add(author_role)
             new_user.profile.save()
             interests = []
+
             if 'interests' in request.POST:
                 interests = request.POST.get('interests').split(',')
 
             for interest in interests:
-                new_interest, c = models.Interest.objects.get_or_create(name=interest)
+                new_interest, c = models.Interest.objects.get_or_create(
+                    name=interest,
+                )
                 new_user.profile.interest.add(new_interest)
-            new_user.profile.save()
 
-            messages.add_message(request, messages.INFO,
-                                 models.Setting.objects.get(group__name='general', name='registration_message').value)
+            new_user.profile.save()
+            messages.add_message(
+                request,
+                messages.INFO,
+                models.Setting.objects.get(
+                    group__name='general',
+                    name='registration_message'
+                ).value
+            )
             return redirect(reverse('login'))
     else:
         form = forms.UserCreationForm()
         profile_form = forms.RegistrationProfileForm()
 
-    return render(request, "core/register.html", {
-        'form': form,
-        'profile_form': profile_form,
-        'display_interests': display_interests,
-    })
+    return render(
+        request,
+        "core/register.html", {
+            'form': form,
+            'profile_form': profile_form,
+            'display_interests': display_interests,
+        }
+    )
 
 
 def activate(request, code):
     try:
         profile = models.Profile.objects.get(activation_code=code)
     except models.Profile.DoesNotExist:
-        return HttpResponse('<h2>This activation code either does not exist or has already been used. You should attempt to login.</h2><p><a href="/login/">Login Here</a>')
+        return HttpResponse(
+            '<h2>This activation code either does not exist or has already '
+            'been used. You should attempt to login.'
+            '</h2><p><a href="/login/">Login Here</a>'
+        )
 
     if profile:
         profile.user.is_active = True
+
         if not profile.roles.filter(slug='reader').exists():
             profile.roles.add(models.Role.objects.get(slug="reader"))
+
         if not profile.roles.filter(slug='author').exists():
             profile.roles.add(models.Role.objects.get(slug="author"))
+
         profile.date_confirmed = timezone.now()
         profile.activation_code = ''
         profile.save()
         profile.user.save()
-        messages.add_message(request, messages.INFO, 'Registration complete, you can login now.')
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Registration complete, you can login now.',
+        )
+
         return redirect(reverse('login'))
 
 
@@ -246,8 +329,8 @@ def view_profile(request):
     except:
         user_profile = models.Profile(user=request.user)
         user_profile.save()
-    name_len = len(request.user.first_name) + len(request.user.last_name)
 
+    name_len = len(request.user.first_name) + len(request.user.last_name)
     template = 'core/user/profile.html'
     context = {
         'user_profile': user_profile,
@@ -263,8 +346,9 @@ def view_profile(request):
 def view_profile_readonly(request, user_id):
     if request.user.pk == user_id:
         return redirect(reverse('view_profile'))
-    user_exists = False
+
     user_profile = None
+
     try:
         user_profile = models.Profile.objects.get(user__pk=user_id)
         user_exists = True
@@ -272,7 +356,6 @@ def view_profile_readonly(request, user_id):
         user_exists = False
 
     name_len = len(request.user.first_name) + len(request.user.last_name)
-
     template = 'core/user/profile.html'
     context = {
         'user_profile': user_profile,
@@ -289,20 +372,31 @@ def update_profile(request):
     user_profile = models.Profile.objects.get(user=request.user)
     user_form = forms.UserProfileForm(instance=request.user)
     profile_form = forms.ProfileForm(instance=user_profile)
+
     if request.method == 'POST':
         user_form = forms.UserProfileForm(request.POST, instance=request.user)
-        profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile)
+        profile_form = forms.ProfileForm(
+            request.POST,
+            request.FILES,
+            instance=user_profile,
+        )
+
         if profile_form.is_valid() and user_form.is_valid():
             user_form.save()
             profile = profile_form.save()
+
             for interest in profile.interest.all():
                 profile.interest.remove(interest)
 
             interests = request.POST.get('interests')
+
             if interests:
                 for interest in interests.split(','):
-                    new_interest, c = models.Interest.objects.get_or_create(name=interest)
+                    new_interest, c = models.Interest.objects.get_or_create(
+                        name=interest,
+                    )
                     profile.interest.add(new_interest)
+
             profile.save()
 
             return redirect(reverse('view_profile'))
@@ -318,24 +412,43 @@ def update_profile(request):
 
 
 def oai(request):
-    base_url = models.Setting.objects.get(group__name='general', name='base_url').value
-    oai_dc = 'http://%s/oai' % (base_url)
-    oai_identifier = models.Setting.objects.get(group__name='general', name='oai_identifier').value
-
+    base_url = models.Setting.objects.get(
+        group__name='general',
+        name='base_url'
+    ).value
+    oai_dc = 'http://%s/oai' % base_url
+    oai_identifier = models.Setting.objects.get(
+        group__name='general',
+        name='oai_identifier'
+    ).value
     books = models.Book.objects.all()
     list_of_books = [[{}] for t in range(0, len(books))]
 
     for t, book in enumerate(books):
         try:
-            isbns = models.Identifier.objects.filter(book=book).exclude(identifier='pub_id').exclude(
-                identifier='urn').exclude(identifier='doi')
+            isbns = models.Identifier.objects.filter(
+                book=book
+            ).exclude(
+                identifier='pub_id'
+            ).exclude(
+                identifier='urn'
+            ).exclude(
+                identifier='doi'
+            )
         except:
             isbns = None
+
         formats = book.formats()
         list_format = []
+
         for format in formats:
             list_format.append(format.file.mime_type)
-        list_of_books[t] = [{'book': book, 'isbns': isbns, 'formats': list_format, }]
+
+        list_of_books[t] = [{
+            'book': book,
+            'isbns': isbns,
+            'formats': list_format
+        }]
 
     template = 'core/oai.xml'
     context = {
@@ -345,31 +458,65 @@ def oai(request):
         'oai_identifier': oai_identifier,
     }
 
-    return render(request, template, context, content_type="application/xhtml+xml")
+    return render(
+        request,
+        template,
+        context,
+        content_type="application/xhtml+xml",
+    )
 
 
 @login_required
 def user_home(request):
-    task_list = models.Task.objects.filter(assignee=request.user, completed__isnull=True).order_by('due')
+    task_list = models.Task.objects.filter(
+        assignee=request.user,
+        completed__isnull=True
+    ).order_by(
+        'due'
+    )
     new_task_form = forms.TaskForm()
 
     template = 'core/user/home.html'
     context = {
         'task_list': task_list,
-        'proposals': submission_models.Proposal.objects.filter(status='submission').count(),
-        'new_submissions': models.Book.objects.filter(stage__current_stage='submission').count(),
-        'in_review': models.Book.objects.filter(stage__current_stage='review').count(),
-        'in_editing': models.Book.objects.filter(stage__current_stage='editing').count(),
-        'in_production': models.Book.objects.filter(stage__current_stage='production').count(),
-        'copyedits': models.CopyeditAssignment.objects.filter(copyeditor=request.user, completed__isnull=True),
+        'proposals': submission_models.Proposal.objects.filter(
+            status='submission'
+        ).count(),
+        'new_submissions': models.Book.objects.filter(
+            stage__current_stage='submission'
+        ).count(),
+        'in_review': models.Book.objects.filter(
+            stage__current_stage='review'
+        ).count(),
+        'in_editing': models.Book.objects.filter(
+            stage__current_stage='editing'
+        ).count(),
+        'in_production': models.Book.objects.filter(
+            stage__current_stage='production'
+        ).count(),
+        'copyedits': models.CopyeditAssignment.objects.filter(
+            copyeditor=request.user,
+            completed__isnull=True,
+        ),
         'new_task_form': new_task_form,
         'user_submissions': models.Book.objects.filter(owner=request.user),
         'author_copyedit_tasks': logic.author_tasks(request.user),
-        'indexes': models.IndexAssignment.objects.filter(indexer=request.user, completed__isnull=True),
+        'indexes': models.IndexAssignment.objects.filter(
+            indexer=request.user,
+            completed__isnull=True,
+        ),
         'typesetting': models.TypesetAssignment.objects.filter(
-            (Q(requested__isnull=False) & Q(completed__isnull=True)) | (
-                Q(typesetter_invited__isnull=False) & Q(typesetter_completed__isnull=True)), typesetter=request.user),
-        'user_proposals': submission_models.Proposal.objects.filter(owner=request.user)
+            (
+                Q(requested__isnull=False) & Q(completed__isnull=True)) |
+                (
+                    Q(typesetter_invited__isnull=False) &
+                    Q(typesetter_completed__isnull=True)
+                ),
+            typesetter=request.user
+        ),
+        'user_proposals': submission_models.Proposal.objects.filter(
+            owner=request.user,
+        )
     }
 
     return render(request, template, context)
@@ -390,8 +537,15 @@ def user_submission(request, submission_id):
 
 @login_required
 def user_proposal(request, proposal_id):
-    proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id, owner=request.user)
-    relationships = models.ProposalFormElementsRelationship.objects.filter(form=proposal.form)
+    proposal = get_object_or_404(
+        submission_models.Proposal,
+        pk=proposal_id,
+        owner=request.user,
+    )
+    relationships = models.ProposalFormElementsRelationship.objects.filter(
+        form=proposal.form
+    )
+
     if proposal.data:
         data = json.loads(proposal.data)
     else:
@@ -419,13 +573,25 @@ def reset_password(request):
                 user = User.objects.get(username=request.user.username)
                 user.set_password(password_1)
                 user.save()
-                messages.add_message(request, messages.SUCCESS, 'Password successfully changed.')
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Password successfully changed.',
+                )
                 return redirect(reverse('login'))
             else:
-                messages.add_message(request, messages.ERROR,
-                                     'Password is not long enough, must be greater than 8 characters.')
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Password is not long enough, '
+                    'must be greater than 8 characters.'
+                )
         else:
-            messages.add_message(request, messages.ERROR, 'Your passwords do not match.')
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Your passwords do not match.',
+            )
 
     template = 'core/user/reset_password.html'
     context = {}
@@ -442,11 +608,26 @@ def unauth_reset(request):
             user.profile.reset_code = password
             user.profile.save()
             user.save()
-            email_text = models.Setting.objects.get(group__name='email', name='reset_password').value
-            send_reset_email(user=user, email_text=email_text, reset_code=password)
-            messages.add_message(request, messages.INFO, 'A reset code has been sent to your email account.')
+            email_text = models.Setting.objects.get(
+                group__name='email',
+                name='reset_password'
+            ).value
+            send_reset_email(
+                user=user,
+                email_text=email_text,
+                reset_code=password,
+            )
+            messages.add_message(
+                request,
+                messages.INFO,
+                'A reset code has been sent to your email account.',
+            )
         except User.DoesNotExist:
-            messages.add_message(request, messages.ERROR, 'There is no account for that username.')
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'There is no account for that username.',
+            )
 
     template = 'core/user/reset_username.html'
     context = {}
@@ -465,7 +646,11 @@ def unauth_reset_code(request, uuid):
         return redirect(reverse('unauth_reset_password', kwargs={'uuid': uuid}))
 
     except User.DoesNotExist:
-        messages.add_message(request, messages.ERROR, 'There is no account associated with that reset code.')
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'There is no account associated with that reset code.',
+        )
         return redirect(reverse('login'))
 
 
@@ -474,11 +659,17 @@ def unauth_reset_password(request, uuid):
         user = get_object_or_404(User, profile__reset_code=uuid)
     except User.DoesNotExist:
         user = None
-        messages.add_message(request, messages.ERROR, 'There is no account for that username or reset code is invalid.')
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'There is no account for that username or reset code is invalid.',
+        )
+
     if user:
         valid_reset = user.profile.reset_code_validated
     else:
         valid_reset = False
+
     if valid_reset:
         if request.method == 'POST':
             password_1 = request.POST.get('password_1')
@@ -493,20 +684,28 @@ def unauth_reset_password(request, uuid):
                     user.profile.reset_code = None
                     user.profile.save()
                     user.save()
-                    messages.add_message(request, messages.SUCCESS, 'Password successfully changed.')
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'Password successfully changed.',
+                    )
                     return redirect(reverse('login'))
                 else:
-                    messages.add_message(request, messages.ERROR,
-                                         'Password is not long enough, must be greater than 8 characters.')
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'Password is not long enough, '
+                        'must be greater than 8 characters.'
+                    )
             else:
-                messages.add_message(request, messages.ERROR, 'Your passwords do not match.')
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Your passwords do not match.',
+                )
 
     template = 'core/user/reset_password_unauth.html'
-    context = {
-        'valid_reset': valid_reset,
-        'user': user,
-
-    }
+    context = {'valid_reset': valid_reset, 'user': user}
 
     return render(request, template, context)
 
@@ -518,12 +717,11 @@ def permission_denied(request):
     return render(request, template, context)
 
 
-# Dashboard
 @login_required
 def overview(request):
-    # Filter out unassigned books if user isn't press editor
-    book_list = None
+    book_list = None  # Filter out unassigned books if user isn't press editor.
     roles = request.user_roles
+
     if 'press-editor' in roles:
         book_list = models.Book.objects.all()
     elif 'book-editor' in roles:
@@ -561,9 +759,17 @@ def overview_inprogress(request):
 def proposal_overview(request):
     template = 'core/dashboard/proposal_overview.html'
     context = {
-        'proposals': submission_models.Proposal.objects.exclude(status='declined').exclude(status='accepted'),
-        'declined_proposals': submission_models.Proposal.objects.filter(status='declined'),
-        'accepted_proposals': submission_models.Proposal.objects.filter(status='accepted'),
+        'proposals': submission_models.Proposal.objects.exclude(
+            status='declined',
+        ).exclude(
+            status='accepted',
+        ),
+        'declined_proposals': submission_models.Proposal.objects.filter(
+            status='declined',
+        ),
+        'accepted_proposals': submission_models.Proposal.objects.filter(
+            status='accepted',
+        ),
     }
 
     return render(request, template, context)
@@ -573,22 +779,31 @@ def proposal_overview(request):
 @csrf_exempt
 @login_required
 def task_complete(request, task_id):
-    task = get_object_or_404(models.Task, pk=task_id, assignee=request.user, completed__isnull=True)
+    task = get_object_or_404(
+        models.Task,
+        pk=task_id,
+        assignee=request.user,
+        completed__isnull=True,
+    )
     task.completed = timezone.now()
     task.save()
+
     return HttpResponse('Thanks')
 
 
 @login_required
 def task_new(request):
     new_task_form = forms.TaskForm(request.POST)
+
     if new_task_form.is_valid():
         task = new_task_form.save(commit=False)
         task.creator = request.user
         task.assignee = request.user
         task.save()
 
-        return HttpResponse(smart_text(json.dumps({'id': task.pk, 'text': task.text})))
+        return HttpResponse(smart_text(
+            json.dumps({'id': task.pk, 'text': task.text}))
+        )
     else:
         return HttpResponse(new_task_form.errors)
 
@@ -597,6 +812,7 @@ def task_new(request):
 @is_book_editor_or_author
 def new_message(request, submission_id):
     new_message_form = forms.MessageForm(request.POST)
+
     if new_message_form.is_valid():
         new_message = new_message_form.save(commit=False)
         new_message.sender = request.user
@@ -610,7 +826,6 @@ def new_message(request, submission_id):
             'message': new_message.message,
             'date_sent': new_message.date_sent.strftime("%-d %b %Y, %H:%M"),
         }
-
         return HttpResponse(smart_text(json.dumps(response_dict)))
     else:
         return HttpResponse(smart_text(json.dumps(new_message_form.errors)))
@@ -621,23 +836,24 @@ def new_message(request, submission_id):
 def get_messages(request, submission_id):
     try:
         last_message = int(request.GET.get('last_message', 0))
-        messages = models.Message.objects.filter(book__pk=submission_id, pk__gt=last_message).exclude(
-            sender=request.user).order_by('-id')
+        messages = models.Message.objects.filter(
+            book__pk=submission_id,
+            pk__gt=last_message
+        ).exclude(
+            sender=request.user
+        ).order_by('-id')
 
-        message_list = [{
-            'message_id': message.pk,
-            'sender': message.sender.profile.full_name(),
-            'initials': message.sender.profile.initials(),
-            'message': message.message,
-            'date_sent': message.date_sent.strftime("%-d %b %Y, %H:%M"),
-            'user': 'same',
-        } for message in messages
+        message_list = [
+            {
+                'message_id': message.pk,
+                'sender': message.sender.profile.full_name(),
+                'initials': message.sender.profile.initials(),
+                'message': message.message,
+                'date_sent': message.date_sent.strftime("%-d %b %Y, %H:%M"),
+                'user': 'same',
+            } for message in messages
         ]
-        response_dict = {
-            'status_code': 200,
-            'messages': message_list,
-        }
-
+        response_dict = {'status_code': 200, 'messages': message_list}
         return HttpResponse(smart_text(json.dumps(response_dict)))
     except Exception as e:
         return HttpResponse(e)
@@ -649,7 +865,9 @@ def get_authors(request, submission_id):
         data = smart_text(json.dumps(logic.get_author_emails(submission_id, q)))
     else:
         data = 'Unable to get authors'
+
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
@@ -661,6 +879,7 @@ def get_all_users(request):
         data = 'Unable to get editors'
 
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
@@ -672,6 +891,7 @@ def get_editors(request, submission_id):
         data = 'Unable to get editors'
 
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
@@ -681,48 +901,73 @@ def get_onetaskers(request, submission_id):
         data = smart_text(json.dumps(logic.get_onetasker_emails(submission_id, q)))
     else:
         data = 'Unable to get onetaskers'
+
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
 def get_all(request, submission_id):
     get_object_or_404(models.Book, pk=submission_id)
+
     if request.is_ajax():
         q = request.GET.get('term', '')
         onetasker_results = logic.get_onetasker_emails(submission_id, q)
         editor_results = logic.get_editor_emails(submission_id, q)
         author_results = logic.get_author_emails(submission_id, q)
         results = []
+
         for user in onetasker_results:
-            if not string_any(user['value'] in result['value'] for result in results):
+            if (
+                    not string_any(user['value'] in
+                    result['value'] for result in results)
+            ):
                 results.append(user)
+
         for author in author_results:
-            if not string_any(author['value'] in result['value'] for result in results):
+            if (
+                    not string_any(author['value'] in
+                    result['value'] for result in results)
+            ):
                 results.append(author)
 
         for editor in editor_results:
-            if not string_any(editor['value'] in result['value'] for result in results):
+            if (
+                    not string_any(editor['value'] in
+                    result['value'] for result in results)
+            ):
                 results.append(editor)
+
         data = smart_text(json.dumps(results))
     else:
         data = 'Unable to get any user'
+
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
 def get_proposal_users(request, proposal_id):
     get_object_or_404(submission_models.Proposal, pk=proposal_id)
+
     if request.is_ajax():
         q = request.GET.get('term', '')
         proposal_results = logic.get_proposal_emails(proposal_id, q)
         results = []
+
         for user in proposal_results:
-            if not string_any(user['value'] in result['value'] for result in results):
+            if (
+                    not string_any(user['value'] in
+                    result['value'] for result in results)
+            ):
                 results.append(user)
+
         data = smart_text(json.dumps(results))
     else:
         data = 'Unable to get any user'
+
     mimetype = 'application/json'
+
     return HttpResponse(data, mimetype)
 
 
@@ -730,42 +975,67 @@ def get_proposal_users(request, proposal_id):
 def email_users(request, group, submission_id=None, user_id=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     editors = logic.get_editors(submission)
-    authors = submission.author.all()
     onetaskers = submission.onetaskers()
     to_value = ""
     sent = False
-    if request.POST:
 
+    if request.POST:
         attachment_files = request.FILES.getlist('attachment')
         subject = request.POST.get('subject')
         body = request.POST.get('body')
-
         to_addresses = request.POST.get('to_values').split(';')
         cc_addresses = request.POST.get('cc_values').split(';')
         bcc_addresses = request.POST.get('bcc_values').split(';')
-
         to_list = logic.clean_email_list(to_addresses)
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
+        attachments = []
 
-        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles
-
+        # Creates list of attachment, rather than InMemoryUploadedFiles.
         if attachment_files:
             for attachment in attachment_files:
-                attachment = handle_file(attachment, submission, 'other', request.user,
-                                         "Attachment: Uploaded by %s" % (request.user.username))
+                attachment = handle_file(
+                    attachment,
+                    submission,
+                    'other',
+                    request.user,
+                    "Attachment: Uploaded by %s" % request.user.username
+                )
                 attachments.append(attachment)
 
         if to_addresses:
-            if attachments: # send_email_multiple is temporary function while email forms changed to allow multiple attachments
-                send_email_multiple(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
-                                    cc=cc_list, html_template=body, book=submission, attachments=attachments)
+            if attachments:
+                # Temporary function to allow multiple attachments.
+                send_email_multiple(
+                    subject=subject,
+                    context={},
+                    from_email=request.user.email,
+                    to=to_list,
+                    bcc=bcc_list,
+                    cc=cc_list,
+                    html_template=body,
+                    book=submission,
+                    attachments=attachments,
+                )
             else:
-                send_email(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
-                           cc=cc_list, html_template=body, book=submission)
-            message = "E-mail with subject '%s' was sent." % (subject)
+                send_email(
+                    subject=subject,
+                    context={},
+                    from_email=request.user.email,
+                    to=to_list,
+                    bcc=bcc_list,
+                    cc=cc_list,
+                    html_template=body,
+                    book=submission,
+                )
+            message = "E-mail with subject '%s' was sent." % subject
+
             return HttpResponse(
-                '<script type="text/javascript">window.alert("' + message + '")</script><script type="text/javascript">window.close()</script>')
+                '<script type="text/javascript">window.alert("' +
+                message +
+                '")</script><script type="text/javascript">'
+                'window.close()</script>'
+            )
 
     if not group == "all" and user_id:
 
@@ -773,39 +1043,73 @@ def email_users(request, group, submission_id=None, user_id=None):
             try:
                 editor = models.User.objects.get(pk=user_id)
                 if editor in editors:
-                    to_value = "%s;" % (editor.email)
+                    to_value = "%s;" % editor.email
                 else:
-                    messages.add_message(request, messages.ERROR, "This editor is not an editor of this submission")
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "This editor is not an editor of this submission",
+                    )
             except models.User.DoesNotExist:
-                messages.add_message(request, messages.ERROR, "This editor was not found")
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This editor was not found",
+                )
 
         elif group == "authors":
             author = get_object_or_404(models.Author, pk=user_id)
             authors = submission.author.all()
             if author in authors:
-                to_value = "%s;" % (author.author_email)
+                to_value = "%s;" % author.author_email
             else:
-                messages.add_message(request, messages.ERROR, "This author is not an author of this submission")
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This author is not an author of this submission",
+                )
 
         elif group == "onetaskers":
             user = get_object_or_404(models.User, pk=user_id)
             if user in onetaskers:
-                to_value = "%s;" % (user.email)
+                to_value = "%s;" % user.email
             else:
-                messages.add_message(request, messages.ERROR, "This onetasker was not found")
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This onetasker was not found",
+                )
 
     elif group == "all" and user_id:
-        messages.add_message(request, messages.ERROR,
-                             "Cannot use the user field on this page because of the 'all' in the url. Try replacing it with other email groups: 'authors' or 'editors' or 'onetaskers'")
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Cannot use the user field on this page because of the 'all' in "
+            "the url. Try replacing it with other email groups: 'authors' "
+            "or 'editors' or 'onetaskers'"
+        )
 
     group_name = group
 
-    if not group_name == "editors" and not group_name == "all" and not group_name == "authors" and not group_name == "onetaskers":
-        messages.add_message(request, messages.ERROR, "Group type does not exist. Redirected to page of all groups")
-        return redirect(reverse('email_users', kwargs={'group': 'all', 'submission_id': submission.id}))
+    if (
+            not group_name == "editors" and
+            not group_name == "all" and
+            not group_name == "authors" and
+            not group_name == "onetaskers"
+    ):
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Group type does not exist. Redirected to page of all groups",
+        )
+        return redirect(
+            reverse(
+                'email_users',
+                kwargs={'group': 'all', 'submission_id': submission.id}
+            )
+        )
 
     source = "/email/get/%s/submission/%s/" % (group_name, submission_id)
-
     template = 'core/email.html'
     context = {
         'submission': submission,
@@ -815,38 +1119,41 @@ def email_users(request, group, submission_id=None, user_id=None):
         'group': group_name,
         'user_id': user_id,
         'sent': sent,
-
     }
+
     return render(request, template, context)
 
 
 @login_required
 def email_general(request, user_id=None):
     user = None
+
     if user_id:
         user = get_object_or_404(User, pk=user_id)
     to_value = ""
     sent = False
-    if request.POST:
 
+    if request.POST:
         attachment_files = request.FILES.getlist('attachment')
         subject = request.POST.get('subject')
         body = request.POST.get('body')
-
         to_addresses = request.POST.get('to_values').split(';')
         cc_addresses = request.POST.get('cc_values').split(';')
         bcc_addresses = request.POST.get('bcc_values').split(';')
-
         to_list = logic.clean_email_list(to_addresses)
         cc_list = logic.clean_email_list(cc_addresses)
         bcc_list = logic.clean_email_list(bcc_addresses)
 
-        attachments = []  # To create list of attachment objects, rather than InMemoryUploadedFiles.
+        attachments = []  # List of attachments, not than InMemoryUploadedFiles.
 
         if attachment_files:
             for attachment in attachment_files:
-                attachment = handle_email_file(attachment, 'other', request.user,
-                                               "Attachment: Uploaded by %s" % (request.user.username))
+                attachment = handle_email_file(
+                    attachment,
+                    'other',
+                    request.user,
+                    "Attachment: Uploaded by %s" % request.user.username
+                )
                 attachments.append(attachment)
 
         if to_addresses:

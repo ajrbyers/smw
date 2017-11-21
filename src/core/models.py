@@ -2577,19 +2577,51 @@ class Format(models.Model):
 
 
 class Chapter(models.Model):
-    book = models.ForeignKey(Book)
-    name = models.CharField(max_length=300, null=True, blank=True)
-    formats = models.ManyToManyField('ChapterFormat', null=True, blank=True, related_name='formats')
-    blurbs = models.TextField(null=True, blank=True, verbose_name='blurb')
-    keywords = models.ManyToManyField('Keyword', null=True, blank=True)
-    disciplines = models.ManyToManyField('Subject', null=True, blank=True)
-    sequence = models.IntegerField(default=999)
-    # Replaced by ChapterAuthor to allow ordering within chapters.
-    authors = models.ManyToManyField('Author', null=True, blank=True)
-    doi = models.CharField(max_length=300, null=True, blank=True)
 
     class Meta:
         ordering = ('sequence',)
+
+    book = models.ForeignKey(Book)
+    name = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+    )
+    formats = models.ManyToManyField(
+        'ChapterFormat',
+        null=True,
+        blank=True,
+        related_name='formats',
+    )
+    blurbs = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='blurb',
+    )
+    keywords = models.ManyToManyField(
+        'Keyword',
+        null=True,
+        blank=True,
+    )
+    disciplines = models.ManyToManyField(
+        'Subject',
+        null=True,
+        blank=True,
+    )
+    sequence = models.IntegerField(
+        default=999,
+    )
+    # Replaced by ChapterAuthor to allow ordering within chapters.
+    authors = models.ManyToManyField(
+        'Author',
+        null=True,
+        blank=True,
+    )
+    doi = models.CharField(
+        max_length=300,
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return u'%s - %s' % (self.book, self.sequence)
@@ -2602,6 +2634,10 @@ class ChapterAuthor(models.Model):
     """
     Very similar to author but containing chapter and sequence within chapter
     """
+
+    class Meta:
+        ordering = ('sequence',)
+
     chapter = models.ForeignKey(
         Chapter,
     )
@@ -2695,25 +2731,44 @@ class ChapterAuthor(models.Model):
 
     def full_name(self):
         if self.middle_name:
-            return "%s %s %s" % (self.first_name, self.middle_name, self.last_name)
+            return "%s %s %s" % (
+                self.first_name,
+                self.middle_name,
+                self.last_name,
+            )
         else:
             return "%s %s" % (self.first_name, self.last_name)
 
-    class Meta:
-        ordering = ('sequence',)
-
 
 class ChapterFormat(models.Model):
-    chapter = models.ForeignKey(Chapter, related_name='format_chapter')
-    book = models.ForeignKey(Book)
-    file = models.ForeignKey(File)
-    name = models.CharField(max_length=200)
-    identifier = models.CharField(max_length=200, unique=True)
-    sequence = models.IntegerField(default=999)
-    file_type = models.CharField(max_length=100, choices=digital_file_type())
 
     class Meta:
         ordering = ('sequence', 'name')
+
+    chapter = models.ForeignKey(
+        Chapter,
+        related_name='format_chapter',
+    )
+    book = models.ForeignKey(
+        Book
+    )
+    file = models.ForeignKey(
+        File
+    )
+    name = models.CharField(
+        max_length=200,
+    )
+    identifier = models.CharField(
+        max_length=200,
+        unique=True,
+    )
+    sequence = models.IntegerField(
+        default=999,
+    )
+    file_type = models.CharField(
+        max_length=100,
+        choices=digital_file_type(),
+    )
 
     def __unicode__(self):
         return u'%s - %s' % (self.book, self.identifier)
@@ -2723,13 +2778,23 @@ class ChapterFormat(models.Model):
 
 
 class PhysicalFormat(models.Model):
-    book = models.ForeignKey(Book)
-    name = models.CharField(max_length=200)
-    sequence = models.IntegerField(default=999)
-    file_type = models.CharField(max_length=100, choices=pysical_file_type())
 
     class Meta:
         ordering = ('sequence', 'name')
+
+    book = models.ForeignKey(
+        Book
+    )
+    name = models.CharField(
+        max_length=200,
+    )
+    sequence = models.IntegerField(
+        default=999,
+    )
+    file_type = models.CharField(
+        max_length=100,
+        choices=pysical_file_type(),
+    )
 
     def __unicode__(self):
         return u'%s - %s' % (self.book, self.name)
@@ -2739,14 +2804,28 @@ class PhysicalFormat(models.Model):
 
 
 class ProposalForm(models.Model):
-    name = models.CharField(max_length=100)
-    ref = models.CharField(max_length=20, help_text='for proposals: press_code-proposal eg. sup-proposal')
-    intro_text = models.TextField(max_length=1000,
-                                  help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
-    completion_text = models.TextField(max_length=1000,
-                                       help_text='Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.')
-    proposal_fields = models.ManyToManyField('ProposalFormElementsRelationship', blank=True,
-                                             related_name='proposal_fields')
+    name = models.CharField(
+        max_length=100,
+    )
+    ref = models.CharField(
+        max_length=20,
+        help_text='for proposals: press_code-proposal eg. sup-proposal'
+    )
+    intro_text = models.TextField(
+        max_length=1000,
+        help_text='Accepts HTML. Para elements should be wrapped in '
+                  'paragraph tags or they will not have fonts.'
+    )
+    completion_text = models.TextField(
+        max_length=1000,
+        help_text='Accepts HTML. Para elements should be wrapped in paragraph '
+                  'tags or they will not have fonts.'
+    )
+    proposal_fields = models.ManyToManyField(
+        'ProposalFormElementsRelationship',
+        blank=True,
+        related_name='proposal_fields',
+    )
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -2756,6 +2835,7 @@ class ProposalForm(models.Model):
 
 
 class ProposalFormElement(models.Model):
+
     field_choices = (
         ('text', 'Text Field'),
         ('textarea', 'Text Area'),
@@ -2766,54 +2846,82 @@ class ProposalFormElement(models.Model):
         ('date', 'Date'),
     )
 
-    name = models.CharField(max_length=1000)
-    field_type = models.CharField(max_length=100, choices=field_choices)
-    choices = models.CharField(max_length=500, null=True, blank=True,
-                               help_text='Seperate choices with the bar | character.')
+    name = models.CharField(
+        max_length=1000,
+    )
+    field_type = models.CharField(
+        max_length=100,
+        choices=field_choices,
+    )
+    choices = models.CharField(
+        max_length=500,
+        null=True,
+        blank=True,
+        help_text='Seperate choices with the bar | character.'
+    )
     required = models.BooleanField()
 
     def __unicode__(self):
-        return '%s' % (self.name)
+        return '%s' % self.name
 
     def __repr__(self):
-        return '<FormElement %s>' % (self.name)
+        return '<FormElement %s>' % self.name
 
 
 class ProposalFormElementsRelationship(models.Model):
+
+    class Meta:
+        ordering = ('order',)
+
     bs_class_choices = (
         ('col-md-4', 'third'),
         ('col-md-6', 'half'),
         ('col-md-12', 'full'),
     )
 
-    form = models.ForeignKey(ProposalForm)
-    element = models.ForeignKey(ProposalFormElement)
+    form = models.ForeignKey(
+        ProposalForm,
+    )
+    element = models.ForeignKey(
+        ProposalFormElement,
+    )
     order = models.IntegerField()
-    width = models.CharField(max_length=20, choices=bs_class_choices,
-                             help_text='Horizontal Space taken by the element when rendering the form')
-    help_text = models.TextField(max_length=1000, null=True, blank=True)
+    width = models.CharField(
+        max_length=20,
+        choices=bs_class_choices,
+        help_text='Horizontal Space taken by the element when '
+                  'rendering the form'
+    )
+    help_text = models.TextField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
 
     def __unicode__(self):
         return '%s: %s' % (self.form.name, self.element.name)
 
     def __repr__(self):
-        return '<FormElementsRelation %s: %s' % (self.form.name, self.element.name)
-
-    class Meta:
-        ordering = ('order',)
+        return '<FormElementsRelation %s: %s' % (
+            self.form.name,
+            self.element.name,
+        )
 
 
 class Message(models.Model):
+
+    class Meta:
+        ordering = ('-date_sent',)
+
     book = models.ForeignKey(Book)
     sender = models.ForeignKey(User)
-    date_sent = models.DateTimeField(auto_now_add=True)
+    date_sent = models.DateTimeField(
+        auto_now_add=True,
+    )
     message = models.TextField()
 
     def __unicode__(self):
         return u'%s' % self.message
-
-    class Meta:
-        ordering = ('-date_sent',)
 
 
 emaillog_choices = (
@@ -2833,19 +2941,59 @@ emaillog_choices = (
     ('reminder', 'Reminder'),
 )
 
+
 class EmailLog(models.Model):
-    book = models.ForeignKey(Book, null=True, blank=True)
-    proposal = models.ForeignKey(submission_models.Proposal, null=True, blank=True)
-    to = models.EmailField(max_length=1000)
-    cc = models.EmailField(max_length=1000, null=True, blank=True)
-    bcc = models.EmailField(max_length=1000, null=True, blank=True)
-    from_address = models.EmailField(max_length=1000)
-    subject = models.CharField(max_length=1000)
+
+    book = models.ForeignKey(
+        Book,
+        null=True,
+        blank=True,
+    )
+    proposal = models.ForeignKey(
+        submission_models.Proposal,
+        null=True,
+        blank=True,
+    )
+    to = models.EmailField(
+        max_length=1000,
+    )
+    cc = models.EmailField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
+    bcc = models.EmailField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
+    from_address = models.EmailField(
+        max_length=1000,
+    )
+    subject = models.CharField(
+        max_length=1000,
+    )
     content = models.TextField()
-    attachment = models.ManyToManyField('File', null=True, blank=True, related_name="email_attachment")
-    sent = models.DateTimeField(auto_now_add=True)
-    kind = models.CharField(max_length=100, choices=emaillog_choices, default='general')
+    attachment = models.ManyToManyField(
+        'File',
+        null=True,
+        blank=True,
+        related_name="email_attachment",
+    )
+    sent = models.DateTimeField(
+        auto_now_add=True,
+    )
+    kind = models.CharField(
+        max_length=100,
+        choices=emaillog_choices,
+        default='general',
+    )
 
     def __unicode__(self):
         return u"From: %s To: %s, CC: %s BCC: %s : Subject: %s" % (
-            self.from_address, self.to, self.cc, self.bcc, self.subject)
+            self.from_address,
+            self.to,
+            self.cc,
+            self.bcc,
+            self.subject,
+        )
