@@ -58,7 +58,6 @@ def has_additional_files(submission):
 
 
 def handle_review_file(file, content_type, review_assignment, kind):
-    from ipdb import set_trace; set_trace()
     original_filename =  smart_text(file._get_name().replace(',', '_').replace(';', '_'))
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
 

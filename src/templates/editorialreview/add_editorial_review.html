@@ -36,44 +36,7 @@
 	{% endif %}
 	<form method="POST">
 	{% csrf_token %}
-    {% if submission_type == 'submission' %}
-		<h4>1. Review Files</h4>
-		<p class="small">Select files that are accessible to reviewers.</p>
-		<a href="{% url 'add_editorial_review_files' 'submission' submission.id  %}" class="btn btn-sm btn-success">
-            <i class="fa fa-plus">&nbsp;</i>Add Files
-        </a>
-        {% if submission.editorial_review_files.all|length > 0 %}
-            <p class="small">Files currently selected:</p>
-	        <table class="table table-bordered small">
-                <tr style="background-color: #EBEBEB">
-                    <th>Original File Name</th>
-                    <th>New File Name</th>
-                    <th>Mimetype</th>
-                    <th>File Type</th>
-                    <th></th>
-                </tr>
-                {% for file in submission.editorial_review_files.all %}
-                    <tr>
-                        <td>{{ file.original_filename }}</td>
-                        <td>{{ file.uuid_filename }}</td>
-                        <td>{{ file.mime_type }}</td>
-                        <td>{{file.kind }}</td>
-                        <td>
-                            <a href="{% url 'remove_editorial_review_file' 'submission' submission.id file.pk %}"
-                               class=" btn btn-xs pull-left">Remove</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <p class="small">No files selected.</p>
-        {% endif %}
-	{% endif %}
-    {% if submission_type == 'submission' %}
-	    <h4>2. Select Reviewers</h4>
-    {% else %}
-        <h4>1. Select Reviewers</h4>
-    {% endif %}
+    <h4>1. Select Reviewers</h4>
 	  <table class="table table-bordered small" cellspacing="0" width="100%" id='indv-reviewer'>
 	    <thead>
 	    <tr>
@@ -116,24 +79,17 @@
 	  </table>
 	<hr />
 
-    {% if submission_type == 'submission' %}
-	    <h4>3. Set due date</h4>
-    {% else %}
-	    <h4>2. Set due date</h4>
-    {% endif %}
+	<h4>2. Set due date</h4>
 	{% bootstrap_field form.due %}
     <hr />
 
-    {% if submission_type == 'submission' %}
-	    <h4>4. Select Review Form</h4>
-    {% else %}
-	    <h4>3. Select Review Form</h4>
-    {% endif %}
-	<p class="small">Select a review form for reviewers to complete.</p>
-	<select name="review_form" id="review_form" class="form-control">
-	{% for form in review_forms %}<option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>{% endfor %}
-	</select>
-
+    <h4>3. Select Review Form</h4>
+	    <p class="small">Select a review form for reviewers to complete.</p>
+	        <select name="review_form" id="review_form" class="form-control">
+                {% for form in review_forms %}
+                    <option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>
+                {% endfor %}
+	        </select>
     <hr />
 	<p>On the next page you will have the option of drafting an email to your reviewer</p>
 	<button type="submit" class="btn btn-primary pull-right">Submit</button>

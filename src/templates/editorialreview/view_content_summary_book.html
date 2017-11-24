@@ -5,7 +5,8 @@
 
 {% block css %}
 	<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+	<link rel="stylesheet" type="text/css"
+		  href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
@@ -18,11 +19,19 @@
 		<h4>EDITORS</h4>
 	     <h5 class="author-note">
 	     {% for editor in submission.book_editors.all %}
-	         {{ editor.profile.full_name }}<sup> <a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editors_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>{% if not forloop.last %}, {% endif %}
+	         {{ editor.profile.full_name }}
+			 <sup>
+				 <a href="core/email.html"
+					onclick="return popitup(
+						'/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editors_{{editor.pk}}'
+						)"
+					class="fa fa-envelope-o btn btn-xs btn-default">
+				 </a>
+			 </sup>{% if not forloop.last %}, {% endif %}
 	     {% empty %}
-	      No book editors have been assigned yet.
+			 No book editors have been assigned yet.
 	     {% endfor %}
-	     </h4>
+	     </h5>
 	</div>
 	<div class="col-md-6">
 		<h4>AUTHORS</h4>
