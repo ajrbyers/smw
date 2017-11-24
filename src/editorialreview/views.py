@@ -414,7 +414,10 @@ def editorial_review(request, review_id):
                 email_text = message
 
             email_text.replace('\n', '<br />')
-            from_email = core_models.Setting.objects.get(group__name='email', name='from_address')
+            from_email = core_models.Setting.objects.get(
+                group__name='email',
+                name='from_address'
+            ).value
 
             for editor in submission.book_editors.all():
                 context = {
@@ -423,6 +426,7 @@ def editorial_review(request, review_id):
                     'review': review,
                     'base_url': core_models.Setting.objects.get(name='base_url').value,
                 }
+
                 email.send_email(
                     subject=subject,
                     context=context,

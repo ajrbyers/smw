@@ -58,7 +58,7 @@ def send_email(
         reply_to = models.Setting.objects.get(
             group__name='email',
             name='from_address',
-        )
+        ).value
 
     msg = EmailMessage(
         subject,
