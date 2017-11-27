@@ -47,8 +47,8 @@ class EditorialReview(models.Model):
     review_form = models.ForeignKey('review.Form', null=True, blank=True)
 
     def __str__(self):
-        return '{0} - {1} ({2})'.format(self.content_object.title,
-                                        self.user.profile.full_name(),
+        return '{0} - {1} ({2})'.format(self.content_object.title.encode('utf8'),
+                                        self.user.profile.full_name().encode('utf8'),
                                         self.content_type)
 
     def is_overdue(self):

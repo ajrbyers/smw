@@ -22,7 +22,6 @@ from review import models as review_models, forms as review_forms
 from submission import models as submission_models
 
 
-
 @is_editor
 def add_editorial_review(request, submission_type, submission_id):
     """ Create a new editorial review. """
@@ -477,9 +476,8 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
             completed__isnull=True
         )
 
-    if review.content_type.model == 'book':
-        peer_review = core_models.ReviewAssignment.objects.get(pk=non_editorial_review_id, completed__isnull=False)
-    else:
+    peer_review = core_models.ReviewAssignment.objects.get(pk=non_editorial_review_id, completed__isnull=False)
+    if review.content_type.model == 'proposal':
         peer_review = submission_models.ProposalReview.objects.get(pk=non_editorial_review_id, completed__isnull=False)
 
     result = peer_review.results
@@ -558,7 +556,10 @@ def download_er_file(request, file_id, review_id):
         )
 
     _file = get_object_or_404(core_models.File, pk=file_id)
-    file_path = os.path.join(settings.BOOK_DIR, str(review.content_object.id), _file.uuid_filename)
+    base_file_dir = settings.BOOK_DIR
+    if review.content_type.model == 'proposal':
+        base_file_dir = settings.PROPOSAL_DIR
+    file_path = os.path.join(base_file_dir, str(review.content_object.id), _file.uuid_filename)
 
     try:
         fsock = open(file_path, 'r')
@@ -578,7 +579,15 @@ def download_editor_er_file(request, file_id, review_id):
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
     _file = get_object_or_404(core_models.File, pk=file_id)
-    file_path = os.path.join(settings.BOOK_DIR, str(review.content_object.id), _file.uuid_filename)
+
+    base_file_dir = settings.BOOK_DIR
+    if review.content_type.model == 'proposal':
+        base_file_dir = settings.PROPOSAL_DIR
+    file_path = os.path.join(
+        base_file_dir,
+        str(review.content_object.id),
+        _file.uuid_filename
+    )
 
     try:
         fsock = open(file_path, 'r')
