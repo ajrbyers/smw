@@ -18,6 +18,7 @@ from pymarc import Record, Field, record_to_xml
 from core import email, models, log
 from core.cache import cache_result
 from core.files import handle_marc21_file
+from editorialreview import models as editorialreview_models
 from revisions import models as revisions_models
 from setting_util import get_setting
 from submission import logic as submission_logic, models as submission_models
@@ -694,6 +695,10 @@ def review_assignment_count(request):
             completed__isnull=False,
             declined__isnull=True,
             reopened=True
+        ).count() + editorialreview_models.EditorialReview.objects.filter(
+            user=request.user,
+            completed__isnull=True,
+            withdrawn=False
         ).count()
     except TypeError:
         return 0
