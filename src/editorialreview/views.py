@@ -218,6 +218,9 @@ def email_editorial_review(request, review_id):
         email_text = request.POST.get('email_text')
         attachment_files = request.FILES.getlist('attachment')
         attachments = []
+        custom_from_email = None
+        if request.user.email:
+            custom_from_email = request.user.email
 
         if attachment_files:
             for file in attachment_files:
@@ -237,7 +240,8 @@ def email_editorial_review(request, review_id):
                 to=review.user.email,
                 attachments=attachments,
                 book=None,
-                proposal=review.content_object
+                proposal=review.content_object,
+                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
@@ -260,7 +264,8 @@ def email_editorial_review(request, review_id):
                 to=review.user.email,
                 attachments=attachments,
                 book=review.content_object,
-                proposal=None
+                proposal=None,
+                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
