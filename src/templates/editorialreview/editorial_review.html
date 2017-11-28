@@ -44,7 +44,7 @@
 		{% if completed_editorial_reviews %}
 			{% for er in completed_editorial_reviews %}
 				<li>
-					<a href="{% url 'view_editorial_review' review.id er.id %}?access_key={{ review.access_key }}"
+					<a href="{% url 'view_editorial_review' er.id %}?access_key={{ review.access_key }}"
 					   target="_blank">{{ er.user.profile.full_name }} - {{ er.id }}
 					</a>
 				</li>

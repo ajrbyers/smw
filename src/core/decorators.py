@@ -353,7 +353,6 @@ def is_editorial_reviewer(_function):
             if 'access_key' in full_url:
                 access_key = full_url[full_url.rfind('access_key=') + 11:] # Parse access key from URL
                 review_assignment = editorialreview_models.EditorialReview.objects.filter(
-                    pk=kwargs.get('review_id'),
                     access_key=access_key
                 )
 
@@ -371,7 +370,6 @@ def is_editorial_reviewer(_function):
 
         else:
             review_assignment = editorialreview_models.EditorialReview.objects.filter(
-                pk=kwargs.get('review_id'),
                 user=request.user
             )
             if review_assignment:

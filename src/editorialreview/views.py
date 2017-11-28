@@ -291,9 +291,9 @@ def email_editorial_review(request, review_id):
 
 
 @is_editorial_reviewer
-def view_editorial_review(request, review_id, er_id):
+def view_editorial_review(request, review_id):
     """ As an editorial reviewer, view a completed editorial review. """
-    review = get_object_or_404(models.EditorialReview, pk=er_id)
+    review = get_object_or_404(models.EditorialReview, pk=review_id)
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
     data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
@@ -309,25 +309,15 @@ def view_editorial_review(request, review_id, er_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def editorial_review(request, review_id):
     """ Complete an editorial review. """
 
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
     form = review_forms.GeneratedForm(form=review.review_form)
     recommendation_form = forms.RecommendationForm(instance=review)
@@ -449,7 +439,7 @@ def editorial_review(request, review_id):
     template = 'editorialreview/editorial_review.html'
     context = {
         'review': review,
-        'access_key': access_key,
+        'access_key': request.GET.get('access_key'),
         'form': form,
         'recommendation_form': recommendation_form,
         'peer_reviews': peer_reviews,
@@ -459,24 +449,16 @@ def editorial_review(request, review_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
+    """As an editorial reviewer, view a completed peer
+     review for the submission under review."""
 
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
     if review.content_type.model == 'proposal':
         peer_review = get_object_or_404(
@@ -510,24 +492,15 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def view_content_summary(request, review_id):
+    """As an editorial reviewer, view a summary of the submission under review."""
 
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
     if review.content_type.model == 'proposal':
         data = json.loads(review.content_object.data)
@@ -551,22 +524,13 @@ def view_content_summary(request, review_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def download_er_file(request, file_id, review_id):
-
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user
-        )
+    """As an editorial reviewer, download an editorial review file."""
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+    )
 
     _file = get_object_or_404(core_models.File, pk=file_id)
     base_file_dir = settings.BOOK_DIR
@@ -587,20 +551,13 @@ def download_er_file(request, file_id, review_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+@is_editorial_reviewer
 def download_editor_er_file(request, file_id, review_id):
 
-    access_key = request.GET.get('access_key')
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+    )
 
     _file = get_object_or_404(core_models.File, pk=file_id)
 
@@ -644,18 +601,19 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
     submission = editorial_review.content_object
     book = isinstance(submission, core_models.Book)
     proposal = isinstance(submission, submission_models.Proposal)
-    editors = submission.book_editors.all()
+    editors = [ed for ed in submission.book_editors.all()]
 
     if not editors:
-        editors = submission.press_editors.all()
+        if book:
+            editors = [ed for ed in submission.press_editors.all()]
+        if proposal:
+            editors.append(submission.requestor)
 
-    user = None
+    user = editorial_review.user
     if user_id:
         user = get_object_or_404(User, pk=user_id)
 
-    from_value = 'Please enter a return address.'
-    if user:
-        from_value = user.email
+    from_value = user.email
 
     to_value = ''
     if editors:
@@ -671,6 +629,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
         to_addresses = request.POST.get('to_values').split(';')
         cc_addresses = request.POST.get('cc_values').split(';')
         bcc_addresses = request.POST.get('bcc_values').split(';')
+        from_address = request.POST.get('from_value')
 
         to_list = core_logic.clean_email_list(to_addresses)
         cc_list = core_logic.clean_email_list(cc_addresses)
@@ -680,11 +639,11 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
 
         if attachment_files:
             for attachment in attachment_files:
-                attachment = handle_email_file(
-                    attachment,
-                    'other',
-                    request.user,
-                    'Attachment: Uploaded by {}'.format(request.user.username)
+                attachment = logic.handle_review_file(
+                    file=attachment,
+                    review_assignment=editorial_review,
+                    kind='email-attachment',
+                    return_file=True
                 )
                 attachments.append(attachment)
 
@@ -693,7 +652,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
                 send_email_multiple(
                     subject=subject,
                     context={},
-                    from_email=request.user.email,
+                    from_email=from_address,
                     to=to_list,
                     html_template=body,
                     bcc=bcc_list,
@@ -707,7 +666,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
                 send_email_multiple(
                     subject=subject,
                     context={},
-                    from_email=request.user.email,
+                    from_email=from_address,
                     to=to_list,
                     html_template=body,
                     bcc=bcc_list,

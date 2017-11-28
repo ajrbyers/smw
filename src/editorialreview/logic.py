@@ -101,7 +101,7 @@ def handle_generated_form_post(review_assignment, request):
                            review_assignment, 'reviewer')
 
 
-def handle_review_file(file, review_assignment, kind):
+def handle_review_file(file, review_assignment, kind, return_file=None):
     original_filename = smart_text(file._get_name()).replace(',', '_').replace(
         ';', '_')
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
@@ -137,5 +137,8 @@ def handle_review_file(file, review_assignment, kind):
     )
     new_file.save()
     review_assignment.files.add(new_file)
+
+    if return_file:
+        return new_file
 
     return path
