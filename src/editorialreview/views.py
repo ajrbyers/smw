@@ -372,6 +372,14 @@ def editorial_review(request, review_id):
                     message=message,
                     short_name=short_message
                 )
+                for editor in submission.book_editors.all():
+                    notification = core_models.Task(
+                        assignee=editor,
+                        creator=review.user,
+                        text=message,
+                        book=submission
+                    )
+                    notification.save()
             else:
                 log.add_proposal_log_entry(
                     proposal=submission,
@@ -380,15 +388,6 @@ def editorial_review(request, review_id):
                     message=message,
                     short_name=short_message
                 )
-
-            for editor in submission.book_editors.all():
-                notification = core_models.Task(
-                    assignee=editor,
-                    creator=review.user,
-                    text=message,
-                    book=submission
-                )
-                notification.save()
 
             # Handle email notification to editors
             subject = get_setting(
