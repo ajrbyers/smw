@@ -291,11 +291,20 @@ def email_editorial_review(request, review_id):
     return render(request, template, context)
 
 
-@is_editor
 def view_editorial_review(request, review_id):
     """ View a completed editorial review. """
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+    )
 
-    review = get_object_or_404(models.EditorialReview, pk=review_id)
+    access_key = request.GET.get('access_key')
+    if access_key:
+        review = get_object_or_404(
+            models.EditorialReview,
+            pk=review_id,
+            access_key=access_key,
+        )
 
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
@@ -481,9 +490,20 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
             completed__isnull=True
         )
 
-    peer_review = core_models.ReviewAssignment.objects.get(pk=non_editorial_review_id, completed__isnull=False)
     if review.content_type.model == 'proposal':
-        peer_review = submission_models.ProposalReview.objects.get(pk=non_editorial_review_id, completed__isnull=False)
+        peer_review = get_object_or_404(
+            submission_models.ProposalReview.objects,
+            pk=non_editorial_review_id,
+            completed__isnull=False
+        )
+        submission = peer_review.proposal
+    else:
+        peer_review = get_object_or_404(
+            core_models.ReviewAssignment.objects,
+            pk=non_editorial_review_id,
+            completed__isnull=False
+        )
+        submission = peer_review.book
 
     result = peer_review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
@@ -496,6 +516,7 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
         'data_ordered': data_ordered,
         'relations': relations,
         'result': result,
+        'submission': submission,
     }
 
     return render(request, template, context)
@@ -542,7 +563,6 @@ def view_content_summary(request, review_id):
     return render(request, template, context)
 
 
-@is_reviewer
 def download_er_file(request, file_id, review_id):
 
     access_key = request.GET.get('access_key')
@@ -579,10 +599,21 @@ def download_er_file(request, file_id, review_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@is_editor
 def download_editor_er_file(request, file_id, review_id):
 
-    review = get_object_or_404(models.EditorialReview, pk=review_id)
+    access_key = request.GET.get('access_key')
+    if access_key:
+        review = get_object_or_404(
+            models.EditorialReview,
+            pk=review_id,
+            access_key=access_key
+        )
+    else:
+        review = get_object_or_404(
+            models.EditorialReview,
+            pk=review_id,
+        )
+
     _file = get_object_or_404(core_models.File, pk=file_id)
 
     base_file_dir = settings.BOOK_DIR
@@ -612,7 +643,7 @@ def editorial_review_thanks(request, review_id):
 
     template = 'editorialreview/editorial_review_thanks.html'
     context = {
-        'review_id': review_id,
+        'review': get_object_or_404(models.EditorialReview.objects, pk=review_id),
     }
 
     return render(request, template, context)

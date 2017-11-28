@@ -15,7 +15,7 @@
 </div>
 	<br /><br />
 	<h5>Review Files</h5>
-	{% include "shared/review_files.html" with file_data=peer_review.files.all %}
+	{% include "shared/review_files.html" with file_data=peer_review.files.all editorialreviewer=True %}
 	<hr />
 	<h4>Recommendation: </h4>
 	{{ peer_review.get_recommendation_display }}
