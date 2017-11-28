@@ -1,88 +1,118 @@
-from django.contrib.auth import authenticate, logout as logout_user, \
-    login as login_user
-from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from django import forms
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden
-from django.utils import timezone
-from django.db.models import Q
-from django.template.defaultfilters import slugify
-from django.contrib.auth.models import User
-from django.utils.encoding import smart_text
-
-from submission import forms
-from core import models as core_models, log, logic as core_logic
-from core.email import get_email_content
-from submission import logic, models as submission_models
-from manager import forms as manager_forms
-from core.files import handle_proposal_file_form
-
-from jfu.http import upload_receive, UploadResponse, JFUResponse
 from  __builtin__ import any as string_any
+from datetime import datetime
+import json
+import os
 import mimetypes as mime
 from uuid import uuid4
-import os
-import json
-from datetime import datetime
+
+from django import forms
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import redirect, render, get_object_or_404
+from django.template.defaultfilters import slugify
+from django.utils import timezone
+from django.utils.encoding import smart_text
+from django.views.decorators.csrf import csrf_exempt
+
+from jfu.http import upload_receive, UploadResponse, JFUResponse
+
+from core import models as core_models, log, logic as core_logic
+from core.files import handle_proposal_file_form
+from core.email import get_email_content
+from manager import forms as manager_forms
+from submission import forms
+from submission import logic, models as submission_models
 
 
 @login_required
 def start_submission(request, book_id=None):
-    direct_submissions = core_models.Setting.objects.get(group__name='general',
-                                                         name='direct_submissions').value
-    default_review_type = core_models.Setting.objects.get(group__name='general',
-                                                          name='default_review_type').value
+    direct_submissions = core_models.Setting.objects.get(
+        group__name='general',
+        name='direct_submissions'
+    ).value
+    default_review_type = core_models.Setting.objects.get(
+        group__name='general',
+        name='default_review_type'
+    ).value
     review_type_selection = core_models.Setting.objects.get(
-        group__name='general', name='review_type_selection').value
-
-    ci_required = core_models.Setting.objects.get(group__name='general',
-                                                  name='ci_required')
+        group__name='general',
+        name='review_type_selection'
+    ).value
+    ci_required = core_models.Setting.objects.get(
+        group__name='general',
+        name='ci_required',
+    )
     checklist_items = submission_models.SubmissionChecklistItem.objects.all()
 
     if book_id:
-        book = get_object_or_404(core_models.Book, pk=book_id,
-                                 owner=request.user)
+        book = get_object_or_404(
+            core_models.Book,
+            pk=book_id,
+            owner=request.user,
+        )
         if not book.proposal and not direct_submissions:
             return redirect(reverse('proposal_start'))
-        book_form = forms.SubmitBookStageOne(instance=book,
-                                             ci_required=ci_required.value)
+
+        book_form = forms.SubmitBookStageOne(
+            instance=book,
+            ci_required=ci_required.value,
+        )
         checklist_form = forms.SubmissionChecklist(
-            checklist_items=checklist_items, book=book)
+            checklist_items=checklist_items,
+            book=book,
+        )
     else:
         if not direct_submissions:
             return redirect(reverse('proposal_start'))
+
         book = None
         book_form = forms.SubmitBookStageOne()
         checklist_form = forms.SubmissionChecklist(
-            checklist_items=checklist_items)
+            checklist_items=checklist_items,
+        )
 
     if request.method == 'POST':
         if book:
-            book_form = forms.SubmitBookStageOne(request.POST, instance=book,
-                                                 ci_required=ci_required.value,
-                                                 review_type_required=review_type_selection)
+            book_form = forms.SubmitBookStageOne(
+                request.POST,
+                instance=book,
+                ci_required=ci_required.value,
+                review_type_required=review_type_selection,
+            )
         else:
-            book_form = forms.SubmitBookStageOne(request.POST,
-                                                 ci_required=ci_required.value,
-                                                 review_type_required=review_type_selection)
+            book_form = forms.SubmitBookStageOne(
+                request.POST,
+                ci_required=ci_required.value,
+                review_type_required=review_type_selection,
+            )
 
-        checklist_form = forms.SubmissionChecklist(request.POST,
-                                                   checklist_items=checklist_items)
+        checklist_form = forms.SubmissionChecklist(
+            request.POST,
+            checklist_items=checklist_items,
+        )
 
         if book_form.is_valid() and checklist_form.is_valid():
             book = book_form.save(commit=False)
             book.owner = request.user
+
             if not review_type_selection:
                 book.review_type = default_review_type
+
             if not book.submission_stage > 2:
                 book.submission_stage = 2
                 book.save()
-                log.add_log_entry(book, request.user, 'submission',
-                                  'Submission Started', 'Submission Started')
+                log.add_log_entry(
+                    book,
+                    request.user,
+                    'submission',
+                    'Submission Started',
+                    'Submission Started',
+                )
             book.save()
 
             if not book_id and book:
@@ -90,6 +120,7 @@ def start_submission(request, book_id=None):
                     logic.copy_author_to_submission(request.user, book)
                 elif book.book_type == 'edited_volume':
                     logic.copy_editor_to_submission(request.user, book)
+
             return redirect(
                 reverse('submission_two', kwargs={'book_id': book.id}))
 
@@ -108,7 +139,6 @@ def start_submission(request, book_id=None):
 def submission_two(request, book_id):
     book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
     book_form = forms.SubmitBookStageTwo(instance=book)
-
     logic.check_stage(book, 2)
 
     if request.method == 'POST':
@@ -123,11 +153,7 @@ def submission_two(request, book_id):
                 reverse('submission_three', kwargs={'book_id': book.id}))
 
     template = "submission/submission_two.html"
-    context = {
-        'book': book,
-        'book_form': book_form,
-        'active': 2,
-    }
+    context = {'book': book, 'book_form': book_form, 'active': 2}
 
     return render(request, template, context)
 
@@ -135,30 +161,40 @@ def submission_two(request, book_id):
 @login_required
 def submission_three(request, book_id):
     book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
-    manuscript_files = core_models.File.objects.filter(book=book,
-                                                       kind='manuscript')
-    additional_files = core_models.File.objects.filter(book=book,
-                                                       kind='additional')
+    manuscript_files = core_models.File.objects.filter(
+        book=book,
+        kind='manuscript',
+    )
+    additional_files = core_models.File.objects.filter(
+        book=book,
+        kind='additional',
+    )
 
     logic.check_stage(book, 3)
 
     if request.method == 'POST':
-        print request.POST
         if 'next_stage' in request.POST:
             if manuscript_files.count() >= 1:
                 if not book.submission_stage > 4:
                     book.submission_stage = 4
                 logic.handle_book_labels(request.POST, book, kind='manuscript')
                 book.save()
-                return redirect(reverse('submission_three_additional',
-                                        kwargs={'book_id': book.id}))
-            else:
-                messages.add_message(request, messages.ERROR,
-                                     'You must upload a Manuscript File.')
 
-        # Catch, after any post we always redirect to avoid someone resubmitting the same file twice.
+                return redirect(reverse(
+                    'submission_three_additional',
+                    kwargs={'book_id': book.id})
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'You must upload a Manuscript File.'
+                )
+
+        # After any post always redirect to avoid resubmitting of same file.
         return redirect(
-            reverse('submission_three', kwargs={'book_id': book.id}))
+            reverse('submission_three', kwargs={'book_id': book.id})
+        )
 
     template = 'submission/submission_three.html'
     context = {
@@ -167,7 +203,8 @@ def submission_three(request, book_id):
         'manuscript_files': manuscript_files,
         'additional_files': additional_files,
         'manuscript_guidelines': core_models.Setting.objects.get(
-            name='manuscript_guidelines').value,
+            name='manuscript_guidelines'
+        ).value,
 
     }
 
@@ -177,8 +214,10 @@ def submission_three(request, book_id):
 @login_required
 def submission_three_additional(request, book_id):
     book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
-    additional_files = core_models.File.objects.filter(book=book,
-                                                       kind='additional')
+    additional_files = core_models.File.objects.filter(
+        book=book,
+        kind='additional'
+    )
 
     logic.check_stage(book, 4)
 
@@ -195,7 +234,8 @@ def submission_three_additional(request, book_id):
         'active': 4,
         'additional_files': additional_files,
         'additional_guidelines': core_models.Setting.objects.get(
-            name='additional_files_guidelines').value,
+            name='additional_files_guidelines'
+        ).value,
 
     }
 
@@ -221,10 +261,7 @@ def submission_additional_files(request, book_id, file_type):
             reverse('submission_three', kwargs={'book_id': book.id}))
 
     template = 'submission/submission_additional_files.html'
-    context = {
-        'book': book,
-        'files': files,
-    }
+    context = {'book': book, 'files': files}
 
     return render(request, template, context)
 
@@ -232,24 +269,27 @@ def submission_additional_files(request, book_id, file_type):
 @csrf_exempt
 def upload(request, book_id, type_to_handle):
     book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
-    file = upload_receive(request)
-    new_file = handle_file(file, book, type_to_handle, request.user)
+    _file = upload_receive(request)
+    new_file = handle_file(_file, book, type_to_handle, request.user)
 
     if new_file:
         file_dict = {
             'name': new_file.uuid_filename,
-            'size': file.size,
-            'deleteUrl': reverse('jfu_delete', kwargs={'book_id': book_id,
-                                                       'file_pk': new_file.pk}),
-            'url': reverse('serve_file', kwargs={'submission_id': book_id,
-                                                 'file_id': new_file.pk}),
+            'size': _file.size,
+            'deleteUrl': reverse(
+                'jfu_delete',
+                kwargs={'book_id': book_id, 'file_pk': new_file.pk}
+            ),
+            'url': reverse(
+                'serve_file',
+                kwargs={'submission_id': book_id, 'file_id': new_file.pk}
+            ),
             'deleteType': 'POST',
             'ruaId': new_file.pk,
             'original_name': new_file.original_filename,
         }
 
         return UploadResponse(request, file_dict)
-
     return HttpResponse('No file')
 
 
@@ -259,7 +299,8 @@ def upload_delete(request, book_id, file_pk):
     try:
         instance = core_models.File.objects.get(pk=file_pk)
         os.unlink(
-            '%s/%s/%s' % (settings.BOOK_DIR, book_id, instance.uuid_filename))
+            '%s/%s/%s' % (settings.BOOK_DIR, book_id, instance.uuid_filename)
+        )
         instance.delete()
     except core_models.File.DoesNotExist:
         success = False
@@ -270,7 +311,6 @@ def upload_delete(request, book_id, file_pk):
 @login_required
 def submission_four(request, book_id):
     book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
-
     logic.check_stage(book, 5)
 
     if request.method == 'POST' and 'next_stage' in request.POST:
@@ -281,14 +321,14 @@ def submission_four(request, book_id):
             return redirect(
                 reverse('submission_five', kwargs={'book_id': book.id}))
         else:
-            messages.add_message(request, messages.ERROR,
-                                 'You must add at least one author or editor.')
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'You must add at least one author or editor.'
+            )
 
     template = 'submission/submission_four.html'
-    context = {
-        'book': book,
-        'active': 5,
-    }
+    context = {'book': book, 'active': 5}
 
     return render(request, template, context)
 
@@ -302,18 +342,24 @@ def submission_five(request, book_id):
     if request.method == 'POST' and 'complete' in request.POST:
         book.submission_date = timezone.now()
         book.slug = slugify(book.title)
-        stage = core_models.Stage(current_stage='submission',
-                                  submission=book.submission_date)
+        stage = core_models.Stage(
+            current_stage='submission',
+            submission=book.submission_date,
+        )
         stage.save()
         book.stage = stage
         book.save()
-        log.add_log_entry(book, request.user, 'submission',
-                          'Submission of %s completed' % book.title,
-                          'Submission Completed')
+        log.add_log_entry(
+            book,
+            request.user,
+            'submission',
+            'Submission of %s completed' % book.title,
+            'Submission Completed',
+        )
 
-        # Send ack email
-        press_editors = core_models.User.objects.filter(
-            profile__roles__slug='press-editor')
+        press_editors = core_models.User.objects.filter(  # Send ack email.
+            profile__roles__slug='press-editor'
+        )
         logic.send_acknowldgement_email(book, press_editors)
         return redirect(reverse('author_dashboard'))
 
@@ -321,10 +367,14 @@ def submission_five(request, book_id):
     context = {
         'book': book,
         'active': 6,
-        'manuscript_files': core_models.File.objects.filter(book=book,
-                                                            kind='manuscript'),
-        'additional_files': core_models.File.objects.filter(book=book,
-                                                            kind='additional'),
+        'manuscript_files': core_models.File.objects.filter(
+            book=book,
+            kind='manuscript',
+        ),
+        'additional_files': core_models.File.objects.filter(
+            book=book,
+            kind='additional',
+        ),
     }
 
     return render(request, template, context)
