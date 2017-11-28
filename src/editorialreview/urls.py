@@ -12,7 +12,7 @@ urlpatterns = patterns(
    url(r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/$',
        'editorialreview.views.download_er_file',
        name='download_er_file'),
-   url(r'editor/view/(?P<review_id>\d+)/$',
+   url(r'editor/view/(?P<review_id>\d+)/(?P<er_id>\d+)/$',
        'editorialreview.views.view_editorial_review',
        name='view_editorial_review'),
 

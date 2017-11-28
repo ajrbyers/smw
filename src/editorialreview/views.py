@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from core import setting_util, log, email, models as core_models, logic as core_logic
-from core.decorators import is_reviewer, is_editor, is_book_editor
+from core.decorators import is_reviewer, is_editor, is_book_editor, is_editorial_reviewer
 from core.email import send_email_multiple
 from core.files import handle_attachment, handle_email_file
 from core.setting_util import get_setting
@@ -35,7 +35,6 @@ def add_editorial_review(request, submission_type, submission_id):
         form = forms.EditorialReviewForm(request.POST)
         reviewer = User.objects.get(pk=request.POST.get('reviewer'))
         review_form = review_models.Form.objects.get(ref=request.POST.get('review_form'))
-
         check = logic.check_editorial_post(form, reviewer, review_form)
 
         if check.get('status'):
@@ -291,21 +290,10 @@ def email_editorial_review(request, review_id):
     return render(request, template, context)
 
 
-def view_editorial_review(request, review_id):
-    """ View a completed editorial review. """
-    review = get_object_or_404(
-        models.EditorialReview,
-        pk=review_id,
-    )
-
-    access_key = request.GET.get('access_key')
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-        )
-
+@is_editorial_reviewer
+def view_editorial_review(request, review_id, er_id):
+    """ As an editorial reviewer, view a completed editorial review. """
+    review = get_object_or_404(models.EditorialReview, pk=er_id)
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
     data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
