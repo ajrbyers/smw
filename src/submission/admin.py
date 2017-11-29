@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 from models import (
-    Proposal,
     HistoryProposal,
-    SubmissionChecklistItem,
+    Proposal,
     ProposalReview,
+    SubmissionChecklistItem,
 )
 
 

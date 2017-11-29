@@ -1,7 +1,7 @@
+from django.core.exceptions import PermissionDenied
+
 from core import models as core_models, email
 from core.setting_util import get_setting
-
-from django.core.exceptions import PermissionDenied
 
 
 def copy_author_to_submission(user, book):
