@@ -3,7 +3,7 @@
 {% block body %}
 <h3>Thank you for completing this review.</h3>
 <br>
-<a href="{% url 'view_editorial_review' review_id %}">View your review</a>
+<a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}">View your review</a>
 or
 <a href="{% url 'reviewer_dashboard' %}">return to reviewer dashboard.</a>
 {% endblock body %}

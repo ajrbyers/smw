@@ -51,28 +51,37 @@ def notify_editors(book, message, editors, creator, workflow):
 
 
 def has_additional_files(submission):
-    additional_files = [_file for _file in submission.files.all() if
-                        _file.kind == 'additional']
+    additional_files = [
+        _file for _file in submission.files.all() if _file.kind == 'additional'
+    ]
     return True if additional_files else False
 
 
 def handle_review_file(file, content_type, review_assignment, kind):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
-    filename = (str(uuid4()) + str(os.path.splitext(original_filename)[1]))
+    original_filename =  smart_text(file._get_name().replace(',', '_').replace(';', '_'))
+    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
 
     if content_type == 'book':
-        folder_structure = os.path.join(settings.BASE_DIR, 'files', 'books',
-                                        str(review_assignment.book.id))
+        folder_structure = os.path.join(
+            settings.BASE_DIR,
+            'files',
+            'books',
+            str(review_assignment.book.id)
+        )
     else:
-        folder_structure = os.path.join(settings.BASE_DIR, 'files', 'proposals',
-                                        str(review_assignment.proposal.id))
+        folder_structure = os.path.join(
+            settings.BASE_DIR,
+            'files',
+            'proposals',
+            str(review_assignment.proposal.id)
+        )
 
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
@@ -83,6 +92,7 @@ def handle_review_file(file, content_type, review_assignment, kind):
         file_mime = file_mime[0]
         if not file_mime:
             file_mime = 'unknown'
+
     except IndexError:
         file_mime = 'unknown'
 

@@ -1160,7 +1160,7 @@ def email_general(request, user_id=None):
 
         if to_addresses:
             if attachment_files:
-                send_email(
+                send_email_multiple(
                     subject=subject,
                     context={},
                     from_email=request.user.email,
@@ -1168,7 +1168,7 @@ def email_general(request, user_id=None):
                     bcc=bcc_list,
                     cc=cc_list,
                     html_template=body,
-                    attachments=attachments,
+                    attachments=attachments
                 )
             else:
                 send_email(
@@ -1178,11 +1178,9 @@ def email_general(request, user_id=None):
                     to=to_list,
                     bcc=bcc_list,
                     cc=cc_list,
-                    html_template=body,
+                    html_template=body
                 )
-
-            message = "E-mail with subject '%s' was sent." % subject
-
+            message = "E-mail with subject '%s' was sent." % (subject)
             return HttpResponse(
                 '<script type="text/javascript">window.alert("' +
                 message +
@@ -1408,7 +1406,7 @@ def page(request, page_name):
 
 
 @is_book_editor
-def upload_misc_file(request, submission_id, editorial_review=None):
+def upload_misc_file(request, submission_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
 
     if request.POST:
@@ -1424,24 +1422,14 @@ def upload_misc_file(request, submission_id, editorial_review=None):
             )
             submission.misc_files.add(new_file)
 
-            if editorial_review:
-                return redirect(
-                    reverse(
-                        'add_editorial_review_files', kwargs={
-                            'submission_type': 'submission',
-                            'submission_id': submission.id,
-                        }
-                    )
+            return redirect(
+                reverse(
+                    'editor_submission',
+                    kwargs={
+                        'submission_id': submission.id
+                    }
                 )
-            else:
-                return redirect(
-                    reverse(
-                        'editor_submission',
-                        kwargs={
-                            'submission_id': submission.id
-                        }
-                    )
-                )
+            )
     else:
         file_form = forms.UploadMiscFile()
 
@@ -1456,7 +1444,7 @@ def upload_misc_file(request, submission_id, editorial_review=None):
 
 
 @is_book_editor
-def upload_manuscript(request, submission_id, editorial_review=None):
+def upload_manuscript(request, submission_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
     if request.POST:
         file_form = forms.UploadFile(request.POST)
@@ -1470,25 +1458,14 @@ def upload_manuscript(request, submission_id, editorial_review=None):
             )
             submission.files.add(new_file)
 
-            if editorial_review:
-                return redirect(
-                    reverse(
-                        'add_editorial_review_files',
-                        kwargs={
-                            'submission_type': 'submission',
-                            'submission_id': submission.id,
-                        }
-                    )
+            return redirect(
+                reverse(
+                    'editor_submission',
+                    kwargs={
+                        'submission_id': submission.id
+                    }
                 )
-            else:
-                return redirect(
-                    reverse(
-                        'editor_submission',
-                        kwargs={
-                            'submission_id': submission.id
-                        }
-                    )
-                )
+            )
     else:
         file_form = forms.UploadFile()
 
@@ -1503,7 +1480,7 @@ def upload_manuscript(request, submission_id, editorial_review=None):
 
 
 @is_book_editor
-def upload_additional(request, submission_id, editorial_review=None):
+def upload_additional(request, submission_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
 
     if request.POST:
@@ -1518,22 +1495,14 @@ def upload_additional(request, submission_id, editorial_review=None):
             )
             submission.files.add(new_file)
 
-            if editorial_review:
-                return redirect(
-                    reverse(
-                        'add_editorial_review_files', kwargs={
-                            'submission_type': 'submission',
-                            'submission_id': submission.id,
-                        }
-                    )
+            return redirect(
+                reverse(
+                    'editor_submission',
+                    kwargs={
+                        'submission_id': submission.id
+                    }
                 )
-            else:
-                return redirect(
-                    reverse(
-                        'editor_submission',
-                        kwargs={'submission_id': submission.id}
-                    )
-                )
+            )
     else:
         file_form = forms.UploadFile()
 

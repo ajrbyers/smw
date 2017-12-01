@@ -25,30 +25,34 @@
 	</ul>
 
 	<h4>2. View completed reviews for this {{ review.content_type }}</h4>
-	{% if peer_reviews %}
-		<h5>Peer Reviews</h5>
-		<ul>
+	<h5>Peer Reviews</h5>
+	<ul>
+		{% if peer_reviews %}
 			{% for pr in peer_reviews %}
-				<li><a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}"
+				<li>
+					<a href="{% url 'view_non_editorial_review' review.id pr.id %}?access_key={{ review.access_key }}"
 					   target="_blank">{{ pr.user.profile.full_name }} - {{ pr.id }}
 					</a>
 				</li>
 			{% endfor %}
-		</ul>
-	{% elif completed_editorial_reviews %}
-		<h5>Editorial Reviews</h5>
-		<ul>
-			{% for review in completed_editorial_reviews %}
+		{% else %}
+			<li>No peer reviews have been completed yet.</li>
+		{% endif %}
+	</ul>
+	<h5>Editorial Reviews</h5>
+	<ul>
+		{% if completed_editorial_reviews %}
+			{% for er in completed_editorial_reviews %}
 				<li>
-					<a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}"
-					   target="_blank">{{ review.user.profile.full_name }} - {{ review.id }}
+					<a href="{% url 'view_editorial_review' er.id %}?access_key={{ review.access_key }}"
+					   target="_blank">{{ er.user.profile.full_name }} - {{ er.id }}
 					</a>
 				</li>
 			{% endfor %}
-		</ul>
-	{% else %}
-		<li>No reviews have been completed yet.</li>
-	{% endif %}
+		{% else %}
+			<li>No reviews have been completed yet.</li>
+		{% endif %}
+	</ul>
 
 	<h4>3. Please complete the form below to submit your feedback</h4>
 	<p class="subtitle-form-text"><em> {{ form_info.intro_text|safe }} </em></p>
@@ -101,7 +105,9 @@
 	        {% bootstrap_field recommendation_form.recommendation %}
 	        <hr />
 	        <h4>6. Competing interests</h4>
-	        {% bootstrap_field recommendation_form.competing_interests %}</small><br><br>
+	        {% bootstrap_field recommendation_form.competing_interests %}
+			<br>
+			<br>
 	      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
 		  <button class="btn btn-default" style="margin-left: 10px" href="core/email.html"
 				 onclick="return popitup(

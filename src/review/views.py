@@ -450,54 +450,82 @@ def review(request, review_type, submission_id, review_round, access_key=None):
 
             if request.FILES.get('review_file_upload'):
                 logic.handle_review_file(
-                    request.FILES.get('review_file_upload'), 'book',
-                    review_assignment, 'reviewer')
+                    request.FILES.get('review_file_upload'),
+                    'book',
+                    review_assignment,
+                    'reviewer'
+                )
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
                 review_assignment.accepted = timezone.now()
-            review_assignment.recommendation = request.POST.get(
-                'recommendation')
-            review_assignment.competing_interests = request.POST.get(
-                'competing_interests')
-
+            review_assignment.recommendation = request.POST.get('recommendation')
+            review_assignment.competing_interests = request.POST.get('competing_interests')
             review_assignment.save()
+
             message = "%s Review assignment with id %s has been completed by %s ." % (
-            review_assignment.review_type.title(), review_assignment.id,
-            review_assignment.user.profile.full_name())
-            press_editors = User.objects.filter(
-                profile__roles__slug='press-editor')
+                review_assignment.review_type.title(),
+                review_assignment.id,
+                review_assignment.user.profile.full_name()
+            )
+            press_editors = User.objects.filter(profile__roles__slug='press-editor')
 
             for editor in press_editors:
-                notification = core_models.Task(assignee=editor, creator=user,
-                                                text=message, workflow='review',
-                                                book=submission)
+                notification = core_models.Task(
+                    assignee=editor,
+                    creator=user,
+                    text=message,
+                    workflow='review',
+                    book=submission
+                )
                 notification.save()
 
             if not review_type == 'proposal':
-                log.add_log_entry(book=submission, user=user, kind='review',
-                                  message='Reviewer %s %s completed review for %s.' % (
+                log.add_log_entry(
+                    book=submission,
+                    user=user,
+                    kind='review',
+                    message='Reviewer %s %s completed review for %s.' % (
                                   review_assignment.user.first_name,
                                   review_assignment.user.last_name,
-                                  submission.title),
-                                  short_name='Assignment Completed')
+                                  submission.title
+                    ),
+                    short_name='Assignment Completed'
+                )
                 message = "Reviewer %s %s has completed a review for '%s'." % (
-                submission.title, review_assignment.user.first_name,
-                review_assignment.user.last_name)
-                logic.notify_editors(submission, message, editors, user,
-                                     'review')
+                    submission.title,
+                    review_assignment.user.first_name,
+                    review_assignment.user.last_name
+                )
+                logic.notify_editors(
+                    submission,
+                    message,
+                    editors,
+                    user,
+                    'review'
+                )
 
             if access_key:
-                return redirect(reverse('review_complete_with_access_key',
-                                        kwargs={'review_type': review_type,
-                                                'submission_id': submission.id,
-                                                'access_key': access_key,
-                                                'review_round': review_round}))
+                return redirect(
+                    reverse(
+                        'review_complete_with_access_key', kwargs={
+                            'review_type': review_type,
+                            'submission_id': submission.id,
+                            'access_key': access_key,
+                            'review_round': review_round
+                        }
+                    )
+                )
             else:
-                return redirect(reverse('review_complete',
-                                        kwargs={'review_type': review_type,
-                                                'submission_id': submission.id,
-                                                'review_round': review_round}))
+                return redirect(
+                    reverse(
+                        'review_complete', kwargs={
+                            'review_type': review_type,
+                            'submission_id': submission.id,
+                            'review_round': review_round
+                        }
+                    )
+                )
 
     template = 'review/review.html'
     context = {
@@ -512,7 +540,6 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         'has_additional_files': logic.has_additional_files(submission),
         'instructions': core_models.Setting.objects.get(group__name='general',
                                                         name='instructions_for_task_review').value
-
     }
 
     return render(request, template, context)

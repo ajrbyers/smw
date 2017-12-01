@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from core import setting_util, log, email, models as core_models, logic as core_logic
-from core.decorators import is_reviewer, is_editor, is_book_editor
+from core.decorators import is_reviewer, is_editor, is_book_editor, is_editorial_reviewer
 from core.email import send_email_multiple
 from core.files import handle_attachment, handle_email_file
 from core.setting_util import get_setting
@@ -20,7 +20,6 @@ from editorialreview import logic, forms, models
 from manager import models as manager_models
 from review import models as review_models, forms as review_forms
 from submission import models as submission_models
-
 
 
 @is_editor
@@ -36,7 +35,6 @@ def add_editorial_review(request, submission_type, submission_id):
         form = forms.EditorialReviewForm(request.POST)
         reviewer = User.objects.get(pk=request.POST.get('reviewer'))
         review_form = review_models.Form.objects.get(ref=request.POST.get('review_form'))
-
         check = logic.check_editorial_post(form, reviewer, review_form)
 
         if check.get('status'):
@@ -191,61 +189,6 @@ def update_editorial_review_due_date(request, submission_id, review_id):
 
 
 @is_editor
-def add_editorial_review_files(request, submission_type, submission_id):
-    """Add files to editorial review.
-    Currently set up for full submissions only, and only linked in
-    if creating editorial review for full submissions, but
-    could be extended to include proposals by passing it 
-    to submission_type and adding logic below.
-    """
-
-    submission = get_object_or_404(core_models.Book, pk=submission_id)
-
-    if request.POST:
-        files = core_models.File.objects.filter(pk__in=request.POST.getlist('file'))
-        for file in files:
-            submission.editorial_review_files.add(file)
-
-        messages.add_message(request, messages.SUCCESS, '{} files added to Review'.format(files.count()))
-
-        return redirect(
-            reverse(
-                'add_editorial_review',
-                kwargs={
-                    'submission_type': submission_type,
-                    'submission_id': submission_id
-                }
-            )
-        )
-
-    template = 'editorialreview/add_editorial_review_files.html'
-    context = {
-        'submission': submission,
-    }
-
-    return render(request, template, context)
-
-
-@is_editor
-def remove_editorial_review_file(request, submission_type, submission_id, file_id):
-    """ Remove a file from a submission's editorial review files list. """
-    submission = get_object_or_404(core_models.Book, pk=submission_id)
-    file = get_object_or_404(submission.editorial_review_files, pk=file_id)
-
-    submission.editorial_review_files.remove(file)
-
-    return redirect(
-        reverse(
-            'add_editorial_review',
-            kwargs={
-                'submission_type': submission_type,
-                'submission_id': submission_id
-            }
-        )
-    )
-
-
-@is_editor
 def email_editorial_review(request, review_id):
     """Preview the content of an editorial review request email
      then send it with any necessary attachments.
@@ -274,6 +217,9 @@ def email_editorial_review(request, review_id):
         email_text = request.POST.get('email_text')
         attachment_files = request.FILES.getlist('attachment')
         attachments = []
+        custom_from_email = None
+        if request.user.email:
+            custom_from_email = request.user.email
 
         if attachment_files:
             for file in attachment_files:
@@ -293,7 +239,8 @@ def email_editorial_review(request, review_id):
                 to=review.user.email,
                 attachments=attachments,
                 book=None,
-                proposal=review.content_object
+                proposal=review.content_object,
+                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
@@ -316,7 +263,8 @@ def email_editorial_review(request, review_id):
                 to=review.user.email,
                 attachments=attachments,
                 book=review.content_object,
-                proposal=None
+                proposal=None,
+                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
@@ -342,12 +290,10 @@ def email_editorial_review(request, review_id):
     return render(request, template, context)
 
 
-@is_editor
+@is_editorial_reviewer
 def view_editorial_review(request, review_id):
-    """ View a completed editorial review. """
-
+    """ As an editorial reviewer, view a completed editorial review. """
     review = get_object_or_404(models.EditorialReview, pk=review_id)
-
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
     data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
@@ -363,25 +309,15 @@ def view_editorial_review(request, review_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def editorial_review(request, review_id):
     """ Complete an editorial review. """
 
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
     form = review_forms.GeneratedForm(form=review.review_form)
     recommendation_form = forms.RecommendationForm(instance=review)
@@ -436,6 +372,14 @@ def editorial_review(request, review_id):
                     message=message,
                     short_name=short_message
                 )
+                for editor in submission.book_editors.all():
+                    notification = core_models.Task(
+                        assignee=editor,
+                        creator=review.user,
+                        text=message,
+                        book=submission
+                    )
+                    notification.save()
             else:
                 log.add_proposal_log_entry(
                     proposal=submission,
@@ -445,15 +389,6 @@ def editorial_review(request, review_id):
                     short_name=short_message
                 )
 
-            for editor in submission.book_editors.all():
-                notification = core_models.Task(
-                    assignee=editor,
-                    creator=review.user,
-                    text=message,
-                    book=submission
-                )
-                notification.save()
-
             # Handle email notification to editors
             subject = get_setting(
                 setting_name='editorialreview_completed_email_subject',
@@ -461,23 +396,39 @@ def editorial_review(request, review_id):
                 default='Editorial review completed'
             )
 
-            try:
-                email_text = core_models.Setting.objects.get(
-                    group__name='email', name='editorialreview_completed_email'
-                ).value
-            except core_models.Setting.DoesNotExist:
-                email_text = message
-
+            email_text = get_setting(
+                setting_name='editorialreview_completed_email',
+                setting_group_name='email',
+                default='message'
+            )
             email_text.replace('\n', '<br />')
-            from_email = core_models.Setting.objects.get(group__name='email', name='from_address')
+
+            from_email = get_setting(
+                setting_name='from_address',
+                setting_group_name='email',
+                default='noreply@rua.re'
+            )
+
+            press_name = get_setting(
+                setting_name='press_name',
+                setting_group_name='general',
+                default='The publishers'
+            )
 
             for editor in submission.book_editors.all():
+                salutation = editor.profile.full_name()
+                if editor.profile.salutation:
+                    salutation = editor.profile.salutation
+
                 context = {
-                    'salutation': editor.profile.salutation,
+                    'salutation': salutation,
                     'submission': submission,
                     'review': review,
                     'base_url': core_models.Setting.objects.get(name='base_url').value,
+                    'authors': submission.author.all(),
+                    'press_name': press_name
                 }
+
                 email.send_email(
                     subject=subject,
                     context=context,
@@ -499,7 +450,7 @@ def editorial_review(request, review_id):
     template = 'editorialreview/editorial_review.html'
     context = {
         'review': review,
-        'access_key': access_key,
+        'access_key': request.GET.get('access_key'),
         'form': form,
         'recommendation_form': recommendation_form,
         'peer_reviews': peer_reviews,
@@ -509,29 +460,31 @@ def editorial_review(request, review_id):
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
+    """As an editorial reviewer, view a completed peer
+     review for the submission under review."""
 
-    access_key = request.GET.get('access_key')
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
+    if review.content_type.model == 'proposal':
+        peer_review = get_object_or_404(
+            submission_models.ProposalReview.objects,
+            pk=non_editorial_review_id,
+            completed__isnull=False
         )
+        submission = peer_review.proposal
     else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
+        peer_review = get_object_or_404(
+            core_models.ReviewAssignment.objects,
+            pk=non_editorial_review_id,
+            completed__isnull=False
         )
-
-    if review.content_type.model == 'book':
-        peer_review = core_models.ReviewAssignment.objects.get(pk=non_editorial_review_id, completed__isnull=False)
-    else:
-        peer_review = submission_models.ProposalReview.objects.get(pk=non_editorial_review_id, completed__isnull=False)
+        submission = peer_review.book
 
     result = peer_review.results
     relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
@@ -544,29 +497,21 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
         'data_ordered': data_ordered,
         'relations': relations,
         'result': result,
+        'submission': submission,
     }
 
     return render(request, template, context)
 
 
+@is_editorial_reviewer
 def view_content_summary(request, review_id):
+    """As an editorial reviewer, view a summary of the submission under review."""
 
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key,
-            completed__isnull=True
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user,
-            completed__isnull=True
-        )
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+        completed__isnull=True
+    )
 
     if review.content_type.model == 'proposal':
         data = json.loads(review.content_object.data)
@@ -590,26 +535,23 @@ def view_content_summary(request, review_id):
     return render(request, template, context)
 
 
-@is_reviewer
+@is_editorial_reviewer
 def download_er_file(request, file_id, review_id):
-
-    access_key = request.GET.get('access_key')
-
-    if access_key:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            access_key=access_key
-        )
-    else:
-        review = get_object_or_404(
-            models.EditorialReview,
-            pk=review_id,
-            user=request.user
-        )
+    """As an editorial reviewer, download an editorial review file."""
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+    )
 
     _file = get_object_or_404(core_models.File, pk=file_id)
-    file_path = os.path.join(settings.BOOK_DIR, str(review.content_object.id), _file.uuid_filename)
+    base_file_dir = settings.BOOK_DIR
+    if review.content_type.model == 'proposal':
+        base_file_dir = settings.PROPOSAL_DIR
+    file_path = os.path.join(
+        base_file_dir,
+        str(review.content_object.id),
+        _file.uuid_filename
+    )
 
     try:
         fsock = open(file_path, 'r')
@@ -624,12 +566,24 @@ def download_er_file(request, file_id, review_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@is_editor
+@is_editorial_reviewer
 def download_editor_er_file(request, file_id, review_id):
 
-    review = get_object_or_404(models.EditorialReview, pk=review_id)
+    review = get_object_or_404(
+        models.EditorialReview,
+        pk=review_id,
+    )
+
     _file = get_object_or_404(core_models.File, pk=file_id)
-    file_path = os.path.join(settings.BOOK_DIR, str(review.content_object.id), _file.uuid_filename)
+
+    base_file_dir = settings.BOOK_DIR
+    if review.content_type.model == 'proposal':
+        base_file_dir = settings.PROPOSAL_DIR
+    file_path = os.path.join(
+        base_file_dir,
+        str(review.content_object.id),
+        _file.uuid_filename
+    )
 
     try:
         fsock = open(file_path, 'r')
@@ -649,7 +603,7 @@ def editorial_review_thanks(request, review_id):
 
     template = 'editorialreview/editorial_review_thanks.html'
     context = {
-        'review_id': review_id,
+        'review': get_object_or_404(models.EditorialReview.objects, pk=review_id),
     }
 
     return render(request, template, context)
@@ -662,18 +616,19 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
     submission = editorial_review.content_object
     book = isinstance(submission, core_models.Book)
     proposal = isinstance(submission, submission_models.Proposal)
-    editors = submission.book_editors.all()
+    editors = [ed for ed in submission.book_editors.all()]
 
     if not editors:
-        editors = submission.press_editors.all()
+        if book:
+            editors = [ed for ed in submission.press_editors.all()]
+        if proposal:
+            editors.append(submission.requestor)
 
-    user = None
+    user = editorial_review.user
     if user_id:
         user = get_object_or_404(User, pk=user_id)
 
-    from_value = 'Please enter a return address.'
-    if user:
-        from_value = user.email
+    from_value = user.email
 
     to_value = ''
     if editors:
@@ -689,6 +644,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
         to_addresses = request.POST.get('to_values').split(';')
         cc_addresses = request.POST.get('cc_values').split(';')
         bcc_addresses = request.POST.get('bcc_values').split(';')
+        from_address = request.POST.get('from_value')
 
         to_list = core_logic.clean_email_list(to_addresses)
         cc_list = core_logic.clean_email_list(cc_addresses)
@@ -698,11 +654,11 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
 
         if attachment_files:
             for attachment in attachment_files:
-                attachment = handle_email_file(
-                    attachment,
-                    'other',
-                    request.user,
-                    'Attachment: Uploaded by {}'.format(request.user.username)
+                attachment = logic.handle_review_file(
+                    file=attachment,
+                    review_assignment=editorial_review,
+                    kind='email-attachment',
+                    return_file=True
                 )
                 attachments.append(attachment)
 
@@ -711,7 +667,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
                 send_email_multiple(
                     subject=subject,
                     context={},
-                    from_email=request.user.email,
+                    from_email=from_address,
                     to=to_list,
                     html_template=body,
                     bcc=bcc_list,
@@ -725,7 +681,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
                 send_email_multiple(
                     subject=subject,
                     context={},
-                    from_email=request.user.email,
+                    from_email=from_address,
                     to=to_list,
                     html_template=body,
                     bcc=bcc_list,
