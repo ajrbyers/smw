@@ -920,12 +920,6 @@ class Book(models.Model):
         blank=True,
         related_name='external_review_files',
     )
-    editorial_review_files = models.ManyToManyField(
-        'File',
-        null=True,
-        blank=True,
-        related_name='editorial_review_files',
-    )
     misc_files = models.ManyToManyField(
         'File',
         null=True,

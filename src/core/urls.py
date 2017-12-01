@@ -311,12 +311,6 @@ urlpatterns = patterns(
         name='upload_additional',
     ),
     url(
-        r'^files/submission/(?P<submission_id>\d+)/file/upload/additional/'
-        r'(?P<editorial_review>[-\w]+)$',
-        'core.views.upload_additional',
-        name='upload_additional_ed_review_redirect',
-    ),
-    url(
         r'^files/submission/(?P<submission_id>\d+)/file/upload/manuscript/$',
         'core.views.upload_manuscript',
         name='upload_manuscript',
@@ -376,12 +370,6 @@ urlpatterns = patterns(
         r'^misc_files/(?P<submission_id>\d+)/upload/$',
         'core.views.upload_misc_file',
         name='upload_misc_file',
-    ),
-    url(
-        r'^misc_files/(?P<submission_id>\d+)/upload/'
-        r'(?P<editorial_review>[-\w]+)$',
-        'core.views.upload_misc_file',
-        name='upload_misc_file_ed_review_redirect',
     ),
     url(  # Proposals.
         r'^proposals/$',

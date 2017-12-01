@@ -26,14 +26,18 @@
          {% endif %}
            <div class="button-group" role="group">
          {% if file_type == 'internal' or file_type == 'external' %}
-                  
+
         <a href="{% url 'delete_review_files' submission.id file.id 'external'  %}" type="button"  class="btn btn-sm btn-danger btn-round-half download-small" style="margin-right:0px!important" ><i class="fa fa-trash"></i></a>
-       
+
        {% endif %}
        {% if assignment == 'copyedit' or assignment == 'indexing' %}
          <a href="{% url 'update_file' submission.id file.id 'user_submission' %}" type="button"  class="btn btn-sm btn-accept download-small" ><i class="fa fa-cloud-upload"></i></a>
        {% endif %}
+       {% if editorialreviewer %}
+         <a href="{% url 'download_er_file' file.id review.id %}?access_key={{ review.access_key }}" type="button"  class="btn btn-sm btn-task download-small" ><i class="fa fa-cloud-download"></i></a>
+       {% else %}
          <a href="{% url 'serve_file' submission.id file.id %}" type="button"  class="btn btn-sm btn-task download-small" ><i class="fa fa-cloud-download"></i></a>
+       {% endif %}
         {% if assignment == 'typeset'%}
 
          <a href="{% url 'add_format_existing' submission.id file.id  %}" type="button" class="btn btn-xs btn-green download-small" style="margin-left:-20px;height:23px;align:center"> Format </a>

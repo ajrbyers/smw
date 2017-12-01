@@ -58,7 +58,7 @@ def send_email(
         reply_to = models.Setting.objects.get(
             group__name='email',
             name='from_address',
-        )
+        ).value
 
     msg = EmailMessage(
         subject,
@@ -251,6 +251,7 @@ def send_prerendered_email(
         attachments=None,
         book=None,
         proposal=None,
+        custom_from_email=None
 ):
     html_content = html_template
 
@@ -266,6 +267,9 @@ def send_prerendered_email(
         )
 
     from_email = get_setting('from_address', 'general', 'noreply@rua.re')
+    if custom_from_email:
+        from_email = custom_from_email
+
     msg = EmailMessage(
         subject,
         html_content,

@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from core import models
+from editorialreview import models as editorialreview_models
 from submission import models as submission_models
 
 
@@ -334,6 +335,62 @@ def is_reviewer(_function):
                     'Editor level permission to view this page.')
                 )
             raise exceptions.PermissionDenied
+
+    wrap.__doc__ = _function.__doc__
+    wrap.__name__ = _function.__name__
+
+    return wrap
+
+
+def is_editorial_reviewer(_function):
+    """Manage editorial reviewer permissions.
+    Check if access key matches an existing editorial review,
+    and otherwise handle editor permissions.
+    """
+    def wrap(request, *args, **kwargs):
+        full_url = request.get_full_path()
+        if not request.user.is_authenticated():
+            if 'access_key' in full_url:
+                access_key = full_url[full_url.rfind('access_key=') + 11:] # Parse access key from URL
+                review_assignment = editorialreview_models.EditorialReview.objects.filter(
+                    access_key=access_key
+                )
+
+                if review_assignment: # Return requested page if access key matches the current editorial review
+                    return _function(
+                        request,
+                        *args,
+                        **kwargs
+                    )
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'You need to log in to view this page.'
+            )
+            return redirect(
+                "{}?next={}".format(
+                    reverse('login'),
+                    request.get_full_path()
+                )
+            )
+
+        else:
+            review_assignment = editorialreview_models.EditorialReview.objects.filter(
+                user=request.user
+            )
+            if review_assignment:
+                return _function(
+                    request,
+                    *args,
+                    **kwargs
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'You cannot view this page as you are not an assigned editorial reviewer.'
+                )
 
     wrap.__doc__ = _function.__doc__
     wrap.__name__ = _function.__name__
