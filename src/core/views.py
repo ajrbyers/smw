@@ -1158,11 +1158,26 @@ def email_general(request, user_id=None):
 
         if to_addresses:
             if attachment_files:
-                send_email_multiple(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
-                           cc=cc_list, html_template=body, attachments=attachments)
+                send_email_multiple(
+                    subject=subject,
+                    context={},
+                    from_email=request.user.email,
+                    to=to_list,
+                    bcc=bcc_list,
+                    cc=cc_list,
+                    html_template=body,
+                    attachments=attachments
+                )
             else:
-                send_email(subject=subject, context={}, from_email=request.user.email, to=to_list, bcc=bcc_list,
-                           cc=cc_list, html_template=body)
+                send_email(
+                    subject=subject,
+                    context={},
+                    from_email=request.user.email,
+                    to=to_list,
+                    bcc=bcc_list,
+                    cc=cc_list,
+                    html_template=body
+                )
             message = "E-mail with subject '%s' was sent." % (subject)
             return HttpResponse(
                 '<script type="text/javascript">window.alert("' + message + '")</script><script type="text/javascript">window.close()</script>')

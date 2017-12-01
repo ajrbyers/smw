@@ -547,7 +547,11 @@ def download_er_file(request, file_id, review_id):
     base_file_dir = settings.BOOK_DIR
     if review.content_type.model == 'proposal':
         base_file_dir = settings.PROPOSAL_DIR
-    file_path = os.path.join(base_file_dir, str(review.content_object.id), _file.uuid_filename)
+    file_path = os.path.join(
+        base_file_dir,
+        str(review.content_object.id),
+        _file.uuid_filename
+    )
 
     try:
         fsock = open(file_path, 'r')

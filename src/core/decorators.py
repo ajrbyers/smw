@@ -357,7 +357,11 @@ def is_editorial_reviewer(_function):
                 )
 
                 if review_assignment: # Return requested page if access key matches the current editorial review
-                    return _function(request, *args, **kwargs)
+                    return _function(
+                        request,
+                        *args,
+                        **kwargs
+                    )
 
             messages.add_message(
                 request,
@@ -365,7 +369,10 @@ def is_editorial_reviewer(_function):
                 'You need to log in to view this page.'
             )
             return redirect(
-                "%s?next=%s" % (reverse('login'), request.get_full_path())
+                "{}?next={}".format(
+                    reverse('login'),
+                    request.get_full_path()
+                )
             )
 
         else:
@@ -373,7 +380,11 @@ def is_editorial_reviewer(_function):
                 user=request.user
             )
             if review_assignment:
-                return _function(request, *args, **kwargs)
+                return _function(
+                    request,
+                    *args,
+                    **kwargs
+                )
             else:
                 messages.add_message(
                     request,
