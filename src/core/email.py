@@ -71,7 +71,7 @@ def send_email(
     )
 
     if access_key:
-        # Hide access key in email log
+        # Hide access key in email log.
         html_content = html_content.replace(str(access_key), '')
 
         if book:
