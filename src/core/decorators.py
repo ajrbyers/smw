@@ -378,7 +378,7 @@ def is_editorial_reviewer(_function):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    'You cannot view this page as you are not the assigned editorial reviewer.'
+                    'You cannot view this page as you are not an assigned editorial reviewer.'
                 )
 
     wrap.__doc__ = _function.__doc__

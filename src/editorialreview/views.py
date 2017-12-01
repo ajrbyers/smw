@@ -396,25 +396,37 @@ def editorial_review(request, review_id):
                 default='Editorial review completed'
             )
 
-            try:
-                email_text = core_models.Setting.objects.get(
-                    group__name='email', name='editorialreview_completed_email'
-                ).value
-            except core_models.Setting.DoesNotExist:
-                email_text = message
-
+            email_text = get_setting(
+                setting_name='editorialreview_completed_email',
+                setting_group_name='email',
+                default='message'
+            )
             email_text.replace('\n', '<br />')
-            from_email = core_models.Setting.objects.get(
-                group__name='email',
-                name='from_address'
-            ).value
+
+            from_email = get_setting(
+                setting_name='from_address',
+                setting_group_name='email',
+                default='noreply@rua.re'
+            )
+
+            press_name = get_setting(
+                setting_name='press_name',
+                setting_group_name='general',
+                default='The publishers'
+            )
 
             for editor in submission.book_editors.all():
+                salutation = editor.profile.full_name()
+                if editor.profile.salutation:
+                    salutation = editor.profile.salutation
+
                 context = {
-                    'salutation': editor.profile.salutation,
+                    'salutation': salutation,
                     'submission': submission,
                     'review': review,
                     'base_url': core_models.Setting.objects.get(name='base_url').value,
+                    'authors': submission.author.all(),
+                    'press_name': press_name
                 }
 
                 email.send_email(
