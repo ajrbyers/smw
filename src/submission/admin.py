@@ -1,5 +1,12 @@
 from django.contrib import admin
-from models import Proposal, HistoryProposal, SubmissionChecklistItem, ProposalReview
+
+from models import (
+    HistoryProposal,
+    Proposal,
+    ProposalReview,
+    SubmissionChecklistItem,
+)
+
 
 admin_list = [
     (Proposal,),

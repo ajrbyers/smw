@@ -1,6 +1,6 @@
-from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 
@@ -278,36 +278,36 @@ def view_revisions(request, submission_id, revision_id):
 
 @login_required
 def revision(request, revision_id, submission_id):
-    revision = get_object_or_404(
+    _revision = get_object_or_404(
         revision_models.Revision,
         pk=revision_id,
         book__owner=request.user,
         completed__isnull=True,
     )
     book = get_object_or_404(models.Book, pk=submission_id, owner=request.user)
-    form = forms.AuthorRevisionForm(instance=revision)
+    form = forms.AuthorRevisionForm(instance=_revision)
 
     if request.POST:
-        form = forms.AuthorRevisionForm(request.POST, instance=revision)
+        form = forms.AuthorRevisionForm(request.POST, instance=_revision)
         if form.is_valid():
-            revision = form.save(commit=False)
-            revision.completed = timezone.now()
-            revision.save()
-            task = models.Task(
-                book=revision.book,
+            _revision = form.save(commit=False)
+            _revision.completed = timezone.now()
+            _revision.save()
+            _task = models.Task(
+                book=_revision.book,
                 creator=request.user,
-                assignee=revision.requestor,
-                text='Revisions submitted for %s' % revision.book.title,
-                workflow=revision.revision_type,
+                assignee=_revision.requestor,
+                text='Revisions submitted for %s' % _revision.book.title,
+                workflow=_revision.revision_type,
             )
-            task.save()
+            _task.save()
             log.add_log_entry(
                     book=book,
                     user=request.user,
                     kind='revisions',
                     message='%s submitted revisions for %s' % (
                         request.user.profile.full_name(),
-                        revision.book.title,
+                        _revision.book.title,
                     ),
                     short_name='Revisions submitted',
             )
@@ -330,7 +330,7 @@ def revision(request, revision_id, submission_id):
     template = 'author/submission.html'
     context = {
         'submission': book,
-        'revision': revision,
+        'revision': _revision,
         'form': form,
         'has_manuscript': has_manuscript,
         'has_additional': has_additional,
@@ -342,14 +342,14 @@ def revision(request, revision_id, submission_id):
 
 @login_required
 def revise_file(request, submission_id, revision_id, file_id):
-    revision = get_object_or_404(
+    _revision = get_object_or_404(
         revision_models.Revision,
         pk=revision_id,
         book__owner=request.user,
     )
-    book = revision.book
+    book = _revision.book
     _file = get_object_or_404(models.File, pk=file_id)
-    form = forms.AuthorRevisionForm(instance=revision)
+    form = forms.AuthorRevisionForm(instance=_revision)
 
     if request.POST:
         for ff in request.FILES.getlist('update_file'):
@@ -368,14 +368,14 @@ def revise_file(request, submission_id, revision_id, file_id):
             'author_revision',
             kwargs={
                 'submission_id': submission_id,
-                'revision_id': revision.id
+                'revision_id': _revision.id
             }
         ))
 
     template = 'author/submission.html'
     context = {
         'submission': book,
-        'revision': revision,
+        'revision': _revision,
         'file': _file,
         'author_include': 'author/revision.html',
         'submission_files': 'author/revise_file.html',
@@ -387,13 +387,13 @@ def revise_file(request, submission_id, revision_id, file_id):
 
 @login_required
 def revision_new_file(request, submission_id, revision_id, file_type):
-    revision = get_object_or_404(
+    _revision = get_object_or_404(
         revision_models.Revision,
         pk=revision_id,
         book__owner=request.user,
     )
-    book = revision.book
-    form = forms.AuthorRevisionForm(instance=revision)
+    book = _revision.book
+    form = forms.AuthorRevisionForm(instance=_revision)
 
     if request.POST:
         new_upload = request.FILES.get('new_file')
@@ -412,14 +412,14 @@ def revision_new_file(request, submission_id, revision_id, file_type):
             'author_revision',
             kwargs={
                 'submission_id': submission_id,
-                'revision_id': revision.id
+                'revision_id': _revision.id
             }
         ))
 
     template = 'author/submission.html'
     context = {
         'submission': book,
-        'revision': revision,
+        'revision': _revision,
         'author_include': 'author/revision.html',
         'submission_files': 'author/revision_new_file.html',
         'form': form,
@@ -630,7 +630,7 @@ def view_copyedit(request, submission_id, copyedit_id):
             return redirect(reverse(
                 'view_copyedit',
                 kwargs={
-                    'submission_id': submission_id,'copyedit_id': copyedit_id
+                    'submission_id': submission_id, 'copyedit_id': copyedit_id
                 }
             ))
         else:

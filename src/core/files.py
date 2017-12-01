@@ -380,7 +380,7 @@ def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 
