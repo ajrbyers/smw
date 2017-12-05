@@ -255,5 +255,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_HOST_USER = 'postmaster@ubiquity.press'
-EMAIL_HOST_PASSWORD = '4910364428769ec9a64fbcee94bd5d17'
+EMAIL_HOST_PASSWORD = '4910364428769ec9a64fbcee94bd5d17'  # Fake API key.
 EMAIL_PORT = 587
