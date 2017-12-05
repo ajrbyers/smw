@@ -159,29 +159,24 @@ def book_to_mark21_file(book, owner, xml=False):
         publication_info.append(str(book.publication_date))
         record.add_field(record_field('260', ['#', '#'], publication_info))
 
-    # Physical details
-    if book.pages:
+    if book.pages:  # Physical details.
         record.add_field(
             record_field('300', ['#', '#'], ['a', str(book.pages) + ' pages'])
         )
 
-    # Content type
-    record.add_field(
+    record.add_field(  # Content type.
         record_field('336', ['#', '#'], ['a', 'text', '2', 'rdacontent'])
     )
 
-    # Media type
-    record.add_field(
+    record.add_field(  # Media type.
         record_field('337', ['#', '#'], ['a', 'unmediated', '2', 'rdamedia'])
     )
 
-    # Carrier type
-    record.add_field(
+    record.add_field(  # Carrier type.
         record_field('338', ['#', '#'], ['a', 'volume', '2', 'rdacarrier'])
     )
 
-    # Language note
-    if languages:
+    if languages:  # Language note.
         for lang in languages:
             record.add_field(
                 record_field('546', ['#', '#'], ['a', lang.display]))
@@ -189,6 +184,7 @@ def book_to_mark21_file(book, owner, xml=False):
         record.add_field(record_field('546', ['#', '#'], ['a', 'In English']))
 
     press_editors = book.press_editors.all()
+
     for editor in press_editors:  # Editors.
         record.add_field(record_field('700', ['1', '#'], ['a', '%s, %s' % (
         editor.last_name, editor.first_name), 'e', 'Press editor']))
@@ -264,16 +260,14 @@ def book_to_mark21_file_content(book, owner, xml=False):
     # Category of material  - Text
     record.add_field(record_control_field('007', 't'))
 
-    # Languages
-    languages = book.languages.all()
+    languages = book.languages.all()  # Languages.
     if languages:
         for lang in languages:
             record.add_field(record_control_field('008', lang.code))
     else:
         record.add_field(record_control_field('008', 'eng'))
 
-    # ISBN - International Standard Book Number
-    isbn = models.Identifier.objects.filter(
+    isbn = models.Identifier.objects.filter(# International Standard Book Number
         book=book
     ).exclude(
         identifier='pub_id'
@@ -332,8 +326,7 @@ def book_to_mark21_file_content(book, owner, xml=False):
             ['a', book.title, 'c', author_names]
         ))
 
-    # Publication
-    try:
+    try:  # Publication.
         press_name = models.Setting.objects.get(
             group__name='general',
             name='press_name',
@@ -663,8 +656,7 @@ def press_settings():
 
 
 def task_count(request):
-    """
-    TODO: change to be handled based on whether the user is logged in or not.
+    """TODO: change to be handled based on whether the user is logged in or not.
     """
     try:
         return models.Task.objects.filter(
@@ -676,8 +668,7 @@ def task_count(request):
 
 
 def review_assignment_count(request):
-    """
-    TODO: change to be handled based on whether the user is logged in or not.
+    """TODO: change to be handled based on whether the user is logged in or not.
     """
     try:
         return models.ReviewAssignment.objects.filter(
@@ -1113,7 +1104,6 @@ def build_time_line(book):
     return sorted(clean_timeline, key=lambda k: k['date'], reverse=True)
 
 
-# Email handler - should be moved to logic!
 def send_proposal_review_request(
         request,
         proposal,
@@ -1122,6 +1112,7 @@ def send_proposal_review_request(
         attachment=None,
         access_key=None,
 ):
+    """ Email handler - should be moved to logic! """
     from_email = models.Setting.objects.get(
         group__name='email',
         name='from_address',
@@ -1329,8 +1320,8 @@ def handle_typeset_assignment(
     )
 
 
-# Email Handlers - TODO: move to email.py?
 def send_decision_ack(book, decision, email_text, url=None, attachment=None):
+    """ Email Handlers - TODO: move to email.py? """
     from_email = models.Setting.objects.get(
         group__name='email',
         name='from_address',
@@ -1475,8 +1466,8 @@ def send_editorial_decision_ack(
             )
 
 
-# Email Handlers - TODO: move to email.py?
 def send_production_editor_ack(book, editor, email_text, attachment=None):
+    """ Email Handlers - TODO: move to email.py? """
     from_email = models.Setting.objects.get(
         group__name='email',
         name='from_address',
