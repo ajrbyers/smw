@@ -27,6 +27,10 @@ class UploadFile(forms.Form):
 class UserCreationForm(forms.ModelForm):
     """ Creates a user, with no privileges, from the given username and pw. """
 
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name", "email")
+
     error_messages = {
         'password_mismatch': "The two password fields didn't match.",
     }
@@ -40,10 +44,6 @@ class UserCreationForm(forms.ModelForm):
         help_text="Enter the same password as above, for verification."
     )
     email = forms.CharField(max_length=100, required=True)
-
-    class Meta:
-        model = User
-        fields = ("username", "first_name", "last_name", "email")
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

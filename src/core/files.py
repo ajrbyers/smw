@@ -192,7 +192,7 @@ def handle_file(_file, book, kind, owner, label=None):
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 
@@ -236,7 +236,7 @@ def handle_email_file(_file, kind, owner, label=None):
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 
@@ -286,7 +286,7 @@ def handle_proposal_review_file(_file, proposal_review, kind, owner, label=None)
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 
@@ -336,7 +336,7 @@ def handle_proposal_file(_file, proposal, kind, owner, label=None):
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 
@@ -380,7 +380,7 @@ def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
         stage_uploaded=1,
         kind=kind,
         label=label,
-        owner=owner
+        owner=owner,
     )
     new_file.save()
 

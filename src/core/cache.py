@@ -18,13 +18,13 @@ def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):
             key = sha1(override_key or u"//".join((
                 unicode(f),
                 u"//".join(
-                    objectToString(a) for a in args
+                    object_to_string(a) for a in args
                 ),
                 u"//".join(
                     unicode(a.updated) for a in args if hasattr(a, "updated")
                 ),
                 u"//".join(
-                    unicode(k) + objectToString(v)
+                    unicode(k) + object_to_string(v)
                     for k, v in kwargs.iteritems()
                 ),
                 u"//".join(
@@ -61,7 +61,7 @@ def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):
             return result
         return x
 
-    def objectToString(obj):
+    def object_to_string(obj):
         if isinstance(obj, Model):
             object_class = type(obj)
             return ".".join((

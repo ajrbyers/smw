@@ -1,32 +1,29 @@
-from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q
-from django.utils import timezone
+from itertools import chain
+import mimetypes
+from operator import attrgetter
+import os
+from uuid import uuid4
+
+from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.http import StreamingHttpResponse
-from django.conf import settings
-from operator import attrgetter
-from itertools import chain
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponseRedirect, StreamingHttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.utils import timezone
 
-import os
-import mimetypes
-
-from uuid import uuid4
-from core.files import handle_attachment, handle_file_update, handle_attachment, handle_file
 from core import models, log, logic as core_logic, forms as core_forms
-from core.decorators import is_book_editor
-from core.decorators import is_editor
-from core.decorators import is_press_editor
+from core.files import handle_file_update, handle_attachment, handle_file
+from core.decorators import is_book_editor, is_editor, is_press_editor
 from editor import logic, forms as editor_forms
-from revisions import models as revision_models
-from review import models as review_models
-from manager import models as manager_models, logic as manager_logic
-from submission import forms as submission_forms
 from editor import forms, models as editor_models
 from editorialreview import models as editorial_models
+from manager import models as manager_models, logic as manager_logic
+from revisions import models as revision_models
+from review import models as review_models
+from submission import forms as submission_forms
 
 
 @login_required
@@ -34,54 +31,82 @@ from editorialreview import models as editorial_models
 def editor_dashboard(request):
     if request.POST:
         order = request.POST.get('order')
-        filterby = request.POST.get('filter')
+        filter_by = request.POST.get('filter')
         search = request.POST.get('search')
     else:
-        filterby = None
+        filter_by = None
         search = None
         order = 'pk'
 
     query_list = []
 
-    if filterby:
-        if filterby == 'live':
+    if filter_by:
+        if filter_by == 'live':
             query_list.append(Q(stage__current_stage__isnull=False))
-        elif filterby == 'inprogress':
+        elif filter_by == 'inprogress':
             query_list.append(Q(stage__current_stage__isnull=True))
         else:
-            if not filterby == 'revisions':
-                query_list.append(Q(stage__current_stage=filterby))
+            if not filter_by == 'revisions':
+                query_list.append(Q(stage__current_stage=filter_by))
             else:
                 query_list.append(Q(stage__current_stage__isnull=False))
 
     if search:
-        query_list.append(Q(title__contains=search) | Q(subtitle__contains=search) | Q(prefix__contains=search))
+        query_list.append(
+            Q(title__contains=search) |
+            Q(subtitle__contains=search) |
+            Q(prefix__contains=search)
+        )
 
     # If not press editor, filter out unassigned books
-    if not 'press-editor' in request.user_roles:
+    if 'press-editor' not in request.user_roles:
         query_list.append(Q(book_editors__in=[request.user]))
 
     book_list = []
     if query_list:
-        query_books = models.Book.objects.filter(publication_date__isnull=True).filter(*query_list).exclude(
-            stage__current_stage='declined').select_related('stage').select_related('owner__profile').order_by(order)
+        query_books = models.Book.objects.filter(
+            publication_date__isnull=True
+        ).filter(
+            *query_list
+        ).exclude(
+            stage__current_stage='declined'
+        ).select_related(
+            'stage'
+        ).select_related(
+            'owner__profile'
+        ).order_by(
+            order
+        )
         for book in query_books:
-            if filterby == 'revisions':
+            if filter_by == 'revisions':
                 if book.revisions_requested():
                     book_list.append(book)
             else:
                 if not book.revisions_requested():
                     book_list.append(book)
     else:
-        books = models.Book.objects.filter(publication_date__isnull=True).exclude(
-            stage__current_stage='declined').select_related('stage').order_by(order)
-        for book in books:
-            book_list.append(book)
+        books = models.Book.objects.filter(
+            publication_date__isnull=True
+        ).exclude(
+            stage__current_stage='declined'
+        ).select_related(
+            'stage'
+        ).order_by(
+            order
+        )
+        [book_list.append(book) for book in books]
 
-    series_books = []
     if 'series-editor' in request.user_roles:
-        series_books = models.Book.objects.filter(series__editor=request.user).exclude(
-            stage__current_stage='declined').select_related('stage').order_by(order)
+        series_books = models.Book.objects.filter(
+            series__editor=request.user
+        ).exclude(
+            stage__current_stage='declined'
+        ).select_related(
+            'stage'
+        ).order_by(
+            order
+        )
+
         for series_book in series_books:
             if series_book not in book_list:
                 book_list.append(series_book)
@@ -89,11 +114,21 @@ def editor_dashboard(request):
     template = 'editor/dashboard.html'
     context = {
         'book_list': book_list,
-        'recent_activity': models.Log.objects.filter(book__in=book_list).order_by('-date_logged')[:15],
-        'notifications': models.Task.objects.filter(assignee=request.user, completed__isnull=True).select_related(
-            'book').order_by('-pk'),
+        'recent_activity': models.Log.objects.filter(
+            book__in=book_list
+        ).order_by(
+            '-date_logged'
+        )[:15],
+        'notifications': models.Task.objects.filter(
+            assignee=request.user,
+            completed__isnull=True
+        ).select_related(
+            'book'
+        ).order_by(
+            '-pk'
+        ),
         'order': order,
-        'filterby': filterby,
+        'filterby': filter_by,
     }
 
     return render(request, template, context)
@@ -103,11 +138,8 @@ def editor_dashboard(request):
 @is_editor
 def published_books(request):
     book_list = models.Book.objects.filter(publication_date__isnull=False)
-
     template = 'editor/published_books.html'
-    context = {
-        'book_list': book_list,
-    }
+    context = {'book_list': book_list}
 
     return render(request, template, context)
 
@@ -156,7 +188,9 @@ def editor_add_note(request, submission_id):
             note_form.date_submitted = timezone.now()
             note_form.date_last_updated = timezone.now()
             note_form.save()
-            return redirect(reverse('editor_notes', kwargs={'submission_id': book.id}))
+            return redirect(
+                reverse('editor_notes', kwargs={'submission_id': book.id})
+            )
 
     template = 'editor/submission.html'
     context = {
@@ -176,9 +210,9 @@ def editor_add_note(request, submission_id):
 def editor_update_note(request, submission_id, note_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     notes = models.Note.objects.filter(book=book)
-
     note = get_object_or_404(models.Note, book=book, pk=note_id)
     note_form = forms.NoteForm(instance=note)
+
     if request.POST:
         note_form = forms.NoteForm(request.POST, instance=note)
         if note_form.is_valid():
@@ -187,7 +221,12 @@ def editor_update_note(request, submission_id, note_id):
             note.user = request.user
             note.date_last_updated = timezone.now()
             note.save()
-            return redirect(reverse('editor_notes_view', kwargs={'submission_id': book.id, 'note_id': note_id}))
+            return redirect(
+                reverse(
+                    'editor_notes_view',
+                    kwargs={'submission_id': book.id, 'note_id': note_id}
+                )
+            )
 
     template = 'editor/submission.html'
     context = {
@@ -211,11 +250,13 @@ def editor_submission(request, submission_id):
     not_manuscript = True
     not_additional = True
     files = book.files.all()
+
     for file_check in files:
         if file_check.kind == 'manuscript':
             not_manuscript = False
         elif file_check.kind == 'additional':
             not_additional = False
+
     template = 'editor/submission.html'
     context = {
         'submission': book,
@@ -233,60 +274,61 @@ def editor_submission(request, submission_id):
 def get_list_of_editors(book):
     book_editors = book.book_editors.all()
     previous_editors = []
-    for book_editor in book_editors:
-        previous_editors.append(book_editor)
+    [previous_editors.append(book_editor) for book_editor in book_editors]
     all_book_editors = User.objects.filter(profile__roles__slug='book-editor')
-
     list_of_editors = [{} for t in range(0, len(all_book_editors))]
+
     for t, editor in enumerate(all_book_editors):
         already_added = False
         if editor in previous_editors:
             already_added = True
-        list_of_editors[t] = {'editor': editor, 'already_added': already_added, }
+
+        list_of_editors[t] = {'editor': editor, 'already_added': already_added}
     return list_of_editors
 
 
 def get_list_of_authors(book):
     all_authors = User.objects.filter(profile__roles__slug='author')
-
     list_of_authors = [{} for t in range(0, len(all_authors))]
+
     for t, author in enumerate(all_authors):
         owner = False
         if author == book.owner:
             owner = True
         list_of_authors[t] = {'author': author, 'owner': owner, }
+
     return list_of_authors
 
 
 def get_list_of_book_authors(book):
     all_authors = book.author.all()
-
     list_of_authors = [{} for t in range(0, len(all_authors))]
+
     for t, author in enumerate(all_authors):
         owner = False
         if author.author_email == book.owner.email:
             owner = True
-        list_of_authors[t] = {'author': author, 'owner': owner, }
+        list_of_authors[t] = {'author': author, 'owner': owner}
+
     return list_of_authors
 
 
 def get_list_of_book_editors(book):
     all_editors = book.editor.all()
-
     list_of_editors = [{} for t in range(0, len(all_editors))]
+
     for t, editor in enumerate(all_editors):
         owner = False
         if editor.author_email == book.owner.email:
             owner = True
-        list_of_editors[t] = {'editor': editor, 'owner': owner, }
+        list_of_editors[t] = {'editor': editor, 'owner': owner}
+
     return list_of_editors
 
 
 @is_press_editor
 def editor_change_owner(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-
-    email_text = models.Setting.objects.get(group__name='email', name='book_editor_ack').value
     book_authors = get_list_of_book_authors(book)
     editors = get_list_of_book_editors(book)
     authors = get_list_of_authors(book)
@@ -302,7 +344,6 @@ def editor_change_owner(request, submission_id):
         editors = get_list_of_book_editors(book)
 
     elif request.GET:
-        type = ""
         if "author" in request.GET:
             user_id = request.GET.get("author")
             type = "Author"
@@ -313,31 +354,52 @@ def editor_change_owner(request, submission_id):
             user = models.Editor.objects.get(pk=user_id)
 
         book.read_only_users.add(book.owner)
+
         try:
             new_user = User.objects.get(email=user.author_email)
             book.owner = new_user
             book.save()
         except User.DoesNotExist:
             new_pass = manager_logic.generate_password()
-            new_user = User.objects.create_user(username=user.author_email,
-                                                email=user.author_email,
-                                                password=new_pass,
-                                                first_name=user.first_name,
-                                                last_name=user.last_name)
-            messages.add_message(request, messages.SUCCESS,
-                                 'Profile created for %s %s, password set to %s.' % (type, new_user.username, new_pass))
-            new_profile = models.Profile(middle_name=user.middle_name, salutation=user.salutation,
-                                         institution=user.institution,
-                                         department=user.department, country=user.country, biography=user.biography,
-                                         orcid=user.orcid, twitter=user.twitter, linkedin=user.linkedin,
-                                         facebook=user.facebook, user=new_user)
+            new_user = User.objects.create_user(
+                username=user.author_email,
+                email=user.author_email,
+                password=new_pass,
+                first_name=user.first_name,
+                last_name=user.last_name,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Profile created for %s %s, password set to %s.' % (
+                    type,
+                    new_user.username,
+                    new_pass,
+                )
+            )
+            new_profile = models.Profile(
+                middle_name=user.middle_name,
+                salutation=user.salutation,
+                institution=user.institution,
+                department=user.department,
+                country=user.country,
+                biography=user.biography,
+                orcid=user.orcid,
+                twitter=user.twitter,
+                linkedin=user.linkedin,
+                facebook=user.facebook,
+                user=new_user,
+            )
             new_profile.save()
             author_role = get_object_or_404(models.Role, name="Author")
             new_profile.roles.add(author_role)
             new_profile.save()
             book.owner = new_user
             book.save()
-            email_text = models.Setting.objects.get(group__name='email', name='new_user_owner_email').value
+            email_text = models.Setting.objects.get(
+                group__name='email',
+                name='new_user_owner_email'
+            ).value
             logic.send_new_user_ack(book, email_text, new_user, new_pass)
 
         authors = get_list_of_authors(book)
@@ -362,10 +424,7 @@ def editor_change_owner(request, submission_id):
 @is_press_editor
 def editor_add_editors(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-
     list_of_editors = get_list_of_editors(book)
-
-    #email_text = models.Setting.objects.get(group__name='email', name='book_editor_ack').value
 
     if request.GET and "add" in request.GET:
         user_id = request.GET.get("add")
@@ -397,9 +456,7 @@ def editor_add_editors(request, submission_id):
 @is_book_editor
 def editor_tasks(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-
     tasks = logic.get_submission_tasks(book, request.user)
-
     template = 'editor/submission.html'
     context = {
         'submission': book,
@@ -415,13 +472,31 @@ def editor_tasks(request, submission_id):
 @is_book_editor
 def editor_review(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-    review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
-    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(content_type__model='book', object_id=submission_id).order_by('-pk')
+    review_rounds = models.ReviewRound.objects.filter(
+        book=book
+    ).order_by(
+        '-round_number'
+    )
+    editorial_review_assignments = (
+        editorial_models.EditorialReview.objects.filter(
+            content_type__model='book',
+            object_id=submission_id
+        ).order_by(
+            '-pk'
+        )
+    )
 
     if request.POST and 'new_round' in request.POST:
         new_round = logic.create_new_review_round(book)
-        return redirect(reverse('editor_review_round',
-                                kwargs={'submission_id': submission_id, 'round_number': new_round.round_number}))
+        return redirect(
+            reverse(
+                'editor_review_round',
+                kwargs={
+                    'submission_id': submission_id,
+                    'round_number': new_round.round_number
+                }
+            )
+        )
 
     template = 'editor/submission.html'
     context = {
@@ -429,7 +504,10 @@ def editor_review(request, submission_id):
         'author_include': 'editor/review_revisions.html',
         'editorial_review_assignments': editorial_review_assignments,
         'review_rounds': review_rounds,
-        'revision_requests': revision_models.Revision.objects.filter(book=book, revision_type='review'),
+        'revision_requests': revision_models.Revision.objects.filter(
+            book=book,
+            revision_type='review',
+        ),
         'active_page': 'editor_review',
     }
 
@@ -439,7 +517,11 @@ def editor_review(request, submission_id):
 @is_book_editor
 def editor_view_revisions(request, submission_id, revision_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-    revision = get_object_or_404(revision_models.Revision, pk=revision_id, completed__isnull=False)
+    revision = get_object_or_404(
+        revision_models.Revision,
+        pk=revision_id,
+        completed__isnull=False,
+    )
 
     template = 'editor/submission.html'
     context = {
@@ -449,19 +531,40 @@ def editor_view_revisions(request, submission_id, revision_id):
         'active': 'user_submission',
         'author_include': 'editor/submission_details.html',
         'submission_files': 'editor/revisions/view_revisions.html',
-        'review_rounds': models.ReviewRound.objects.filter(book=book).order_by('-round_number'),
-        'revision_requests': revision_models.Revision.objects.filter(book=book, revision_type='review')
+        'review_rounds': models.ReviewRound.objects.filter(
+            book=book
+        ).order_by(
+            '-round_number'
+        ),
+        'revision_requests': revision_models.Revision.objects.filter(
+            book=book,
+            revision_type='review',
+        )
     }
 
     return render(request, template, context)
 
+
 @is_book_editor
 def editor_view_editorial_review(request, submission_id, editorial_review_id):
     book = get_object_or_404(models.Book, pk=submission_id)
-    editorial_review = get_object_or_404(editorial_models.EditorialReview, pk=editorial_review_id)
-    review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
-    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(
-        content_type__model='book', object_id=submission_id).order_by('-pk')
+    editorial_review = get_object_or_404(
+        editorial_models.EditorialReview,
+        pk=editorial_review_id,
+    )
+    review_rounds = models.ReviewRound.objects.filter(
+        book=book
+    ).order_by(
+        '-round_number'
+    )
+    editorial_review_assignments = (
+        editorial_models.EditorialReview.objects.filter(
+            content_type__model='book',
+            object_id=submission_id
+        ).order_by(
+            '-pk'
+        )
+    )
 
     template = 'editor/submission.html'
     context = {
@@ -484,23 +587,35 @@ def editor_review_round(request, submission_id, round_number):
         book=book,
         round_number=round_number
     )
-    review_rounds = models.ReviewRound.objects.filter(book=book).order_by('-round_number')
+    review_rounds = models.ReviewRound.objects.filter(
+        book=book
+    ).order_by(
+        '-round_number'
+    )
     internal_review_assignments = models.ReviewAssignment.objects.filter(
         book=book,
         review_type='internal',
         review_round__round_number=round_number
-    ).select_related('user', 'review_round')
+    ).select_related(
+        'user', 'review_round'
+    )
 
     external_review_assignments = models.ReviewAssignment.objects.filter(
         book=book,
         review_type='external',
         review_round__round_number=round_number
-    ).select_related('user', 'review_round')
+    ).select_related(
+        'user', 'review_round'
+    )
 
-    editorial_review_assignments = editorial_models.EditorialReview.objects.filter(
-        content_type__model='book',
-        object_id=submission_id
-    ).order_by('-pk')
+    editorial_review_assignments = (
+        editorial_models.EditorialReview.objects.filter(
+            content_type__model='book',
+            object_id=submission_id
+        ).order_by(
+            '-pk'
+        )
+    )
 
     template = 'editor/submission.html'
     context = {
@@ -510,11 +625,13 @@ def editor_review_round(request, submission_id, round_number):
         'review_round': review_round,
         'review_rounds': review_rounds,
         'round_id': round_number,
-        'revision_requests': revision_models.Revision.objects.filter(book=book, revision_type='review'),
+        'revision_requests': revision_models.Revision.objects.filter(
+            book=book,
+            revision_type='review',
+        ),
         'internal_review_assignments': internal_review_assignments,
         'external_review_assignments': external_review_assignments,
         'editorial_review_assignments': editorial_review_assignments,
-
         'active_page': 'editor_review',
     }
 
@@ -524,12 +641,17 @@ def editor_review_round(request, submission_id, round_number):
 @is_book_editor
 def editor_review_round_cancel(request, submission_id, round_number):
     book = get_object_or_404(models.Book, pk=submission_id)
-    reviews = models.ReviewAssignment.objects.filter(book=book, review_round__book=book,
-                                                     review_round__round_number=round_number)
-    for review in reviews:
-        review.delete()
+    reviews = models.ReviewAssignment.objects.filter(
+        book=book,
+        review_round__book=book,
+        review_round__round_number=round_number,
+    )
+    [review.delete() for review in reviews]
     logic.cancel_review_round(book)
-    return redirect(reverse('editor_review', kwargs={'submission_id': submission_id}))
+
+    return redirect(
+        reverse('editor_review', kwargs={'submission_id': submission_id})
+    )
 
 
 @is_book_editor
@@ -539,41 +661,77 @@ def editor_change_revision_due_date(request, submission_id, revision_id):
     form = forms.ChangeRevisionDueDateForm(instance=assignment)
 
     if request.method == 'POST':
-        form = forms.ChangeRevisionDueDateForm(request.POST, instance=assignment)
+        form = forms.ChangeRevisionDueDateForm(
+            request.POST,
+            instance=assignment,
+        )
 
         if form.is_valid():
             form.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 "Due date updated for revision request {0}: {1}".format(assignment.pk, assignment.due))
-            return redirect(reverse('editor_review', kwargs={'submission_id': submission_id}))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Due date updated for revision request {0}: {1}".format(
+                    assignment.pk,
+                    assignment.due,
+                )
+            )
+            return redirect(
+                reverse(
+                    'editor_review',
+                    kwargs={'submission_id': submission_id}
+                )
+            )
 
     template = 'editor/change_revision_due_date.html'
-    context = {
-        'form': form,
-        'book': book,
-    }
+    context = {'form': form, 'book': book}
 
     return render(request, template, context)
 
 
 @is_book_editor
-def remove_assignment_editor(request, submission_id, assignment_type, assignment_id):
+def remove_assignment_editor(
+        request,
+        submission_id,
+        assignment_type,
+        assignment_id,
+):
     get_object_or_404(models.Book, pk=submission_id)
+
     if assignment_type == 'indexing':
-        review_assignment = get_object_or_404(models.IndexAssignment, pk=assignment_id)
+        review_assignment = get_object_or_404(
+            models.IndexAssignment,
+            pk=assignment_id,
+        )
     elif assignment_type == 'copyediting':
-        review_assignment = get_object_or_404(models.CopyeditAssignment, pk=assignment_id)
+        review_assignment = get_object_or_404(
+            models.CopyeditAssignment,
+            pk=assignment_id,
+        )
     elif assignment_type == 'typesetting':
-        review_assignment = get_object_or_404(models.TypesetAssignment, pk=assignment_id)
+        review_assignment = get_object_or_404(
+            models.TypesetAssignment,
+            pk=assignment_id,
+        )
     else:
         review_assignment = None
 
     if review_assignment:
         review_assignment.delete()
     if assignment_type == 'typesetting':
-        return redirect(reverse('editor_production', kwargs={'submission_id': submission_id, }))
+        return redirect(
+            reverse(
+                'editor_production',
+                kwargs={'submission_id': submission_id}
+            )
+        )
     else:
-        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id, }))
+        return redirect(
+            reverse(
+                'editor_editing',
+                kwargs={'submission_id': submission_id}
+            )
+        )
 
 
 @is_book_editor
@@ -582,22 +740,43 @@ def editor_review_round_remove(request, submission_id, round_number, review_id):
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
     review_assignment.delete()
 
-    return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                           'round_number': submission.get_latest_review_round()}))
+    return redirect(
+        reverse(
+            'editor_review_round',
+            kwargs={
+                'submission_id': submission_id,
+                'round_number': submission.get_latest_review_round()
+            }
+        )
+    )
 
 
 @is_book_editor
-def editor_review_round_withdraw(request, submission_id, round_number, review_id):
+def editor_review_round_withdraw(
+        request,
+        submission_id,
+        round_number,
+        review_id,
+):
     submission = get_object_or_404(models.Book, pk=submission_id)
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
+
     if review_assignment.withdrawn:
         review_assignment.withdrawn = False
     else:
         review_assignment.withdrawn = True
+
     review_assignment.save()
 
-    return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                           'round_number': submission.get_latest_review_round()}))
+    return redirect(
+        reverse(
+            'editor_review_round',
+            kwargs={
+                'submission_id': submission_id,
+                'round_number': submission.get_latest_review_round()
+            }
+        )
+    )
 
 
 @is_book_editor
@@ -607,21 +786,37 @@ def editor_review_round_reopen(request, submission_id, round_number, review_id):
     review_assignment.reopened = True
     review_assignment.save()
 
-    return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                           'round_number': submission.get_latest_review_round()}))
+    return redirect(
+        reverse(
+            'editor_review_round',
+            kwargs={
+                'submission_id': submission_id,
+                'round_number': submission.get_latest_review_round()
+            }
+        )
+    )
 
 
 @is_book_editor
 def hide_review(request, submission_id, round_id, review_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
-    if review_assignment.hide == True:
+
+    if review_assignment.hide:
         review_assignment.hide = False
     else:
         review_assignment.hide = True
+
     review_assignment.save()
-    return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                           'round_number': submission.get_latest_review_round()}))
+
+    return redirect(reverse(
+        'editor_review_round',
+        kwargs={
+            'submission_id': submission_id,
+            'round_number': submission.get_latest_review_round()
+        }
+    ))
+
 
 @is_book_editor
 def update_review_due_date(request, submission_id, round_id, review_id):
@@ -629,18 +824,40 @@ def update_review_due_date(request, submission_id, round_id, review_id):
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
     previous_due_date = review_assignment.due
     if request.POST:
-        email_text = models.Setting.objects.get(group__name='email', name='review_due_ack').value
+        email_text = models.Setting.objects.get(
+            group__name='email',
+            name='review_due_ack',
+        ).value
         due_date = request.POST.get('due_date', None)
         notify = request.POST.get('email', None)
+
         if due_date:
             if not str(due_date) == str(previous_due_date):
                 review_assignment.due = due_date
                 review_assignment.save()
                 if notify:
-                    logic.send_review_update(submission, review_assignment, email_text, request.user, attachment=None)
-                messages.add_message(request, messages.SUCCESS, 'Due date updated.')
-            return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                                   'round_number': submission.get_latest_review_round()}))
+                    logic.send_review_update(
+                        submission,
+                        review_assignment,
+                        email_text,
+                        request.user,
+                        attachment=None,
+                    )
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    'Due date updated.',
+                )
+
+            return redirect(
+                reverse(
+                    'editor_review_round',
+                    kwargs={
+                        'submission_id': submission_id,
+                        'round_number': submission.get_latest_review_round()
+                    }
+                )
+            )
 
     template = 'editor/update_review_due_date.html'
     context = {
@@ -652,48 +869,79 @@ def update_review_due_date(request, submission_id, round_id, review_id):
 
     return render(request, template, context)
 
+
 @is_book_editor
 def editor_decision(request, submission_id, decision):
     book = get_object_or_404(models.Book, pk=submission_id)
-    email_text = models.Setting.objects.get(group__name='email', name='decision_ack').value
-    editor_email_text = models.Setting.objects.get(group__name='email', name='production_editor_ack').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='decision_ack',
+    ).value
+    editor_email_text = models.Setting.objects.get(
+        group__name='email',
+        name='production_editor_ack'
+    ).value
     permission = True
 
     if book.stage.current_stage == 'editing':
-        production_editors = User.objects.filter(profile__roles__slug='production-editor')
+        production_editors = User.objects.filter(
+            profile__roles__slug='production-editor'
+        )
     else:
         production_editors = None
 
     if book.stage.current_stage == 'declined':
         permission = False
+
     if decision == 'decline':
         if book.stage.current_stage == 'editing':
             permission = False
     elif decision == 'review':
-        if book.stage.current_stage == 'review' or book.stage.current_stage == 'editing':
+        if (
+            book.stage.current_stage == 'review' or
+            book.stage.current_stage == 'editing'
+        ):
             permission = False
     elif decision == 'editing' and book.stage.current_stage == 'editing':
         permission = False
     elif decision == 'production':
-        if book.stage.current_stage == 'review' or book.stage.current_stage == 'production':
+        if (
+            book.stage.current_stage == 'review' or
+            book.stage.current_stage == 'production'
+        ):
             permission = False
 
     if request.POST:
 
         if request.FILES.get('attachment'):
-            attachment = handle_file(request.FILES.get('attachment'), book, 'misc', request.user)
+            attachment = handle_file(
+                request.FILES.get('attachment'),
+                book,
+                'misc',
+                request.user,
+            )
         else:
             attachment = None
         if decision == 'decline':
             book.stage.declined = timezone.now()
             book.stage.current_stage = 'declined'
             book.stage.save()
-            messages.add_message(request, messages.SUCCESS, 'Submission declined.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Submission declined.',
+            )
+
             if 'inform' in request.POST:
-                core_logic.send_decision_ack(book=book, decision=decision, email_text=request.POST.get('id_email_text'),
-                                             attachment=attachment)
+                core_logic.send_decision_ack(
+                    book=book,
+                    decision=decision,
+                    email_text=request.POST.get('id_email_text'),
+                    attachment=attachment,
+                )
             elif 'skip' in request.POST:
-                print "Skip"
+                print("Skip")
+
             return redirect(reverse('editor_dashboard'))
 
         elif decision == 'review':
@@ -703,58 +951,124 @@ def editor_decision(request, submission_id, decision):
             book.stage.save()
 
             if book.stage.current_stage == 'review':
-                log.add_log_entry(book=book, user=request.user, kind='review', message='Submission moved to Review',
-                                  short_name='Submission in Review')
+                log.add_log_entry(
+                    book=book,
+                    user=request.user,
+                    kind='review',
+                    message='Submission moved to Review',
+                    short_name='Submission in Review',
+                )
 
-            messages.add_message(request, messages.SUCCESS, 'Submission has been moved to the review stage.')
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Submission has been moved to the review stage.',
+            )
+
             if 'inform' in request.POST:
-                core_logic.send_decision_ack(book=book, decision=decision, email_text=request.POST.get('id_email_text'),
-                                             attachment=attachment)
+                core_logic.send_decision_ack(
+                    book=book,
+                    decision=decision,
+                    email_text=request.POST.get('id_email_text'),
+                    attachment=attachment,
+                )
             elif 'skip' in request.POST:
-                print "Skip"
+                print("Skip")
 
-            return redirect(reverse('editor_review', kwargs={'submission_id': book.id}))
+            return redirect(
+                reverse('editor_review', kwargs={'submission_id': book.id})
+            )
 
         elif decision == 'editing':
             if not book.stage.editing:
-                log.add_log_entry(book=book, user=request.user, kind='editing', message='Submission moved to Editing.',
-                                  short_name='Submission in Editing')
+                log.add_log_entry(
+                    book=book,
+                    user=request.user,
+                    kind='editing',
+                    message='Submission moved to Editing.',
+                    short_name='Submission in Editing',
+                )
             book.stage.editing = timezone.now()
             book.stage.current_stage = 'editing'
             book.stage.save()
+
             if 'inform' in request.POST:
-                if 'include_url' in request.POST and request.POST['include_url'] == 'on':
-                    url = "%s/author/submission/%s/review/" % (request.META['HTTP_HOST'], book.pk)
+                if (
+                    'include_url' in request.POST and
+                    request.POST['include_url'] == 'on'
+                ):
+                    url = "%s/author/submission/%s/review/" % (
+                        request.META['HTTP_HOST'],
+                        book.pk
+                    )
                 else:
                     url = None
-                core_logic.send_decision_ack(book=book, decision=decision, email_text=request.POST.get('id_email_text'),
-                                             attachment=attachment, url=url)
+                core_logic.send_decision_ack(
+                    book=book,
+                    decision=decision,
+                    email_text=request.POST.get('id_email_text'),
+                    attachment=attachment,
+                    url=url,
+                )
             elif 'skip' in request.POST:
-                print "Skip"
-            return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
+                print("Skip")
+            return redirect(
+                reverse(
+                    'editor_editing',
+                    kwargs={'submission_id': submission_id},
+                )
+            )
 
         elif decision == 'production':
             if not book.stage.production:
-                log.add_log_entry(book=book, user=request.user, kind='production',
-                                  message='Submission moved to Production', short_name='Submission in Production')
+                log.add_log_entry(
+                    book=book,
+                    user=request.user,
+                    kind='production',
+                    message='Submission moved to Production',
+                    short_name='Submission in Production',
+                )
             book.stage.production = timezone.now()
             book.stage.current_stage = 'production'
             book.stage.save()
             if 'inform' in request.POST:
-                core_logic.send_decision_ack(book=book, decision=decision, email_text=request.POST.get('id_email_text'),
-                                             attachment=attachment)
-                production_editor_list = User.objects.filter(pk__in=request.POST.getlist('production_editor'))
+                core_logic.send_decision_ack(
+                    book=book,
+                    decision=decision,
+                    email_text=request.POST.get('id_email_text'),
+                    attachment=attachment,
+                )
+                production_editor_list = User.objects.filter(
+                    pk__in=request.POST.getlist('production_editor')
+                )
+
                 for editor in production_editor_list:
-                    core_logic.send_production_editor_ack(book, editor, request.POST.get('id_editor_email_text'),
-                                                          attachment)
-                    log.add_log_entry(book=book, user=request.user, kind='production',
-                                      message='Production Editor %s %s assigend to %s' % (
-                                          editor.first_name, editor.last_name, book.title),
-                                      short_name='Production Editor Assigned')
+                    core_logic.send_production_editor_ack(
+                        book,
+                        editor,
+                        request.POST.get('id_editor_email_text'),
+                        attachment,
+                    )
+                    log.add_log_entry(
+                        book=book,
+                        user=request.user,
+                        kind='production',
+                        message='Production Editor %s %s assigend to %s' % (
+                            editor.first_name,
+                            editor.last_name,
+                            book.title,
+                        ),
+                        short_name='Production Editor Assigned',
+                    )
 
             elif 'skip' in request.POST:
-                print "Skip"
-            return redirect(reverse('editor_production', kwargs={'submission_id': submission_id}))
+                print("Skip")
+
+            return redirect(
+                reverse(
+                    'editor_production', kwargs={'submission_id': submission_id}
+                )
+            )
 
     template = 'editor/decisions.html'
     context = {
@@ -772,12 +1086,22 @@ def editor_decision(request, submission_id, decision):
 @is_book_editor
 def request_revisions(request, submission_id, returner):
     book = get_object_or_404(models.Book, pk=submission_id)
-    email_text = models.Setting.objects.get(group__name='email', name='request_revisions').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='request_revisions'
+    ).value
     form = forms.RevisionForm()
 
-    if revision_models.Revision.objects.filter(book=book, completed__isnull=True, revision_type=returner):
-        messages.add_message(request, messages.WARNING,
-                             'There is already an outstanding revision request for this book.')
+    if revision_models.Revision.objects.filter(
+            book=book,
+            completed__isnull=True,
+            revision_type=returner,
+    ):
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'There is already an outstanding revision request for this book.',
+        )
 
     if request.POST:
         form = forms.RevisionForm(request.POST)
@@ -794,19 +1118,50 @@ def request_revisions(request, submission_id, returner):
 
             if attachment_files:
                 for attachment in attachment_files:
-                    attachment = handle_file(attachment, book, 'other', request.user,
-                                             "Attachment: Uploaded by %s" % (request.user.username))
+                    attachment = handle_file(
+                        attachment,
+                        book,
+                        'other',
+                        request.user,
+                        "Attachment: Uploaded by %s" % request.user.username
+                    )
                     attachments.append(attachment)
 
-            logic.send_requests_revisions(book, request.user, new_revision_request, email_text, attachments)
-            log.add_log_entry(book, request.user, 'revisions', '%s %s requested revisions for %s' % (
-                request.user.first_name, request.user.last_name, book.title), 'Revisions Requested')
+            logic.send_requests_revisions(
+                book,
+                request.user,
+                new_revision_request,
+                email_text,
+                attachments,
+            )
+            log.add_log_entry(
+                book,
+                request.user,
+                'revisions',
+                '%s %s requested revisions for %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    book.title
+                ),
+                'Revisions Requested',
+            )
 
             if returner == 'review':
-                return redirect(reverse('editor_review', kwargs={'submission_id': submission_id}))
+                return redirect(
+                    reverse(
+                        'editor_review', kwargs={'submission_id': submission_id}
+                    )
+                )
             else:
-                messages.add_message(request, messages.INFO, 'Revision request submitted')
-                return redirect(reverse('editor_submission', kwargs={'submission_id': submission_id}))
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    'Revision request submitted',
+                )
+                return redirect(reverse(
+                    'editor_submission',
+                    kwargs={'submission_id': submission_id}
+                ))
 
     template = 'editor/revisions/request_revisions.html'
     context = {
@@ -830,43 +1185,77 @@ def add_review_files(request, submission_id, review_type):
             elif review_type == 'external':
                 submission.external_review_files.add(file)
 
-        messages.add_message(request, messages.SUCCESS, '%s files added to Review' % files.count())
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '%s files added to Review' % files.count()
+        )
 
-        return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                               'round_number': submission.get_latest_review_round()}))
+        return redirect(reverse(
+            'editor_review_round',
+            kwargs={
+                'submission_id': submission_id,
+                'round_number': submission.get_latest_review_round()}
+        ))
 
     template = 'editor/add_review_files.html'
-    context = {
-        'submission': submission,
-    }
+    context = {'submission': submission}
 
     return render(request, template, context)
+
 
 @is_book_editor
 def editor_add_reviewers(request, submission_id, review_type, round_number):
     submission = get_object_or_404(models.Book, pk=submission_id)
     reviewers = models.User.objects.filter(profile__roles__slug='reviewer')
     review_forms = review_models.Form.objects.all()
-    committees = manager_models.Group.objects.filter(group_type='review_committee')
-    review_round = get_object_or_404(models.ReviewRound, book=submission, round_number=round_number)
+    committees = manager_models.Group.objects.filter(
+        group_type='review_committee'
+    )
+    review_round = get_object_or_404(
+        models.ReviewRound,
+        book=submission,
+        round_number=round_number,
+    )
 
     if request.POST and "add_user" in request.POST:
-        messages.add_message(request, messages.WARNING,
-                             'Select the "Reviewer" role in order to be able to add this user')
-        return redirect("%s?return=%s" % (reverse('add_user'), reverse('editor_add_reviewers',
-                                                                       kwargs={'submission_id': submission_id,
-                                                                               'review_type': review_type,
-                                                                               'round_number': round_number})))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'Select the "Reviewer" role in order to be able to add this user',
+        )
+        return redirect(
+            "%s?return=%s" % (
+                reverse('add_user'),
+                reverse(
+                    'editor_add_reviewers',
+                    kwargs={
+                        'submission_id': submission_id,
+                        'review_type': review_type,
+                        'round_number': round_number
+                    }
+                )
+            )
+        )
 
     elif request.POST:
         reviewers = User.objects.filter(pk__in=request.POST.getlist('reviewer'))
-        committees = manager_models.Group.objects.filter(pk__in=request.POST.getlist('committee'))
-        review_form = review_models.Form.objects.get(ref=request.POST.get('review_form'))
+        committees = manager_models.Group.objects.filter(
+            pk__in=request.POST.getlist('committee')
+        )
+        review_form = review_models.Form.objects.get(
+            ref=request.POST.get('review_form')
+        )
         due_date = request.POST.get('due_date')
         email_text = request.POST.get('message')
 
         if request.FILES.get('attachment'):
-            attachment = handle_file(request.FILES.get('attachment'), submission, 'misc', request.user)
+            attachment = handle_file(
+                request.FILES.get('attachment'),
+                submission,
+                'misc',
+                request.user,
+            )
         else:
             attachment = None
 
@@ -874,56 +1263,116 @@ def editor_add_reviewers(request, submission_id, review_type, round_number):
             generate = True
         else:
             generate = False
-        # Handle reviewers
-        for reviewer in reviewers:
+
+        for reviewer in reviewers:  # Handle reviewers.
             if generate:
                 access_key = uuid4()
-                logic.handle_review_assignment(request, submission, reviewer, review_type, due_date, review_round,
-                                               request.user, email_text, review_form, attachment, access_key=access_key)
+                logic.handle_review_assignment(
+                    request,
+                    submission,
+                    reviewer,
+                    review_type,
+                    due_date,
+                    review_round,
+                    request.user,
+                    email_text,
+                    review_form,
+                    attachment,
+                    access_key=access_key,
+                )
             else:
-                logic.handle_review_assignment(request, submission, reviewer, review_type, due_date, review_round,
-                                               request.user, email_text, review_form, attachment)
+                logic.handle_review_assignment(
+                    request,
+                    submission,
+                    reviewer,
+                    review_type,
+                    due_date,
+                    review_round,
+                    request.user,
+                    email_text,
+                    review_form,
+                    attachment,
+                )
 
-        # Handle committees
-        for committee in committees:
-            members = manager_models.GroupMembership.objects.filter(group=committee)
+        for committee in committees:  # Handle committees.
+            members = manager_models.GroupMembership.objects.filter(
+                group=committee
+            )
             for member in members:
                 if generate:
                     access_key = uuid4()
-                    logic.handle_review_assignment(request, submission, member.user, review_type, due_date,
-                                                   review_round, request.user, email_text, review_form, attachment,
-                                                   access_key=access_key)
+                    logic.handle_review_assignment(
+                        request,
+                        submission,
+                        member.user,
+                        review_type,
+                        due_date,
+                        review_round,
+                        request.user,
+                        email_text,
+                        review_form,
+                        attachment,
+                        access_key=access_key,
+                    )
                 else:
-                    logic.handle_review_assignment(request, submission, member.user, review_type, due_date,
-                                                   review_round, request.user, email_text, review_form, attachment)
+                    logic.handle_review_assignment(
+                        request,
+                        submission,
+                        member.user,
+                        review_type,
+                        due_date,
+                        review_round,
+                        request.user,
+                        email_text,
+                        review_form,
+                        attachment,
+                    )
 
         # Tidy up and save
         if review_type == 'internal' and not submission.stage.internal_review:
             submission.stage.internal_review = timezone.now()
             submission.stage.save()
-            log.add_log_entry(book=submission, user=request.user, kind='review', message='Internal Review Started',
-                              short_name='Submission entered Internal Review')
+            log.add_log_entry(
+                book=submission,
+                user=request.user,
+                kind='review',
+                message='Internal Review Started',
+                short_name='Submission entered Internal Review',
+            )
 
         elif review_type == 'external' and not submission.stage.external_review:
             submission.stage.external_review = timezone.now()
             submission.stage.save()
-            log.add_log_entry(book=submission, user=request.user, kind='review', message='External Review Started',
-                              short_name='Submission entered External Review')
+            log.add_log_entry(
+                book=submission,
+                user=request.user,
+                kind='review',
+                message='External Review Started',
+                short_name='Submission entered External Review',
+            )
 
         submission.review_form = review_form
         submission.save()
 
-        return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                               'round_number': submission.get_latest_review_round()}))
+        return redirect(
+            reverse(
+                'editor_review_round',
+                kwargs={
+                    'submission_id': submission_id,
+                    'round_number': submission.get_latest_review_round()}
+            )
+        )
 
     template = 'editor/add_reviewers.html'
     context = {
         'reviewers': reviewers,
         'committees': committees,
         'active': 'new',
-        'email_text': models.Setting.objects.get(group__name='email', name='review_request'),
+        'email_text': models.Setting.objects.get(
+            group__name='email',
+            name='review_request',
+        ),
         'review_forms': review_forms,
-
         'submission': submission,
     }
 
@@ -934,10 +1383,19 @@ def editor_add_reviewers(request, submission_id, review_type, round_number):
 def editor_review_assignment(request, submission_id, round_id, review_id):
     submission = get_object_or_404(models.Book, pk=submission_id)
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
-    review_rounds = models.ReviewRound.objects.filter(book=submission).order_by('-round_number')
+    review_rounds = models.ReviewRound.objects.filter(
+        book=submission
+    ).order_by(
+        '-round_number'
+    )
     result = review_assignment.results
-    relations = review_models.FormElementsRelationship.objects.filter(form=result.form)
-    data_ordered = core_logic.order_data(core_logic.decode_json(result.data), relations)
+    relations = review_models.FormElementsRelationship.objects.filter(
+        form=result.form
+    )
+    data_ordered = core_logic.order_data(
+        core_logic.decode_json(result.data),
+        relations,
+    )
 
     template = 'editor/submission.html'
     context = {
@@ -949,7 +1407,10 @@ def editor_review_assignment(request, submission_id, round_id, review_id):
         'result': result,
         'active': 'review',
         'review_rounds': review_rounds,
-        'revision_requests': revision_models.Revision.objects.filter(book=submission, revision_type='review'),
+        'revision_requests': revision_models.Revision.objects.filter(
+            book=submission,
+            revision_type='review',
+        ),
     }
 
     return render(request, template, context)
@@ -964,14 +1425,27 @@ def editor_editing(request, submission_id):
 
         if action == 'copyediting':
             book.stage.copyediting = timezone.now()
-            log.add_log_entry(book=book, user=request.user, kind='editing', message='Copyediting has commenced.',
-                              short_name='Copyediting Started')
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='editing',
+                message='Copyediting has commenced.',
+                short_name='Copyediting Started',
+            )
         elif action == 'indexing':
             book.stage.indexing = timezone.now()
-            log.add_log_entry(book=book, user=request.user, kind='editing', message='Indexing has commenced.',
-                              short_name='Indexing Started')
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='editing',
+                message='Indexing has commenced.',
+                short_name='Indexing Started',
+            )
         book.stage.save()
-        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'editor_editing',
+            kwargs={'submission_id': submission_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -997,8 +1471,16 @@ def editor_production(request, submission_id):
         'author_include': 'editor/production/view.html',
         'active': 'production',
         'submission': book,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related(
+            'file'
+        ),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by(
+            'sequence'
+        ),
         'physical_list': models.PhysicalFormat.objects.filter(book=book),
         'active_page': 'production',
     }
@@ -1016,23 +1498,46 @@ def editor_publish(request, submission_id):
         if not book.publication_date:
             book.publication_date = timezone.now()
         book.save()
-        messages.add_message(request, messages.SUCCESS, 'Book has successfully been published')
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Book has successfully been published',
+        )
     else:
-        messages.add_message(request, messages.INFO, 'Book is already published')
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Book is already published',
+        )
 
-    return redirect(reverse('editor_submission', kwargs={'submission_id': submission_id}))
+    return redirect(
+        reverse(
+            'editor_submission',
+            kwargs={'submission_id': submission_id}
+        )
+    )
 
 
 @is_book_editor
 def catalog(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
 
-    internal_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='internal',
-                                                                         completed__isnull=False).select_related('user',
-                                                                                                                 'review_round')
-    external_review_assignments = models.ReviewAssignment.objects.filter(book=book, review_type='external',
-                                                                         completed__isnull=False).select_related('user',
-                                                                                                                 'review_round')
+    internal_review_assignments = models.ReviewAssignment.objects.filter(
+        book=book,
+        review_type='internal',
+        completed__isnull=False
+    ).select_related(
+        'user',
+        'review_round',
+    )
+    external_review_assignments = models.ReviewAssignment.objects.filter(
+        book=book,
+        review_type='external',
+        completed__isnull=False
+    ).select_related(
+        'user',
+        'review_round',
+    )
     metadata_form = forms.EditMetadata(instance=book)
     cover_form = forms.CoverForm(instance=book)
 
@@ -1047,38 +1552,67 @@ def catalog(request, submission_id):
                     book.keywords.remove(keyword)
 
                 for keyword in request.POST.get('tags').split(','):
-                    new_keyword, c = models.Keyword.objects.get_or_create(name=keyword)
+                    new_keyword, c = models.Keyword.objects.get_or_create(
+                        name=keyword,
+                    )
                     book.keywords.add(new_keyword)
 
                 for subject in book.subject.all():
                     book.subject.remove(subject)
 
                 for subject in request.POST.get('stags').split(','):
-                    new_subject, c = models.Subject.objects.get_or_create(name=subject)
+                    new_subject, c = models.Subject.objects.get_or_create(
+                        name=subject,
+                    )
                     book.subject.add(new_subject)
 
                 book.save()
-                return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
+                return redirect(reverse(
+                    'catalog',
+                    kwargs={'submission_id': submission_id})
+                )
             else:
-                print metadata_form.errors
+                print(metadata_form.errors)
 
         if request.GET.get('cover', None):
-            cover_form = forms.CoverForm(request.POST, request.FILES, instance=book)
+            cover_form = forms.CoverForm(
+                request.POST,
+                request.FILES,
+                instance=book,
+            )
 
             if cover_form.is_valid():
                 cover_form.save()
-                return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
+                return redirect(
+                    reverse('catalog', kwargs={'submission_id': submission_id})
+                )
 
         if request.GET.get('invite_author', None):
             note_to_author = request.POST.get('author_invite', None)
-            new_cover_proof = editor_models.CoverImageProof(book=book, editor=request.user,
-                                                            note_to_author=note_to_author)
+            new_cover_proof = editor_models.CoverImageProof(
+                book=book,
+                editor=request.user,
+                note_to_author=note_to_author
+            )
             new_cover_proof.save()
-            log.add_log_entry(book=book, user=request.user, kind='production',
-                              message='%s %s requested Cover Image Proofs' % (
-                                  request.user.first_name, request.user.last_name), short_name='Cover Image Proof Request')
-            messages.add_message(request, messages.SUCCESS, 'Cover Image Proof request added.')
-            return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user, kind='production',
+                message='%s %s requested Cover Image Proofs' % (
+                    request.user.first_name,
+                    request.user.last_name
+                ),
+                short_name='Cover Image Proof Request'
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                'Cover Image Proof request added.',
+            )
+
+            return redirect(
+                reverse('catalog', kwargs={'submission_id': submission_id})
+            )
 
     template = 'editor/catalog/catalog.html'
     context = {
@@ -1101,9 +1635,16 @@ def catalog_marc21(request, submission_id, type=None):
 
     if type:
         if type == 'xml':
-            content_preloaded = core_logic.book_to_mark21_file_content(book, request.user, True)
+            content_preloaded = core_logic.book_to_mark21_file_content(
+                book,
+                request.user,
+                True,
+            )
         else:
-            content_preloaded = core_logic.book_to_mark21_file_content(book, request.user)
+            content_preloaded = core_logic.book_to_mark21_file_content(
+                book,
+                request.user,
+            )
 
     marc21_form = forms.Marc21Form()
 
@@ -1115,23 +1656,39 @@ def catalog_marc21(request, submission_id, type=None):
                 content_preloaded = content_preloaded + chunk
         else:
             if 'xml-download' in request.POST:
-                file_pk = core_logic.book_to_mark21_file_download_content(book, request.user,
-                                                                          request.POST.get('file_content'), True)
+                file_pk = core_logic.book_to_mark21_file_download_content(
+                    book,
+                    request.user,
+                    request.POST.get('file_content'),
+                    True,
+                )
             else:
-                file_pk = core_logic.book_to_mark21_file_download_content(book, request.user,
-                                                                          request.POST.get('file_content'))
+                file_pk = core_logic.book_to_mark21_file_download_content(
+                    book,
+                    request.user,
+                    request.POST.get('file_content')
+                )
             _file = get_object_or_404(models.File, pk=file_pk)
-            file_path = os.path.join(settings.BOOK_DIR, submission_id, _file.uuid_filename)
+            file_path = os.path.join(
+                settings.BOOK_DIR,
+                submission_id,
+                _file.uuid_filename,
+            )
 
             try:
                 fsock = open(file_path, 'r')
                 mimetype = mimetypes.guess_type(file_path)
                 response = StreamingHttpResponse(fsock, content_type=mimetype)
-                response['Content-Disposition'] = "attachment; filename=%s" % (_file.original_filename)
-                # log.add_log_entry(book=book, user=request.user, kind='file', message='File %s downloaded.' % _file.uuid_filename, short_name='Download')
+                response['Content-Disposition'] = "attachment; filename=%s" % (
+                    _file.original_filename
+                )
                 return response
             except IOError:
-                messages.add_message(request, messages.ERROR, 'File not found. %s' % (file_path))
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'File not found. %s' % (file_path)
+                )
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     template = 'editor/catalog/catalog_marc21.html'
@@ -1150,21 +1707,30 @@ def catalog_marc21(request, submission_id, type=None):
 def identifiers(request, submission_id, identifier_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
     digital_format_choices = logic.generate_digital_choices(book.format_set.all())
-    physical_format_choices = logic.generate_physical_choices(book.physicalformat_set.all())
+    physical_format_choices = logic.generate_physical_choices(
+        book.physicalformat_set.all()
+    )
 
     if identifier_id:
         identifier = get_object_or_404(models.Identifier, pk=identifier_id)
 
         if request.GET.get('delete', None) == 'true':
             identifier.delete()
-            return redirect(reverse('identifiers', kwargs={'submission_id': submission_id}))
+            return redirect(
+                reverse('identifiers', kwargs={'submission_id': submission_id})
+            )
 
-        form = forms.IdentifierForm(instance=identifier, digital_format_choices=digital_format_choices,
-                                    physical_format_choices=physical_format_choices)
+        form = forms.IdentifierForm(
+            instance=identifier,
+            digital_format_choices=digital_format_choices,
+            physical_format_choices=physical_format_choices,
+        )
     else:
         identifier = None
-        form = forms.IdentifierForm(digital_format_choices=digital_format_choices,
-                                    physical_format_choices=physical_format_choices)
+        form = forms.IdentifierForm(
+            digital_format_choices=digital_format_choices,
+            physical_format_choices=physical_format_choices,
+        )
 
     if request.POST:
         if identifier_id:
@@ -1177,9 +1743,11 @@ def identifiers(request, submission_id, identifier_id=None):
             new_identifier.book = book
             new_identifier.save()
         else:
-            print form.errors
+            print(form.errors)
 
-            return redirect(reverse('identifiers', kwargs={'submission_id': submission_id}))
+            return redirect(
+                reverse('identifiers', kwargs={'submission_id': submission_id})
+            )
 
     template = 'editor/catalog/identifiers.html'
     context = {
@@ -1193,9 +1761,14 @@ def identifiers(request, submission_id, identifier_id=None):
 
 
 @is_book_editor
-def update_contributor(request, submission_id, contributor_type, contributor_id=None):
+def update_contributor(
+        request,
+        submission_id,
+        contributor_type,
+        contributor_id=None,
+):
     book = get_object_or_404(models.Book, pk=submission_id)
-    active = 'add'
+
     if contributor_id:
         active = 'edit'
         if contributor_type == 'author':
