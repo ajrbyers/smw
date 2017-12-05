@@ -1797,7 +1797,9 @@ class IndexAssignment(models.Model):
 
 class TypesetAssignment(models.Model):
 
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(
+        Book
+    )
     typesetter = models.ForeignKey(
         User,
         related_name='typesetter',
@@ -2034,6 +2036,9 @@ class Series(models.Model):
 
 class Editor(models.Model):
 
+    class Meta:
+        ordering = ('sequence',)
+
     first_name = models.CharField(
         max_length=100
     )
@@ -2101,9 +2106,6 @@ class Editor(models.Model):
         blank=True
     )
 
-    class Meta:
-        ordering = ('sequence',)
-
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
 
@@ -2122,6 +2124,9 @@ class Editor(models.Model):
 
 
 class File(models.Model):
+
+    class Meta:
+        ordering = ('sequence', '-kind')
 
     mime_type = models.CharField(
         max_length=100,
@@ -2190,9 +2195,6 @@ class File(models.Model):
 
     def __repr__(self):
         return u'%s' % self.original_filename
-
-    class Meta:
-        ordering = ('sequence', '-kind')
 
 
 class FileVersion(models.Model):
@@ -2798,6 +2800,7 @@ class PhysicalFormat(models.Model):
 
 
 class ProposalForm(models.Model):
+
     name = models.CharField(
         max_length=100,
     )
