@@ -219,7 +219,7 @@ def is_book_editor_or_author(_function):
             submission_id = kwargs.get('submission_id')
 
         # Check if the user is a press-editor, if not, check if they are they
-        # are assigend as an editor to this book, or check if the user is the
+        # are assigned as an editor to this book, or check if the user is the
         # series editor for this book.
         if 'press-editor' in user_roles:
             return _function(request, *args, **kwargs)
