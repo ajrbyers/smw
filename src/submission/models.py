@@ -402,7 +402,7 @@ class ProposalReview(models.Model):
     ),
     withdrawn = models.BooleanField(
         default=False
-    ),
+    )
 
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.proposal.title, self.user.username)
