@@ -521,7 +521,7 @@ def incomplete_proposal(request, proposal_id):
                 form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
                 data=None,
                 owner=request.user,
-                **defaults,
+                **defaults
             )
             proposal_type = request.POST.get('proposal-type')
 
@@ -666,7 +666,7 @@ def start_proposal(request):
                 form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
                 data=None,
                 owner=request.user,
-                **defaults,
+                **defaults
             )
             proposal_type = request.POST.get('proposal-type')
 
@@ -740,7 +740,7 @@ def start_proposal(request):
                 form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
                 data=None,
                 owner=request.user,
-                **defaults,
+                **defaults
             )
             proposal_type = request.POST.get('proposal-type')
 
