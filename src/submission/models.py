@@ -396,9 +396,13 @@ class ProposalReview(models.Model):
     comments_from_editor = models.TextField(
         blank=True,
         null=True,
-        reopened = models.BooleanField(default=False),
-        withdrawn = models.BooleanField(default=False),
     )
+    reopened = models.BooleanField(
+        default=False
+    ),
+    withdrawn = models.BooleanField(
+        default=False
+    ),
 
     def __unicode__(self):
         return u'%s - %s %s' % (self.pk, self.proposal.title, self.user.username)

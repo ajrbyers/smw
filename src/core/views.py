@@ -2233,7 +2233,7 @@ def assign_proposal(request):
                 form=models.ProposalForm.objects.get(pk=proposal_form_id),
                 data=None,
                 owner=None,
-                **defaults,
+                **defaults
             )
             proposal.save()
             save_dict = {}
