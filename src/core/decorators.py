@@ -345,18 +345,21 @@ def is_reviewer(_function):
 def is_editorial_reviewer(_function):
     """Manage editorial reviewer permissions.
     Check if access key matches an existing editorial review,
-    and otherwise handle editor permissions.
+    and otherwise handle editor permissions. Needs to be 
+    improved so that ed reviewers can only see reviews for
+    the submission they're reviewing.
     """
     def wrap(request, *args, **kwargs):
         full_url = request.get_full_path()
         if not request.user.is_authenticated():
             if 'access_key' in full_url:
                 access_key = full_url[full_url.rfind('access_key=') + 11:] # Parse access key from URL
-                review_assignment = editorialreview_models.EditorialReview.objects.filter(
+                review_assignment = get_object_or_404(
+                    editorialreview_models.EditorialReview,
                     access_key=access_key
                 )
 
-                if review_assignment: # Return requested page if access key matches the current editorial review
+                if review_assignment:
                     return _function(
                         request,
                         *args,
@@ -376,21 +379,38 @@ def is_editorial_reviewer(_function):
             )
 
         else:
-            review_assignment = editorialreview_models.EditorialReview.objects.filter(
+
+            if editorialreview_models.EditorialReview.objects.filter(
                 user=request.user
-            )
-            if review_assignment:
+            ):
                 return _function(
                     request,
                     *args,
                     **kwargs
                 )
-            else:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    'You cannot view this page as you are not an assigned editorial reviewer.'
-                )
+
+            review_assignment = get_object_or_404(
+                editorialreview_models.EditorialReview,
+                pk=kwargs.get('review_id')
+            )
+            # Editor permissions
+            submission = review_assignment.content_object
+            user_roles = [role.slug for role in request.user.profile.roles.all()]
+
+            if review_assignment.content_type.model == 'book':
+                if request.user in submission.all_editors():
+                    return _function(request, *args, **kwargs)
+
+            if ('press-editor' in user_roles or
+                'series-editor' in user_roles or
+                    ('book-editor' in user_roles and request.user in submission.book_editors.all())):
+                return _function(request, *args, **kwargs)
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'You cannot view this page as you are not an assigned editor or editorial reviewer.'
+            )
 
     wrap.__doc__ = _function.__doc__
     wrap.__name__ = _function.__name__
