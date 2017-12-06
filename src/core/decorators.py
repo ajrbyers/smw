@@ -345,18 +345,17 @@ def is_reviewer(_function):
 def is_editorial_reviewer(_function):
     """Manage editorial reviewer permissions.
     Check if access key matches an existing editorial review,
-    and otherwise handle editor permissions.
+    and otherwise handle editor permissions. Needs to be 
+    improved so that ed reviewers can only see reviews for
+    the submission they're reviewing.
     """
     def wrap(request, *args, **kwargs):
         full_url = request.get_full_path()
-        review_id = kwargs.get('review_id')
-
         if not request.user.is_authenticated():
             if 'access_key' in full_url:
                 access_key = full_url[full_url.rfind('access_key=') + 11:] # Parse access key from URL
                 review_assignment = get_object_or_404(
                     editorialreview_models.EditorialReview,
-                    pk=review_id,
                     access_key=access_key
                 )
 
@@ -380,16 +379,21 @@ def is_editorial_reviewer(_function):
             )
 
         else:
-            review_assignment = get_object_or_404(
-                editorialreview_models.EditorialReview,
-                pk=review_id,
-            )
-            if review_assignment.user == request.user:
+
+            if editorialreview_models.EditorialReview.objects.filter(
+                user=request.user
+            ):
                 return _function(
                     request,
                     *args,
                     **kwargs
                 )
+
+            review_assignment = get_object_or_404(
+                editorialreview_models.EditorialReview,
+                pk=kwargs.get('review_id')
+            )
+            # Editor permissions
             submission = review_assignment.content_object
             user_roles = [role.slug for role in request.user.profile.roles.all()]
 
@@ -397,10 +401,9 @@ def is_editorial_reviewer(_function):
                 if request.user in submission.all_editors():
                     return _function(request, *args, **kwargs)
 
-            if 'press-editor' in user_roles:
-                return _function(request, *args, **kwargs)
-
-            if 'book-editor' in user_roles and request.user in submission.book_editors.all():
+            if ('press-editor' in user_roles or
+                'series-editor' in user_roles or
+                    ('book-editor' in user_roles and request.user in submission.book_editors.all())):
                 return _function(request, *args, **kwargs)
 
             messages.add_message(
