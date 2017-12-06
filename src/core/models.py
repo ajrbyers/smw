@@ -1078,7 +1078,7 @@ class Book(models.Model):
         if book_editors:
             book_editor_list = [
                 editor for editor in book_editors
-                if press_editor_list not in editor
+                if editor not in press_editor_list
             ]
         else:
             book_editor_list = []
