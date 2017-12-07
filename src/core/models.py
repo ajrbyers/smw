@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils.html import strip_tags
-
 from django.utils.safestring import mark_safe
+
 from revisions import models as revision_models
 from submission import models as submission_models
 

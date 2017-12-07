@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-from core import models
-from django.utils import timezone
-from submission import models as submission_models
 import json
-from django.test.client import Client
+
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-import tempfile
-from django.test.utils import setup_test_environment
 from django.core import management
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.client import Client
+from django.test.utils import setup_test_environment
+from django.utils import timezone
+
+from core import models
+from submission import models as submission_models
+import tempfile
 
 
 class CoreTests(TestCase):
@@ -69,7 +71,7 @@ class CoreTests(TestCase):
                 self.fail("expected object with id %r not for model %r" % (expected_val, Model))
 
         
-##############################################	Fixture Tests	 ##############################################
+# ## Fixture Tests ##
 
     def test_roles_fixture(self):
         """
@@ -106,7 +108,7 @@ class CoreTests(TestCase):
         langs = ["abk", "afr", "afa", "amh", "anp", "apa", "ara", "hye", "asm", "ast", "aus", "aze", "ban", "bat", "bas", "bak", "eus", "bel", "ben", "ber", "bos", "bre", "bul", "mya", "cat", "cel", "cai", "che", "chr", "zho", "cor", "cos", "hrv", "ces", "dak", "dan", "dum", "nld", "eng", "est", "fao", "fij", "fil", "fin", "fiu", "fra", "gla", "car", "glg", "lug", "gay", "gba", "gez", "kat", "deu", "gmh", "goh", "gem", "gil", "hat", "haw", "heb", "hin", "hun", "isl", "ind", "gle", "ita", "jpn", "tlh", "kon", "kor", "kur", "kru", "lat", "lav", "lit", "nds", "lus", "ltz", "mkd", "mlg", "msa", "mal", "mlt", "mni", "mri", "myn", "moh", "mol", "mon", "new", "nep", "non", "nai", "nor", "nno", "pag", "pan", "paa", "fas", "phi", "pol", "por", "ron", "rom", "rus", "smo", "sco", "srp", "iii", "scn", "sla", "slk", "slv", "sog", "som", "son", "wen", "spa", "zgh", "suk", "sun", "swa", "swe", "gsw", "syr", "tha", "tog", "ton", "tsi", "tso", "tsn", "tum", "tur", "ukr", "urd", "uzb", "vai", "ven", "vie", "cym", "yap", "yid", "zap", "zha", "zul"]
         self.all_x_exist(models.Language, 'code', langs)
 
-##############################################	Model Tests	 ##############################################
+# ## Model Tests ##
 
     def test_author_model(self):
         """
@@ -191,9 +193,8 @@ class CoreTests(TestCase):
 
         self.assertEqual(len(models.Book.objects.all()) == 1, True)
 
-##############################################	View Tests	 ##############################################
 
-################### Dashboards ##################
+# ## Dashboards ##
 
     def test_editor_access(self):
         self.client.login(username="rua_editor", password="tester")
@@ -890,5 +891,3 @@ class CoreTests(TestCase):
         resp = self.client.post(reverse('email_user_proposal', kwargs={'user_id': 1, 'proposal_id': 1}), {'subject': 'all', 'to_values': self.author.author_email, "cc_values": "", "bcc_values": "", "body": 'text'})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("was sent" in resp.content, True)
-
-        #### Problematic ###
