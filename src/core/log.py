@@ -35,6 +35,7 @@ def list_to_text(email_list):
         emails = emails + email
         if not index == last:
             emails = emails + ", "
+
     return emails
 
 

@@ -76,8 +76,7 @@ class UserCreationForm(forms.ModelForm):
         profile.terms_and_conditions = True
         profile.save()
 
-        # Send email to the user
-        email_text = models.Setting.objects.get(
+        email_text = models.Setting.objects.get(  # Send email to the user.
             group__name='email',
             name='new_user_email',
         ).value
@@ -104,7 +103,10 @@ class FullUserProfileForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
         username = self.cleaned_data.get("username")
-        if email and User.objects.filter(email=email).exclude(username=username).count():
+        if (
+            email and
+            User.objects.filter(email=email).exclude(username=username).count()
+        ):
             raise forms.ValidationError(u'Email address already registered')
         return email
 
