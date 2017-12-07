@@ -244,7 +244,7 @@ def tasks(request, submission_id):
 @login_required
 def view_revisions(request, submission_id, revision_id):
     book = get_object_or_404(models.Book, pk=submission_id, owner=request.user)
-    revision = get_object_or_404(
+    _revision = get_object_or_404(
         revision_models.Revision,
         pk=revision_id,
         completed__isnull=False,
@@ -259,8 +259,8 @@ def view_revisions(request, submission_id, revision_id):
 
     template = 'author/submission.html'
     context = {
-        'revision': revision,
-        'revision_id': revision.id,
+        'revision': _revision,
+        'revision_id': _revision.id,
         'submission': book,
         'author_include': 'author/submission_details.html',
         'submission_files': 'author/view_revision.html',
