@@ -112,7 +112,7 @@ def book_to_mark21_file(book, owner, xml=False):
 
         record.add_field(record_field('100', ['1', '#'], ['a', name]))
 
-    title_words = (book.title).split(' ')  # Title statement.
+    title_words = book.title.split(' ')  # Title statement.
     first_word = title_words[0]
 
     if first_word.lower() == 'the':
@@ -211,15 +211,15 @@ def book_to_mark21_file(book, owner, xml=False):
         filename = 'book_' + str(book.id) + '_' + re.sub(
             '[^a-zA-Z0-9\n\.]', '', title.lower()
         ) + '_marc21.dat'
-        file = handle_marc21_file(record.as_marc(), filename, book, owner)
+        _file = handle_marc21_file(record.as_marc(), filename, book, owner)
     else:
         filename = 'book_' + str(book.id) + '_' + re.sub(
             '[^a-zA-Z0-9\n\.]', '', title.lower()
         ) + '_marc21.xml'
         content = record_to_xml(record, quiet=False, namespace=False)
-        file = handle_marc21_file(content, filename, book, owner)
+        _file = handle_marc21_file(content, filename, book, owner)
 
-    return file.pk
+    return _file.pk
     # add handle_file ?
 
 
@@ -233,14 +233,14 @@ def book_to_mark21_file_download_content(book, owner, content, xml=False):
         filename = 'book_' + str(book.id) + '_' + re.sub(
             '[^a-zA-Z0-9\n\.]', '', title.lower()
         ) + '_marc21.dat'
-        file = handle_marc21_file(content, filename, book, owner)
+        _file = handle_marc21_file(content, filename, book, owner)
     else:
         filename = 'book_' + str(book.id) + '_' + re.sub(
             '[^a-zA-Z0-9\n\.]', '', title.lower()
         ) + '_marc21.xml'
-        file = handle_marc21_file(content, filename, book, owner)
+        _file = handle_marc21_file(content, filename, book, owner)
 
-    return file.pk
+    return _file.pk
 
 
 def book_to_mark21_file_content(book, owner, xml=False):

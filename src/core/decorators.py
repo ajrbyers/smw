@@ -403,13 +403,18 @@ def is_editorial_reviewer(_function):
 
             if ('press-editor' in user_roles or
                 'series-editor' in user_roles or
-                    ('book-editor' in user_roles and request.user in submission.book_editors.all())):
+                (
+                    'book-editor' in user_roles and
+                    request.user in submission.book_editors.all()
+                )
+            ):
                 return _function(request, *args, **kwargs)
 
             messages.add_message(
                 request,
                 messages.ERROR,
-                'You cannot view this page as you are not an assigned editor or editorial reviewer.'
+                'You cannot view this page as you are not '
+                'an assigned editor or editorial reviewer.'
             )
 
     wrap.__doc__ = _function.__doc__

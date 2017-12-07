@@ -1,12 +1,14 @@
-from django.test import TestCase
-from core import models as core_models
-from django.utils import timezone
-from django.test.client import Client
+import tempfile
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-import tempfile
 from django.core import management
-# Create your tests here.
+from django.test import TestCase
+from django.test.client import Client
+from django.utils import timezone
+
+from core import models as core_models
+
 
 class AuthorTests(TestCase):
 
