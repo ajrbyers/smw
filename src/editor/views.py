@@ -1687,7 +1687,7 @@ def catalog_marc21(request, submission_id, type=None):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    'File not found. %s' % (file_path)
+                    'File not found. %s' % file_path
                 )
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -1706,7 +1706,9 @@ def catalog_marc21(request, submission_id, type=None):
 @is_book_editor
 def identifiers(request, submission_id, identifier_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
-    digital_format_choices = logic.generate_digital_choices(book.format_set.all())
+    digital_format_choices = logic.generate_digital_choices(
+        book.format_set.all()
+    )
     physical_format_choices = logic.generate_physical_choices(
         book.physicalformat_set.all()
     )
@@ -1788,9 +1790,15 @@ def update_contributor(
     if request.POST:
         if contributor:
             if contributor_type == 'author':
-                form = submission_forms.AuthorForm(request.POST, instance=contributor)
+                form = submission_forms.AuthorForm(
+                    request.POST,
+                    instance=contributor,
+                )
             elif contributor_type == 'editor':
-                form = submission_forms.EditorForm(request.POST, instance=contributor)
+                form = submission_forms.EditorForm(
+                    request.POST,
+                    instance=contributor,
+                )
         else:
             if contributor_type == 'author':
                 form = submission_forms.AuthorForm(request.POST)
@@ -1806,7 +1814,10 @@ def update_contributor(
                 elif contributor_type == 'editor':
                     book.editor.add(saved_contributor)
 
-            return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
+            return redirect(reverse(
+                'catalog',
+                kwargs={'submission_id': submission_id},
+            ))
 
     template = 'editor/catalog/update_contributor.html'
     context = {
@@ -1822,13 +1833,22 @@ def update_contributor(
 
 
 @is_book_editor
-def delete_contributor(request, submission_id, contributor_type, contributor_id):
+def delete_contributor(
+        request,
+        submission_id,
+        contributor_type,
+        contributor_id,
+):
     book = get_object_or_404(models.Book, pk=submission_id)
 
     if contributor_id:
         if contributor_type == 'author':
             contributor = get_object_or_404(models.Author, pk=contributor_id)
-            messages.add_message(request, messages.ERROR, 'User %s has been deleted.' % (contributor.full_name))
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'User %s has been deleted.' % contributor.full_name
+            )
             book.author.remove(contributor)
         elif contributor_type == 'editor':
             contributor = get_object_or_404(models.Editor, pk=contributor_id)
@@ -1836,7 +1856,10 @@ def delete_contributor(request, submission_id, contributor_type, contributor_id)
         book.save()
         contributor.delete()
 
-        return redirect(reverse('catalog', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'catalog',
+            kwargs={'submission_id': submission_id},
+        ))
 
 
 @is_book_editor
@@ -1859,7 +1882,12 @@ def add_format(request, submission_id, file_id=None):
             if file_id:
                 new_file = None
             else:
-                new_file = handle_file(request.FILES.get('format_file'), book, 'format', request.user)
+                new_file = handle_file(
+                    request.FILES.get('format_file'),
+                    book,
+                    'format',
+                    request.user,
+                )
             new_format = format_form.save(commit=False)
             new_format.book = book
             label = request.POST.get('file_label')
@@ -1877,11 +1905,21 @@ def add_format(request, submission_id, file_id=None):
                 new_file.save()
                 new_format.file = new_file
             new_format.save()
-            log.add_log_entry(book=book, user=request.user, kind='production',
-                              message='%s %s loaded a new format, %s' % (
-                                  request.user.first_name, request.user.last_name, new_format.identifier),
-                              short_name='New Format Loaded')
-            return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='production',
+                message='%s %s loaded a new format, %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    new_format.identifier,
+                ),
+                short_name='New Format Loaded',
+            )
+            return redirect(reverse(
+                'editor_production',
+                kwargs={'submission_id': book.id},
+            ))
 
     template = 'editor/submission.html'
     context = {
@@ -1890,10 +1928,13 @@ def add_format(request, submission_id, file_id=None):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/add_format.html',
         'active': 'production',
-        'submission': book,
         'existing_file': exist_file,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -1918,18 +1959,35 @@ def add_chapter(request, submission_id, chapter_id=None):
             new_chapter.book = book
             new_chapter.save()
             for keyword in request.POST.get('tags').split(','):
-                new_keyword, c = models.Keyword.objects.get_or_create(name=keyword)
+                new_keyword, c = models.Keyword.objects.get_or_create(
+                    name=keyword,
+                )
                 new_chapter.keywords.add(new_keyword)
             for subject in request.POST.get('stags').split(','):
-                new_subject, c = models.Subject.objects.get_or_create(name=subject)
+                new_subject, c = models.Subject.objects.get_or_create(
+                    name=subject,
+                )
                 new_chapter.disciplines.add(new_subject)
             new_chapter.save()
-            log.add_log_entry(book=book, user=request.user, kind='production',
-                              message='%s %s loaded a new chapter, %s' % (
-                                  request.user.first_name, request.user.last_name, new_chapter.sequence),
-                              short_name='New Chapter Loaded')
-            return redirect(
-                reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': new_chapter.id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='production',
+                message='%s %s loaded a new chapter, %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    new_chapter.sequence,
+                ),
+                short_name='New Chapter Loaded',
+            )
+
+            return redirect(reverse(
+                'editor_view_chapter',
+                kwargs={
+                    'submission_id': book.id,
+                    'chapter_id': new_chapter.id
+                }
+            ))
 
     template = 'editor/submission.html'
     context = {
@@ -1938,10 +1996,13 @@ def add_chapter(request, submission_id, chapter_id=None):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/add_chapter.html',
         'active': 'production',
-        'submission': book,
         'exist_chapter': exist_chapter,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -1956,16 +2017,19 @@ def view_chapter(request, submission_id, chapter_id):
     chapter_authors = models.ChapterAuthor.objects.filter(chapter=chapter)
     old_format_authors = chapter.authors.all()
 
-    # Add Authors linked to Chapter by old ManytoMany relation as ChapterAuthors
+    # Add authors linked to `Chapter` by old M2M relation as `ChapterAuthors`.
     if old_format_authors:
-        logic.add_chapterauthors_from_author_models(chapter_id, old_format_authors)
+        logic.add_chapterauthors_from_author_models(
+            chapter_id,
+            old_format_authors,
+        )
 
     if request.POST:
         if 'remove_author' in request.POST:
             author_id = request.POST.get('author_id')[:-1]
             chapter_author = models.ChapterAuthor.objects.get(pk=author_id)
 
-            # Also remove ManytoMany relation between Author and Chapter, if there is one
+            # Also remove M2M relation between Author and Chapter, if any.
             author = models.Author.objects.get(pk=chapter_author.old_author_id)
             if author:
                 chapter.authors.remove(author)

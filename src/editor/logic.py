@@ -571,23 +571,38 @@ def send_review_request(
     )
 
 
-def send_editorial_review_request(book, review_assignment, email_text, sender,
-                                  attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    base_url = models.Setting.objects.get(group__name='general',
-                                          name='base_url')
-    press_name = models.Setting.objects.get(group__name='general',
-                                            name='press_name').value
+def send_editorial_review_request(
+        book,
+        review_assignment,
+        email_text, sender,
+        attachment=None
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+    base_url = models.Setting.objects.get(
+        group__name='general',
+        name='base_url',
+    )
+    press_name = models.Setting.objects.get(
+        group__name='general',
+        name='press_name',
+    ).value
 
     if review_assignment.publishing_committee_access_key:
         decision_url = 'http://%s/editorial/submission/%s/access_key/%s/' % (
-        base_url.value, book.id,
-        review_assignment.publishing_committee_access_key)
+            base_url.value,
+            book.id,
+            review_assignment.publishing_committee_access_key,
+        )
         access_key = review_assignment.publishing_committee_access_key
     else:
         decision_url = 'http://%s/editorial/submission/%s/access_key/%s/' % (
-        base_url.value, book.id, review_assignment.editorial_board_access_key)
+            base_url.value,
+            book.id,
+            review_assignment.editorial_board_access_key,
+        )
         access_key = review_assignment.editorial_board_access_key
 
     context = {
@@ -598,191 +613,327 @@ def send_editorial_review_request(book, review_assignment, email_text, sender,
         'base_url': base_url.value,
         'press_name': press_name,
     }
+
     for editor in review_assignment.editorial_board.all():
         email.send_email(
-            get_setting('editorial_review_request', 'email_subject',
-                        'Editorial Review Request'), context, from_email.value,
-            editor.email, email_text, book=book, attachment=attachment,
-            kind='review', access_key=access_key)
+            get_setting(
+                'editorial_review_request',
+                'email_subject',
+                'Editorial Review Request'
+            ),
+            context,
+            from_email.value,
+            editor.email,
+            email_text,
+            book=book,
+            attachment=attachment,
+            kind='review',
+            access_key=access_key,
+        )
 
 
-def send_editorial_review_update(book, review_assignment, email_text, sender,
-                                 attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    base_url = models.Setting.objects.get(group__name='general',
-                                          name='base_url')
+def send_editorial_review_update(
+        book,
+        review_assignment,
+        email_text,
+        sender,
+        attachment=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
-    print email_text
-    context = {
-        'book': book,
-        'review': review_assignment,
-        'sender': sender,
-    }
+    context = {'book': book, 'review': review_assignment, 'sender': sender}
+
     for editor in review_assignment.editorial_board.all():
         email.send_email(
-            get_setting('editorial_review_due_date_subject', 'email_subject',
-                        'Editorial Review Assignment %s: Due Date Updated') % review_assignment.id,
-            context, from_email.value, editor.email, email_text, book=book,
-            attachment=attachment, kind='review')
+            get_setting(
+                'editorial_review_due_date_subject',
+                'email_subject',
+                'Editorial Review Assignment {}: Due Date Updated'
+            ) % review_assignment.id,
+            context,
+            from_email.value,
+            editor.email,
+            email_text,
+            book=book,
+            attachment=attachment,
+            kind='review',
+        )
 
 
-def send_review_update(book, review_assignment, email_text, sender,
-                       attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    base_url = models.Setting.objects.get(group__name='general',
-                                          name='base_url')
+def send_review_update(
+        book,
+        review_assignment,
+        email_text,
+        sender,
+        attachment=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+    context = {'book': book, 'review': review_assignment, 'sender': sender}
 
-    print email_text
-    context = {
-        'book': book,
-        'review': review_assignment,
-        'sender': sender,
-    }
-
-    email.send_email(get_setting('review_due_date_subject', 'email_subject',
-                                 'Review Assignment %s: Due Date Updated') % review_assignment.id,
-                     context, from_email.value, review_assignment.user.email,
-                     email_text, book=book, attachment=attachment,
-                     kind='review')
+    email.send_email(
+        get_setting(
+            'review_due_date_subject',
+            'email_subject',
+            'Review Assignment %s: Due Date Updated'
+        ) % review_assignment.id,
+        context,
+        from_email.value,
+        review_assignment.user.email,
+        email_text,
+        book=book,
+        attachment=attachment,
+        kind='review'
+    )
 
 
 def send_proposal_decline(proposal, email_text, sender):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+
+    context = {'proposal': proposal, 'sender': sender}
+
+    email.send_email(
+        get_setting(
+            'proposal_declined_subject',
+            'email_subject',
+            '[abp] Proposal Declined'
+        ),
+        context,
+        from_email.value,
+        proposal.owner.email,
+        email_text,
+        kind='proposal',
+    )
+
+
+def send_proposal_accept(
+        proposal,
+        email_text,
+        submission,
+        sender,
+        attachment=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
     context = {
-        'proposal': proposal,
-        'sender': sender,
-    }
-
-    email.send_email(get_setting('proposal_declined_subject', 'email_subject',
-                                 '[abp] Proposal Declined'), context,
-                     from_email.value, proposal.owner.email, email_text,
-                     kind='proposal')
-
-
-def send_proposal_accept(proposal, email_text, submission, sender,
-                         attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-
-    context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url'
+        ).value,
         'proposal': proposal,
         'submission': submission,
         'sender': sender,
     }
 
-    email.send_email(get_setting('proposal_accepted_subject', 'email_subject',
-                                 '[abp] Proposal Accepted'), context,
-                     from_email.value, proposal.owner.email, email_text,
-                     book=submission, attachment=attachment)
+    email.send_email(
+        get_setting(
+            'proposal_accepted_subject',
+            'email_subject',
+            '[abp] Proposal Accepted'
+        ),
+        context,
+        from_email.value,
+        proposal.owner.email,
+        email_text,
+        book=submission,
+        attachment=attachment,
+    )
 
 
 def send_proposal_revisions(proposal, email_text, sender):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'proposal': proposal,
         'sender': sender,
     }
 
     email.send_email(
-        get_setting('proposal_revision_required_subject', 'email_subject',
-                    '[abp] Proposal Revisions Required'), context,
-        from_email.value, proposal.owner.email, email_text, kind='proposal')
+        get_setting(
+            'proposal_revision_required_subject',
+            'email_subject',
+            '[abp] Proposal Revisions Required'
+        ),
+        context,
+        from_email.value,
+        proposal.owner.email,
+        email_text,
+        kind='proposal',
+    )
 
 
 def send_author_sign_off(submission, email_text, sender):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'submission': submission,
         'sender': sender,
     }
 
     email.send_email(
-        get_setting('book_contract_uploaded_subject', 'email_subject',
-                    'Book Contract Uploaded'), context, from_email.value,
-        submission.owner.email, email_text, book=submission, kind='submission')
+        get_setting(
+            'book_contract_uploaded_subject',
+            'email_subject',
+            'Book Contract Uploaded'
+        ),
+        context,
+        from_email.value,
+        submission.owner.email,
+        email_text,
+        book=submission,
+        kind='submission',
+    )
 
 
-def send_copyedit_assignment(submission, copyedit, email_text, sender,
-                             attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-
-    context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
-        'submission': submission,
-        'copyedit': copyedit,
-        'sender': sender,
-    }
-
-    email.send_email(get_setting('copyedit_assignment_subject', 'email_subject',
-                                 'Copyedit Assignment'), context,
-                     from_email.value, copyedit.copyeditor.email, email_text,
-                     book=submission, attachment=attachment, kind='copyedit')
-
-
-def send_author_invite(submission, copyedit, email_text, sender,
-                       attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
+def send_copyedit_assignment(
+        submission,
+        copyedit,
+        email_text,
+        sender,
+        attachment=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'submission': submission,
         'copyedit': copyedit,
         'sender': sender,
     }
 
     email.send_email(
-        get_setting('copyediting_completed_subject', 'email_subject',
-                    'Copyediting Completed'), context, from_email.value,
-        submission.owner.email, email_text, book=submission,
-        attachment=attachment, kind='copyedit')
+        get_setting(
+            'copyedit_assignment_subject',
+            'email_subject',
+            'Copyedit Assignment'
+        ),
+        context,
+        from_email.value,
+        copyedit.copyeditor.email,
+        email_text,
+        book=submission,
+        attachment=attachment,
+        kind='copyedit',
+    )
+
+
+def send_author_invite(
+        submission,
+        copyedit,
+        email_text,
+        sender,
+        attachment=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+
+    context = {
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
+        'submission': submission,
+        'copyedit': copyedit,
+        'sender': sender,
+    }
+
+    email.send_email(
+        get_setting(
+            'copyediting_completed_subject',
+            'email_subject',
+            'Copyediting Completed'
+        ),
+        context,
+        from_email.value,
+        submission.owner.email,
+        email_text,
+        book=submission,
+        attachment=attachment,
+        kind='copyedit',
+    )
 
 
 def send_invite_indexer(book, index, email_text, sender, attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    press_name = models.Setting.objects.get(group__name='general',
-                                            name='press_name').value
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+    press_name = models.Setting.objects.get(
+        group__name='general',
+        name='press_name',
+    ).value
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'submission': book,
         'index': index,
         'sender': sender,
         'press_name': press_name,
     }
 
-    email.send_email(get_setting('indexing_request_subject', 'email_subject',
-                                 'Indexing Request'), context, from_email.value,
-                     index.indexer.email, email_text, book=book,
-                     attachment=attachment, kind='index')
+    email.send_email(
+        get_setting(
+            'indexing_request_subject',
+            'email_subject',
+            'Indexing Request'
+        ),
+        context,
+        from_email.value,
+        index.indexer.email,
+        email_text,
+        book=book,
+        attachment=attachment,
+        kind='index',
+    )
 
 
 def send_invite_typesetter(book, typeset, email_text, sender, attachment=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
 
     context = {
-        'base_url': models.Setting.objects.get(group__name='general',
-                                               name='base_url').value,
+        'base_url': models.Setting.objects.get(
+            group__name='general',
+            name='base_url',
+        ).value,
         'submission': typeset.book,
         'typeset': typeset,
         'sender': sender,
@@ -790,15 +941,25 @@ def send_invite_typesetter(book, typeset, email_text, sender, attachment=None):
 
     email.send_email(
         get_setting('typesetting_subject', 'email_subject', 'Typesetting'),
-        context, from_email.value, typeset.typesetter.email, email_text,
-        book=book, attachment=attachment, kind='typeset')
+        context,
+        from_email.value,
+        typeset.typesetter.email,
+        email_text,
+        book=book,
+        attachment=attachment,
+        kind='typeset',
+    )
 
 
 def send_book_editors(book, added_editors, removed_editors, email_text):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    base_url = models.Setting.objects.get(group__name='general',
-                                          name='base_url').value
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+    base_url = models.Setting.objects.get(
+        group__name='general',
+        name='base_url',
+    ).value
 
     context = {
         'base_url': base_url,
@@ -806,23 +967,46 @@ def send_book_editors(book, added_editors, removed_editors, email_text):
         'added_editors': added_editors,
         'removed_editors': removed_editors,
         'submission_page': "http://%s/editor/submission/%s/" % (
-        base_url, book.id)
+            base_url,
+            book.id,
+        )
     }
+
     if added_editors or removed_editors:
-        email.send_email(get_setting('book_editors_subject', 'email_subject',
-                                     'Book Editors have been updated'), context,
-                         from_email.value, book.owner.email, email_text,
-                         book=book, kind='general')
+        email.send_email(
+            get_setting(
+                'book_editors_subject',
+                'email_subject',
+                'Book Editors have been updated'
+            ),
+            context,
+            from_email.value,
+            book.owner.email,
+            email_text,
+            book=book,
+            kind='general',
+        )
 
 
-def send_requests_revisions(book, sender, revision, email_text,
-                            attachments=None):
-    from_email = models.Setting.objects.get(group__name='email',
-                                            name='from_address')
-    base_url = models.Setting.objects.get(group__name='general',
-                                          name='base_url').value
-    press_name = models.Setting.objects.get(group__name='general',
-                                            name='press_name').value
+def send_requests_revisions(
+        book,
+        sender,
+        revision,
+        email_text,
+        attachments=None,
+):
+    from_email = models.Setting.objects.get(
+        group__name='email',
+        name='from_address',
+    )
+    base_url = models.Setting.objects.get(
+        group__name='general',
+        name='base_url',
+    ).value
+    press_name = models.Setting.objects.get(
+        group__name='general',
+        name='press_name',
+    ).value
 
     context = {
         'book': book,
@@ -830,22 +1014,35 @@ def send_requests_revisions(book, sender, revision, email_text,
         'revision': revision,
         'press_name': press_name,
         'revision_url': "http://%s/author/submission/%s/revisions/%s" % (
-        base_url, book.id, revision.id)
+            base_url,
+            book.id,
+            revision.id,
+        )
     }
 
     email.send_email_multiple(
-        get_setting('revisions_requested_subject', 'email_subject',
-                    'Revisions Requested'), context, from_email.value,
-        book.owner.email, email_text, book=book, attachments=attachments,
-        kind='revisions')
+        get_setting(
+            'revisions_requested_subject',
+            'email_subject',
+            'Revisions Requested'
+        ),
+        context,
+        from_email.value,
+        book.owner.email,
+        email_text,
+        book=book,
+        attachments=attachments,
+        kind='revisions',
+    )
 
 
 def add_chapterauthors_from_author_models(chapter_id, authors):
-    '''
-    Takes list of Author models tied to a Chapter through a ManytoMany relationship
-    and saves ChapterAuthors based on those models if they don't already exist, then
-    removes the author model from that chapter.
-    '''
+    """ Populates `ChapterAuthors` from `Chapter.author`.
+
+    Takes list of Author models tied to a Chapter through a ManyToMany
+    relationship and saves ChapterAuthors based on those models if they don't
+    already exist, then removes the author model from that chapter.
+    """
     chapter = models.Chapter.objects.get(pk=chapter_id)
     count = 1
 
@@ -866,7 +1063,7 @@ def add_chapterauthors_from_author_models(chapter_id, authors):
             'linkedin': smart_text(auth.linkedin),
             'facebook': smart_text(auth.facebook),
         }
-        chapter_author, created = models.ChapterAuthor.objects.get_or_create(
+        _, _ = models.ChapterAuthor.objects.get_or_create(
             chapter=chapter,
             old_author_id=auth.pk,
             defaults=defaults,
