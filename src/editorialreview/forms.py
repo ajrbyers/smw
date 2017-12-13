@@ -4,6 +4,7 @@ from editorialreview import models
 
 
 class EditorialReviewForm(forms.ModelForm):
+
     class Meta:
         model = models.EditorialReview
         fields = ('due',)
@@ -14,6 +15,7 @@ class EditorialReviewForm(forms.ModelForm):
 
 
 class RecommendationForm(forms.ModelForm):
+
     class Meta:
         model = models.EditorialReview
         fields = ("recommendation", "competing_interests")
