@@ -1,11 +1,12 @@
 import csv
 import ftplib
 
-from core import models
+from core import models, email
+from setting_util import get_setting
 
 
 def _read_csv(path):
-    # Clean NULL bytes
+    """Read a CSV and return its rows, cleaning NUL bytes."""
     old_csv = open(path, 'rb')
     data = old_csv.read()
     old_csv.close()
@@ -18,10 +19,29 @@ def _read_csv(path):
         return reader
 
 
-def write_data():
-    ftp = ftplib.FTP('ftp.siliconchips-services.com')
-    ftp.login('ubiquitypress', '1234@UP!SC?')
-    ftp.cwd('/rua-metadata-test')
+def add_metadata():
+    ftp = ftplib.FTP(
+        get_setting(
+            setting_name='metadata_ftp_url',
+            setting_group_name='general',
+        )
+    )
+    ftp.login(
+        get_setting(
+            setting_name='metadata_ftp_username',
+            setting_group_name='general',
+        ),
+        get_setting(
+            setting_name='metadata_ftp_password',
+            setting_group_name='general',
+        )
+    )
+    ftp.cwd(
+        get_setting(
+            setting_name='metadata_ftp_folder',
+            setting_group_name='general',
+        )
+    )
     files = []
 
     try:
@@ -65,4 +85,17 @@ def write_data():
                     book.description = description
 
                     book.save()
-                    print book.subject, book.description
+
+                    email_context = {
+                        'book': book,
+                        'subject': subject,
+                    }
+
+                    for editor in book.all_editors():
+                        email.send_email(
+                            subject='Metadata updated',
+                            context=email_context,
+                            from_email='noreply@rua.re',
+                            to=editor.email,
+                            html_template='Test'
+                        )
