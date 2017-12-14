@@ -1,0 +1,14 @@
+AMQP_URI: 'amqp://jura:HQck9aDa@rmq.ubiquity.press:5672/ubiquityrmq'
+WEB_SERVER_ADDRESS: 'rmq.ubiquity.press:15672'
+rpc_exchange: 'nameko-rpc'
+max_workers: 10
+parent_calls_tracked: 10
+
+LOGGING:
+    version: 1
+    handlers:
+        console:
+            class: logging.StreamHandler
+    root:
+        level: DEBUG
+        handlers: [console]
