@@ -77,18 +77,19 @@ def add_metadata():
                     bisac_lookup = [
                         row for row in _read_csv('bisac.csv') if bisac in row
                     ]
-                    subject, created = models.Subject.objects.get_or_create(
+                    new_subject, created = models.Subject.objects.get_or_create(
                         name=bisac_lookup[0][1]
                     )
-
-                    book.subject.add(subject)
+                    for subj in book.subject.all():
+                        book.remove(subj)
+                    book.subject.add(new_subject)
                     book.description = description
 
                     book.save()
 
                     email_context = {
                         'book': book,
-                        'subject': subject,
+                        'subject': new_subject,
                     }
 
                     for editor in book.all_editors():
