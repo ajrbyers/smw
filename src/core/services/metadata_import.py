@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 import csv
 import ftplib
+
+from celery_app import app
 
 from core import models, email
 from core.setting_util import get_setting
@@ -11,15 +14,29 @@ def _read_csv(path):
     data = old_csv.read()
     old_csv.close()
     new_csv = open('new.csv', 'wb')
-    new_csv.write(data.replace('\00', ''))
+    new_csv.write(
+        data.replace('\00', '')
+    )
     new_csv.close()
 
     with open('new.csv', 'rb') as f:
-        reader = csv.reader(f.read().splitlines())
+        reader = csv.reader(
+            f.read().splitlines()
+        )
         return reader
 
 
+@app.task(name='add-metadata')
 def add_metadata():
+    """Adds book metadata from CSVs on an FTP site.
+
+    Accesses a specified FTP dir, copies CSVs to
+    the local dir then deletes them from FTP, reads
+    the CSV and matches ISBN13s to Rua books and
+    updates their metadata with the matching CSV
+    column values, and sends a notification email.
+    """
+
     ftp = ftplib.FTP(
         get_setting(
             setting_name='metadata_ftp_url',
@@ -58,7 +75,10 @@ def add_metadata():
 
     for f in files:
         if '.csv' in f:
-            ftp.retrbinary('RETR ' + f, open(f, 'wb').write)
+            ftp.retrbinary(
+                'RETR ' + f,
+                open(f, 'wb').write
+            )
             # ftp.delete(f)
             ftp.close()
 
@@ -72,6 +92,16 @@ def add_metadata():
 
             for row in data:
                 isbn = row[isbn_index]
+                if '-' not in isbn: # Add hyphens to ISBNs to match Rua format.
+                    isbn = '-'.join(
+                        [
+                            isbn[:3],
+                            isbn[3],
+                            isbn[4:7],
+                            isbn[7:12],
+                            isbn[12]
+                        ]
+                    )
                 bisacs = row[bisac_index]
                 description = row[description_index]
                 identifier = models.Identifier.objects.filter(value=isbn).first()
