@@ -2,10 +2,11 @@ from __future__ import absolute_import
 import csv
 import ftplib
 
-from celery_app import app
+from core.celery_app import app
 
 from core import models, email
 from core.setting_util import get_setting
+from nameko_services import ServiceHandler, JuraUpdateService
 
 
 def _read_csv(path):
@@ -36,6 +37,7 @@ def add_metadata():
     updates their metadata with the matching CSV
     column values, and sends a notification email.
     """
+    service = ServiceHandler(service=JuraUpdateService)
 
     ftp = ftplib.FTP(
         get_setting(
@@ -137,5 +139,7 @@ def add_metadata():
                             to=editor.email,
                             html_template='Test'
                         )
+
+                    service.send(book.pk)
 
                 isbns_processed.append(isbn)
