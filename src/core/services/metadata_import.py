@@ -2,7 +2,7 @@ import csv
 import ftplib
 
 from core import models, email
-from setting_util import get_setting
+from core.setting_util import get_setting
 
 
 def _read_csv(path):
@@ -24,22 +24,26 @@ def add_metadata():
         get_setting(
             setting_name='metadata_ftp_url',
             setting_group_name='general',
+            default='ftp.siliconchips-services.com',
         )
     )
     ftp.login(
         get_setting(
             setting_name='metadata_ftp_username',
             setting_group_name='general',
+            default='ubiquitypress',
         ),
         get_setting(
             setting_name='metadata_ftp_password',
             setting_group_name='general',
+            default='1234@UP!SC?',
         )
     )
     ftp.cwd(
         get_setting(
             setting_name='metadata_ftp_folder',
             setting_group_name='general',
+            default='/rua-metadata-test',
         )
     )
     files = []
@@ -64,32 +68,35 @@ def add_metadata():
             bisac_index = headers.index('Bisac Code(s)')
             description_index = headers.index('Long Description')
             data = [row for row in _csv]
+            isbns_processed = []
 
             for row in data:
                 isbn = row[isbn_index]
-                bisac = row[bisac_index]
+                bisacs = row[bisac_index]
                 description = row[description_index]
-
                 identifier = models.Identifier.objects.filter(value=isbn).first()
 
-                if identifier:
+                if identifier and isbn not in isbns_processed:
                     book = identifier.book
-                    bisac_lookup = [
-                        row for row in _read_csv('bisac.csv') if bisac in row
-                    ]
-                    new_subject, created = models.Subject.objects.get_or_create(
-                        name=bisac_lookup[0][1]
-                    )
+
                     for subj in book.subject.all():
-                        book.remove(subj)
-                    book.subject.add(new_subject)
+                        book.subject.remove(subj)
+
+                    for bisac in bisacs.split():
+                        bisac_lookup = [
+                            row for row in _read_csv('bisac.csv') if bisac in row
+                        ]
+                        new_subject, created = models.Subject.objects.get_or_create(
+                            name=bisac_lookup[0][1]
+                        )
+
+                        book.subject.add(new_subject)
                     book.description = description
 
                     book.save()
 
                     email_context = {
                         'book': book,
-                        'subject': new_subject,
                     }
 
                     for editor in book.all_editors():
@@ -100,3 +107,5 @@ def add_metadata():
                             to=editor.email,
                             html_template='Test'
                         )
+
+                isbns_processed.append(isbn)
