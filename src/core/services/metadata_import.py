@@ -2,11 +2,12 @@ from __future__ import absolute_import
 import csv
 import ftplib
 
-from core.celery_app import app
+from django.conf import settings
 
 from core import models, email
+# from core.celery_app import app
 from core.setting_util import get_setting
-from nameko_services import ServiceHandler, JuraUpdateService
+from core.services.nameko_services import ServiceHandler, JuraUpdateService
 
 
 def _read_csv(path):
@@ -27,7 +28,7 @@ def _read_csv(path):
         return reader
 
 
-@app.task(name='add-metadata')
+# @app.task(name='add-metadata')
 def add_metadata():
     """Adds book metadata from CSVs on an FTP site.
 
@@ -39,32 +40,13 @@ def add_metadata():
     """
     service = ServiceHandler(service=JuraUpdateService)
 
-    ftp = ftplib.FTP(
-        get_setting(
-            setting_name='metadata_ftp_url',
-            setting_group_name='general',
-            default='ftp.siliconchips-services.com',
-        )
-    )
+    ftp = ftplib.FTP(settings.DEFAULT_FTP_URL)
     ftp.login(
-        get_setting(
-            setting_name='metadata_ftp_username',
-            setting_group_name='general',
-            default='ubiquitypress',
-        ),
-        get_setting(
-            setting_name='metadata_ftp_password',
-            setting_group_name='general',
-            default='1234@UP!SC?',
-        )
+        settings.DEFAULT_FTP_USERNAME,
+        settings.DEFAULT_FTP_PASSWORD
     )
-    ftp.cwd(
-        get_setting(
-            setting_name='metadata_ftp_folder',
-            setting_group_name='general',
-            default='/rua-metadata-test',
-        )
-    )
+    ftp.cwd(settings.DEFAULT_FTP_FOLDER)
+
     files = []
 
     try:
