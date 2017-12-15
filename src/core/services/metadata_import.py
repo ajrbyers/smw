@@ -1,12 +1,12 @@
 from __future__ import absolute_import
 import csv
 import ftplib
+import os
 
 from django.conf import settings
 
 from core import models, email
 # from core.celery_app import app
-from core.setting_util import get_setting
 from core.services.nameko_services import ServiceHandler, JuraUpdateService
 
 
@@ -15,6 +15,7 @@ def _read_csv(path):
     old_csv = open(path, 'rb')
     data = old_csv.read()
     old_csv.close()
+    os.remove(path)
     new_csv = open('new.csv', 'wb')
     new_csv.write(
         data.replace('\00', '')
@@ -125,3 +126,5 @@ def add_metadata():
                     service.send(book.pk)
 
                 isbns_processed.append(isbn)
+
+    os.remove('new.csv')
