@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Form(models.Model):
+
     name = models.CharField(
         max_length=100,
     )
@@ -58,7 +59,7 @@ class FormElement(models.Model):
         max_length=500,
         null=True,
         blank=True,
-        help_text='Seperate choices with the bar | character.',
+        help_text='Separate choices with the bar | character.',
     )
     field_type = models.CharField(max_length=100, choices=field_choices)
     required = models.BooleanField()

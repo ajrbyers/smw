@@ -13,8 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from jfu.http import upload_receive, UploadResponse, JFUResponse
 
 from core import logic as core_logic, models, log
-from core.email import get_email_content
 from core.decorators import is_onetasker
+from core.email import get_email_content
 import logic
 from submission.logic import handle_book_labels
 
