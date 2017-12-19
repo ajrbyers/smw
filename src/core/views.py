@@ -3228,11 +3228,8 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name],
-                            'proposal',
-                            review_assignment,
-                            'reviewer',
-                        )
+                            request.FILES[field.element.name], 'proposal',
+                            review_assignment, 'reviewer')
                     ]
 
             for field in data_fields:
@@ -3252,11 +3249,8 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
 
             if request.FILES.get('review_file_upload'):
                 review_logic.handle_review_file(
-                    request.FILES.get('review_file_upload'),
-                    'proposal',
-                    review_assignment,
-                    'reviewer',
-                )
+                    request.FILES.get('review_file_upload'), 'proposal',
+                    review_assignment, 'reviewer')
 
             review_assignment.completed = timezone.now()
 
@@ -3528,11 +3522,8 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                     # TODO change value from string to list [value, value_type]
                     save_dict[field.element.name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name],
-                            'proposal',
-                            review_assignment,
-                            'reviewer',
-                        )
+                            request.FILES[field.element.name], 'proposal',
+                            review_assignment, 'reviewer')
                     ]
 
             for field in data_fields:

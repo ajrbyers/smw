@@ -68,9 +68,9 @@ def has_additional_files(submission):
     return True if additional_files else False
 
 
-def handle_review_file(file, content_type, review_assignment, kind):
+def handle_review_file(_file, content_type, review_assignment, kind):
     original_filename = smart_text(
-        file._get_name().replace(',', '_').replace(';', '_')
+        _file._get_name().replace(',', '_').replace(';', '_')
     )
     filename = str(uuid4()) + str(path.splitext(original_filename)[1])
 
@@ -94,7 +94,7 @@ def handle_review_file(file, content_type, review_assignment, kind):
 
     _path = path.join(folder_structure, str(filename))
     fd = open(_path, 'wb')
-    [fd.write(chunk) for chunk in file.chunks()]
+    [fd.write(chunk) for chunk in _file.chunks()]
     fd.close()
     file_mime = mime.guess_type(filename)
 
@@ -102,7 +102,6 @@ def handle_review_file(file, content_type, review_assignment, kind):
         file_mime = file_mime[0]
         if not file_mime:
             file_mime = 'unknown'
-
     except IndexError:
         file_mime = 'unknown'
 
