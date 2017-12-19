@@ -34,7 +34,7 @@ class EditorialReview(models.Model):
     )
     due = models.DateField(
         blank=True,
-        ull=True,
+        null=True,
     )
     completed = models.DateField(
         blank=True,
