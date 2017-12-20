@@ -7,7 +7,7 @@ from django.conf import settings
 
 from core import models, email
 # from core.celery_app import app
-from core.services.nameko_services import ServiceHandler, JuraUpdateService
+from services import ServiceHandler, JuraUpdateService
 
 
 def _read_csv(path):
@@ -15,7 +15,8 @@ def _read_csv(path):
     old_csv = open(path, 'rb')
     data = old_csv.read()
     old_csv.close()
-    os.remove(path)
+    if path != 'bisac.csv':
+        os.remove(path)
     new_csv = open('new.csv', 'wb')
     new_csv.write(
         data.replace('\00', '')
@@ -64,7 +65,7 @@ def add_metadata():
                 'RETR ' + f,
                 open(f, 'wb').write
             )
-            # ftp.delete(f)
+            ftp.delete(f)
             ftp.close()
 
             _csv = _read_csv(f)
@@ -106,8 +107,8 @@ def add_metadata():
                         )
 
                         book.subject.add(new_subject)
-                    book.description = description
 
+                    book.description = description
                     book.save()
 
                     email_context = {
@@ -127,4 +128,5 @@ def add_metadata():
 
                 isbns_processed.append(isbn)
 
-    os.remove('new.csv')
+    if os.path.isfile('new.csv'):
+     os.remove('new.csv')
