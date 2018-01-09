@@ -22,8 +22,9 @@ from django.views.decorators.csrf import csrf_exempt
 from jfu.http import upload_receive, UploadResponse, JFUResponse
 
 from core import models as core_models, log, logic as core_logic
-from core.files import handle_proposal_file_form
+from core.decorators import is_book_editor_or_author
 from core.email import get_email_content
+from core.files import handle_proposal_file_form
 from core.views import create_proposal_form, serve_proposal_file
 from manager import forms as manager_forms
 from submission import forms
@@ -1373,9 +1374,9 @@ def handle_file(file, book, kind, user):
 
 
 @csrf_exempt
-@login_required
+@is_book_editor_or_author
 def file_order(request, book_id, type_to_handle):
-    book = get_object_or_404(core_models.Book, pk=book_id, owner=request.user)
+    book = get_object_or_404(core_models.Book, pk=book_id)
 
     if type_to_handle == 'manuscript':
         id_to_get = 'man'

@@ -12,7 +12,7 @@ class ServiceHandler(object):
         self.service = service
 
     def send(self, content):
-        """ Send content over RPC to a service, triggering pre and post actions.
+        """Send content over RPC to a service, triggering pre and post actions.
 
         Args:
             content (object): Content to send over RPC to connected service.
@@ -28,14 +28,14 @@ class ServiceHandler(object):
 
 
 class JuraUpdateService(object):
-    """ Nameko class to update Jura."""
+    """Nameko class to update Jura."""
 
     name = 'jura_update_service'
     dispatch = EventDispatcher()
 
     @staticmethod
     def pre_send(book_id):
-        """ Serialise book ID with cleaned press URL for Jura scrape. """
+        """Serialise book ID with cleaned press URL for Jura scrape."""
 
         press_rua_url = settings.BASE_URL.rstrip('/')
 
