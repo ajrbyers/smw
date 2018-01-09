@@ -1,3 +1,4 @@
+from __future__ import print_function
 from itertools import chain
 import mimetypes
 from operator import attrgetter
@@ -2037,12 +2038,17 @@ def view_chapter(request, submission_id, chapter_id):
 
             messages.add_message(request, messages.INFO, 'Author removed')
 
-            return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter.id}))
+            return redirect(reverse(
+                'editor_view_chapter',
+                kwargs={'submission_id': book.id, 'chapter_id': chapter.id}
+            ))
 
         elif 'delete_chapter' in request.POST:
             chapter.delete()
             messages.add_message(request, messages.INFO, 'Chapter deleted')
-            return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
+            return redirect(reverse(
+                'editor_production', kwargs={'submission_id': book.id}
+            ))
 
     template = 'editor/submission.html'
     context = {
@@ -2053,8 +2059,12 @@ def view_chapter(request, submission_id, chapter_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_chapter.html',
         'active': 'production',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2086,16 +2096,36 @@ def update_chapter(request, submission_id, chapter_id):
                 chapter.disciplines.remove(subject)
 
             chapter.save()
+
             for keyword in request.POST.get('tags').split(','):
-                new_keyword, c = models.Keyword.objects.get_or_create(name=keyword)
+                new_keyword, c = models.Keyword.objects.get_or_create(
+                    name=keyword
+                )
                 chapter.keywords.add(new_keyword)
+
             for subject in request.POST.get('stags').split(','):
-                new_subject, c = models.Subject.objects.get_or_create(name=subject)
+                new_subject, c = models.Subject.objects.get_or_create(
+                    name=subject
+                )
                 chapter.disciplines.add(new_subject)
+
             chapter.save()
-            log.add_log_entry(book=book, user=request.user, kind='production', message='%s %s updated a chapter, %s' % (
-                request.user.first_name, request.user.last_name, chapter.sequence), short_name='New Chapter Loaded')
-            return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter_id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='production',
+                message='%s %s updated a chapter, %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    chapter.sequence,
+                ),
+                short_name='New Chapter Loaded'
+            )
+
+            return redirect(reverse(
+                'editor_view_chapter',
+                kwargs={'submission_id': book.id, 'chapter_id': chapter_id}
+            ))
 
     template = 'editor/submission.html'
     context = {
@@ -2107,8 +2137,12 @@ def update_chapter(request, submission_id, chapter_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_chapter.html',
         'active': 'production',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2119,7 +2153,11 @@ def update_chapter(request, submission_id, chapter_id):
 def view_chapter_format(request, submission_id, chapter_id, format_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
-    chapter_format = get_object_or_404(models.ChapterFormat, chapter=chapter, pk=format_id)
+    chapter_format = get_object_or_404(
+        models.ChapterFormat,
+        chapter=chapter,
+        pk=format_id,
+    )
 
     template = 'editor/submission.html'
     context = {
@@ -2130,8 +2168,12 @@ def view_chapter_format(request, submission_id, chapter_id, format_id):
         'submission_files': 'editor/production/view_chapter_format.html',
         'active': 'production',
         'submission': book,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2142,6 +2184,7 @@ def view_chapter_format(request, submission_id, chapter_id, format_id):
 def add_chapter_format(request, submission_id, chapter_id, file_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
+
     if file_id:
         exist_file = get_object_or_404(models.File, pk=file_id)
         chapter_form = core_forms.ChapterFormatForm()
@@ -2153,17 +2196,26 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
         if file_id:
             chapter_form = core_forms.ChapterFormatForm(request.POST)
         else:
-            chapter_form = core_forms.ChapterFormatForm(request.POST, request.FILES)
+            chapter_form = core_forms.ChapterFormatForm(
+                request.POST,
+                request.FILES,
+            )
 
         if chapter_form.is_valid():
             if file_id:
                 new_file = None
             else:
-                new_file = handle_file(request.FILES.get('chapter_file'), book, 'chapter', request.user)
+                new_file = handle_file(
+                    request.FILES.get('chapter_file'),
+                    book,
+                    'chapter',
+                    request.user,
+                )
             new_chapter_format = chapter_form.save(commit=False)
             new_chapter_format.chapter = chapter
             new_chapter_format.book = book
             label = request.POST.get('file_label')
+
             if new_file:
                 if label:
                     new_file.label = label
@@ -2177,16 +2229,27 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
                 new_file.label = label
                 new_file.save()
                 new_chapter_format.file = new_file
+
             new_chapter_format.save()
             chapter.formats.add(new_chapter_format)
             chapter.save()
-            log.add_log_entry(book=book, user=request.user, kind='production',
-                              message='%s %s loaded a new chapter, %s' % (
-                                  request.user.first_name, request.user.last_name, new_chapter_format.identifier),
-                              short_name='New Chapter Loaded')
-            return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter_id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='production',
+                message='%s %s loaded a new chapter, %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    new_chapter_format.identifier
+                ),
+                short_name='New Chapter Loaded',
+            )
+            return redirect(reverse(
+                'editor_view_chapter',
+                kwargs={'submission_id': book.id, 'chapter_id': chapter_id}
+            ))
         else:
-            print chapter_form.errors
+            print(chapter_form.errors)
 
     template = 'editor/submission.html'
     context = {
@@ -2197,8 +2260,12 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
         'submission_files': 'editor/production/add_chapter_format.html',
         'active': 'production',
         'existing_file': exist_file,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2206,21 +2273,35 @@ def add_chapter_format(request, submission_id, chapter_id, file_id=None):
 
 
 @is_book_editor
-def add_edit_chapter_author(request, submission_id, chapter_id, chapter_author_id=None):
+def add_edit_chapter_author(
+        request,
+        submission_id,
+        chapter_id,
+        chapter_author_id=None,
+):
     book = get_object_or_404(models.Book, pk=submission_id)
     chapter = get_object_or_404(models.Chapter, pk=chapter_id, book=book)
     edit = True if chapter_author_id else False
 
     if edit:
-        chapter_author = get_object_or_404(models.ChapterAuthor, pk=chapter_author_id)
-        form = editor_forms.ChapterAuthorForm(instance=chapter_author, initial={'chapter': chapter})
+        chapter_author = get_object_or_404(
+            models.ChapterAuthor,
+            pk=chapter_author_id,
+        )
+        form = editor_forms.ChapterAuthorForm(
+            instance=chapter_author,
+            initial={'chapter': chapter}
+        )
     else:
         chapter_author = None
         form = forms.ChapterAuthorForm(initial={'chapter': chapter})
 
     if request.POST:
         if edit:
-            form = forms.ChapterAuthorForm(request.POST, instance=chapter_author)
+            form = forms.ChapterAuthorForm(
+                request.POST,
+                instance=chapter_author,
+            )
             message = 'Author edited.'
         else:
             form = forms.ChapterAuthorForm(request.POST)
@@ -2231,7 +2312,10 @@ def add_edit_chapter_author(request, submission_id, chapter_id, chapter_author_i
 
             messages.add_message(request, messages.INFO, message)
 
-        return redirect(reverse('editor_view_chapter', kwargs={'submission_id': book.id, 'chapter_id': chapter_id}))
+        return redirect(reverse(
+            'editor_view_chapter',
+            kwargs={'submission_id': book.id, 'chapter_id': chapter_id})
+        )
 
     template = 'editor/submission.html'
     context = {
@@ -2241,28 +2325,44 @@ def add_edit_chapter_author(request, submission_id, chapter_id, chapter_author_i
         'active': 'production',
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/add_edit_chapter_author.html',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'form': form,
     }
 
     return render(request, template, context)
 
+
 @is_book_editor
 def add_physical(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     format_form = forms.PhysicalFormatForm()
+
     if request.POST:
         format_form = forms.PhysicalFormatForm(request.POST, request.FILES)
         if format_form.is_valid():
             new_format = format_form.save(commit=False)
             new_format.book = book
             new_format.save()
-            log.add_log_entry(book=book, user=request.user, kind='production',
-                              message='%s %s loaded a new format, %s' % (
-                                  request.user.first_name, request.user.last_name, new_format.name),
-                              short_name='New Format Loaded')
-            return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='production',
+                message='%s %s loaded a new format, %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                    new_format.name,
+                ),
+                short_name='New Format Loaded',
+            )
+            return redirect(reverse(
+                'editor_production',
+                kwargs={'submission_id': book.id}
+            ))
 
     template = 'editor/submission.html'
     context = {
@@ -2272,8 +2372,12 @@ def add_physical(request, submission_id):
         'submission_files': 'editor/production/physical_format.html',
         'active': 'production',
         'submission': book,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2296,19 +2400,23 @@ def delete_format_or_chapter(request, submission_id, format_or_chapter, id):
     else:
         messages.add_message(request, messages.WARNING, 'Item not found.')
 
-    return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
+    return redirect(reverse(
+        'editor_production', kwargs={'submission_id': book.id}
+    ))
 
 
 @is_book_editor
 def update_format_or_chapter(request, submission_id, format_or_chapter, id):
     book = get_object_or_404(models.Book, pk=submission_id)
+
     if format_or_chapter == 'chapter':
         item = get_object_or_404(models.ChapterFormat, pk=id)
-        type = 'chapter'
+        _type = 'chapter'
     elif format_or_chapter == 'format':
         item = get_object_or_404(models.Format, pk=id)
-        type = 'format'
-    file = item.file
+        _type = 'format'
+
+    _file = item.file
     form = forms.UpdateChapterFormat()
 
     if request.POST:
@@ -2320,34 +2428,54 @@ def update_format_or_chapter(request, submission_id, format_or_chapter, id):
             item.save()
             file_update = item.file
             label = request.POST.get('file_label')
+
             if label:
                 file_update.label = label
             else:
                 file_update.label = None
+
             file_update.save()
+
             if request.FILES:
-                if type == 'chapter':
+                if _type == 'chapter':
                     if file_type:
                         item.file_type = file_type
                         item.save()
-                    handle_file_update(request.FILES.get('chapter_file'), file_update, book, item.file.kind,
-                                       request.user)
+                    handle_file_update(
+                        request.FILES.get('chapter_file'),
+                        file_update,
+                        book,
+                        item.file.kind,
+                        request.user,
+                    )
                 else:
-                    handle_file_update(request.FILES.get('chapter_file'), file_update, book, item.file.kind, request.user)
-            return redirect(reverse('editor_production', kwargs={'submission_id': book.id}))
+                    handle_file_update(
+                        request.FILES.get('chapter_file'),
+                        file_update,
+                        book,
+                        item.file.kind,
+                        request.user
+                    )
+            return redirect(reverse(
+                'editor_production', kwargs={'submission_id': book.id}
+            ))
 
     template = 'editor/submission.html'
     context = {
         'item': item,
         'form': form,
-        'type': type,
-        'file': file,
+        'type': _type,
+        'file': _file,
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/update.html',
         'active': 'production',
         'submission': book,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'active_page': 'production',
     }
 
@@ -2360,18 +2488,32 @@ def assign_typesetter(request, submission_id):
     typesetters = models.User.objects.filter(profile__roles__slug='typesetter')
 
     if request.POST:
-        typesetter_list = User.objects.filter(pk__in=request.POST.getlist('typesetter'))
-        file_list = models.File.objects.filter(pk__in=request.POST.getlist('file'))
+        typesetter_list = User.objects.filter(
+            pk__in=request.POST.getlist('typesetter')
+        )
+        file_list = models.File.objects.filter(
+            pk__in=request.POST.getlist('file')
+        )
         due_date = request.POST.get('due_date')
         email_text = request.POST.get('message')
 
         attachment = handle_attachment(request, book)
 
         for typesetter in typesetter_list:
-            logic.handle_typeset_assignment(request, book, typesetter, file_list, due_date, email_text,
-                                            requestor=request.user, attachment=attachment)
+            logic.handle_typeset_assignment(
+                request,
+                book,
+                typesetter,
+                file_list,
+                due_date,
+                email_text,
+                requestor=request.user,
+                attachment=attachment,
+            )
 
-        return redirect(reverse('editor_production', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'editor_production', kwargs={'submission_id': submission_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2379,11 +2521,18 @@ def assign_typesetter(request, submission_id):
         'submission_files': 'editor/production/assign_typesetter.html',
         'active': 'production',
         'submission': book,
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'typesetters': typesetters,
         'active_page': 'production',
-        'email_text': models.Setting.objects.get(group__name='email', name='typeset_request'),
+        'email_text': models.Setting.objects.get(
+            group__name='email',
+            name='typeset_request',
+        ),
     }
 
     return render(request, template, context)
@@ -2393,19 +2542,36 @@ def assign_typesetter(request, submission_id):
 def view_typesetter(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(group__name='email', name='author_typeset_request').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='author_typeset_request'
+    ).value
 
     author_form = forms.TypesetAuthorInvite(instance=typeset)
     if typeset.editor_second_review:
         author_form = forms.TypesetTypesetterInvite(instance=typeset)
-        email_text = models.Setting.objects.get(group__name='email', name='typesetter_typeset_request').value
+        email_text = models.Setting.objects.get(
+            group__name='email',
+            name='typesetter_typeset_request'
+        ).value
 
     if request.POST and 'invite_author' in request.POST:
         if not typeset.completed:
-            messages.add_message(request, messages.WARNING,
-                                 'This typeset has not been completed, you cannot invite the author to review.')
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This typeset has not been completed, '
+                'you cannot invite the author to review.'
+            )
             return redirect(
-                reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+                reverse(
+                    'view_typesetter',
+                    kwargs={
+                        'submission_id': submission_id,
+                        'typeset_id': typeset_id,
+                    }
+                )
+            )
         else:
             typeset.editor_review = timezone.now()
             typeset.save()
@@ -2413,17 +2579,33 @@ def view_typesetter(request, submission_id, typeset_id):
     elif request.POST and 'invite_typesetter' in request.POST:
         typeset.editor_second_review = timezone.now()
         typeset.save()
-        return redirect(reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+        return redirect(reverse(
+            'view_typesetter',
+            kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}
+        ))
 
     elif request.POST and 'send_invite_typesetter' in request.POST:
-        author_form = forms.TypesetTypesetterInvite(request.POST, instance=typeset)
+        author_form = forms.TypesetTypesetterInvite(
+            request.POST,
+            instance=typeset,
+        )
+
         if author_form.is_valid():
             author_form.save()
             typeset.typesetter_invited = timezone.now()
             typeset.save()
             email_text = request.POST.get('email_text')
-            logic.send_invite_typesetter(book, typeset, email_text, request.user)
-        return redirect(reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+            logic.send_invite_typesetter(
+                book,
+                typeset,
+                email_text,
+                request.user,
+            )
+
+        return redirect(reverse(
+            'view_typesetter',
+            kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}
+        ))
 
     elif request.POST and 'send_invite_author' in request.POST:
         author_form = forms.TypesetAuthorInvite(request.POST, instance=typeset)
@@ -2432,8 +2614,17 @@ def view_typesetter(request, submission_id, typeset_id):
             typeset.author_invited = timezone.now()
             typeset.save()
             email_text = request.POST.get('email_text')
-            logic.send_invite_typesetter(book, typeset, email_text, request.user)
-        return redirect(reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+            logic.send_invite_typesetter(
+                book,
+                typeset,
+                email_text,
+                request.user,
+            )
+
+        return redirect(reverse(
+            'view_typesetter',
+            kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2441,8 +2632,12 @@ def view_typesetter(request, submission_id, typeset_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_typeset.html',
         'active': 'production',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'typeset': typeset,
         'typeset_id': typeset.id,
         'author_form': author_form,
@@ -2457,7 +2652,10 @@ def view_typesetter(request, submission_id, typeset_id):
 def view_typesetter_alter_due_date(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(group__name='email', name='author_typeset_request').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='author_typeset_request',
+    ).value
 
     date_form = forms.TypesetDate(instance=typeset)
 
@@ -2466,9 +2664,11 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
         if date_form.is_valid():
             date_form.save()
             typeset.save()
-        # email_text = request.POST.get('email_text')
-        #	logic.send_invite_typesetter(book, typeset, email_text, request.user)
-        return redirect(reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+
+        return redirect(reverse(
+            'view_typesetter',
+            kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2476,8 +2676,12 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_typeset_due_date.html',
         'active': 'production',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'typeset': typeset,
         'typeset_id': typeset.id,
         'date_form': date_form,
@@ -2492,7 +2696,10 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
 def view_typesetter_alter_author_due(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(group__name='email', name='author_typeset_request').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='author_typeset_request',
+    ).value
 
     date_form = forms.TypesetAuthorDate(instance=typeset)
 
@@ -2501,9 +2708,11 @@ def view_typesetter_alter_author_due(request, submission_id, typeset_id):
         if date_form.is_valid():
             date_form.save()
             typeset.save()
-        # email_text = request.POST.get('email_text')
-        #	logic.send_invite_typesetter(book, typeset, email_text, request.user)
-        return redirect(reverse('view_typesetter', kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}))
+
+        return redirect(reverse(
+            'view_typesetter',
+            kwargs={'submission_id': submission_id, 'typeset_id': typeset_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2512,8 +2721,12 @@ def view_typesetter_alter_author_due(request, submission_id, typeset_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/view_typeset_due_date.html',
         'active': 'production',
-        'format_list': models.Format.objects.filter(book=book).select_related('file'),
-        'chapter_list': models.Chapter.objects.filter(book=book).order_by('sequence'),
+        'format_list': models.Format.objects.filter(
+            book=book
+        ).select_related('file'),
+        'chapter_list': models.Chapter.objects.filter(
+            book=book
+        ).order_by('sequence'),
         'typeset': typeset,
         'typeset_id': typeset.id,
         'date_form': date_form,
@@ -2527,7 +2740,7 @@ def view_typesetter_alter_author_due(request, submission_id, typeset_id):
 @is_book_editor
 def retailers(request, submission_id, retailer_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
-    retailers = models.Retailer.objects.filter(book=book)
+    _retailers = models.Retailer.objects.filter(book=book)
     form = forms.RetailerForm()
 
     if retailer_id:
@@ -2536,7 +2749,9 @@ def retailers(request, submission_id, retailer_id=None):
 
     if request.GET.get('delete', None):
         retailer.delete()
-        return redirect(reverse('retailers', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'retailers', kwargs={'submission_id': submission_id}
+        ))
 
     if request.POST:
         if retailer_id:
@@ -2553,12 +2768,15 @@ def retailers(request, submission_id, retailer_id=None):
 
             messages.add_message(request, messages.INFO, message)
 
-            return redirect(reverse('retailers', kwargs={'submission_id': submission_id}))
+            return redirect(reverse(
+                'retailers',
+                kwargs={'submission_id': submission_id}
+            ))
 
     template = 'editor/catalog/retailers.html'
     context = {
         'submission': book,
-        'retailers': retailers,
+        'retailers': _retailers,
         'form': form,
         'retailer_id': retailer_id,
         'active_page': 'catalog_view',
@@ -2596,8 +2814,13 @@ def delete_review_files(request, submission_id, review_type, file_id):
     else:
         submission.external_review_files.remove(file)
 
-    return redirect(reverse('editor_review_round', kwargs={'submission_id': submission_id,
-                                                           'round_number': submission.get_latest_review_round()}))
+    return redirect(reverse(
+        'editor_review_round',
+        kwargs={
+            'submission_id': submission_id,
+            'round_number': submission.get_latest_review_round()}
+    ))
+
 
 @is_book_editor
 def editor_status(request, submission_id):
@@ -2622,27 +2845,56 @@ def assign_copyeditor(request, submission_id):
     copyeditors = models.User.objects.filter(profile__roles__slug='copyeditor')
 
     if not book.stage.current_stage == 'editing':
-        messages.add_message(request, messages.WARNING,
-                             'You cannot assign a Copyeditor, this book is not in the Editing phase.')
-        return redirect(reverse('editor_editing', kwargs={'submission_id': book.id}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot assign a Copyeditor, '
+            'this book is not in the Editing phase.'
+        )
+        return redirect(reverse(
+            'editor_editing', kwargs={'submission_id': book.id}
+        ))
 
     if request.POST:
-        copyeditor_list = User.objects.filter(pk__in=request.POST.getlist('copyeditor'))
-        file_list = models.File.objects.filter(pk__in=request.POST.getlist('file'))
+        copyeditor_list = User.objects.filter(
+            pk__in=request.POST.getlist('copyeditor')
+        )
+        file_list = models.File.objects.filter(
+            pk__in=request.POST.getlist('file')
+        )
         due_date = request.POST.get('due_date')
         email_text = request.POST.get('message')
         note = request.POST.get('note')
         attachment = handle_attachment(request, book)
 
         for copyeditor in copyeditor_list:
-            logic.handle_copyeditor_assignment(request, book, copyeditor, file_list, due_date, note, email_text,
-                                               requestor=request.user, attachment=attachment)
-            log.add_log_entry(book=book, user=request.user, kind='editing',
-                              message='Copyeditor %s %s assigend to %s' % (
-                                  copyeditor.first_name, copyeditor.last_name, book.title),
-                              short_name='Copyeditor Assigned')
+            logic.handle_copyeditor_assignment(
+                request,
+                book,
+                copyeditor,
+                file_list,
+                due_date,
+                note,
+                email_text,
+                requestor=request.user,
+                attachment=attachment,
+            )
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='editing',
+                message='Copyeditor %s %s assigend to %s' % (
+                    copyeditor.first_name,
+                    copyeditor.last_name,
+                    book.title,
+                ),
+                short_name='Copyeditor Assigned',
+            )
 
-        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'editor_editing',
+            kwargs={'submission_id': submission_id},
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2650,7 +2902,10 @@ def assign_copyeditor(request, submission_id):
         'copyeditors': copyeditors,
         'author_include': 'editor/editing.html',
         'submission_files': 'editor/assign_copyeditor.html',
-        'email_text': models.Setting.objects.get(group__name='email', name='copyedit_request'),
+        'email_text': models.Setting.objects.get(
+            group__name='email',
+            name='copyedit_request',
+        ),
         'active_page': 'editing',
     }
 
@@ -2662,33 +2917,62 @@ def view_copyedit(request, submission_id, copyedit_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
     author_form = core_forms.CopyeditAuthorInvite(instance=copyedit)
-    email_text = models.Setting.objects.get(group__name='email', name='author_copyedit_request').value
+    email_text = models.Setting.objects.get(
+        group__name='email',
+        name='author_copyedit_request'
+    ).value
 
     if request.POST and 'invite_author' in request.POST:
         if not copyedit.completed:
-            messages.add_message(request, messages.WARNING,
-                                 'This copyedit has not been completed, you cannot invite the author to review.')
-            return redirect(
-                reverse('view_copyedit', kwargs={'submission_id': submission_id, 'copyedit_id': copyedit_id}))
+            messages.add_message(
+                request,
+                messages.WARNING,
+                'This copyedit has not been completed, '
+                'you cannot invite the author to review.'
+            )
+            return redirect(reverse(
+                'view_copyedit',
+                kwargs={
+                    'submission_id': submission_id,
+                    'copyedit_id': copyedit_id,
+                }
+            ))
         else:
             copyedit.editor_review = timezone.now()
-            log.add_log_entry(book=book, user=request.user, kind='editing',
-                              message='Copyedit Review Completed by %s %s' % (
-                                  request.user.first_name, request.user.last_name),
-                              short_name='Editor Copyedit Review Complete')
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='editing',
+                message='Copyedit Review Completed by %s %s' % (
+                    request.user.first_name,
+                    request.user.last_name,
+                ),
+                short_name='Editor Copyedit Review Complete',
+            )
             copyedit.save()
 
     elif request.POST and 'send_invite_author' in request.POST:
 
         attachment = handle_attachment(request, book)
-
-        author_form = core_forms.CopyeditAuthorInvite(request.POST, instance=copyedit)
+        author_form = core_forms.CopyeditAuthorInvite(
+            request.POST,
+            instance=copyedit,
+        )
         author_form.save()
         copyedit.author_invited = timezone.now()
         copyedit.save()
         email_text = request.POST.get('email_text')
-        logic.send_author_invite(book, copyedit, email_text, request.user, attachment)
-        return redirect(reverse('view_copyedit', kwargs={'submission_id': submission_id, 'copyedit_id': copyedit_id}))
+        logic.send_author_invite(
+            book,
+            copyedit,
+            email_text,
+            request.user,
+            attachment,
+        )
+        return redirect(reverse(
+            'view_copyedit',
+            kwargs={'submission_id': submission_id, 'copyedit_id': copyedit_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2711,25 +2995,56 @@ def assign_indexer(request, submission_id):
     indexers = models.User.objects.filter(profile__roles__slug='indexer')
 
     if not book.stage.current_stage == 'editing':
-        messages.add_message(request, messages.WARNING,
-                             'You cannot assign an Indexer, this book is not in the Editing phase.')
-        return redirect(reverse('editor_editing', kwargs={'submission_id': book.id}))
+        messages.add_message(
+            request,
+            messages.WARNING,
+            'You cannot assign an Indexer, '
+            'this book is not in the Editing phase.'
+        )
+        return redirect(reverse(
+            'editor_editing', kwargs={'submission_id': book.id}
+        ))
 
     if request.POST:
-        indexer_list = User.objects.filter(pk__in=request.POST.getlist('indexer'))
-        file_list = models.File.objects.filter(pk__in=request.POST.getlist('file'))
+        indexer_list = User.objects.filter(
+            pk__in=request.POST.getlist('indexer')
+        )
+        file_list = models.File.objects.filter(
+            pk__in=request.POST.getlist('file')
+        )
         due_date = request.POST.get('due_date')
         email_text = request.POST.get('message')
         note = request.POST.get('note')
         attachment = handle_attachment(request, book)
 
         for indexer in indexer_list:
-            logic.handle_indexer_assignment(request, book, indexer, file_list, due_date, note, email_text,
-                                            requestor=request.user, attachment=attachment)
-            log.add_log_entry(book=book, user=request.user, kind='editing', message='Indexer %s %s assigend to %s' % (
-                indexer.first_name, indexer.last_name, book.title), short_name='Indexer Assigned')
+            logic.handle_indexer_assignment(
+                request,
+                book,
+                indexer,
+                file_list,
+                due_date,
+                note,
+                email_text,
+                requestor=request.user,
+                attachment=attachment,
+            )
+            log.add_log_entry(
+                book=book,
+                user=request.user,
+                kind='editing',
+                message='Indexer %s %s assigend to %s' % (
+                    indexer.first_name,
+                    indexer.last_name,
+                    book.title
+                ),
+                short_name='Indexer Assigned',
+            )
 
-        return redirect(reverse('editor_editing', kwargs={'submission_id': submission_id}))
+        return redirect(reverse(
+            'editor_editing',
+            kwargs={'submission_id': submission_id}
+        ))
 
     template = 'editor/submission.html'
     context = {
@@ -2737,7 +3052,10 @@ def assign_indexer(request, submission_id):
         'indexers': indexers,
         'author_include': 'editor/editing.html',
         'submission_files': 'editor/assign_indexer.html',
-        'email_text': models.Setting.objects.get(group__name='email', name='index_request'),
+        'email_text': models.Setting.objects.get(
+            group__name='email',
+            name='index_request',
+        ),
         'active_page': 'editing',
 
     }
@@ -2749,7 +3067,6 @@ def assign_indexer(request, submission_id):
 def view_index(request, submission_id, index_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     index = get_object_or_404(models.IndexAssignment, pk=index_id)
-
     template = 'editor/submission.html'
     context = {
         'submission': book,
@@ -2764,12 +3081,11 @@ def view_index(request, submission_id, index_id):
     return render(request, template, context)
 
 
-## CONTRACTS ##
-
 @is_book_editor
 def contract_manager(request, submission_id, contract_id=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     action = 'normal'
+
     if contract_id:
         new_contract_form = forms.UploadContract(instance=submission.contract)
         action = 'edit'
@@ -2777,7 +3093,6 @@ def contract_manager(request, submission_id, contract_id=None):
         new_contract_form = forms.UploadContract()
 
     if request.POST:
-
         if contract_id:
             submission.contract.title = request.POST.get('title')
             submission.contract.notes = request.POST.get('notes')
@@ -2799,19 +3114,35 @@ def contract_manager(request, submission_id, contract_id=None):
 
             if 'contract_file' in request.FILES:
                 author_file = request.FILES.get('contract_file')
-                new_file = handle_file(author_file, submission, 'contract', request.user)
+                new_file = handle_file(
+                    author_file,
+                    submission,
+                    'contract',
+                    request.user,
+                )
                 submission.contract.editor_file = new_file
 
             submission.contract.save()
             submission.save()
-            return redirect(reverse('contract_manager', kwargs={'submission_id': submission.id}))
+            return redirect(reverse(
+                'contract_manager',
+                kwargs={'submission_id': submission.id}
+            ))
         else:
-            new_contract_form = forms.UploadContract(request.POST, request.FILES)
+            new_contract_form = forms.UploadContract(
+                request.POST,
+                request.FILES,
+            )
             if new_contract_form.is_valid():
                 new_contract = new_contract_form.save(commit=False)
                 if 'contract_file' in request.FILES:
                     author_file = request.FILES.get('contract_file')
-                    new_file = handle_file(author_file, submission, 'contract', request.user)
+                    new_file = handle_file(
+                        author_file,
+                        submission,
+                        'contract',
+                        request.user,
+                    )
 
                     new_contract.editor_file = new_file
                     new_contract.save()
@@ -2819,13 +3150,26 @@ def contract_manager(request, submission_id, contract_id=None):
                     submission.save()
 
                     if not new_contract.author_signed_off:
-                        email_text = models.Setting.objects.get(group__name='email',
-                                                                name='contract_author_sign_off').value
-                        logic.send_author_sign_off(submission, email_text, sender=request.user)
+                        email_text = models.Setting.objects.get(
+                            group__name='email',
+                            name='contract_author_sign_off',
+                        ).value
+                        logic.send_author_sign_off(
+                            submission,
+                            email_text,
+                            sender=request.user,
+                        )
 
-                    return redirect(reverse('contract_manager', kwargs={'submission_id': submission.id}))
+                    return redirect(reverse(
+                        'contract_manager',
+                        kwargs={'submission_id': submission.id}
+                    ))
                 else:
-                    messages.add_message(request, messages.ERROR, 'You must upload a contract file.')
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'You must upload a contract file.'
+                    )
 
     template = 'editor/contract/contract_manager.html'
     context = {
@@ -2837,19 +3181,14 @@ def contract_manager(request, submission_id, contract_id=None):
     return render(request, template, context)
 
 
-## END CONTRACTS ##
-
-# WORKFLOW NEW SUBMISSIONS
-
 @is_editor
 def new_submissions(request):
-    submission_list = models.Book.objects.filter(stage__current_stage='submission')
+    submission_list = models.Book.objects.filter(
+        stage__current_stage='submission',
+    )
 
     template = 'editor/new_submissions.html'
-    context = {
-        'submission_list': submission_list,
-        'active': 'new',
-    }
+    context = {'submission_list': submission_list, 'active': 'new'}
 
     return render(request, template, context)
 
@@ -2865,18 +3204,33 @@ def view_new_submission(request, submission_id):
         submission.stage.save()
 
         if submission.stage.current_stage == 'review':
-            log.add_log_entry(book=submission, user=request.user, kind='review', message='Submission moved to Review',
-                              short_name='Submission in Review')
+            log.add_log_entry(
+                book=submission,
+                user=request.user,
+                kind='review',
+                message='Submission moved to Review',
+                short_name='Submission in Review',
+            )
 
-        messages.add_message(request, messages.SUCCESS, 'Submission has been moved to the review stage.')
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            'Submission has been moved to the review stage.',
+        )
 
-        return redirect(reverse('editor_review', kwargs={'submission_id': submission.id}))
+        return redirect(reverse(
+            'editor_review',
+            kwargs={'submission_id': submission.id}
+        ))
 
     template = 'editor/new/view_new_submission.html'
     context = {
         'submission': submission,
         'active': 'new',
-        'revision_requests': revision_models.Revision.objects.filter(book=submission, revision_type='submission')
+        'revision_requests': revision_models.Revision.objects.filter(
+            book=submission,
+            revision_type='submission',
+        )
     }
 
     return render(request, template, context)
@@ -2892,43 +3246,60 @@ def files_for_production(request, submission_id):
     manuscript_files = files.filter(kind='manuscript')
     production_files = submission.production_files.order_by('kind')
 
-    copyedit_files = [x for copyedit in submission.copyeditassignment_set.all()
-                      for x in chain(copyedit.copyedit_files.all(), copyedit.author_files.all())]
+    copyedit_files = [
+        x for copyedit in submission.copyeditassignment_set.all()
+        for x in chain(
+            copyedit.copyedit_files.all(), copyedit.author_files.all()
+        )
+    ]
 
-    index_files = [x for index in submission.indexassignment_set.all() for x in index.index_files.all()]
+    index_files = [
+        x for index in submission.indexassignment_set.all()
+        for x in index.index_files.all()
+    ]
 
     #'Primary Files' formed of manuscript, copyedit and index files, excluding those already in production_files.
     primary_files = sorted(
-        set(chain(manuscript_files, copyedit_files, index_files)) - set(production_files),
-        key=attrgetter('date_uploaded'), reverse=True
+        set(chain(manuscript_files, copyedit_files, index_files))
+        - set(production_files),
+        key=attrgetter('date_uploaded'),
+        reverse=True
     )
 
     # All files associated with book, excluding those already in primary files and production files, sorted by type.
     additional_files = sorted(
-        set(chain(files, internal_review_files, external_review_files, misc_files))
-        - set(primary_files) - set(production_files),
+        set(
+            chain(
+                files,
+                internal_review_files,
+                external_review_files,
+                misc_files,
+            )
+        ) - set(primary_files) - set(production_files),
         key=attrgetter('kind')
     )
 
     # Pre-populate production_files with most recently modified primary file, run only once so user can remove it.
-    if submission.first_run == True:
+    if submission.first_run:
         submission.production_files.add(primary_files[0])
         submission.first_run = False
         submission.save()
 
-    # Handle adding and removing files to production_files list
+    # Handle adding and removing files to production_files list.
     if request.POST:
         if 'add_file' in request.POST:
-            file_id = request.POST.get('file_id')[:-1]  # [:-1] to ignore trailing slash
-            file = models.File.objects.get(pk=file_id)
-            submission.production_files.add(file)
+            file_id = request.POST.get('file_id')[:-1]
+            _file = models.File.objects.get(pk=file_id)
+            submission.production_files.add(_file)
 
         if 'remove_file' in request.POST:
-            file_id = request.POST.get('file_id')[:-1]  # [:-1] to ignore trailing slash
-            file = models.File.objects.get(pk=file_id)
-            submission.production_files.remove(file)
+            file_id = request.POST.get('file_id')[:-1]
+            _file = models.File.objects.get(pk=file_id)
+            submission.production_files.remove(_file)
 
-        return redirect(reverse('files_for_production', kwargs={'submission_id': submission.id}))
+        return redirect(reverse(
+            'files_for_production', kwargs={'submission_id': submission.id}
+        ))
 
     template = 'editor/submission.html'
     context = {
