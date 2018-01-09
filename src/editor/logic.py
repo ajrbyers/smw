@@ -1,6 +1,5 @@
 from django.contrib import messages
-from django.db.models import Q
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.utils.encoding import smart_text
 
 from core import models, email, log
