@@ -217,6 +217,8 @@ def is_book_editor_or_author(_function):
 
         if kwargs.get('submission_id'):
             submission_id = kwargs.get('submission_id')
+        elif kwargs.get('book_id'):
+            submission_id = kwargs.get('book_id')
 
         # Check if the user is a press-editor, if not, check if they are they
         # are assigned as an editor to this book, or check if the user is the
