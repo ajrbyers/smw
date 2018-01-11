@@ -40,93 +40,99 @@ def add_metadata():
     updates their metadata with the matching CSV
     column values, and sends a notification email.
     """
-    service = ServiceHandler(service=JuraUpdateService)
+    if settings.FTP_METADATA_FEATURE:
+        service = ServiceHandler(service=JuraUpdateService)
 
-    ftp = ftplib.FTP(getattr(settings, 'FTP_URL', None))
-    ftp.login(
-        getattr(settings, 'FTP_USERNAME', None),
-        getattr(settings, 'FTP_PASSWORD', None)
-    )
-    ftp.cwd(settings.FTP_FOLDER)
+        ftp = ftplib.FTP(getattr(settings, 'FTP_URL', None))
+        ftp.login(
+            getattr(settings, 'FTP_USERNAME', None),
+            getattr(settings, 'FTP_PASSWORD', None)
+        )
+        ftp.cwd(getattr(settings, 'FTP_FOLDER', None))
 
-    files = []
+        files = []
 
-    try:
-        files = ftp.nlst()
-    except ftplib.error_perm, resp:
-        if str(resp) == '550 No files found':
-            print 'No files in this directory'
-        else:
-            raise
+        try:
+            files = ftp.nlst()
+        except ftplib.error_perm, resp:
+            if str(resp) == '550 No files found':
+                print 'No files in this directory'
+            else:
+                raise
 
-    for f in files:
-        if '.csv' in f:
-            ftp.retrbinary(
-                'RETR ' + f,
-                open(f, 'wb').write
-            )
-            ftp.delete(f)
-            ftp.close()
+        for f in files:
+            if '.csv' in f:
+                ftp.retrbinary(
+                    'RETR ' + f,
+                    open(f, 'wb').write
+                )
+                ftp.delete(f)
+                ftp.close()
 
-            _csv = _read_csv(f)
-            headers = next(_csv)
-            isbn_index = headers.index('ISBN13')
-            bisac_index = headers.index('Bisac Code(s)')
-            description_index = headers.index('Long Description')
-            data = [row for row in _csv]
-            isbns_processed = []
+                _csv = _read_csv(f)
+                headers = next(_csv)
+                isbn_index = headers.index('ISBN13')
+                bisac_index = headers.index('Bisac Code(s)')
+                description_index = headers.index('Long Description')
+                data = [row for row in _csv]
+                isbns_processed = []
 
-            for row in data:
-                isbn = row[isbn_index]
-                if '-' not in isbn: # Add hyphens to ISBNs to match UCP Rua format.
-                    isbn = '-'.join(
-                        [
-                            isbn[:3],
-                            isbn[3],
-                            isbn[4:7],
-                            isbn[7:12],
-                            isbn[12]
-                        ]
-                    )
-                bisacs = row[bisac_index]
-                description = row[description_index]
-                identifier = models.Identifier.objects.filter(value=isbn).first()
-
-                if identifier and isbn not in isbns_processed:
-                    book = identifier.book
-
-                    for subj in book.subject.all():
-                        book.subject.remove(subj)
-
-                    for bisac in bisacs.split():
-                        bisac_lookup = [
-                            row for row in _read_csv('bisac.csv') if bisac in row
-                        ]
-                        new_subject, created = models.Subject.objects.get_or_create(
-                            name=bisac_lookup[0][1]
+                for row in data:
+                    isbn = row[isbn_index]
+                    if '-' not in isbn: # Add hyphens to ISBNs to match UCP Rua format.
+                        isbn = '-'.join(
+                            [
+                                isbn[:3],
+                                isbn[3],
+                                isbn[4:7],
+                                isbn[7:12],
+                                isbn[12]
+                            ]
                         )
+                    bisacs = row[bisac_index]
+                    description = row[description_index]
+                    identifier = models.Identifier.objects.filter(value=isbn).first()
 
-                        book.subject.add(new_subject)
+                    if identifier and isbn not in isbns_processed:
+                        book = identifier.book
 
-                    book.description = description
-                    book.save()
+                        for subj in book.subject.all():
+                            book.subject.remove(subj)
 
-                    email_context = {
-                        'book': book,
-                    }
+                        for bisac in bisacs.split():
+                            bisac_lookup = [
+                                row for row in _read_csv('bisac.csv') if bisac in row
+                            ]
+                            new_subject, created = models.Subject.objects.get_or_create(
+                                name=bisac_lookup[0][1]
+                            )
 
-                    for editor in book.all_editors():
-                        email.send_email(
-                            subject='Metadata updated',
-                            context=email_context,
-                            from_email='noreply@rua.re',
-                            to=editor.email,
-                            html_template='Test'
-                        )
+                            book.subject.add(new_subject)
 
-                    service.send(book.pk)
+                        book.description = description
+                        book.save()
 
-                isbns_processed.append(isbn)
+                        for editor in book.all_editors():
+                            email_context = {
+                                'book': book,
+                                'editor': editor,
+                                'new_subjects': ','.join([subj for subj in book.subjects.all()])
+                            }
+                            email_text = models.Setting.objects.get(
+                                group__name='email',
+                                name='metadata_update'
+                            ).value
+                            email.send_email(
+                                subject='Metadata updated',
+                                context=email_context,
+                                from_email='noreply@rua.re',
+                                to=editor.email,
+                                html_template=email_text
+                            )
 
-    if os.path.isfile('new.csv'):
-     os.remove('new.csv')
+                        service.send(book.pk)
+
+                    isbns_processed.append(isbn)
+
+        if os.path.isfile('new.csv'):
+         os.remove('new.csv')
