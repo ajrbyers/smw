@@ -3,10 +3,10 @@ import csv
 import ftplib
 import os
 
+from celery import task
 from django.conf import settings
 
 from core import models, email
-# from core.celery_app import app
 from services import ServiceHandler, JuraUpdateService
 
 
@@ -30,7 +30,7 @@ def _read_csv(path):
         return reader
 
 
-# @app.task(name='add-metadata')
+@task(name='add-metadata')
 def add_metadata():
     """Adds book metadata from CSVs on an FTP site.
 
@@ -42,12 +42,12 @@ def add_metadata():
     """
     service = ServiceHandler(service=JuraUpdateService)
 
-    ftp = ftplib.FTP(settings.DEFAULT_FTP_URL)
+    ftp = ftplib.FTP(getattr(settings, 'FTP_URL', None))
     ftp.login(
-        settings.DEFAULT_FTP_USERNAME,
-        settings.DEFAULT_FTP_PASSWORD
+        getattr(settings, 'FTP_USERNAME', None),
+        getattr(settings, 'FTP_PASSWORD', None)
     )
-    ftp.cwd(settings.DEFAULT_FTP_FOLDER)
+    ftp.cwd(settings.FTP_FOLDER)
 
     files = []
 
@@ -78,7 +78,7 @@ def add_metadata():
 
             for row in data:
                 isbn = row[isbn_index]
-                if '-' not in isbn: # Add hyphens to ISBNs to match Rua format.
+                if '-' not in isbn: # Add hyphens to ISBNs to match UCP Rua format.
                     isbn = '-'.join(
                         [
                             isbn[:3],
