@@ -49,7 +49,6 @@ def add_metadata():
             getattr(settings, 'FTP_PASSWORD', None)
         )
         ftp.cwd(getattr(settings, 'FTP_FOLDER', None))
-
         files = []
 
         try:
@@ -116,7 +115,11 @@ def add_metadata():
                             email_context = {
                                 'book': book,
                                 'editor': editor,
-                                'new_subjects': ','.join([subj for subj in book.subjects.all()])
+                                'new_subjects': ','.join(
+                                    [
+                                        str(subj.name).encode('utf-8') for subj in book.subject.all()
+                                    ]
+                                )
                             }
                             email_text = models.Setting.objects.get(
                                 group__name='email',
@@ -129,7 +132,6 @@ def add_metadata():
                                 to=editor.email,
                                 html_template=email_text
                             )
-
                         service.send(book.pk)
 
                     isbns_processed.append(isbn)
