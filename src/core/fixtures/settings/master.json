@@ -1340,5 +1340,16 @@
   },
   "model": "core.setting",
   "pk": 126
+},
+{
+  "fields": {
+    "value": "<p>Dear {{ editor.salutation }},</p><p>This is an automatic notification to let you know that the metadata for '{{ book.title }}' has been updated via the FTP service.</p><p>Its new subjects are:</p><p>{{ new_subjects }}.</p><p>Its new description is:</p><p>{{ book.description }}.</p><br>",
+    "group": 3,
+    "name": "metadata_update",
+    "types": "rich_text",
+    "description": "Email sent after metadata is updated through the FTP site."
+  },
+  "model": "core.setting",
+  "pk": 127
 }
 ]
