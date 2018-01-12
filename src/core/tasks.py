@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import csv
 import ftplib
 import os
+import StringIO
 
 from django.conf import settings
 
@@ -14,20 +15,15 @@ from services import ServiceHandler, JuraUpdateService
 def _read_csv(path):
     """Read a CSV and return its rows, cleaning NUL bytes."""
     with open(path, 'rb') as raw_csv:
-        data = raw_csv.read()
-        raw_csv.close()
+        data = raw_csv.read().replace('\00', '')
     if path != 'bisac.csv':
         os.remove(path)
-    with open('new.csv', 'wb') as clean_csv:
-        clean_csv.write(
-            data.replace('\00', '')
-        )
-        clean_csv.close()
-    with open('new.csv', 'rb') as csv_file:
-        reader = csv.reader(
-            csv_file.read().splitlines()
-        )
-        return reader
+
+    buffer = StringIO.StringIO(data)
+    reader = csv.reader(
+        buffer.read().splitlines()
+    )
+    return reader
 
 
 @task(name='add-metadata')
@@ -134,6 +130,3 @@ def add_metadata():
                         service.send(book.pk)
 
                     isbns_processed.append(isbn)
-
-            if os.path.isfile('new.csv'):
-             os.remove('new.csv')
