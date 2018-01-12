@@ -19,12 +19,9 @@ class ServiceHandler(object):
         """
         prepared_content = self.service.pre_send(content)
 
-        try:
-            with settings.CLUSTER_RPC as cluster_rpc:
-                running_service = getattr(cluster_rpc, self.service.name)
-                running_service.send(prepared_content)
-        except Exception as e:
-            print(e)
+        with settings.CLUSTER_RPC as cluster_rpc:
+            running_service = getattr(cluster_rpc, self.service.name)
+            running_service.send(prepared_content)
 
 
 class JuraUpdateService(object):
@@ -39,10 +36,9 @@ class JuraUpdateService(object):
 
         press_rua_url = settings.BASE_URL.rstrip('/')
 
-        if 'https://' in press_rua_url:
-            press_rua_url = press_rua_url.replace('https://', '')
-        elif 'http://' in press_rua_url:
-            press_rua_url = press_rua_url.replace('http://', '')
+        for protocol in ['http://', 'https://']:
+            if protocol in press_rua_url:
+                press_rua_url.replace(protocol, '')
 
         book_dict = {
             'rua_book_id': book_id,

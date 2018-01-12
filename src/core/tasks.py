@@ -3,8 +3,9 @@ import csv
 import ftplib
 import os
 
-from celery import task
 from django.conf import settings
+
+from celery import task
 
 from core import models, email
 from services import ServiceHandler, JuraUpdateService
@@ -12,20 +13,19 @@ from services import ServiceHandler, JuraUpdateService
 
 def _read_csv(path):
     """Read a CSV and return its rows, cleaning NUL bytes."""
-    old_csv = open(path, 'rb')
-    data = old_csv.read()
-    old_csv.close()
+    with open(path, 'rb') as raw_csv:
+        data = raw_csv.read()
+        raw_csv.close()
     if path != 'bisac.csv':
         os.remove(path)
-    new_csv = open('new.csv', 'wb')
-    new_csv.write(
-        data.replace('\00', '')
-    )
-    new_csv.close()
-
-    with open('new.csv', 'rb') as f:
+    with open('new.csv', 'wb') as clean_csv:
+        clean_csv.write(
+            data.replace('\00', '')
+        )
+        clean_csv.close()
+    with open('new.csv', 'rb') as csv_file:
         reader = csv.reader(
-            f.read().splitlines()
+            csv_file.read().splitlines()
         )
         return reader
 
@@ -59,24 +59,23 @@ def add_metadata():
             else:
                 raise
 
-        for f in files:
-            if '.csv' in f:
+        for file in files:
+            if '.csv' in file:
                 ftp.retrbinary(
-                    'RETR ' + f,
-                    open(f, 'wb').write
+                    'RETR {}'.format(file),
+                    open(file, 'wb').write
                 )
-                ftp.delete(f)
+                ftp.delete(file)
                 ftp.close()
 
-                _csv = _read_csv(f)
+                _csv = _read_csv(file)
                 headers = next(_csv)
                 isbn_index = headers.index('ISBN13')
                 bisac_index = headers.index('Bisac Code(s)')
                 description_index = headers.index('Long Description')
-                data = [row for row in _csv]
                 isbns_processed = []
 
-                for row in data:
+                for row in _csv:
                     isbn = row[isbn_index]
                     if '-' not in isbn: # Add hyphens to ISBNs to match UCP Rua format.
                         isbn = '-'.join(
@@ -102,7 +101,7 @@ def add_metadata():
                             bisac_lookup = [
                                 row for row in _read_csv('bisac.csv') if bisac in row
                             ]
-                            new_subject, created = models.Subject.objects.get_or_create(
+                            new_subject, _ = models.Subject.objects.get_or_create(
                                 name=bisac_lookup[0][1]
                             )
 
@@ -136,5 +135,5 @@ def add_metadata():
 
                     isbns_processed.append(isbn)
 
-        if os.path.isfile('new.csv'):
-         os.remove('new.csv')
+            if os.path.isfile('new.csv'):
+             os.remove('new.csv')
