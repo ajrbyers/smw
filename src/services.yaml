@@ -1,4 +1,4 @@
-AMQP_URI:
+AMQP_URI: 'pyamqp://jura:CGuaPJEK@rmq.ubiquity.press:5672/ubiquityrmq'
 WEB_SERVER_ADDRESS: 'rmq.ubiquity.press:15672'
 rpc_exchange: 'nameko-rpc'
 max_workers: 10
