@@ -34,11 +34,13 @@ class JuraUpdateService(object):
     def pre_send(book_id):
         """Serialise book ID with cleaned press URL for Jura scrape."""
 
-        press_rua_url = settings.BASE_URL.rstrip('/')
-
-        for protocol in ['http://', 'https://']:
-            if protocol in press_rua_url:
-                press_rua_url.replace(protocol, '')
+        press_rua_url = settings.BASE_URL.rstrip(
+            '/'
+        ).replace(
+            'https://', ''
+        ).replace(
+            'http://', ''
+        )
 
         book_dict = {
             'rua_book_id': book_id,
