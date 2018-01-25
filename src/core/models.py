@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db import models
+from django.utils.encoding import smart_text
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
@@ -2183,7 +2184,7 @@ class File(models.Model):
         return file_name
 
     def truncated_label(self):
-        name = str(self.label)
+        name = smart_text(self.label)
 
         if len(name) >= 22:
             name = name[:22] + '...'
