@@ -85,6 +85,7 @@ def add_editorial_review(request, submission_type, submission_id):
 @is_editor
 def remove_editorial_review(request, submission_id, review_id):
     """Remove an editorial review.
+
     Currently just handles full submissions but can be expanded.
     """
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)

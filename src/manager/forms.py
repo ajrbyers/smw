@@ -150,6 +150,7 @@ class DefaultForm(forms.Form):
 
 
 class DefaultNotRequiredForm(forms.Form):
+
     title = forms.CharField(
         widget=forms.TextInput,
         required=False,

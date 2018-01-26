@@ -14,7 +14,7 @@ def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):
             if not seconds:
                 return f(*args, **kwargs)
 
-            # Generate the key from the function name and given arguments
+            # Generate the key from the function name and given arguments.
             key = sha1(override_key or u"//".join((
                 unicode(f),
                 u"//".join(

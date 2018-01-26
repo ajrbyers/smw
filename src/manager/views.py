@@ -514,7 +514,7 @@ def user_edit(request, user_id):
             instance=user.profile,
         )
         if profile_form.is_valid() and user_form.is_valid():
-            _user = user_form.save()
+            user_form.save()
             profile = profile_form.save()
 
             for interest in profile.interest.all():
@@ -961,8 +961,13 @@ def delete_review_form_element(request, form_id, relation_id):
 
 @is_press_editor
 def handle_file(request, file):
-    original_filename = smart_text(file._get_name()).replace(',', '_').replace(
-        ';', '_')
+    original_filename = smart_text(
+        file._get_name()
+    ).replace(
+        ',', '_'
+    ).replace(
+        ';', '_'
+    )
     filename = str(uuid4()) + '.' + str(os.path.splitext(original_filename)[1])
     folder_structure = os.path.join(settings.BASE_DIR, 'media', 'settings')
 
@@ -971,8 +976,10 @@ def handle_file(request, file):
 
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
+
     for chunk in file.chunks():
         fd.write(chunk)
+
     fd.close()
 
     return filename
@@ -989,12 +996,10 @@ def groups_order(request):
         ids = request.POST.getlist('%s[]' % 'group')
         ids = [int(_id) for _id in ids]
         for group in groups:
-            # Get the index:
-            group.sequence = ids.index(group.id)
+            group.sequence = ids.index(group.id)  # Get the index.
             group.save()
 
         response = 'Thanks'
-
     else:
         response = 'Nothing to process, post required'
 
@@ -1011,12 +1016,10 @@ def group_members_order(request, group_id):
         ids = request.POST.getlist('%s[]' % 'member')
         ids = [int(_id) for _id in ids]
         for membership in memberships:
-            # Get the index:
-            membership.sequence = ids.index(membership.id)
+            membership.sequence = ids.index(membership.id)  # Get the index.
             membership.save()
 
         response = 'Thanks'
-
     else:
         response = 'Nothing to process, post required'
 

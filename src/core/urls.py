@@ -535,7 +535,7 @@ urlpatterns = patterns(
 
 handler403 = 'core.views.permission_denied'
 
-# Allow Django to serve static content only in debug/dev mode
+# Allow Django to serve static content only in debug/dev mode.
 if settings.DEBUG:
     urlpatterns += patterns(
         '',

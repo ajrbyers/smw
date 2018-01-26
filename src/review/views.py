@@ -1,6 +1,6 @@
 import json
-import os
 import mimetypes as mime
+import os
 from uuid import uuid4
 
 from django.conf import settings

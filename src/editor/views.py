@@ -18,12 +18,11 @@ from django.utils import timezone
 from core import models, log, logic as core_logic, forms as core_forms
 from core.files import handle_file_update, handle_attachment, handle_file
 from core.decorators import is_book_editor, is_editor, is_press_editor
-from editor import logic, forms as editor_forms
-from editor import forms, models as editor_models
+from editor import logic, forms as editor_forms, forms, models as editor_models
 from editorialreview import models as editorial_models
 from manager import models as manager_models, logic as manager_logic
-from revisions import models as revision_models
 from review import models as review_models
+from revisions import models as revision_models
 from submission import forms as submission_forms
 
 
@@ -59,7 +58,7 @@ def editor_dashboard(request):
             Q(prefix__contains=search)
         )
 
-    # If not press editor, filter out unassigned books
+    # If not press editor, filter out unassigned books.
     if 'press-editor' not in request.user_roles:
         query_list.append(Q(book_editors__in=[request.user]))
 
@@ -1180,11 +1179,11 @@ def add_review_files(request, submission_id, review_type):
 
     if request.POST:
         files = models.File.objects.filter(pk__in=request.POST.getlist('file'))
-        for file in files:
+        for _file in files:
             if review_type == 'internal':
-                submission.internal_review_files.add(file)
+                submission.internal_review_files.add(_file)
             elif review_type == 'external':
-                submission.external_review_files.add(file)
+                submission.external_review_files.add(_file)
 
         messages.add_message(
             request,
@@ -1945,6 +1944,7 @@ def add_format(request, submission_id, file_id=None):
 @is_book_editor
 def add_chapter(request, submission_id, chapter_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
+
     if chapter_id:
         exist_chapter = get_object_or_404(models.Chapter, pk=file_id)
         chapter_form = core_forms.ChapterFormInitial()
@@ -2371,7 +2371,6 @@ def add_physical(request, submission_id):
         'author_include': 'editor/production/view.html',
         'submission_files': 'editor/production/physical_format.html',
         'active': 'production',
-        'submission': book,
         'format_list': models.Format.objects.filter(
             book=book
         ).select_related('file'),

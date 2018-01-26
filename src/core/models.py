@@ -1299,14 +1299,14 @@ def review_recommendation():
 
 class ReviewRound(models.Model):
 
+    class Meta:
+        unique_together = ('book', 'round_number')
+
     book = models.ForeignKey(Book)
     round_number = models.IntegerField()
     date_started = models.DateTimeField(
         auto_now_add=True,
     )
-
-    class Meta:
-        unique_together = ('book', 'round_number')
 
     def __unicode__(self):
         return u'%s - %s round_number: %s' % (
