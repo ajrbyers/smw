@@ -4,8 +4,8 @@ from os import path, makedirs
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt

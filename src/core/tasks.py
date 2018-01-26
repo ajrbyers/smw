@@ -73,7 +73,7 @@ def add_metadata():
 
                 for row in _csv:
                     isbn = row[isbn_index]
-                    if '-' not in isbn: # Add hyphens to ISBNs to match UCP Rua format.
+                    if '-' not in isbn:  # Add hyphens to ISBNs: match UCP Rua.
                         isbn = '-'.join(
                             [
                                 isbn[:3],
@@ -85,7 +85,9 @@ def add_metadata():
                         )
                     bisacs = row[bisac_index]
                     description = row[description_index]
-                    identifier = models.Identifier.objects.filter(value=isbn).first()
+                    identifier = models.Identifier.objects.filter(
+                        value=isbn
+                    ).first()
 
                     if identifier and isbn not in isbns_processed:
                         book = identifier.book
@@ -95,10 +97,13 @@ def add_metadata():
 
                         for bisac in bisacs.split():
                             bisac_lookup = [
-                                row for row in _read_csv('bisac.csv') if bisac in row
+                                row for row
+                                in _read_csv('bisac.csv') if bisac in row
                             ]
-                            new_subject, _ = models.Subject.objects.get_or_create(
-                                name=bisac_lookup[0][1]
+                            new_subject, _ = (
+                                models.Subject.objects.get_or_create(
+                                    name=bisac_lookup[0][1]
+                                )
                             )
 
                             book.subject.add(new_subject)
@@ -112,7 +117,8 @@ def add_metadata():
                                 'editor': editor,
                                 'new_subjects': ','.join(
                                     [
-                                        str(subj.name).encode('utf-8') for subj in book.subject.all()
+                                        str(subj.name).encode('utf-8')
+                                        for subj in book.subject.all()
                                     ]
                                 )
                             }

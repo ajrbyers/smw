@@ -2517,14 +2517,13 @@ def proposal_assign_edit(request, proposal_id):
         if proposal_form.is_valid() and default_fields.is_valid():
             save_dict = {}
             file_fields = models.ProposalFormElementsRelationship.objects.filter(
-                form=models.ProposalForm.objects.get(
-                    pk=_proposal.form.id
-                ), element__field_type='upload'
+                form=models.ProposalForm.objects.get(pk=_proposal.form.id),
+                element__field_type='upload'
             )
             data_fields = (
                 models.ProposalFormElementsRelationship.objects.filter(
                     ~Q(element__field_type='upload'),
-                    form=models.ProposalForm.objects.get(pk=_proposal.form.id)
+                    form=models.ProposalForm.objects.get(pk=_proposal.form.id),
                 )
             )
 
