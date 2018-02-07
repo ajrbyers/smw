@@ -1,11 +1,12 @@
 from django.core.exceptions import PermissionDenied
 
-from core import models as core_models, email
+from core import email
+from core.models import Author, Editor, Setting, Task
 from core.setting_util import get_setting
 
 
 def copy_author_to_submission(user, book):
-    author = core_models.Author(
+    author = Author(
         first_name=user.first_name,
         middle_name=user.profile.middle_name,
         last_name=user.last_name,
@@ -28,7 +29,7 @@ def copy_author_to_submission(user, book):
 
 
 def copy_editor_to_submission(user, book):
-    editor = core_models.Editor(
+    editor = Editor(
         first_name=user.first_name,
         middle_name=user.profile.middle_name,
         last_name=user.last_name,
@@ -60,31 +61,33 @@ def check_stage(book, check):
 
 
 def send_acknowldgement_email(book, press_editors):
-    from_email = core_models.Setting.objects.get(
+    from_email = Setting.objects.get(
         group__name='email',
-        name='from_address'
+        name='from_address',
     ).value
-    author_text = core_models.Setting.objects.get(
+    author_text = Setting.objects.get(
         group__name='email',
-        name='author_submission_ack'
+        name='author_submission_ack',
     ).value
-    editor_text = core_models.Setting.objects.get(
+    editor_text = Setting.objects.get(
         group__name='email',
-        name='editor_submission_ack'
+        name='editor_submission_ack',
     ).value
-    press_name = core_models.Setting.objects.get(
+    press_name = Setting.objects.get(
         group__name='general',
-        name='press_name'
+        name='press_name',
     ).value
 
     try:
-        principal_contact_name = models.Setting.objects.get(
-            group__name='general', name='primary_contact_name').value
+        principal_contact_name = Setting.objects.get(
+            group__name='general',
+            name='primary_contact_name'
+        ).value
     except:
         principal_contact_name = None
 
     context = {
-        'base_url': core_models.Setting.objects.get(
+        'base_url': Setting.objects.get(
             group__name='general',
             name='base_url',
         ).value,
@@ -129,13 +132,11 @@ def send_acknowldgement_email(book, press_editors):
     )
 
     for editor in press_editors:
-        notification = core_models.Task(
+        notification = Task(
             book=book,
             assignee=editor,
             creator=press_editors[0],
-            text='A new submission, {0}, has been made.'.format(
-                book.title
-            ),
+            text='A new submission, {0}, has been made.'.format(book.title),
             workflow='review'
         )
         notification.save()

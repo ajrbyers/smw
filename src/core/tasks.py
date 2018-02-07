@@ -14,14 +14,15 @@ from services import ServiceHandler, JuraUpdateService
 
 def _read_csv(path):
     """Read a CSV and return its rows, cleaning NUL bytes."""
+
     with open(path, 'rb') as raw_csv:
         data = raw_csv.read().replace('\00', '')
     if path != 'bisac.csv':
         os.remove(path)
 
-    buffer = StringIO.StringIO(data)
+    _buffer = StringIO.StringIO(data)
     reader = csv.reader(
-        buffer.read().splitlines()
+        _buffer.read().splitlines()
     )
     return reader
 
@@ -30,11 +31,10 @@ def _read_csv(path):
 def add_metadata():
     """Adds book metadata from CSVs on an FTP site.
 
-    Accesses a specified FTP dir, copies CSVs to
-    the local dir then deletes them from FTP, reads
-    the CSV and matches ISBN13s to Rua books and
-    updates their metadata with the matching CSV
-    column values, and sends a notification email.
+    Accesses a specified FTP dir, copies CSVs to the local dir then deletes them
+    from FTP, reads the CSV and matches ISBN13s to Rua books and updates their
+    metadata with the matching CSV column values, and sends a notification
+    email.
     """
     if settings.FTP_METADATA_FEATURE:
         service = ServiceHandler(service=JuraUpdateService)
@@ -55,16 +55,16 @@ def add_metadata():
             else:
                 raise
 
-        for file in files:
-            if '.csv' in file:
+        for _file in files:
+            if '.csv' in _file:
                 ftp.retrbinary(
-                    'RETR {}'.format(file),
-                    open(file, 'wb').write
+                    'RETR {}'.format(_file),
+                    open(_file, 'wb').write
                 )
-                ftp.delete(file)
+                ftp.delete(_file)
                 ftp.close()
 
-                _csv = _read_csv(file)
+                _csv = _read_csv(_file)
                 headers = next(_csv)
                 isbn_index = headers.index('ISBN13')
                 bisac_index = headers.index('Bisac Code(s)')
