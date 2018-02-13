@@ -1537,6 +1537,36 @@
 },
 {
   "fields": {
+    "files": [
+      1
+    ],
+    "results": null,
+    "assigned": "2017-11-17",
+    "competing_interests": "No.",
+    "recommendation": "revisions",
+    "withdrawn": false,
+    "declined": null,
+    "review_form": 1,
+    "hide": false,
+    "accepted_reminder": false,
+    "due": "2017-11-27",
+    "book": 1,
+    "overdue_reminder": false,
+    "review_type": "internal",
+    "review_round": 1,
+    "body": null,
+    "unaccepted_reminder": false,
+    "completed": "2017-12-08",
+    "reopened": false,
+    "user": 4,
+    "accepted": "2017-11-22",
+    "access_key": "241a1c7d-d80d-4fad-b7a1-cccc8579ee62"
+  },
+  "model": "core.reviewassignment",
+  "pk": 2
+},
+{
+  "fields": {
     "files": [],
     "requested": "2015-10-30",
     "note_from_indexer": "",
