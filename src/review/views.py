@@ -1357,11 +1357,6 @@ def create_completed_review_form(submission, review_id):
         ).order_by('order')
 
     if review_assignment.results:
-        p = document.add_paragraph(
-            '%s completed this review assignment form.'
-            % review_assignment.user.profile.full_name()
-        )
-
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
