@@ -1,3 +1,6 @@
+import tempfile
+import time
+
 from django.test import TestCase
 from django.utils import timezone
 from django.test.client import Client
@@ -7,9 +10,6 @@ from django.core.urlresolvers import reverse
 from review import models
 from review import views
 from core import models as core_models
-
-import tempfile
-import time
 
 
 class ReviewTests(TestCase):
@@ -337,23 +337,58 @@ class ReviewTests(TestCase):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
         self.assignment.access_key = "enter"
         self.assignment.save()
-        resp = self.client.post(reverse('reviewer_decision_without_access_key',
-                                        kwargs={
-                                            'review_type': self.assignment.review_type,
-                                            'submission_id': 1,
-                                            'review_assignment_id': 1,
-                                            'access_key': "enter"}),
-                                {'accept': 'I Accept'})
+        resp = self.client.post(
+            reverse(
+                'reviewer_decision_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'access_key': "enter"
+                }
+            ),
+            {
+                'accept': 'I Accept'
+            }
+        )
         path = views.create_review_form(self.book, self.book.review_form)
         self.assertEqual("/files/forms/" in path, True)
         self.assertEqual(".docx" in path, True)
         review_file = tempfile.NamedTemporaryFile(delete=False)
-        resp = self.client.post(reverse('review_with_access_key', kwargs={
-            'review_type': self.assignment.review_type, 'submission_id': 1,
-            'access_key': "enter", 'review_round': 1}), {'rua_name': 'example',
-                                                         'recommendation': 'accept',
-                                                         'competing_interests': 'nothing',
-                                                         'review_file_upload': review_file})
+        resp = self.client.post(
+            reverse(
+                'review_with_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'access_key': "enter",
+                    'review_round': 1
+                }
+            ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing',
+                'review_file_upload': review_file
+            }
+        )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         "http://testing/review/external/1/review-round/1/access_key/enter/complete/")
+        self.assertEqual(
+            resp['Location'],
+            "http://testing/review/external/1/review-round/1/access_key/enter/complete/"
+        )
+
+    def test_editor_download_completed_review_form(self):
+        self.assignment = core_models.ReviewAssignment.objects.get(pk=2)
+        resp = self.client.get(
+            reverse(
+                'generate_review_form_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_id': 2,
+                    'access_key': self.assignment.access_key
+                }
+            )
+        )
+        self.assertEqual(resp.status_code, 200)
