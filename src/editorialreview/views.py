@@ -34,7 +34,8 @@ from submission import models as submission_models
 
 @is_editor
 def add_editorial_review(request, submission_type, submission_id):
-    """ Create a new editorial review. """
+    """Create a new editorial review."""
+
     check = None
     submission = logic.get_submission(submission_type, submission_id)
     editorial_reviewers = manager_models.GroupMembership.objects.filter(
@@ -106,9 +107,11 @@ def remove_editorial_review(request, submission_id, review_id):
 
 @is_editor
 def withdraw_editorial_review(request, submission_id, review_id):
-    """ Withdraw an editorial review.
+    """Withdraw an editorial review.
 
-    Currently just handles full submissions but can be expanded. """
+    Currently just handles full submissions but can be expanded.
+    """
+
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
 
     if review_assignment.withdrawn:
@@ -139,7 +142,8 @@ def withdraw_editorial_review(request, submission_id, review_id):
 
 @is_editor
 def update_editorial_review_due_date(request, submission_id, review_id):
-    """ Update the due date of an editorial review. """
+    """Update the due date of an editorial review."""
+
     submission = get_object_or_404(core_models.Book, pk=submission_id)
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
     previous_due_date = review_assignment.due
@@ -204,7 +208,7 @@ def update_editorial_review_due_date(request, submission_id, review_id):
 
 @is_editor
 def email_editorial_review(request, review_id):
-    """ Preview the content of an editorial review request email then send it
+    """Preview the content of an editorial review request email then send it
      with any necessary attachments.
      """
 
@@ -306,7 +310,8 @@ def email_editorial_review(request, review_id):
 
 @is_editorial_reviewer
 def view_editorial_review(request, review_id):
-    """ As an editorial reviewer, view a completed editorial review. """
+    """As an editorial reviewer, view a completed editorial review."""
+
     review = get_object_or_404(models.EditorialReview, pk=review_id)
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(
@@ -330,7 +335,7 @@ def view_editorial_review(request, review_id):
 
 @is_editorial_reviewer
 def editorial_review(request, review_id):
-    """ Complete an editorial review. """
+    """Complete an editorial review."""
 
     review = get_object_or_404(
         models.EditorialReview,
@@ -486,7 +491,7 @@ def editorial_review(request, review_id):
 
 @is_editorial_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
-    """ As an editorial reviewer, view a completed peer review for the
+    """As an editorial reviewer, view a completed peer review for the
     submission under review.
     """
 
@@ -535,7 +540,7 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
 
 @is_editorial_reviewer
 def view_content_summary(request, review_id):
-    """ As an editorial reviewer, view a summary of the submission under review.
+    """As an editorial reviewer, view a summary of the submission under review.
     """
 
     review = get_object_or_404(
