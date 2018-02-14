@@ -448,7 +448,13 @@ def editorial_review(request, review_id):
             except:
                 series_editor_email = None
 
-            for editor in submission.book_editors.all():
+            editors_to_notify = []
+            if submission.book_editors:
+                editors_to_notify = submission.book_editors.all()
+            elif submission.press_editors:
+                editors_to_notify = submission.press_editors.all()
+
+            for editor in editors_to_notify:
                 salutation = editor.profile.full_name()
 
                 if editor.profile.salutation:
