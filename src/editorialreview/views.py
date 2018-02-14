@@ -443,6 +443,11 @@ def editorial_review(request, review_id):
                 default='The publishers',
             )
 
+            try:
+                series_editor_email = [submission.series.editor.email]
+            except:
+                series_editor_email = None
+
             for editor in submission.book_editors.all():
                 salutation = editor.profile.full_name()
 
@@ -466,6 +471,7 @@ def editorial_review(request, review_id):
                     html_template=email_text,
                     from_email=from_email,
                     to=editor.email,
+                    cc=series_editor_email,
                     book=submission if book else None,
                     proposal=submission if proposal else None
                 )
