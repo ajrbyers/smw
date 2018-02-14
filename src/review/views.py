@@ -1374,9 +1374,10 @@ def create_completed_review_form(submission, review_id):
             }
 
         document.add_heading("Recommendation", level=1)
-        document.add_paragraph(
-            recommendations[review_assignment.recommendation]
-        ).italic = True
+        if recommendations.get(review_assignment.recommendation):
+            document.add_paragraph(
+                recommendations[review_assignment.recommendation]
+            ).italic = True
         document.add_heading("Competing Interests", level=1)
         document.add_paragraph(
             review_assignment.competing_interests
