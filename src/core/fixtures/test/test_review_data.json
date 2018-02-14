@@ -1,1 +1,36 @@
-[{"fields": {"intro_text": "intro", "completion_text": "completion", "ref": "rua_test_form", "name": "rua_review_form", "form_fields": [1]}, "model": "review.form", "pk": 1}, {"fields": {"field_type": "text", "required": false, "name": "rua_name", "choices": ""}, "model": "review.formelement", "pk": 1}, {"fields": {"width": "col-md-12", "help_text": "help ", "order": 1, "form": 1, "element": 1}, "model": "review.formelementsrelationship", "pk": 1}]
+[
+  {
+    "fields": {
+      "intro_text": "intro",
+      "completion_text": "completion",
+      "ref": "rua_test_form",
+      "name": "rua_review_form",
+      "form_fields": [
+        1
+      ]
+    },
+    "model": "review.form",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": false,
+      "name": "rua_name",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "width": "col-md-12",
+      "help_text": "help ",
+      "order": 1,
+      "form": 1,
+      "element": 1
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 1
+  }
+]
