@@ -2,32 +2,104 @@
   <tr>
     <th>Name</th>
     <th>Assigned</th>
-    <th>Accepted</th>
+    <th>Status</th>
     <th>Due</th>
     <th>Completed</th>
     <th>Recommendation</th>
-    <th></th>
-    <th></th>
+    {% if reviewer.completed %}<th></th>{% endif %}
+    {% if reviewer.reopened %}<th></th>{% endif %}
     <th></th>
     <th></th>
   </tr>
 {% for reviewer in review_data %}
   <tr>
-    <td><a href="{% url 'view_profile_readonly' reviewer.user.id %}">{{ reviewer.user.first_name }} {% if author.middle_name %}{{ reviewer.user.middle_name}} {% endif %}{{ reviewer.user.last_name }}</a> <sup> <a href="core/email.html" onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{reviewer.user.id}}/','proposal_{{reviewer.user.id}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></td>
-    <td>{{ reviewer.assigned }}</td>
-    <td>{% if reviewer.accepted %}{{ reviewer.accepted }}{% else %}--{% endif %}</td>
-    <td>{{ reviewer.due }} <a href="{% url 'change_review_due_date' proposal.id reviewer.id %}"><i class="fa fa-edit">&nbsp;</i></a></td>
-    <td>{% if reviewer.completed %}{{ reviewer.completed }}{% else %}--{% endif %}</td>
-    <td>{% if reviewer.completed %}{{ reviewer.get_recommendation_display }}{% else %}--{% endif %}</td>
+    <td>
+      <a href="{% url 'view_profile_readonly' reviewer.user.id %}">
+        {{ reviewer.user.first_name }}
+        {% if author.middle_name %}
+          {{ reviewer.user.middle_name}}
+        {% endif %}
+          {{ reviewer.user.last_name }}
+      </a>
+      <sup>
+        <a href="core/email.html"
+           onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{reviewer.user.id}}/','proposal_{{reviewer.user.id}}')"
+           class="fa fa-envelope-o btn btn-xs btn-default">
 
-    <td>{% if reviewer.completed %}<a href="{% url 'view_completed_proposal_review' proposal.id reviewer.id %}">View Review</a>{% endif %}</td>
-    <td>{% if reviewer.reopened %}{% if reviewer.completed %}<a href="{% url 'reopen_proposal_review' proposal.id reviewer.id %}">Reopen</a>{% endif %}{% else %} {% if reviewer.completed %}<a href="{% url 'reopen_proposal_review' proposal.id reviewer.id %}">Reopen</a> {% endif %}{% endif %}</td>
-      <td width="10%"> <a href="{% url 'withdraw_proposal_review' proposal.id reviewer.pk %}" class=" btn   {% if reviewer.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-sm pull-left" style="width:120px">
-      {% if reviewer.withdrawn %} Re-Enable {% else %} Withdraw {% endif %}
-              </a></td>
-     <td width="10%"> <a href="{% url 'remove_proposal_review' proposal.id reviewer.pk %}" class=" btn btn-danger btn-sm pull-left" style="width:120px">
+        </a>
+      </sup>
+    </td>
+    <td>{{ reviewer.assigned }}</td>
+    <td>
+      {% if reviewer.accepted %}
+        Accepted: {{ reviewer.accepted }}
+      {% elif reviewer.declined %}
+        Declined: {{ reviewer.declined }}
+      {% else %}
+        Awaiting reply
+      {% endif %}
+    </td>
+    <td>
+      {{ reviewer.due }}
+      <a href="{% url 'change_review_due_date' proposal.id reviewer.id %}">
+        <i class="fa fa-edit">&nbsp;</i>
+      </a>
+    </td>
+    <td>
+      {% if reviewer.completed %}
+        {{ reviewer.completed }}
+      {% else %}
+        --
+      {% endif %}
+    </td>
+    <td>
+      {% if reviewer.completed %}
+        {{ reviewer.get_recommendation_display }}
+      {% else %}
+        --
+      {% endif %}
+    </td>
+
+    {% if reviewer.completed %}
+      <td>
+        <a href="{% url 'view_completed_proposal_review' proposal.id reviewer.id %}">
+            View Review
+        </a>
+      </td>
+    {% endif %}
+      <td>
+      {% if reviewer.reopened %}
+        {% if reviewer.completed %}
+          <a href="{% url 'reopen_proposal_review' proposal.id reviewer.id %}">
+            Reopen
+          </a>
+        {% endif %}
+      {% else %}
+        {% if reviewer.completed %}
+          <a href="{% url 'reopen_proposal_review' proposal.id reviewer.id %}">
+            Reopen
+          </a>
+        {% endif %}
+      {% endif %}
+      </td>
+    <td width="10%">
+      <a href="{% url 'withdraw_proposal_review' proposal.id reviewer.pk %}"
+         class=" btn   {% if reviewer.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-sm pull-left"
+         style="width:120px">
+      {% if reviewer.withdrawn %}
+        Re-Enable
+      {% else %}
+        Withdraw
+      {% endif %}
+      </a>
+    </td>
+    <td width="10%">
+      <a href="{% url 'remove_proposal_review' proposal.id reviewer.pk %}"
+         class=" btn btn-danger btn-sm pull-left"
+         style="width:120px">
           Delete
-              </a></td>
+      </a>
+    </td>
   </tr>
 
 {% empty %}

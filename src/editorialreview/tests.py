@@ -7,39 +7,87 @@ from django.test.client import Client
 
 from editorialreview import models
 from core import models as core_models
+from review import models as review_models
+from submission import models as submission_models
 
 
 class UserFactory(factory.Factory):
     class Meta:
         model = User
+    username = factory.Sequence(lambda n: 'user{}'.format(n))
+    email = factory.LazyAttribute(
+        lambda obj: '{}@example.com'.format(obj.username)
+    )
+
+
+class EditorialReviewerFactory(UserFactory):
     username = 'editorialreviewer'
     password = 'editorialreviewerpass'
     email = 'editorialreviewer@email.com'
 
 
-class BookFactory(factory.Factory):
+class ProposalFormFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = core_models.ProposalForm
+
+
+class BookFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = core_models.Book
+
+
+class ProposalFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = submission_models.Proposal
+    form = factory.SubFactory(ProposalFormFactory)
+
+
+class BookEditorialReviewFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EditorialReview
+    content_object = factory.SubFactory(BookFactory)
+
+
+class ProposalEditorialReviewFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EditorialReview
+    content_object = factory.SubFactory(ProposalFactory)
 
 
 class EditorialReviewTests(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_HOST='testing')
-        self.user = UserFactory.create()
+        self.editorialreviewer = EditorialReviewerFactory.create()
         self.book = BookFactory.create()
-        # login = self.client.login(
-        #     email='editorialreviewer@email.com',
-        #     password='editorialreviewerpass'
-        # )
-        # self.assertEqual(login, True)
+        self.proposal = ProposalFactory.create()
+        self.client.login(
+            username=self.editorialreviewer.username,
+            password=self.editorialreviewer.password
+        )
 
     def tearDown(self):
         pass
 
     def test_set_up(self):
-        self.assertEqual(self.user.username, 'editorialreviewer')
-        self.assertEqual(self.user.email, 'editorialreviewer@email.com')
+        self.assertEqual(
+            self.editorialreviewer.username,
+            'editorialreviewer'
+        )
+        self.assertEqual(
+            self.editorialreviewer.email,
+            'editorialreviewer@email.com'
+        )
 
-
-
+    def test_ed_reviewer_download_proposal(self):
+        self.editorialreview = ProposalEditorialReviewFactory.create()
+        print(vars(self.editorialreview.content_type))
+        resp = self.client.get(
+            reverse(
+                'view_content_summary',
+                kwargs={
+                    'review_id': self.editorialreview.pk,
+                }
+            )
+        )
+        self.assertEqual(resp.status_code, 200)
