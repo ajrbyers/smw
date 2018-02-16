@@ -44,7 +44,11 @@
       </td>
       <td>
           {% if review.completed %}
-            {{ review.recommendation }}
+            {% for rec in editorial_review_recommendations %}
+                {% if review.recommendation == rec.0 %}
+                    {{ rec.1 }}
+                {% endif%}
+            {% endfor %}
           {% else %}
             --
           {% endif %}

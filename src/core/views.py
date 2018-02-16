@@ -2683,6 +2683,7 @@ def view_proposal(request, proposal_id):
         'relationships': relationships,
         'data': data,
         'editorial_review_assignments': editorial_review_assignments,
+        'editorial_review_recommendations': er_models.review_recommendation()
     }
 
     return render(request, template, context)
