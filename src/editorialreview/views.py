@@ -449,10 +449,12 @@ def editorial_review(request, review_id):
                 series_editor_email = None
 
             editors_to_notify = []
-            if submission.book_editors:
+            if submission.book_editors.all():
                 editors_to_notify = submission.book_editors.all()
-            elif submission.press_editors:
-                editors_to_notify = submission.press_editors.all()
+            else:
+                editors_to_notify = User.objects.filter(
+                    profile__roles__slug='press-editor',
+                )
 
             for editor in editors_to_notify:
                 salutation = editor.profile.full_name()
