@@ -10,23 +10,50 @@
 
   <table class="table table-bordered">
     <tr>
-      <th>ID</th>
+      <th>Name</th>
       <th>Assigned</th>
       <th>Status</th>
+      <th>Recommendation</th>
       <th></th>
     </tr>
   {% for review in editorial_review_assignments %}
     <tr>
-      <td>{{review.pk}}</td>
-      <td>{{review.assigned}}</td>
-      <td width="25%">
+      <td>
+          <a href="{% url 'view_profile_readonly' review.user.id %}">
+              {{ review.user.first_name }}
+              {% if review.user.middle_name %}
+                {{ review.user.middle_name }}
+              {% endif %}
+              {{ review.user.last_name }}
+          </a>
+          <sup>
+              <a href="core/email.html"
+                 onclick="return popitup('/email/proposal/{{ proposal.id }}/user/{{ review.user.id }}/',
+                 'proposal_{{ review.user.id }}')"
+                 class="fa fa-envelope-o btn btn-xs btn-default">
+              </a>
+          </sup>
+      </td>
+      <td>{{ review.assigned }}</td>
+      <td>
           {% if review.completed %}
-            Completed {{ review.completed }}
+            Completed: {{ review.completed }}
           {% else %}
-            Due on {{ review.due }}
+            Due: {{ review.due }}
           {% endif %}
       </td>
-      <td width="25%">
+      <td>
+          {% if review.completed %}
+            {% for rec in editorial_review_recommendations %}
+                {% if review.recommendation == rec.0 %}
+                    {{ rec.1 }}
+                {% endif%}
+            {% endfor %}
+          {% else %}
+            --
+          {% endif %}
+      </td>
+      <td>
           {% if review.completed %}
             <a class="btn btn-task" href="{% url 'view_editorial_review' review.id %}">View
             </a>
