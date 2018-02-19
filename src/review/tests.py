@@ -101,7 +101,6 @@ class ReviewTests(TestCase):
         year = time.strftime("%Y")
 
         message = "You accepted on %s-%s-%s" % (year, month, day)
-        print message
         self.assertEqual(message in content, True)
 
         self.assignment.completed = timezone.now()

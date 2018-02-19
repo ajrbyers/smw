@@ -61,7 +61,6 @@
                   {% for group in editorial_groups %}
                     {% if group.id == reviewer.group_id %}
                         {{ group }}
-                    {% else %} None
                     {% endif %}
                   {% endfor %}
               </td>
@@ -72,7 +71,7 @@
               <td>{{ reviewer.user.profile.number_completed_reviews }}</td>
               <td>{{ reviewer.user.profile.number_declined_reviews }}</td>
               <td><a href="{% url 'view_review_history' reviewer.user.id %}" target="_blank">View</a></td>
-              <td><input type="checkbox" name="reviewer" value="{{ reviewer.user.id }}"/></td>
+              <td><input type="radio" name="reviewer" value="{{ reviewer.user.id }}"/></td>
             </tr>
 	    {% endfor %}
 		</tbody>
