@@ -448,13 +448,11 @@ def editorial_review(request, review_id):
             except AttributeError:
                 series_editor_email = None
 
-            editors_to_notify = []
+            editors_to_notify = User.objects.filter(
+                    profile__roles__slug='press-editor'
+                )
             if submission.book_editors.all():
                 editors_to_notify = submission.book_editors.all()
-            else:
-                editors_to_notify = User.objects.filter(
-                    profile__roles__slug='press-editor',
-                )
 
             for editor in editors_to_notify:
                 salutation = editor.profile.full_name()
