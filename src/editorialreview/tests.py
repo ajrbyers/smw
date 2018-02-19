@@ -81,7 +81,6 @@ class EditorialReviewTests(TestCase):
 
     def test_ed_reviewer_download_proposal(self):
         self.editorialreview = ProposalEditorialReviewFactory.create()
-        print(vars(self.editorialreview.content_type))
         resp = self.client.get(
             reverse(
                 'view_content_summary',

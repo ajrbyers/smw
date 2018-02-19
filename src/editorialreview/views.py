@@ -445,7 +445,7 @@ def editorial_review(request, review_id):
 
             try:
                 series_editor_email = [submission.series.editor.email]
-            except:
+            except AttributeError:
                 series_editor_email = None
 
             editors_to_notify = []
