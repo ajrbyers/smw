@@ -386,7 +386,7 @@ def editorial_review(request, review_id):
             message = (
                 "Editorial review assignment for "
                 "'{}' has been completed by {}.".format(
-                    submission,
+                    submission.title,
                     review.user.profile.full_name(),
                 )
             )
