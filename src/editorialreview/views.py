@@ -467,7 +467,8 @@ def editorial_review(request, review_id):
                     'base_url': core_models.Setting.objects.get(
                         name='base_url'
                     ).value,
-                    'authors': submission.author.all(),
+                    'authors': [submission.author] if proposal
+                    else submission.author.all(),
                     'press_name': press_name
                 }
 
