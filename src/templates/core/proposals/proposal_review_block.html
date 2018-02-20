@@ -6,8 +6,8 @@
     <th>Due</th>
     <th>Completed</th>
     <th>Recommendation</th>
-    {% if reviewer.completed %}<th></th>{% endif %}
-    {% if reviewer.reopened %}<th></th>{% endif %}
+    <th></th>
+    <th></th>
     <th></th>
     <th></th>
   </tr>
@@ -59,14 +59,12 @@
       {% endif %}
     </td>
 
-    {% if reviewer.completed %}
-      <td>
+    <td>
         <a href="{% url 'view_completed_proposal_review' proposal.id reviewer.id %}">
             View Review
         </a>
-      </td>
-    {% endif %}
-      <td>
+    </td>
+    <td>
       {% if reviewer.reopened %}
         {% if reviewer.completed %}
           <a href="{% url 'reopen_proposal_review' proposal.id reviewer.id %}">
@@ -80,7 +78,7 @@
           </a>
         {% endif %}
       {% endif %}
-      </td>
+    </td>
     <td width="10%">
       <a href="{% url 'withdraw_proposal_review' proposal.id reviewer.pk %}"
          class=" btn   {% if reviewer.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-sm pull-left"
