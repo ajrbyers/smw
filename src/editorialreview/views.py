@@ -386,8 +386,8 @@ def editorial_review(request, review_id):
             message = (
                 "Editorial review assignment for "
                 "'{}' has been completed by {}.".format(
-                    submission.title,
-                    review.user.profile.full_name(),
+                    submission.title.encode('utf-8'),
+                    review.user.profile.full_name().encode('utf-8'),
                 )
             )
             short_message = 'Completed'
