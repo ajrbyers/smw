@@ -21,7 +21,7 @@ from core import (
     models as core_models,
     logic as core_logic,
 )
-from core.decorators import is_editor, is_editorial_reviewer
+from core.decorators import is_editor, is_editor_or_ed_reviewer
 from core.email import send_email_multiple
 from core.files import handle_email_file
 from core.setting_util import get_setting
@@ -308,7 +308,7 @@ def email_editorial_review(request, review_id):
     return render(request, template, context)
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def view_editorial_review(request, review_id):
     """As an editorial reviewer, view a completed editorial review."""
 
@@ -333,7 +333,7 @@ def view_editorial_review(request, review_id):
     return render(request, template, context)
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def editorial_review(request, review_id):
     """Complete an editorial review."""
 
@@ -502,7 +502,7 @@ def editorial_review(request, review_id):
     return render(request, template, context)
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
     """As an editorial reviewer, view a completed peer review for the
     submission under review.
@@ -551,7 +551,7 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
     return render(request, template, context)
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def view_content_summary(request, review_id):
     """As an editorial reviewer, view a summary of the submission under review.
     """
@@ -591,7 +591,7 @@ def view_content_summary(request, review_id):
     return render(request, template, context)
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def download_er_file(request, file_id, review_id):
     """As an editorial reviewer, download an editorial review file."""
     review = get_object_or_404(
@@ -630,7 +630,7 @@ def download_er_file(request, file_id, review_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@is_editorial_reviewer
+@is_editor_or_ed_reviewer
 def download_editor_er_file(request, file_id, review_id):
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
