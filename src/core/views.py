@@ -43,6 +43,7 @@ from core.decorators import (
     is_book_editor_or_author,
     is_onetasker,
     is_press_editor,
+    is_editor_or_ed_reviewer
 )
 from editor import forms as editor_forms
 from editorialreview import models as er_models
@@ -1809,7 +1810,7 @@ def serve_file_one_click(
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-@is_editor
+@is_editor_or_ed_reviewer
 def serve_proposal_file_id(request, proposal_id, file_id):
     get_object_or_404(submission_models.Proposal, pk=proposal_id)
     _file = get_object_or_404(models.File, pk=file_id)
