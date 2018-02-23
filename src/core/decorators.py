@@ -118,10 +118,6 @@ def is_editor(_function):
                 "%s?next=%s" % (reverse('login'), request.get_full_path()))
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if (
             'press-editor' in user_roles or
@@ -344,7 +340,7 @@ def is_reviewer(_function):
     return wrap
 
 
-def is_editorial_reviewer(_function):
+def is_editor_or_ed_reviewer(_function):
     """Manage editorial reviewer permissions.
 
     Check if access key matches an existing editorial review, and otherwise
@@ -353,6 +349,7 @@ def is_editorial_reviewer(_function):
     """
     def wrap(request, *args, **kwargs):
         full_url = request.get_full_path()
+
         if not request.user.is_authenticated():
             if 'access_key' in full_url:
                 # Get access key from URI.
@@ -398,6 +395,7 @@ def is_editorial_reviewer(_function):
             if (
                     'press-editor' in user_roles or
                     'series-editor' in user_roles or
+                    'production-editor' in user_roles or
                     (
                         'book-editor' in user_roles and
                         request.user in submission.book_editors.all()
