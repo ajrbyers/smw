@@ -176,7 +176,7 @@ TEMPLATES = [
 
 # Updated, committed and tagged using 'bumpversion [major | minor | patch]'
 # run on master branch
-RUA_VERSION = '1.2.6'
+RUA_VERSION = '1.2.7'
 
 
 # ## LOGGING ##
