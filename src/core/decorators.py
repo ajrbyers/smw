@@ -349,7 +349,6 @@ def is_editor_or_ed_reviewer(_function):
     """
     def wrap(request, *args, **kwargs):
         full_url = request.get_full_path()
-
         if not request.user.is_authenticated():
             if 'access_key' in full_url:
                 # Get access key from URI.
@@ -396,10 +395,7 @@ def is_editor_or_ed_reviewer(_function):
                     'press-editor' in user_roles or
                     'series-editor' in user_roles or
                     'production-editor' in user_roles or
-                    (
-                        'book-editor' in user_roles and
-                        request.user in submission.book_editors.all()
-                    )
+                    'book-editor' in user_roles
             ):
                 return _function(request, *args, **kwargs)
 
