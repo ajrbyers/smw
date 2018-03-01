@@ -1,12 +1,12 @@
 from django import forms
 
-from editorialreview import models
+from editorialreview.models import EditorialReview
 
 
 class EditorialReviewForm(forms.ModelForm):
 
     class Meta:
-        model = models.EditorialReview
+        model = EditorialReview
         fields = ('due',)
 
     def __init__(self, *args, **kwargs):
@@ -17,7 +17,7 @@ class EditorialReviewForm(forms.ModelForm):
 class RecommendationForm(forms.ModelForm):
 
     class Meta:
-        model = models.EditorialReview
+        model = EditorialReview
         fields = ("recommendation", "competing_interests")
 
     def __init__(self, *args, **kwargs):
@@ -26,5 +26,7 @@ class RecommendationForm(forms.ModelForm):
 
         if ci_required == 'on':
             self.fields['competing_interests'] = forms.CharField(
-                widget=forms.Textarea, required=True)
+                widget=forms.Textarea,
+                required=True,
+            )
         self.fields['recommendation'].required = True

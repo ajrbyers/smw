@@ -2,13 +2,13 @@ from django import forms
 from django.forms import ModelForm
 
 from core import models as core_models
-from submission import models
+from submission.models import SubmissionChecklistItem, Proposal, ProposalNote
 
 
 class ProposalStart(forms.ModelForm):
 
     class Meta:
-        model = models.Proposal
+        model = Proposal
         fields = ('review_form',)
 
     def __init__(self, *args, **kwargs):
@@ -19,7 +19,7 @@ class ProposalStart(forms.ModelForm):
 class NoteForm(ModelForm):
 
     class Meta:
-        model = models.ProposalNote
+        model = ProposalNote
         fields = ('text',)
 
     def __init__(self, *args, **kwargs):
@@ -72,7 +72,6 @@ class SubmissionChecklist(forms.Form):
 
     def __init__(self, *args, **kwargs):
         checklist_items = kwargs.pop('checklist_items', None)
-        book = kwargs.pop('book', None)
         super(SubmissionChecklist, self).__init__(*args, **kwargs)
 
         if checklist_items:
@@ -119,5 +118,5 @@ class EditorForm(forms.ModelForm):
 class CreateSubmissionChecklistItem(forms.ModelForm):
 
     class Meta:
-        model = models.SubmissionChecklistItem
+        model = SubmissionChecklistItem
         exclude = ()

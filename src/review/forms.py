@@ -1,6 +1,6 @@
 from django import forms
 
-from review import models
+from review.models import FormElementsRelationship
 
 
 def render_choices(choices):
@@ -13,7 +13,7 @@ class GeneratedForm(forms.Form):
     def __init__(self, *args, **kwargs):
         form_obj = kwargs.pop('form', None)
         super(GeneratedForm, self).__init__(*args, **kwargs)
-        relations = models.FormElementsRelationship.objects.filter(
+        relations = FormElementsRelationship.objects.filter(
             form=form_obj
         ).order_by('order')
 

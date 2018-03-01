@@ -1,6 +1,6 @@
 from datetime import datetime
 import mimetypes as mime
-from os import path, makedirs
+from os import path, makedirs, unlink
 from uuid import uuid4
 
 from django.conf import settings
@@ -15,8 +15,9 @@ from jfu.http import upload_receive, UploadResponse, JFUResponse
 from core import logic as core_logic, models, log
 from core.decorators import is_onetasker
 from core.email import get_email_content
-import logic
 from submission.logic import handle_book_labels
+
+import logic
 
 
 @is_onetasker
@@ -275,7 +276,7 @@ def upload_delete(request, assignment_type, assignment_id, file_pk):
 
     try:
         instance = models.File.objects.get(pk=file_pk)
-        os.unlink(
+        unlink(
             '%s/%s/%s' % (settings.BOOK_DIR, book.id, instance.uuid_filename)
         )
         instance.delete()

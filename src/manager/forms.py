@@ -86,7 +86,8 @@ class EditKey(forms.Form):
             self.fields['value'].widget = forms.CheckboxInput()
         elif key_type == 'integer':
             self.fields['value'].widget = forms.TextInput(
-                attrs={'type': 'number'})
+                attrs={'type': 'number'}
+            )
         elif key_type == 'file' or key_type == 'journalthumb':
             self.fields['value'].widget = forms.FileInput()
         elif key_type == 'text':
