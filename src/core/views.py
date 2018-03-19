@@ -3596,6 +3596,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
         'result': result,
         'form': form,
         'recommendation_form': recommendation_form,
+        'book_editors': _proposal.book_editors.all(),
         'active': 'proposal_review',
         'instructions': models.Setting.objects.get(
             group__name='general',
