@@ -1,3 +1,4 @@
+import json
 import os
 from uuid import uuid4
 
@@ -625,7 +626,6 @@ def activate_user(request, user_id):
 
 @is_press_editor
 def key_help(request):
-    import json
     with open(
         '%s%s' % (settings.BASE_DIR, '/core/fixtures/key_help.json')
     ) as data_file:
@@ -670,7 +670,6 @@ def proposal_forms(request):
     context = {'proposal_forms': core_models.ProposalForm.objects.all()}
 
     return render(request, template, context)
-
 
 @is_press_editor
 def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
