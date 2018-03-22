@@ -29,19 +29,43 @@
 				<td>{{ field.field.element.required }}</td>
 				<td>{{ field.field.order }}</td>
 				<td>{{ field.field.get_width_display|capfirst }}</td>
-				<td><a href="{% url 'manager_edit_proposal_form_element' form.id field.field.id %}">Edit</a></td>
-				<td><a href="{% url 'manager_delete_proposal_form_element' form.id field.field.id %}">Delete</a></td>
+				<td>
+					<a href="{% url 'manager_edit_proposal_form_element' form.id field.field.id %}">
+						Edit
+					</a>
+				</td>
+				<td>
+					<a href="{% url 'manager_delete_proposal_form_element' form.id field.field.id %}">
+						Delete
+					</a>
+				</td>
 				{% ifequal field.above -1 %}
-				<td><a disabled class="btn btn-default" href="">Up</a></td>
+					<td>
+						<a disabled class="btn btn-default" href="">
+							Up
+						</a>
+					</td>
 				{% else %}
-				<td><a class="btn btn-default" href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.above %}">Up</a></td>
+					<td>
+						<a class="btn btn-default"
+						   href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.above %}">
+							Up
+						</a>
+					</td>
 				{% endifequal %}
 				{% ifequal field.below -1 %}
-				<td><a disabled class="btn btn-default" href="">Down</a></td>
-
+					<td>
+						<a disabled class="btn btn-default" href="">
+							Down
+						</a>
+					</td>
 				{% else %}
-					<td><a class="btn btn-default" href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.below %}">Down</a></td>
-
+					<td>
+						<a class="btn btn-default"
+						   href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.below %}">
+							Down
+						</a>
+					</td>
 				{% endifequal %}
 			</tr>
 			{% empty %}
