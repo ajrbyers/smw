@@ -1,11 +1,37 @@
-from django.test import TestCase
-from manager import models
-from core import models as core_models
-from review import models as review_models
-from submission import models as submission_models
-from django.test.client import Client
+import factory
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.test.client import Client
+
+from core import models as core_models
+from manager import models
+from review import models as review_models
+from submission import models as submission_models
+
+
+class ProposalFormElementFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = core_models.ProposalFormElement
+    name = factory.Sequence(lambda n: "Proposal Form Element {}".format(n))
+    field_type = 'text'
+    required = False
+
+
+class ProposalFormFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = core_models.ProposalForm
+    name = factory.Sequence(lambda n: "Proposal Form {}".format(n))
+
+
+class ProposalFormElementsRelationshipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = core_models.ProposalFormElementsRelationship
+    element = factory.SubFactory(ProposalFormElementFactory)
+    form = factory.SubFactory(ProposalFormFactory)
+    order = factory.Sequence(lambda n: n)
+    width = 'col-md-6'
 
 
 class ManagerTests(TestCase):
@@ -25,10 +51,9 @@ class ManagerTests(TestCase):
         'test/test_manager_data',
         'test/test_submission_checklist_item_data',
         'test/test_proposal_form',
-
     ]
-  # Helper Function
 
+  # Helper Function
     def getmessage(cls, response):
         """Helper method to return first message from response """
         for c in response.context:
@@ -41,7 +66,9 @@ class ManagerTests(TestCase):
         self.user = User.objects.get(username="rua_user")
         self.user.save()
         self.book = core_models.Book.objects.get(pk=1)
-
+        # self.existing_proposal_form = ProposalFormFactory.create()
+        # self.proposal_form_elements = ProposalFormElementFactory.create()
+        # self.proposal_form_elements_relationship = ProposalFormElementsRelationshipFactory.create()
         login = self.client.login(username="rua_user", password="root")
         self.assertEqual(login, True)
 
@@ -378,12 +405,10 @@ class ManagerTests(TestCase):
 
             self.assertEqual(form_resp.status_code, 200)
             self.assertEqual("403" in form_content, False)
-        #	title = "Proposal Form: %s" % form.name
-        #	self.assertEqual(title in form_content, True)
-        #	self.assertEqual(form.intro_text in form_content, True)
-        #	self.assertEqual(form.completion_text in form_content, True)
             self.assertEqual("Fields" in form_content, True)
-            form_element_relationships = core_models.ProposalFormElementsRelationship.objects.filter(form=form)
+            form_element_relationships = core_models.ProposalFormElementsRelationship.objects.filter(
+                form=form
+            )
             self.assertEqual(len(form_element_relationships), 2)
 
             for field in form_element_relationships:
@@ -448,7 +473,7 @@ class ManagerTests(TestCase):
             'col-md-6',
             'help_text': ''
         }
-        new_form_resp = self.client.post(
+        self.client.post(
             reverse(
                 'manager_edit_proposal_form',
                 kwargs={
@@ -469,7 +494,7 @@ class ManagerTests(TestCase):
             'width': 'col-md-12',
             'help_text': 'updated'
         }
-        new_form_resp = self.client.post(
+        self.client.post(
             reverse(
                 'manager_edit_proposal_form_element',
                 kwargs={
@@ -492,7 +517,6 @@ class ManagerTests(TestCase):
         )
         form_elements = core_models.ProposalFormElement.objects.all()
         self.assertEqual(len(form_elements), 1)
-
 
     def test_manager_review_forms(self):
         resp = self.client.get(reverse('manager_review_forms'))
@@ -518,10 +542,6 @@ class ManagerTests(TestCase):
 
             self.assertEqual(form_resp.status_code, 200)
             self.assertEqual("403" in form_content, False)
-        #	title = "Review Form: %s" % form.name
-        #	self.assertEqual(title in form_content, True)
-        #	self.assertEqual(form.intro_text in form_content, True)
-        #	self.assertEqual(form.completion_text in form_content, True)
             self.assertEqual("Fields" in form_content, True)
             form_element_relationships = review_models.FormElementsRelationship.objects.filter(
                 form=form
@@ -584,7 +604,7 @@ class ManagerTests(TestCase):
         form_elements = review_models.FormElement.objects.all()
         self.assertEqual(len(form_elements), 0)
 
-        new_form_resp = self.client.post(
+        self.client.post(
             reverse(
                 'manager_edit_review_form',
                 kwargs={
@@ -614,3 +634,37 @@ class ManagerTests(TestCase):
         )
         form_elements = review_models.FormElement.objects.all()
         self.assertEqual(len(form_elements), 0)
+
+    def test_opening_proposal_form_edit_creates_new_model(self):
+        proposal_forms = core_models.ProposalForm.objects.all()
+        for form in proposal_forms:
+            self.client.get(
+                reverse(
+                    'manager_edit_proposal_form',
+                    kwargs={
+                        'form_id': form.id
+                    }
+                )
+            )
+            existing_form = core_models.ProposalForm.objects.get(pk=form.id)
+            self.assertEqual(existing_form.in_edit, False)
+            forms_in_edit = core_models.ProposalForm.objects.filter(
+                in_edit=True
+            )
+            self.assertEqual(len(forms_in_edit), 1)
+
+    def test_opening_review_form_edit_creates_new_model(self):
+        review_forms = review_models.Form.objects.all()
+        for form in review_forms:
+            self.client.get(
+                reverse(
+                    'manager_edit_review_form',
+                    kwargs={
+                        'form_id': form.id
+                    }
+                )
+            )
+            existing_form = review_models.Form.objects.get(pk=form.id)
+            self.assertEqual(existing_form.in_edit, False)
+            forms_in_edit = review_models.Form.objects.filter(in_edit=True)
+            self.assertEqual(len(forms_in_edit), 1)

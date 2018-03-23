@@ -12,5 +12,21 @@
   },
   "model": "core.proposalform",
   "pk": 1
+},
+{
+  "fields": {
+    "proposal_fields": [
+      1,
+      2
+    ],
+    "intro_text": "introduction",
+    "completion_text": "completion",
+    "ref": "test-proposal-2",
+    "name": "rua_proposal_form_2",
+    "in_edit": false,
+    "active": true
+  },
+  "model": "core.proposalform",
+  "pk": 2
 }
 ]
