@@ -642,21 +642,19 @@ def key_help(request):
 
 @is_press_editor
 def add_new_form(request, form_type):
-    if form_type == 'review':
-        form = forms.ReviewForm()
-    else:
+    form = forms.ReviewForm()
+    if form_type == 'proposal':
         form = forms.ProposalForms()
 
     if request.POST:
-        if form_type == 'review':
-            form = forms.ReviewForm(request.POST)
-        else:
+        form = forms.ReviewForm(request.POST)
+        if form_type == 'proposal':
             form = forms.ProposalForms(request.POST)
 
         if form.is_valid:
             form.save()
 
-        return redirect(reverse('manager_%s_forms' % form_type))
+        return redirect(reverse('manager_{}_forms'.format(form_type)))
 
     template = 'manager/add_new_form.html'
     context = {'form': form, 'form_type': form_type}
@@ -772,53 +770,72 @@ def review_order_field_list(form_id):
 
 
 @is_press_editor
-def edit_proposal_form(request, form_id, relation_id=None):
-    form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+def edit_form(request, form_type, form_id, relation_id=None):
+    """Edit a review or proposal form."""
+    element_form_args = []
+    element_form_kwargs = {}
+    relation_form_args = []
+    relation_form_kwargs = {}
+
+    if request.POST:
+        element_form_args.append(request.POST)
+        relation_form_args.append(request.POST)
 
     if relation_id:
         relation = get_object_or_404(
-            core_models.ProposalFormElementsRelationship,
-            pk=relation_id,
+            review_models.FormElementsRelationship,
+            pk=relation_id
         )
-        element_form = forms.ProposalElement(instance=relation.element)
-        relation_form = forms.ProposalElementRelationship(instance=relation)
-    else:
-        element_form = forms.ProposalElement()
-        relation_form = forms.ProposalElementRelationship()
+        element_form_kwargs['instance'] = relation.element
+        relation_form_kwargs['instance'] = relation
 
-    if request.POST:
-        if relation_id:
-            element_form = forms.ProposalElement(
-                request.POST,
-                instance=relation.element,
-            )
-            relation_form = forms.ProposalElementRelationship(
-                request.POST,
-                instance=relation,
-            )
-        else:
-            element_form = forms.ProposalElement(request.POST)
-            relation_form = forms.ProposalElementRelationship(request.POST)
+    form = get_object_or_404(review_models.Form, pk=form_id)
+    fields = review_order_field_list(form_id)
+    element_form = forms.FormElement(
+        *element_form_args,
+        **element_form_kwargs
+    )
+    relation_form = forms.FormElementsRelationship(
+        *relation_form_args,
+        **relation_form_kwargs
+    )
 
-        if element_form.is_valid() and relation_form.is_valid():
-            new_element = element_form.save()
-            new_relation = relation_form.save(commit=False)
-            new_relation.form = form
-            new_relation.element = new_element
-            new_relation.save()
+    proposal_form = form_type == 'proposal'
+    if proposal_form:
+        form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+        fields = proposal_order_field_list(form_id)
+        element_form = forms.ProposalElement(
+            *element_form_args,
+            **element_form_kwargs
+        )
+        relation_form = forms.ProposalElementRelationship(
+            *relation_form_args,
+            **relation_form_kwargs
+        )
+
+    if element_form.is_valid() and relation_form.is_valid():
+        new_element = element_form.save()
+        new_relation = relation_form.save(commit=False)
+        new_relation.form = form
+        new_relation.element = new_element
+        new_relation.save()
+
+        if proposal_form:
             form.proposal_fields.add(new_relation)
+        else:
+            form.form_fields.add(new_relation)
 
-            return redirect(
-                reverse(
-                    'manager_edit_proposal_form',
-                    kwargs={'form_id': form_id}
-                )
+        return redirect(
+            reverse(
+                'manager_edit_{}_form'.format(form_type),
+                kwargs={'form_id': form_id}
             )
+        )
 
-    template = 'manager/proposal/edit_form.html'
+    template = 'manager/{}/edit_form.html'.format(form_type)
     context = {
         'form': form,
-        'fields': proposal_order_field_list(form_id),
+        'fields': fields,
         'element_form': element_form,
         'relation_form': relation_form,
     }
@@ -868,58 +885,6 @@ def delete_proposal_form_element(request, form_id, relation_id):
 def review_forms(request):
     template = 'manager/review/forms.html'
     context = {'review_forms': review_models.Form.objects.all()}
-
-    return render(request, template, context)
-
-
-@is_press_editor
-def edit_review_form(request, form_id, relation_id=None):
-    form = get_object_or_404(review_models.Form, pk=form_id)
-
-    if relation_id:
-        relation = get_object_or_404(
-            review_models.FormElementsRelationship,
-            pk=relation_id
-        )
-        element_form = forms.FormElement(instance=relation.element)
-        relation_form = forms.FormElementsRelationship(instance=relation)
-    else:
-        element_form = forms.ProposalElement()
-        relation_form = forms.FormElementsRelationship()
-
-    if request.POST:
-        if relation_id:
-            element_form = forms.FormElement(
-                request.POST,
-                instance=relation.element,
-            )
-            relation_form = forms.FormElementsRelationship(
-                request.POST,
-                instance=relation,
-            )
-        else:
-            element_form = forms.FormElement(request.POST)
-            relation_form = forms.FormElementsRelationship(request.POST)
-
-        if element_form.is_valid() and relation_form.is_valid():
-            new_element = element_form.save()
-            new_relation = relation_form.save(commit=False)
-            new_relation.form = form
-            new_relation.element = new_element
-            new_relation.save()
-            form.form_fields.add(new_relation)
-
-            return redirect(
-                reverse('manager_edit_review_form', kwargs={'form_id': form_id})
-            )
-
-    template = 'manager/review/edit_form.html'
-    context = {
-        'form': form,
-        'fields': review_order_field_list(form_id),
-        'element_form': element_form,
-        'relation_form': relation_form,
-    }
 
     return render(request, template, context)
 
