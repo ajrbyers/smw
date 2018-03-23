@@ -34,13 +34,13 @@
 				{% ifequal field.above -1 %}
 				<td><a disabled class="btn btn-default" href="">Up</a></td>
 				{% else %}
-				<td><a class="btn btn-default" href="{% url 'manager_reorder_review_form' form.id field.field.id field.above %}">Up</a></td>
+				<td><a class="btn btn-default" href="{% url 'manager_reorder_form' 'review' form.id field.field.id field.above %}">Up</a></td>
 				{% endifequal %}
 				{% ifequal field.below -1 %}
 				<td><a disabled class="btn btn-default" href="">Down</a></td>
 
 				{% else %}
-					<td><a class="btn btn-default" href="{% url 'manager_reorder_review_form' form.id field.field.id field.below %}">Down</a></td>
+					<td><a class="btn btn-default" href="{% url 'manager_reorder_form' 'review' form.id field.field.id field.below %}">Down</a></td>
 
 				{% endifequal %}
 			</tr>

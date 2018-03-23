@@ -48,7 +48,7 @@
 				{% else %}
 					<td>
 						<a class="btn btn-default"
-						   href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.above %}">
+						   href="{% url 'manager_reorder_form' 'proposal' form.id field.field.id field.above %}">
 							Up
 						</a>
 					</td>
@@ -62,7 +62,7 @@
 				{% else %}
 					<td>
 						<a class="btn btn-default"
-						   href="{% url 'manager_reorder_proposal_form' form.id field.field.id field.below %}">
+						   href="{% url 'manager_reorder_form' 'proposal' form.id field.field.id field.below %}">
 							Down
 						</a>
 					</td>
