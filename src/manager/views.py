@@ -669,18 +669,20 @@ def proposal_forms(request):
 
     return render(request, template, context)
 
-@is_press_editor
-def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
-    get_object_or_404(core_models.ProposalForm, pk=form_id)
 
-    field_1 = get_object_or_404(
-        core_models.ProposalFormElementsRelationship,
-        pk=field_1_id,
-    )
-    field_2 = get_object_or_404(
-        core_models.ProposalFormElementsRelationship,
-        pk=field_2_id,
-    )
+@is_press_editor
+def reorder_form(request, form_type, form_id, field_1_id, field_2_id):
+    """Swap two given form elements in a given form."""
+    form_model = review_models.Form
+    element_model = review_models.FormElementsRelationship
+    if form_type == 'proposal':
+        form_model = core_models.ProposalForm
+        element_model = core_models.ProposalFormElementsRelationship
+
+    get_object_or_404(form_model, pk=form_id)
+
+    field_1 = get_object_or_404(element_model, pk=field_1_id)
+    field_2 = get_object_or_404(element_model, pk=field_2_id)
 
     order_1 = field_1.order
     order_2 = field_2.order
@@ -690,32 +692,13 @@ def reorder_proposal_form(request, form_id, field_1_id, field_2_id):
     field_2.save()
 
     return redirect(
-        reverse('manager_edit_proposal_form', kwargs={'form_id': form_id})
-    )
-
-
-@is_press_editor
-def reorder_review_form(request, form_id, field_1_id, field_2_id):
-    get_object_or_404(review_models.Form, pk=form_id)
-
-    field_1 = get_object_or_404(
-        review_models.FormElementsRelationship,
-        pk=field_1_id,
-    )
-    field_2 = get_object_or_404(
-        review_models.FormElementsRelationship,
-        pk=field_2_id,
-    )
-
-    order_1 = field_1.order
-    order_2 = field_2.order
-    field_1.order = order_2
-    field_2.order = order_1
-    field_1.save()
-    field_2.save()
-
-    return redirect(
-        reverse('manager_edit_review_form', kwargs={'form_id': form_id})
+        reverse(
+            'manager_edit_form',
+            kwargs={
+                'form_type': form_type,
+                'form_id': form_id
+            }
+        )
     )
 
 
