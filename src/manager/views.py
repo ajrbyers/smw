@@ -719,38 +719,21 @@ def reorder_review_form(request, form_id, field_1_id, field_2_id):
     )
 
 
-def proposal_order_field_list(form_id):
-    form = get_object_or_404(core_models.ProposalForm, pk=form_id)
-    relations = core_models.ProposalFormElementsRelationship.objects.filter(
-        form=form
-    ).order_by(
-        'order'
-    )
-    fields = []
-
-    if relations > 0:
-        for t, relation in enumerate(relations):
-            above = -1
-            below = -1
-            if t < relations.count() - 1:
-                below = relations[t + 1].pk
-            if relations.count() > 1 and t == 0:
-                above = -1
-            elif relations.count() >= 1 and t > 0:
-                above = relations[t - 1].pk
-
-            fields.append({'field': relation, 'above': above, 'below': below})
-
-    return fields
-
-
-def review_order_field_list(form_id):
+def form_order_field_list(form_type, form_id):
+    """Return list of dicts detailing form elements and their positions."""
     form = get_object_or_404(review_models.Form, pk=form_id)
     relations = review_models.FormElementsRelationship.objects.filter(
         form=form
     ).order_by(
         'order'
     )
+    if form_type == 'proposal':
+        form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+        relations = core_models.ProposalFormElementsRelationship.objects.filter(
+            form=form
+        ).order_by(
+            'order'
+        )
     fields = []
 
     if relations > 0:
@@ -764,7 +747,13 @@ def review_order_field_list(form_id):
             elif relations.count() >= 1 and t > 0:
                 above = relations[t - 1].pk
 
-            fields.append({'field': relation, 'above': above, 'below': below})
+            fields.append(
+                {
+                    'field': relation,
+                    'above': above,
+                    'below': below
+                }
+            )
 
     return fields
 
@@ -772,6 +761,11 @@ def review_order_field_list(form_id):
 @is_press_editor
 def edit_form(request, form_type, form_id, relation_id=None):
     """Edit a review or proposal form."""
+    proposal_form = form_type == 'proposal'
+    elements_model = review_models.FormElementsRelationship
+    if proposal_form:
+        elements_model = core_models.ProposalFormElementsRelationship
+
     element_form_args = []
     element_form_kwargs = {}
     relation_form_args = []
@@ -782,15 +776,11 @@ def edit_form(request, form_type, form_id, relation_id=None):
         relation_form_args.append(request.POST)
 
     if relation_id:
-        relation = get_object_or_404(
-            review_models.FormElementsRelationship,
-            pk=relation_id
-        )
+        relation = get_object_or_404(elements_model, pk=relation_id)
         element_form_kwargs['instance'] = relation.element
         relation_form_kwargs['instance'] = relation
 
     form = get_object_or_404(review_models.Form, pk=form_id)
-    fields = review_order_field_list(form_id)
     element_form = forms.FormElement(
         *element_form_args,
         **element_form_kwargs
@@ -800,10 +790,8 @@ def edit_form(request, form_type, form_id, relation_id=None):
         **relation_form_kwargs
     )
 
-    proposal_form = form_type == 'proposal'
     if proposal_form:
         form = get_object_or_404(core_models.ProposalForm, pk=form_id)
-        fields = proposal_order_field_list(form_id)
         element_form = forms.ProposalElement(
             *element_form_args,
             **element_form_kwargs
@@ -835,7 +823,7 @@ def edit_form(request, form_type, form_id, relation_id=None):
     template = 'manager/{}/edit_form.html'.format(form_type)
     context = {
         'form': form,
-        'fields': fields,
+        'fields': form_order_field_list(form_type, form_id),
         'element_form': element_form,
         'relation_form': relation_form,
     }

@@ -22,7 +22,7 @@
 				<td>{{ form.name }}</td>
 				<td>{{ form.ref }}</td>
 				<td>{{ form.proposal_fields.count }}</td>
-				<td><a href="{% url 'manager_edit_proposal_form' form.id %}">Edit</a></td>
+				<td><a href="{% url 'manager_edit_form' 'proposal' form.id %}">Edit</a></td>
 			</tr>
 			{% empty %}
 			<tr>

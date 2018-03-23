@@ -196,9 +196,9 @@ urlpatterns = patterns(
         name='manager_proposal_forms'
     ),
     url(
-        r'^forms/proposal/(?P<form_id>\d+)/$',
-        'manager.views.edit_proposal_form',
-        name='manager_edit_proposal_form'
+        r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
+        'manager.views.edit_form',
+        name='manager_edit_form'
     ),
     url(
         r'^forms/proposal/(?P<form_id>\d+)/switch/(?P<field_1_id>\d+)/'
@@ -207,9 +207,9 @@ urlpatterns = patterns(
         name='manager_reorder_proposal_form'
     ),
     url(
-        r'^forms/proposal/(?P<form_id>\d+)/element/(?P<relation_id>\d+)/$',
-        'manager.views.edit_proposal_form',
-        name='manager_edit_proposal_form_element'
+        r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/(?P<relation_id>\d+)/$',
+        'manager.views.edit_form',
+        name='manager_edit_form_element'
     ),
     url(
         r'^forms/proposal/(?P<form_id>\d+)/element/'
@@ -226,16 +226,6 @@ urlpatterns = patterns(
         r'^forms/review/$',
         'manager.views.review_forms',
         name='manager_review_forms'
-    ),
-    url(
-        r'^forms/review/(?P<form_id>\d+)/$',
-        'manager.views.edit_review_form',
-        name='manager_edit_review_form'
-    ),
-    url(
-        r'^forms/review/(?P<form_id>\d+)/element/(?P<relation_id>\d+)/$',
-        'manager.views.edit_review_form',
-        name='manager_edit_review_form_element'
     ),
     url(
         r'^forms/review/(?P<form_id>\d+)/switch/(?P<field_1_id>\d+)/'
