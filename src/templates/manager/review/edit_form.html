@@ -29,7 +29,7 @@
 				<td>{{ field.field.element.required }}</td>
 				<td>{{ field.field.order }}</td>
 				<td>{{ field.field.get_width_display|capfirst }}</td>
-				<td><a href="{% url 'manager_edit_review_form_element' form.id field.field.id %}">Edit</a></td>
+				<td><a href="{% url 'manager_edit_form_element' 'review' form.id field.field.id %}">Edit</a></td>
 				<td><a href="{% url 'manager_delete_review_form_element' form.id field.field.id %}">Delete</a></td>
 				{% ifequal field.above -1 %}
 				<td><a disabled class="btn btn-default" href="">Up</a></td>
