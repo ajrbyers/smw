@@ -8,25 +8,11 @@
     "intro_text": "introduction",
     "completion_text": "completion",
     "ref": "test-proposal",
-    "name": "rua_proposal_form"
-  },
-  "model": "core.proposalform",
-  "pk": 1
-},
-{
-  "fields": {
-    "proposal_fields": [
-      1,
-      2
-    ],
-    "intro_text": "introduction",
-    "completion_text": "completion",
-    "ref": "test-proposal-2",
-    "name": "rua_proposal_form_2",
+    "name": "rua_proposal_form",
     "in_edit": false,
     "active": true
   },
   "model": "core.proposalform",
-  "pk": 2
+  "pk": 1
 }
 ]
