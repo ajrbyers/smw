@@ -212,10 +212,10 @@ urlpatterns = patterns(
         name='manager_edit_form_element'
     ),
     url(
-        r'^forms/proposal/(?P<form_id>\d+)/element/'
+        r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/'
         r'(?P<relation_id>\d+)/delete/$',
-        'manager.views.delete_proposal_form_element',
-        name='manager_delete_proposal_form_element'
+        'manager.views.delete_form_element',
+        name='manager_delete_form_element'
     ),
     url(
         r'^forms/proposal/(?P<form_id>\d+)/preview/$',
@@ -226,11 +226,6 @@ urlpatterns = patterns(
         r'^forms/review/$',
         'manager.views.review_forms',
         name='manager_review_forms'
-    ),
-    url(
-        r'^forms/review/(?P<form_id>\d+)/element/(?P<relation_id>\d+)/delete/$',
-        'manager.views.delete_review_form_element',
-        name='manager_delete_review_form_element'
     ),
     url(
         r'^forms/review/(?P<form_id>\d+)/preview/$',
