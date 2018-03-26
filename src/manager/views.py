@@ -798,8 +798,11 @@ def edit_form(request, form_type, form_id, relation_id=None):
 
         return redirect(
             reverse(
-                'manager_edit_{}_form'.format(form_type),
-                kwargs={'form_id': form_id}
+                'manager_edit_form',
+                kwargs={
+                    'form_type': form_type,
+                    'form_id': form_id
+                }
             )
         )
 
@@ -837,10 +840,17 @@ def preview_proposal_form(request, form_id):
 
 
 @is_press_editor
-def delete_proposal_form_element(request, form_id, relation_id):
-    get_object_or_404(core_models.ProposalForm, pk=form_id)
+def delete_form_element(request, form_type, form_id, relation_id):
+    """Delete the given form element from the given form."""
+    form_model = review_models.Form
+    element_model = review_models.FormElementsRelationship
+    if form_type == 'proposal':
+        form_model = core_models.ProposalForm
+        element_model = core_models.ProposalFormElementsRelationship
+
+    get_object_or_404(form_model, pk=form_id)
     relation = get_object_or_404(
-        core_models.ProposalFormElementsRelationship,
+        element_model,
         pk=relation_id,
     )
 
@@ -848,7 +858,13 @@ def delete_proposal_form_element(request, form_id, relation_id):
     relation.delete()
 
     return redirect(
-        reverse('manager_edit_proposal_form', kwargs={'form_id': form_id})
+        reverse(
+            'manager_edit_form',
+            kwargs={
+                'form_type': form_type,
+                'form_id': form_id
+            }
+        )
     )
 
 
@@ -877,21 +893,6 @@ def preview_review_form(request, form_id):
     }
 
     return render(request, template, context)
-
-
-@is_press_editor
-def delete_review_form_element(request, form_id, relation_id):
-    get_object_or_404(review_models.Form, pk=form_id)
-    relation = get_object_or_404(
-        review_models.FormElementsRelationship, pk=relation_id
-    )
-
-    relation.element.delete()
-    relation.delete()
-
-    return redirect(
-        reverse('manager_edit_review_form', kwargs={'form_id': form_id})
-    )
 
 
 @is_press_editor

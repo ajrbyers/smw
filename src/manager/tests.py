@@ -395,14 +395,14 @@ class ManagerTests(TestCase):
 
             form_resp = self.client.get(
                 reverse(
-                    'manager_edit_proposal_form',
+                    'manager_edit_form',
                     kwargs={
+                        'form_type': 'proposal',
                         'form_id': form.id
                     }
                 )
             )
             form_content = form_resp.content
-
             self.assertEqual(form_resp.status_code, 200)
             self.assertEqual("403" in form_content, False)
             self.assertEqual("Fields" in form_content, True)
@@ -422,8 +422,9 @@ class ManagerTests(TestCase):
                 self.assertEqual(delete_button in form_content, True)
             self.client.get(
                 reverse(
-                    'manager_delete_proposal_form_element',
+                    'manager_delete_form_element',
                     kwargs={
+                        'form_type': 'proposal',
                         'form_id': form.id,
                         'relation_id': 1
                     }
@@ -475,8 +476,9 @@ class ManagerTests(TestCase):
         }
         self.client.post(
             reverse(
-                'manager_edit_proposal_form',
+                'manager_edit_form',
                 kwargs={
+                    'form_type': 'proposal',
                     'form_id': new_form.id
                 }
             ),
@@ -496,8 +498,9 @@ class ManagerTests(TestCase):
         }
         self.client.post(
             reverse(
-                'manager_edit_proposal_form_element',
+                'manager_edit_form_element',
                 kwargs={
+                    'form_type': 'proposal',
                     'form_id': new_form.id,
                     'relation_id': 3
                 }
@@ -508,8 +511,9 @@ class ManagerTests(TestCase):
         self.assertEqual(len(form_elements), 2)
         self.client.get(
             reverse(
-                'manager_delete_proposal_form_element',
+                'manager_delete_form_element',
                 kwargs={
+                    'form_type': 'proposal',
                     'form_id': new_form.id,
                     'relation_id': 3
                 }
@@ -532,8 +536,9 @@ class ManagerTests(TestCase):
             self.assertEqual(view_button in content, True)
             form_resp = self.client.get(
                 reverse(
-                    'manager_edit_review_form',
+                    'manager_edit_form',
                     kwargs={
+                        'form_type': 'review',
                         'form_id': form.id
                     }
                 )
@@ -563,8 +568,9 @@ class ManagerTests(TestCase):
                 t += 1
             self.client.get(
                 reverse(
-                    'manager_delete_review_form_element',
+                    'manager_delete_form_element',
                     kwargs={
+                        'form_type': 'review',
                         'form_id': form.id,
                         'relation_id': review_models.FormElementsRelationship.objects.filter(
                             form=form
@@ -606,8 +612,9 @@ class ManagerTests(TestCase):
 
         self.client.post(
             reverse(
-                'manager_edit_review_form',
+                'manager_edit_form',
                 kwargs={
+                    'form_type': 'review',
                     'form_id': new_form.id
                 }
             ),
@@ -625,8 +632,9 @@ class ManagerTests(TestCase):
         self.assertEqual(len(form_elements), 1)
         self.client.get(
             reverse(
-                'manager_delete_review_form_element',
+                'manager_delete_form_element',
                 kwargs={
+                    'form_type': 'review',
                     'form_id': new_form.id,
                     'relation_id': 2
                 }
@@ -640,8 +648,9 @@ class ManagerTests(TestCase):
         for form in proposal_forms:
             self.client.get(
                 reverse(
-                    'manager_edit_proposal_form',
+                    'manager_edit_form',
                     kwargs={
+                        'form_type': 'proposal',
                         'form_id': form.id
                     }
                 )
@@ -658,8 +667,9 @@ class ManagerTests(TestCase):
         for form in review_forms:
             self.client.get(
                 reverse(
-                    'manager_edit_review_form',
+                    'manager_edit_form',
                     kwargs={
+                        'form_type': 'review',
                         'form_id': form.id
                     }
                 )
