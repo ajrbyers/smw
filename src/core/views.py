@@ -1921,16 +1921,16 @@ def delete_file(request, submission_id, file_id, returner):
 @is_book_editor_or_author
 def update_file(request, submission_id, file_id, returner):
     book = get_object_or_404(models.Book, pk=submission_id)
-    _file = get_object_or_404(models.File, pk=file_id)
+    old_file = get_object_or_404(models.File, pk=file_id)
 
     if request.POST:
         label = request.POST['rename']
         if label:
-            _file.label = label
-            _file.save()
+            old_file.label = label
+            old_file.save()
 
-        for _file in request.FILES.getlist('update_file'):
-            handle_file_update(_file, _file, book, _file.kind, request.user)
+        for new_file in request.FILES.getlist('update_file'):
+            handle_file_update(new_file, old_file, book, request.user)
             messages.add_message(request, messages.INFO, 'File updated.')
 
         if returner == 'new':
@@ -1951,7 +1951,7 @@ def update_file(request, submission_id, file_id, returner):
             )
 
     template = 'core/update_file.html'
-    context = {'submission': book, 'file': _file, 'update': True}
+    context = {'submission': book, 'file': old_file, 'update': True}
 
     return render(request, template, context)
 
