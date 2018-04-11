@@ -795,10 +795,12 @@ def proposal_data_processing(request, proposal, proposal_form_id):
             ]
 
     for field in data_fields:
-        if field.element.name in request.POST:
+        # Ensure ASCII field names.
+        field_name = field.element.name.encode('ascii', 'ignore')
+        if field_name in request.POST:
             # TODO change value from string to list [value, value_type].
-            save_dict[field.element.name] = [
-                request.POST.get(field.element.name), 'text']
+            save_dict[field_name] = [
+                request.POST.get(field_name), 'text']
 
     json_data = smart_text(json.dumps(save_dict))
     proposal.data = json_data
