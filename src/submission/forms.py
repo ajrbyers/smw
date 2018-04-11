@@ -76,9 +76,12 @@ class SubmissionChecklist(forms.Form):
 
         if checklist_items:
             for item in checklist_items:
-                self.fields[item.text] = forms.BooleanField(
+                # Ensure ASCII field names.
+                field_name = item.text.encode('ascii', 'ignore')
+
+                self.fields[field_name] = forms.BooleanField(
                     required=item.required)
-                self.fields[item.text].label = item.text
+                self.fields[field_name].label = item.text
 
 
 class SubmitBookStageTwo(forms.ModelForm):
