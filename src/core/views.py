@@ -2712,7 +2712,7 @@ def create_proposal_form(proposal):
     data = json.loads(proposal.data)
 
     for relation in relations:
-        v = data.get(relation.element.name)
+        v = data.get(relation.element.name.encode('ascii', 'ignore'))
         if v:
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
@@ -3234,10 +3234,11 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
+                field_name = field.element.name.encode('ascii', 'ignore')
+                if field_name in request.POST:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
 
@@ -3528,13 +3529,13 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
+                field_name = field.element.name.encode('ascii', 'ignore')
+                if field_name in request.POST:
                     # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
-
             json_data = smart_text(json.dumps(save_dict))
             form_results = review_models.FormResult(
                 form=review_assignment.review_form,
@@ -4195,7 +4196,7 @@ def create_completed_proposal_review_form(proposal, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            v = data[relation.element.name]
+            v = data.get(relation.element.name.encode('ascii', 'ignore'))
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
             document.add_paragraph(text).bold = True
