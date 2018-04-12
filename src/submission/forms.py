@@ -77,7 +77,7 @@ class SubmissionChecklist(forms.Form):
         if checklist_items:
             for item in checklist_items:
                 # Ensure ASCII field names.
-                field_name = item.text.encode('ascii', 'ignore')
+                field_name = item.text.encode('ascii', 'xmlcharrefreplace')
 
                 self.fields[field_name] = forms.BooleanField(
                     required=item.required)

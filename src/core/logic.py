@@ -1236,7 +1236,9 @@ def send_proposal_review_reopen_request(
 def order_data(data, relations):
     ordered_data = []
     for relation in relations:
-        relation_name = relation.element.name.encode('ascii', 'ignore')
+        relation_name = relation.element.name.encode(
+            'ascii', 'xmlcharrefreplace'
+        )
         if relation_name in data:
             ordered_data.append(
                 [relation.element.name, data[relation_name]])

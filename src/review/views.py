@@ -561,15 +561,15 @@ def review(request, review_type, submission_id, review_round, access_key=None):
 
             for field in file_fields:
                 if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type].
                     save_dict[field.element.name] = [logic.handle_review_file(
                         request.FILES[field.element.name], 'book',
                         review_assignment, 'reviewer')]
 
             for field in data_fields:
-                field_name = field.element.name.encode('ascii', 'ignore')
+                field_name = field.element.name.encode(
+                    'ascii', 'xmlcharrefreplace'
+                )
                 if field_name in request.POST:
-                    # TODO change value from string to list [value, value_type].
                     save_dict[field_name] = [
                         request.POST.get(field_name),
                         'text',
@@ -1361,7 +1361,9 @@ def create_completed_review_form(submission, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            field_name = relation.element.name.encode('ascii', 'ignore')
+            field_name = relation.element.name.encode(
+                'ascii', 'xmlcharrefreplace'
+            )
             v = data[field_name]
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(
