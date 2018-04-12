@@ -60,9 +60,11 @@
     </td>
 
     <td>
-        <a href="{% url 'view_completed_proposal_review' proposal.id reviewer.id %}">
-            View Review
-        </a>
+        {%  if reviewer.completed %}
+            <a href="{% url 'view_completed_proposal_review' proposal.id reviewer.id %}">
+                View Review
+            </a>
+        {%  endif %}
     </td>
     <td>
       {% if reviewer.reopened %}
