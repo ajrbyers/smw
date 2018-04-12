@@ -642,15 +642,18 @@ def key_help(request):
 
 @is_press_editor
 def add_new_form(request, form_type):
-    form = forms.ReviewForm()
+    """ Add a new form of the given type. """
+
     if form_type == 'proposal':
         form = forms.ProposalForms()
+    else:
+        form = forms.ReviewForm()
 
     if request.POST:
-        form = forms.ReviewForm(request.POST)
         if form_type == 'proposal':
             form = forms.ProposalForms(request.POST)
-
+        else:
+            form = forms.ReviewForm(request.POST)
         if form.is_valid:
             form.save()
 
@@ -663,21 +666,33 @@ def add_new_form(request, form_type):
 
 
 @is_press_editor
-def proposal_forms(request):
-    template = 'manager/proposal/forms.html'
-    context = {'proposal_forms': core_models.ProposalForm.objects.all()}
+def list_forms(request, form_type):
+    """ List the existing forms of the given type. """
+
+    if form_type == 'proposal':
+        forms = core_models.ProposalForm.objects.all()
+    else:
+        forms = review_models.Form.objects.all()
+    template = 'manager/forms.html'
+    context = {
+        'forms': forms,
+        'form_type': form_type
+    }
 
     return render(request, template, context)
 
 
 @is_press_editor
 def reorder_form(request, form_type, form_id, field_1_id, field_2_id):
-    """Swap two given form elements in a given form."""
-    form_model = review_models.Form
-    element_model = review_models.FormElementsRelationship
+    """ Swap two given form elements in a given form. """
+
     if form_type == 'proposal':
         form_model = core_models.ProposalForm
         element_model = core_models.ProposalFormElementsRelationship
+
+    else:
+        form_model = review_models.Form
+        element_model = review_models.FormElementsRelationship
 
     get_object_or_404(form_model, pk=form_id)
 
@@ -703,13 +718,8 @@ def reorder_form(request, form_type, form_id, field_1_id, field_2_id):
 
 
 def form_order_field_list(form_type, form_id):
-    """Return list of dicts detailing form elements and their positions."""
-    form = get_object_or_404(review_models.Form, pk=form_id)
-    relations = review_models.FormElementsRelationship.objects.filter(
-        form=form
-    ).order_by(
-        'order'
-    )
+    """ Return list of dicts detailing form elements and their positions. """
+
     if form_type == 'proposal':
         form = get_object_or_404(core_models.ProposalForm, pk=form_id)
         relations = core_models.ProposalFormElementsRelationship.objects.filter(
@@ -717,8 +727,16 @@ def form_order_field_list(form_type, form_id):
         ).order_by(
             'order'
         )
-    fields = []
 
+    else:
+        form = get_object_or_404(review_models.Form, pk=form_id)
+        relations = review_models.FormElementsRelationship.objects.filter(
+            form=form
+        ).order_by(
+            'order'
+        )
+
+    fields = []
     if relations > 0:
         for t, relation in enumerate(relations):
             above = -1
@@ -743,11 +761,13 @@ def form_order_field_list(form_type, form_id):
 
 @is_press_editor
 def edit_form(request, form_type, form_id, relation_id=None):
-    """Edit a review or proposal form."""
+    """ Edit a form of the given type. """
+
     proposal_form = form_type == 'proposal'
-    elements_model = review_models.FormElementsRelationship
     if proposal_form:
         elements_model = core_models.ProposalFormElementsRelationship
+    else:
+        elements_model = review_models.FormElementsRelationship
 
     element_form_args = []
     element_form_kwargs = {}
@@ -763,16 +783,6 @@ def edit_form(request, form_type, form_id, relation_id=None):
         element_form_kwargs['instance'] = relation.element
         relation_form_kwargs['instance'] = relation
 
-    form = get_object_or_404(review_models.Form, pk=form_id)
-    element_form = forms.FormElement(
-        *element_form_args,
-        **element_form_kwargs
-    )
-    relation_form = forms.FormElementsRelationship(
-        *relation_form_args,
-        **relation_form_kwargs
-    )
-
     if proposal_form:
         form = get_object_or_404(core_models.ProposalForm, pk=form_id)
         element_form = forms.ProposalElement(
@@ -780,6 +790,17 @@ def edit_form(request, form_type, form_id, relation_id=None):
             **element_form_kwargs
         )
         relation_form = forms.ProposalElementRelationship(
+            *relation_form_args,
+            **relation_form_kwargs
+        )
+
+    else:
+        form = get_object_or_404(review_models.Form, pk=form_id)
+        element_form = forms.FormElement(
+            *element_form_args,
+            **element_form_kwargs
+        )
+        relation_form = forms.FormElementsRelationship(
             *relation_form_args,
             **relation_form_kwargs
         )
@@ -806,47 +827,60 @@ def edit_form(request, form_type, form_id, relation_id=None):
             )
         )
 
-    template = 'manager/{}/edit_form.html'.format(form_type)
+    template = 'manager/edit_form.html'
     context = {
         'form': form,
         'fields': form_order_field_list(form_type, form_id),
         'element_form': element_form,
         'relation_form': relation_form,
+        'form_type': form_type
     }
 
     return render(request, template, context)
 
 
 @is_press_editor
-def preview_proposal_form(request, form_id):
-    form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+def preview_form(request, form_type, form_id):
+    """ Preview the appearance of a form being edited. """
 
-    preview_form = forms.GeneratedForm(
-        form=core_models.ProposalForm.objects.get(pk=form_id)
-    )
-    fields = core_models.ProposalFormElementsRelationship.objects.filter(
-        form=form,
-    )
+    if form_type == 'proposal':
+        form = get_object_or_404(core_models.ProposalForm, pk=form_id)
+        fields = core_models.ProposalFormElementsRelationship.objects.filter(
+            form=form
+        )
+        preview_form = forms.GeneratedForm(form=form)
+
+    else:
+        form = get_object_or_404(review_models.Form, pk=form_id)
+        fields = review_models.FormElementsRelationship.objects.filter(
+            form=form
+        )
+        preview_form = forms.GeneratedReviewForm(form=form)
+
     default_fields = forms.DefaultForm()
 
-    template = 'manager/proposal/preview_form.html'
+    template = 'manager/preview_form.html'
     context = {
         'form': form,
         'preview_form': preview_form,
         'fields': fields,
         'default_fields': default_fields,
+        'form_type': form_type
     }
     return render(request, template, context)
 
 
 @is_press_editor
 def delete_form_element(request, form_type, form_id, relation_id):
-    """Delete the given form element from the given form."""
-    form_model = review_models.Form
-    element_model = review_models.FormElementsRelationship
+    """ Delete the given form element from the given form. """
+
     if form_type == 'proposal':
         form_model = core_models.ProposalForm
         element_model = core_models.ProposalFormElementsRelationship
+
+    else:
+        form_model = review_models.Form
+        element_model = review_models.FormElementsRelationship
 
     get_object_or_404(form_model, pk=form_id)
     relation = get_object_or_404(
@@ -866,33 +900,6 @@ def delete_form_element(request, form_type, form_id, relation_id):
             }
         )
     )
-
-
-@is_press_editor
-def review_forms(request):
-    template = 'manager/review/forms.html'
-    context = {'review_forms': review_models.Form.objects.all()}
-
-    return render(request, template, context)
-
-
-@is_press_editor
-def preview_review_form(request, form_id):
-    form = get_object_or_404(review_models.Form, pk=form_id)
-
-    preview_form = forms.GeneratedReviewForm(
-        form=review_models.Form.objects.get(pk=form_id)
-    )
-    fields = review_models.FormElementsRelationship.objects.filter(form=form)
-
-    template = 'manager/review/preview_form.html'
-    context = {
-        'form': form,
-        'preview_form': preview_form,
-        'fields': fields,
-    }
-
-    return render(request, template, context)
 
 
 @is_press_editor
