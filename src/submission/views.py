@@ -783,7 +783,6 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
     for field in file_fields:
         if field.element.name in request.FILES:
-            # TODO change value from string to list [value, value_type]
             save_dict[field.element.name] = [
                 handle_proposal_file_form(
                     request.FILES[field.element.name],
@@ -796,9 +795,8 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
     for field in data_fields:
         # Ensure ASCII field names.
-        field_name = field.element.name.encode('ascii', 'ignore')
+        field_name = field.element.name.encode('ascii', 'xmlcharrefreplace')
         if field_name in request.POST:
-            # TODO change value from string to list [value, value_type].
             save_dict[field_name] = [
                 request.POST.get(field_name), 'text']
 

@@ -1,5 +1,6 @@
 from django import forms
 
+from manager.forms import build_generated_form
 from review.models import FormElementsRelationship
 
 
@@ -17,52 +18,4 @@ class GeneratedForm(forms.Form):
             form=form_obj
         ).order_by('order')
 
-        for relation in relations:
-            # Ensure ASCII field names.
-            field_name = relation.element.name.encode('ascii', 'ignore')
-
-            if relation.element.field_type == 'text':
-                self.fields[field_name] = forms.CharField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'textarea':
-                self.fields[field_name] = forms.CharField(
-                    widget=forms.Textarea,
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'date':
-                self.fields[field_name] = forms.CharField(
-                    widget=forms.DateInput(
-                        attrs={
-                            'class': 'datepicker',
-                            'div_class': relation.width
-                        }
-                    ),
-                    required=relation.element.required)
-            elif relation.element.field_type == 'upload':
-                self.fields[field_name] = forms.FileField(
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'select':
-                if field_name == 'Series':
-                    choices = series_list
-                else:
-                    choices = render_choices(relation.element.choices)
-                self.fields[field_name] = forms.ChoiceField(
-                    widget=forms.Select(attrs={'div_class': relation.width}),
-                    choices=choices,
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'email':
-                self.fields[field_name] = forms.EmailField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'check':
-                self.fields[field_name] = forms.BooleanField(
-                    widget=forms.CheckboxInput(attrs={'is_checkbox': True}),
-                    required=relation.element.required,
-                )
-            self.fields[field_name].help_text = relation.help_text
-            self.fields[field_name].label = relation.element.name
+        build_generated_form(self, relations)
