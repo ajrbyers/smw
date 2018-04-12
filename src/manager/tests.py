@@ -381,7 +381,14 @@ class ManagerTests(TestCase):
         book = core_models.Book.objects.get(pk=1)
 
     def test_manager_proposal_forms(self):
-        resp = self.client.get(reverse('manager_proposal_forms'))
+        resp = self.client.get(
+            reverse(
+                'manager_forms',
+                kwargs={
+                    'form_type': 'proposal'
+                }
+            )
+        )
         content = resp.content
         proposal_forms = core_models.ProposalForm.objects.all()
 
@@ -523,7 +530,14 @@ class ManagerTests(TestCase):
         self.assertEqual(len(form_elements), 1)
 
     def test_manager_review_forms(self):
-        resp = self.client.get(reverse('manager_review_forms'))
+        resp = self.client.get(
+            reverse(
+                'manager_forms',
+                kwargs={
+                    'form_type': 'review'
+                }
+            )
+        )
         content = resp.content
         review_forms = review_models.Form.objects.all()
 

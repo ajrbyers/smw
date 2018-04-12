@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+
+{% block body %}
+<div class="row well well-sm">
+<form enctype="multipart/form-data" method="post">
+  <div class="col-md-12">
+    <h3>Preview of {{ form.name }}</h3>
+    {% if form_type == 'proposal' %}
+      {% bootstrap_form default_fields %}
+    {% endif %}
+  </div>
+  {% for field in preview_form %}
+      <div class="{% if field.field.widget.attrs.div_class %}
+                    {{ field.field.widget.attrs.div_class }}
+                  {% else %}
+                    col-md-12
+                  {% endif %}">
+          {% if field.field.widget.attrs.is_checkbox %}
+            {% if field.errors %}
+                <span class="red">{{ field.errors|join:", " }}</span>
+                <br />
+            {% endif %}
+            {{ field }} &nbsp;
+              {% if field.field.help_text %}
+                  {{ field.field.help_text|safe }}
+              {% endif %}
+          {% else %}
+             {% if field.errors %}
+                 <span class="red">{{ field.errors|join:", " }}</span>
+             {% endif %}
+             {% bootstrap_field field %}
+          {% endif %}
+      </div>
+  {% endfor %}
+</form>
+</div>  
+{% endblock body %}
+
+{% if form_type == 'proposal' %}
+    {% block js %}
+        <script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+        <script type="text/javascript">$("textarea").jqte();</script>
+        <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+               {%for field in default_fields%}
+                  {% if field.field.required %}
+                 var required_text=$('label[for="' + "id_{{field.name}}"+ '"]').html()+" *";
+                 var current_field = $('label[for="' + "id_{{field.name}}"+ '"]');
+                 current_field.text(required_text);
+                  {% endif %}
+               {% endfor %}
+
+            {% if preview_form %}
+                {% for field in preview_form %}
+                  {% if field.field.required %}
+                    var required_text=$('label[for="' + "id_{{field.name|safe}}"+ '"]').html()+" *";
+                    required_text = required_text.replace('&amp;','&');
+                    var current_field = $('label[for="' + "id_{{field.name|safe}}"+ '"]');
+                    current_field.text(required_text);
+                  {% endif %}
+                {% endfor %}
+            {% endif %}
+          });
+        </script>
+    {% endblock %}
+{% endif %}
