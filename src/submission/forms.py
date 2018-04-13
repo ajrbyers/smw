@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from submission.models import SubmissionChecklistItem, Proposal, ProposalNote
 
 
@@ -77,7 +77,7 @@ class SubmissionChecklist(forms.Form):
         if checklist_items:
             for item in checklist_items:
                 # Ensure ASCII field names.
-                field_name = item.text.encode('ascii', 'xmlcharrefreplace')
+                field_name = core_logic.ascii_encode(item.text)
 
                 self.fields[field_name] = forms.BooleanField(
                     required=item.required)

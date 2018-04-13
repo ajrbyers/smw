@@ -9,8 +9,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.encoding import smart_text
 
-from core import models as core_models
-from review import models as review_models, logic as review_logic
+from core import models as core_models, logic as core_logic
+from review import models as review_models
 from submission import models as submission_models
 
 
@@ -93,7 +93,7 @@ def handle_generated_form_post(review_assignment, request):
             ]
 
     for field in data_fields:
-        field_name = field.element.name.encode('ascii', 'xmlcharrefreplace')
+        field_name = core_logic.ascii_encode(field.element.name)
         if field_name in request.POST:
             save_dict[field_name] = [
                 request.POST.get(field_name),

@@ -795,7 +795,7 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
     for field in data_fields:
         # Ensure ASCII field names.
-        field_name = field.element.name.encode('ascii', 'xmlcharrefreplace')
+        field_name = core_logic.ascii_encode(field.element.name)
         if field_name in request.POST:
             save_dict[field_name] = [
                 request.POST.get(field_name), 'text']

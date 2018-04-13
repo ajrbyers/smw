@@ -1236,9 +1236,7 @@ def send_proposal_review_reopen_request(
 def order_data(data, relations):
     ordered_data = []
     for relation in relations:
-        relation_name = relation.element.name.encode(
-            'ascii', 'xmlcharrefreplace'
-        )
+        relation_name = ascii_encode(relation.element.name)
         if relation_name in data:
             ordered_data.append(
                 [relation.element.name, data[relation_name]])
@@ -1935,3 +1933,8 @@ def send_new_user_ack(email_text, new_user, profile):
         email_text,
         kind='general',
     )
+
+
+def ascii_encode(string):
+    """ Replace non-ASCII char with HTML chars. """
+    return string.encode('ascii', 'xmlcharrefreplace')
