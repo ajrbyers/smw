@@ -566,9 +566,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                         review_assignment, 'reviewer')]
 
             for field in data_fields:
-                field_name = field.element.name.encode(
-                    'ascii', 'xmlcharrefreplace'
-                )
+                field_name = core_logic.ascii_encode(field.element.name)
                 if field_name in request.POST:
                     save_dict[field_name] = [
                         request.POST.get(field_name),
@@ -1361,9 +1359,7 @@ def create_completed_review_form(submission, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            field_name = relation.element.name.encode(
-                'ascii', 'xmlcharrefreplace'
-            )
+            field_name = core_logic.ascii_encode(relation.element.name)
             v = data[field_name]
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(

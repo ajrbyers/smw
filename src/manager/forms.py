@@ -4,7 +4,7 @@ from django.utils.encoding import smart_text
 
 from django_summernote.widgets import SummernoteWidget
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from manager import models
 from review import models as review_models
 
@@ -178,7 +178,7 @@ def build_generated_form(form, relations, required_form=None, review_form=None):
 
     for relation in relations:
         # Ensure ASCII field names.
-        field_name = relation.element.name.encode('ascii', 'xmlcharrefreplace')
+        field_name = core_logic.ascii_encode(relation.element.name)
         required = relation.element.required
         if not required_form:
             required = False

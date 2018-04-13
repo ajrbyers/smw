@@ -2258,9 +2258,7 @@ def assign_proposal(request):
                     ]
 
             for field in data_fields:
-                field_name = field.element.name.encode(
-                    'ascii', 'xmlcharrefreplace'
-                )
+                field_name = logic.ascii_encode(field.element.name)
                 if field_name in request.POST:
                     save_dict[field_name] = [
                         request.POST.get(field_name),
@@ -2713,7 +2711,7 @@ def create_proposal_form(proposal):
     data = json.loads(proposal.data)
 
     for relation in relations:
-        v = data.get(relation.element.name.encode('ascii', 'xmlcharrefreplace'))
+        v = data.get(logic.ascii_encode(relation.element.name))
         if v:
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
@@ -3237,9 +3235,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                     ]
 
             for field in data_fields:
-                field_name = field.element.name.encode(
-                    'ascii', 'xmlcharrefreplace'
-                )
+                field_name = logic.ascii_encode(field.element.name)
                 if field_name in request.POST:
                     save_dict[field_name] = [
                         request.POST.get(field_name),
@@ -3534,9 +3530,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                     ]
 
             for field in data_fields:
-                field_name = field.element.name.encode(
-                    'ascii', 'xmlcharrefreplace'
-                )
+                field_name = logic.ascii_encode(field.element.name)
                 if field_name in request.POST:
                     save_dict[field_name] = [
                         request.POST.get(field_name),
@@ -4202,9 +4196,7 @@ def create_completed_proposal_review_form(proposal, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            v = data.get(
-                relation.element.name.encode('ascii', 'xmlcharrefreplace')
-            )
+            v = data.get(logic.ascii_encode(relation.element.name))
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
             document.add_paragraph(text).bold = True
