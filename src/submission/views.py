@@ -66,7 +66,6 @@ def start_submission(request, book_id=None):
         )
         checklist_form = forms.SubmissionChecklist(
             checklist_items=checklist_items,
-            book=book,
         )
     else:
         if not direct_submissions:
