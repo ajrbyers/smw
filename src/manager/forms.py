@@ -212,9 +212,7 @@ def build_generated_form(form, relations, required_form=None, review_form=None):
                 required=required
             )
         elif relation.element.field_type == 'select':
-            choices = None
-            if field_name == 'Series':
-                choices = render_choices(relation.element.choices)
+            choices = render_choices(relation.element.choices)
 
             form.fields[field_name] = forms.ChoiceField(
                 widget=forms.Select(attrs={'div_class': relation.width}),
