@@ -116,4 +116,4 @@ def handle_review_file(_file, content_type, review_assignment, kind):
     new_file.save()
     review_assignment.files.add(new_file)
 
-    return path
+    return _path

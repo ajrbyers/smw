@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static from staticfiles %}
 {% load bootstrap3 %}
+{% load ascii_encode %}
 
 {% block title %}Book Proposals{% endblock %}
 {% block css %}
@@ -15,9 +16,9 @@
     <a class="btn  btn-transparent-white btn-proposal-header" href="{% url 'proposal_add_editors' proposal.id %}"><h5 class="btn-proposal-text">&nbsp; Book Editors</h5></a>
      <a class="btn  btn-transparent-white btn-proposal-header" href="{% url 'view_proposal_log' proposal.id %}"><h5 class="btn-proposal-text"> &nbsp; Log &nbsp;</h5></a>
      <a href="{% url 'proposal_contract_manager' proposal.id %}" class="btn btn-proposal-header btn-transparent-white"><h5 class="btn-proposal-text"> Contract</h5></a>
-{% if proposal.status = 'accepted' or proposal.status = 'declined'%} 
+{% if proposal.status == 'accepted' or proposal.status == 'declined'%}
 {% else %}<a href="{% url 'proposal_view_submitted' proposal.id %}" class="btn  btn-transparent-white btn-proposal-header-2" style="right:100px;"><h5 class="btn-proposal-text">Edit</h5></a>{% endif %}
-    {% if proposal.status = 'accepted' or proposal.status = 'declined'%}<a href="{% url 'proposals_history'%}" class="btn btn-proposal-header-2 btn-transparent-white" style="right:20;"><h5 class="btn-proposal-text">Go back</h5></a> {% else %}<a href="{% url 'proposals'%}" class="btn btn-proposal-header-2 btn-transparent-white" style="right:20;"><h5 class="btn-proposal-text">Go back</h5></a>{% endif %}</h3>
+    {% if proposal.status == 'accepted' or proposal.status == 'declined'%}<a href="{% url 'proposals_history'%}" class="btn btn-proposal-header-2 btn-transparent-white" style="right:20;"><h5 class="btn-proposal-text">Go back</h5></a> {% else %}<a href="{% url 'proposals'%}" class="btn btn-proposal-header-2 btn-transparent-white" style="right:20;"><h5 class="btn-proposal-text">Go back</h5></a>{% endif %}</h3>
 </div></br></br>
 <div class="col-md-12">
    </br>
@@ -39,8 +40,28 @@
     <td>{{ proposal.title }}</td>
     <td>{{ proposal.subtitle }}</td>
     <td>{{ proposal.author }}</td>
-    <td><a href="{% url 'view_profile_readonly' proposal.owner.pk %}">{{ proposal.owner.username }}</a> <sup> <a href="core/email.html" onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{proposal.owner.id}}/','proposal_{{proposal.owner.id}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></td>
-    <td>{% if proposal.in_review %} {% if proposal.reviews_completed %} Reviews Completed {% else %} In Review {% endif %}{% else %}{{ proposal.get_status_display }}{% endif %}</td>
+    <td>
+        <a href="{% url 'view_profile_readonly' proposal.owner.pk %}">
+            {{ proposal.owner.username }}
+        </a>
+        <sup>
+            <a href="core/email.html"
+               onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{proposal.owner.id}}/','proposal_{{proposal.owner.id}}')"
+               class="fa fa-envelope-o btn btn-xs btn-default">
+            </a>
+        </sup>
+    </td>
+    <td>
+        {% if proposal.in_review %}
+            {% if proposal.reviews_completed %}
+                Reviews Completed
+            {% else %}
+                In Review
+            {% endif %}
+        {% else %}
+            {{ proposal.get_status_display }}
+        {% endif %}
+    </td>
     <td>{{ proposal.date_submitted }}</td>
   </tr>
 </tbody>
@@ -49,17 +70,25 @@
 <div class="container" style="width:100%;left:0%;right:20%;position:relative;">
   <hr>
   {% for field in relationships %}
-
-  <div class="{{ field.width }}">
-  <div class="row">
-    <div class="panel panel-default">
-      <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }} </b></span></div>
-      <div class="panel-body">{% for k,v in data.items %}{% if k == field.element.name %}
-        {% ifequal field.element.field_type 'upload' %}<a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>{% else %}{{ v.0|safe }}{% endifequal %}{% endif %}{% endfor %}</div>
-    </div>
-  </div>
-  </div>
-{% endfor %}
+      <div class="{{ field.width }}">
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }} </b></span></div>
+              <div class="panel-body">
+                  {% for k,v in data.items %}
+                      {% if k == field.element.name|ascii_encode %}
+                          {% ifequal field.element.field_type 'upload' %}
+                              <a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>
+                          {% else %}
+                              {{ v.0|safe }}
+                          {% endifequal %}
+                      {% endif %}
+                  {% endfor %}
+              </div>
+            </div>
+          </div>
+      </div>
+  {% endfor %}
 </div>
 <hr>
 <h5> <b>Book Editor</b></h5>

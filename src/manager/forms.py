@@ -4,7 +4,7 @@ from django.utils.encoding import smart_text
 
 from django_summernote.widgets import SummernoteWidget
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from manager import models
 from review import models as review_models
 
@@ -173,71 +173,81 @@ def render_choices(choices):
     return [(choice.capitalize(), choice) for choice in c_split]
 
 
+def build_generated_form(form, relations, required_form=None, review_form=None):
+    """ Build form from given user-generated fields. """
+
+    for relation in relations:
+        # Ensure ASCII field names.
+        field_name = core_logic.ascii_encode(relation.element.name)
+        required = relation.element.required
+        if not required_form:
+            required = False
+
+        if relation.element.field_type == 'text':
+            form.fields[field_name] = forms.CharField(
+                widget=forms.TextInput(attrs={'div_class': relation.width}),
+                required=required,
+            )
+        elif relation.element.field_type == 'textarea':
+            form.fields[field_name] = forms.CharField(
+                widget=forms.Textarea(attrs={'div_class': relation.width}),
+                required=required,
+            )
+        elif relation.element.field_type == 'date':
+            attrs = {
+                'class': 'datepicker',
+                'div_class': relation.width
+            }
+            if review_form:
+                attrs['id'] = slugify(field_name)
+            form.fields[field_name] = forms.CharField(
+                widget=forms.DateInput(attrs=attrs),
+                required=required
+            )
+        elif relation.element.field_type == 'upload':
+            form.fields[field_name] = forms.FileField(
+                widget=forms.FileInput(
+                    attrs={'div_class': relation.width}
+                ),
+                required=required
+            )
+        elif relation.element.field_type == 'select':
+            choices = render_choices(relation.element.choices)
+
+            form.fields[field_name] = forms.ChoiceField(
+                widget=forms.Select(attrs={'div_class': relation.width}),
+                choices=choices,
+                required=required,
+            )
+        elif relation.element.field_type == 'email':
+            form.fields[field_name] = forms.EmailField(
+                widget=forms.TextInput(attrs={'div_class': relation.width}),
+                required=required,
+            )
+        elif relation.element.field_type == 'check':
+            form.fields[field_name] = forms.BooleanField(
+                widget=forms.CheckboxInput(
+                    attrs={
+                        'is_checkbox': True,
+                        'div_class': relation.width,
+                    }
+                ),
+                required=required)
+
+        form.fields[field_name].help_text = relation.help_text
+        form.fields[field_name].label = relation.element.name
+
+
 class GeneratedForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-
         form_obj = kwargs.pop('form', None)
         super(GeneratedForm, self).__init__(*args, **kwargs)
         relations = core_models.ProposalFormElementsRelationship.objects.filter(
             form__id=form_obj.id
         ).order_by('order')
 
-        for relation in relations:
-            if relation.element.field_type == 'text':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'textarea':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.Textarea(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'date':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.DateInput(
-                        attrs={
-                            'class': 'datepicker',
-                            'div_class': relation.width
-                        }
-                    ),
-                    required=relation.element.required)
-            elif relation.element.field_type == 'upload':
-                self.fields[relation.element.name] = forms.FileField(
-                    widget=forms.FileInput(
-                        attrs={'div_class': relation.width}
-                    ),
-                    required=relation.element.required
-                )
-            elif relation.element.field_type == 'select':
-                if relation.element.name == 'Series':
-                    choices = series_list
-                else:
-                    choices = render_choices(relation.element.choices)
-
-                self.fields[relation.element.name] = forms.ChoiceField(
-                    widget=forms.Select(attrs={'div_class': relation.width}),
-                    choices=choices,
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'email':
-                self.fields[relation.element.name] = forms.EmailField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'check':
-                self.fields[relation.element.name] = forms.BooleanField(
-                    widget=forms.CheckboxInput(
-                        attrs={
-                            'is_checkbox': True,
-                            'div_class': relation.width,
-                        }
-                    ),
-                    required=relation.element.required)
-
-            self.fields[relation.element.name].help_text = relation.help_text
-            self.fields[relation.element.name].label = relation.element.name
+        build_generated_form(self, relations)
 
 
 class GeneratedNotRequiredForm(forms.Form):
@@ -249,60 +259,7 @@ class GeneratedNotRequiredForm(forms.Form):
             form__id=form_obj.id
         ).order_by('order')
 
-        for relation in relations:
-            if relation.element.field_type == 'text':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=False,
-                )
-            elif relation.element.field_type == 'textarea':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.Textarea(attrs={'div_class': relation.width}),
-                    required=False,
-                )
-            elif relation.element.field_type == 'date':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.DateInput(
-                        attrs={
-                            'class': 'datepicker',
-                            'div_class': relation.width},
-                    ),
-                    required=False,
-                )
-            elif relation.element.field_type == 'upload':
-                self.fields[relation.element.name] = forms.FileField(
-                    widget=forms.FileInput(attrs={'div_class': relation.width}),
-                    required=False,
-                )
-            elif relation.element.field_type == 'select':
-                if relation.element.name == 'Series':
-                    choices = series_list
-                else:
-                    choices = render_choices(relation.element.choices)
-
-                self.fields[relation.element.name] = forms.ChoiceField(
-                    widget=forms.Select(attrs={'div_class': relation.width}),
-                    choices=choices,
-                    required=False,
-                )
-            elif relation.element.field_type == 'email':
-                self.fields[relation.element.name] = forms.EmailField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=False,
-                )
-            elif relation.element.field_type == 'check':
-                self.fields[relation.element.name] = forms.BooleanField(
-                    widget=forms.CheckboxInput(
-                        attrs={
-                            'is_checkbox': True,
-                            'div_class': relation.width
-                        }
-                    ),
-                    required=False,
-                )
-
-            self.fields[relation.element.name].help_text = relation.help_text
-            self.fields[relation.element.name].label = relation.element.name
+        build_generated_form(self, relations, required_form=False)
 
 
 class GeneratedReviewForm(forms.Form):
@@ -314,58 +271,4 @@ class GeneratedReviewForm(forms.Form):
             form=form_obj,
         ).order_by('order')
 
-        for relation in relations:
-            if relation.element.field_type == 'text':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'textarea':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.Textarea(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'date':
-                self.fields[relation.element.name] = forms.CharField(
-                    widget=forms.DateInput(
-                        attrs={
-                            'class': 'datepicker',
-                            'id': slugify(relation.element.name),
-                            'div_class': relation.width
-                        }
-                    ),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'upload':
-                self.fields[relation.element.name] = forms.FileField(
-                    widget=forms.FileInput(
-                        attrs={'div_class': relation.width},
-                    ),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'select':
-                if relation.element.name == 'Series':
-                    choices = series_list
-                else:
-                    choices = render_choices(relation.element.choices)
-
-                self.fields[relation.element.name] = forms.ChoiceField(
-                    widget=forms.Select(attrs={'div_class': relation.width}),
-                    choices=choices,
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'email':
-                self.fields[relation.element.name] = forms.EmailField(
-                    widget=forms.TextInput(attrs={'div_class': relation.width}),
-                    required=relation.element.required,
-                )
-            elif relation.element.field_type == 'check':
-                self.fields[relation.element.name] = forms.BooleanField(
-                    widget=forms.CheckboxInput(
-                        attrs={'is_checkbox': True, 'div_class': relation.width}
-                    ),
-                    required=relation.element.required,
-                )
-
-            self.fields[relation.element.name].help_text = relation.help_text
-            self.fields[relation.element.name].label = relation.element.name
+        build_generated_form(self, relations, review_form=True)

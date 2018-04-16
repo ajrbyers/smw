@@ -66,7 +66,6 @@ def start_submission(request, book_id=None):
         )
         checklist_form = forms.SubmissionChecklist(
             checklist_items=checklist_items,
-            book=book,
         )
     else:
         if not direct_submissions:
@@ -783,7 +782,6 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
     for field in file_fields:
         if field.element.name in request.FILES:
-            # TODO change value from string to list [value, value_type]
             save_dict[field.element.name] = [
                 handle_proposal_file_form(
                     request.FILES[field.element.name],
@@ -795,10 +793,11 @@ def proposal_data_processing(request, proposal, proposal_form_id):
             ]
 
     for field in data_fields:
-        if field.element.name in request.POST:
-            # TODO change value from string to list [value, value_type].
-            save_dict[field.element.name] = [
-                request.POST.get(field.element.name), 'text']
+        # Ensure ASCII field names.
+        field_name = core_logic.ascii_encode(field.element.name)
+        if field_name in request.POST:
+            save_dict[field_name] = [
+                request.POST.get(field_name), 'text']
 
     json_data = smart_text(json.dumps(save_dict))
     proposal.data = json_data
