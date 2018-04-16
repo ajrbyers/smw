@@ -1412,13 +1412,13 @@ class ReviewAssignment(models.Model):
     hide = models.BooleanField(
         default=False,
     )
-    reopened = models.BooleanField(  # Reopened.
+    reopened = models.BooleanField(
         default=False
     )
     withdrawn = models.BooleanField(
         default=False,
     )
-    review_form = models.ForeignKey(  # Review.
+    review_form = models.ForeignKey(
         'review.Form',
         null=True,
         blank=True,

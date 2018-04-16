@@ -93,9 +93,9 @@ def handle_onetasker_file(_file, book, assignment, kind):
     return new_file
 
 
-def handle_file_update(_file, old_file, book, kind, owner, label=None):
+def handle_file_update(new_file, old_file, book, owner, label=None):
     original_filename = smart_text(
-        _file._get_name()
+        new_file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -115,7 +115,7 @@ def handle_file_update(_file, old_file, book, kind, owner, label=None):
     path = os.path.join(folder_structure, str(filename))
     fd = open(path, 'wb')
 
-    for chunk in _file.chunks():
+    for chunk in new_file.chunks():
         fd.write(chunk)
 
     fd.close()
