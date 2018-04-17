@@ -97,7 +97,11 @@
                             <div class="panel-body">
                                 {% for k,v in data.items %}
                                     {% if k == field.element.name|ascii_encode %}
-                                        {{ v.0|safe }}
+                                        {% ifequal field.element.field_type 'upload' %}
+                                            <a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>
+                                        {% else %}
+                                            {{ v.0|safe }}
+                                        {% endifequal %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
