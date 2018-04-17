@@ -560,9 +560,10 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    save_dict[field.element.name] = [logic.handle_review_file(
-                        request.FILES[field.element.name], 'book',
+                field_name = core_logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [logic.handle_review_file(
+                        request.FILES[field_name], 'book',
                         review_assignment, 'reviewer')]
 
             for field in data_fields:

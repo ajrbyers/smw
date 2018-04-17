@@ -83,10 +83,11 @@ def handle_generated_form_post(review_assignment, request):
     )
 
     for field in file_fields:
-        if field.element.name in request.FILES:
-            save_dict[field.element.name] = [
+        field_name = core_logic.ascii_encode(field.element.name)
+        if field_name in request.FILES:
+            save_dict[field_name] = [
                 handle_review_file(
-                    request.FILES[field.element.name],
+                    request.FILES[field_name],
                     review_assignment,
                     'reviewer'
                 )

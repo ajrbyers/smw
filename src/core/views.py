@@ -2246,10 +2246,11 @@ def assign_proposal(request):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         handle_proposal_file_form(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             _proposal,
                             'other',
                             request.user,
@@ -2528,11 +2529,11 @@ def proposal_assign_edit(request, proposal_id):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         handle_proposal_file_form(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             _proposal,
                             'other',
                             request.user,
@@ -2541,10 +2542,10 @@ def proposal_assign_edit(request, proposal_id):
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.POST:
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
 
@@ -3224,10 +3225,11 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             'proposal',
                             review_assignment,
                             'reviewer'
@@ -3520,10 +3522,11 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             'proposal',
                             review_assignment,
                             'reviewer')
