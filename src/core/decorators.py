@@ -380,16 +380,7 @@ def is_editor_or_ed_reviewer(_function):
             ):
                 return _function(request, *args, **kwargs)
 
-            review_assignment = get_object_or_404(
-                editorialreview_models.EditorialReview,
-                pk=kwargs.get('review_id')
-            )
-            submission = review_assignment.content_object  # Editor permissions.
             user_roles = [r.slug for r in request.user.profile.roles.all()]
-
-            if review_assignment.content_type.model == 'book':
-                if request.user in submission.all_editors():
-                    return _function(request, *args, **kwargs)
 
             if (
                     'press-editor' in user_roles or
@@ -398,6 +389,16 @@ def is_editor_or_ed_reviewer(_function):
                     'book-editor' in user_roles
             ):
                 return _function(request, *args, **kwargs)
+
+            review_assignment = get_object_or_404(
+                editorialreview_models.EditorialReview,
+                pk=kwargs.get('review_id')
+            )
+            submission = review_assignment.content_object  # Editor permissions.
+
+            if review_assignment.content_type.model == 'book':
+                if request.user in submission.all_editors():
+                    return _function(request, *args, **kwargs)
 
             messages.add_message(
                 request,
