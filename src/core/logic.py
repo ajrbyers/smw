@@ -1937,4 +1937,4 @@ def send_new_user_ack(email_text, new_user, profile):
 
 def ascii_encode(string):
     """ Replace non-ASCII char with HTML chars. """
-    return string.encode('ascii', 'xmlcharrefreplace')
+    return string.encode('ascii', 'xmlcharrefreplace').strip()
