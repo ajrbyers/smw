@@ -318,7 +318,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'subtitle',
             'submission_date',
             'publication_date',
-            'publisher_name'
+            'publisher_name',
             'publisher_location',
             'license',
             'pages',
@@ -331,6 +331,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             'review_type',
             'identifier',
             'peer_review_override',
+            'license',
         )
 
     license = serializers.ReadOnlyField(
