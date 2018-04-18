@@ -34,38 +34,8 @@ def index(request):
 
     return HttpResponse(json_content, content_type="application/json")
 
-
-class BookViewSet(viewsets.ModelViewSet):
-    """ API endpoint that allows books to be viewed or edited. """
-
-    permission_classes = (IsAuthenticated,)
-    queryset = models.Book.objects.all().order_by('-submission_date')
-    serializer_class = serializers.BookSerializer
-
-
-class AuthorViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (IsAuthenticated,)
-    queryset = models.Author.objects.all()
-    serializer_class = serializers.AuthorSerializer
-
-
 class JuraBookViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
     queryset = models.Book.objects.all().order_by('id')
     serializer_class = serializers.JuraBookSerializer
-
-
-class OMPViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (IsAuthenticated,)
-    queryset = models.Book.objects.all().order_by('-submission_date')
-    serializer_class = serializers.OMPSerializer
-
-
-class LicenseViewSet(viewsets.ModelViewSet):
-
-    permission_classes = (IsAuthenticated,)
-    queryset = models.License.objects.all()
-    serializer_class = serializers.LicenseSerializer
