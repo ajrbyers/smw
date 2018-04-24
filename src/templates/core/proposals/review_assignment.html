@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static from staticfiles %}
 {% load bootstrap3 %}
+{% load ascii_encode %}
 
 {% block title %}Reviewing #{{ proposal.id }}{% endblock %}
 
@@ -52,7 +53,7 @@
     {% if not review_assignment.blind %}
     <th>Submitting Author/Editor</th>
     {% endif %}
-    <th>Contact Editor</th>
+    <th>Contact Editor(s)</th>
     <th>Status</th>
     <th>Date Submitted</th>
     
@@ -65,8 +66,32 @@
     {% if not review_assignment.blind %}
     <td>{{ proposal.author }}</td>
     {% endif %}
-     <td>{{ proposal.requestor.username }} <sup> <a href="core/email.html" onclick="return popitup('/email/proposal/{{proposal.id}}/user/{{proposal.requestor.id}}/','proposal_{{proposal.requestor.id}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></td>
-    <td>{% if proposal.in_review %} {% if proposal.reviews_completed %} Reviews Completed {% else %} In Review {% endif %}{% else %}{{ proposal.get_status_display }}{% endif %}</td>
+     <td>
+         {% for editor in book_editors %}
+            {{ editor.first_name }} {{ editor.last_name }}
+                <sup>
+                    <a href="core/email.html"
+                       onclick="return popitup(
+                           '/email/proposal/{{ proposal.id }}/user/{{ editor.id }}/',
+                           'proposal_{{ editor.id }}'
+                           )"
+                       class="fa fa-envelope-o btn btn-xs btn-default">
+                    </a>
+                </sup>
+            <br>
+         {% endfor %}
+     </td>
+    <td>
+        {% if proposal.in_review %}
+            {% if proposal.reviews_completed %}
+                Reviews Completed
+            {% else %}
+                In Review
+            {% endif %}
+        {% else %}
+            {{ proposal.get_status_display }}
+        {% endif %}
+    </td>
     <td>{{ proposal.date_submitted }}</td>
   </tr>
 </tbody>
@@ -80,8 +105,19 @@
   <div class="row">
     <div class="panel panel-default ">
       <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }}</b></span></div>
-      <div class="panel-body">{% for k,v in data.items %}{% if k == field.element.name %}
-        {% ifequal field.element.field_type 'upload' %}<a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>{% else %}{{ v.0|safe }}{% endifequal %}{% endif %}{% endfor %}</div>
+      <div class="panel-body">
+          {% for k,v in data.items %}
+            {% if k == field.element.name|ascii_encode %}
+                {% ifequal field.element.field_type 'upload' %}
+                    <a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">
+                        Download
+                    </a>
+                {% else %}
+                    {{ v.0|safe }}
+                {% endifequal %}
+            {% endif %}
+          {% endfor %}
+      </div>
     </div>
   </div>
   </div>

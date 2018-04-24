@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.encoding import smart_text
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from review import models as review_models
 from submission import models as submission_models
 
@@ -83,19 +83,23 @@ def handle_generated_form_post(review_assignment, request):
     )
 
     for field in file_fields:
-        if field.element.name in request.FILES:
-            # TODO change value from string to list [value, value_type]
-            save_dict[field.element.name] = [
+        field_name = core_logic.ascii_encode(field.element.name)
+        if field_name in request.FILES:
+            save_dict[field_name] = [
                 handle_review_file(
-                    request.FILES[field.element.name],
-                    review_assignment, 'reviewer')
+                    request.FILES[field_name],
+                    review_assignment,
+                    'reviewer'
+                )
             ]
 
     for field in data_fields:
-        if field.element.name in request.POST:
-            # TODO change value from string to list [value, value_type]
-            save_dict[field.element.name] = [
-                request.POST.get(field.element.name), 'text']
+        field_name = core_logic.ascii_encode(field.element.name)
+        if field_name in request.POST:
+            save_dict[field_name] = [
+                request.POST.get(field_name),
+                'text'
+            ]
 
     json_data = smart_text(json.dumps(save_dict))
     form_results = review_models.FormResult(
@@ -114,9 +118,9 @@ def handle_generated_form_post(review_assignment, request):
         )
 
 
-def handle_review_file(file, review_assignment, kind, return_file=None):
+def handle_review_file(_file, review_assignment, kind, return_file=None):
     original_filename = smart_text(
-        file._get_name()
+        _file._get_name()
     ).replace(
         ',', '_'
     ).replace(
@@ -134,12 +138,10 @@ def handle_review_file(file, review_assignment, kind, return_file=None):
     if not os.path.exists(folder_structure):
         os.makedirs(folder_structure)
 
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    [fd.write(chunk) for chunk in file.chunks()]
+    _path = os.path.join(folder_structure, str(filename))
+    fd = open(_path, 'wb')
+    [fd.write(chunk) for chunk in _file.chunks()]
     fd.close()
-
     file_mime = mime.guess_type(filename)
 
     try:
@@ -163,4 +165,4 @@ def handle_review_file(file, review_assignment, kind, return_file=None):
     if return_file:
         return new_file
 
-    return path
+    return _path

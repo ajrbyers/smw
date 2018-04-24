@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from core import models as core_models
+from core import models as core_models, logic as core_logic
 from submission.models import SubmissionChecklistItem, Proposal, ProposalNote
 
 
@@ -76,9 +76,12 @@ class SubmissionChecklist(forms.Form):
 
         if checklist_items:
             for item in checklist_items:
-                self.fields[item.text] = forms.BooleanField(
+                # Ensure ASCII field names.
+                field_name = core_logic.ascii_encode(item.text)
+
+                self.fields[field_name] = forms.BooleanField(
                     required=item.required)
-                self.fields[item.text].label = item.text
+                self.fields[field_name].label = item.text
 
 
 class SubmitBookStageTwo(forms.ModelForm):

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static from staticfiles %}
 {% load bootstrap3 %}
+{% load ascii_encode %}
 
 {% block title %}Book Proposals{% endblock %}
 {% block css %}
@@ -44,17 +45,25 @@
 <div class="container" style="width:100%;left:0%;right:20%;position:relative;">
   <hr>
   {% for field in relationships %}
-
-  <div class="{{ field.width }}">
-  <div class="row">
-    <div class="panel panel-default ">
-      <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }} </b></span></div>
-      <div class="panel-body">{% for k,v in data.items %}{% if k == field.element.name %}
-        {% ifequal field.element.field_type 'upload' %}<a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>{% else %}{{ v.0|safe }}{% endifequal %}{% endif %}{% endfor %}</div>
-    </div>
-  </div>
-  </div>
-{% endfor %}
+      <div class="{{ field.width }}">
+          <div class="row">
+            <div class="panel panel-default ">
+              <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }} </b></span></div>
+                <div class="panel-body">
+                  {% for k,v in data.items %}
+                      {% if k == field.element.name|ascii_encode %}
+                          {% ifequal field.element.field_type 'upload' %}
+                              <a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>
+                          {% else %}
+                              {{ v.0|safe }}
+                          {% endifequal %}
+                      {% endif %}
+                  {% endfor %}
+                </div>
+            </div>
+          </div>
+      </div>
+  {% endfor %}
 </div>
 <hr>
 

@@ -1921,16 +1921,16 @@ def delete_file(request, submission_id, file_id, returner):
 @is_book_editor_or_author
 def update_file(request, submission_id, file_id, returner):
     book = get_object_or_404(models.Book, pk=submission_id)
-    _file = get_object_or_404(models.File, pk=file_id)
+    old_file = get_object_or_404(models.File, pk=file_id)
 
     if request.POST:
         label = request.POST['rename']
         if label:
-            _file.label = label
-            _file.save()
+            old_file.label = label
+            old_file.save()
 
-        for _file in request.FILES.getlist('update_file'):
-            handle_file_update(_file, _file, book, _file.kind, request.user)
+        for new_file in request.FILES.getlist('update_file'):
+            handle_file_update(new_file, old_file, book, request.user)
             messages.add_message(request, messages.INFO, 'File updated.')
 
         if returner == 'new':
@@ -1951,7 +1951,7 @@ def update_file(request, submission_id, file_id, returner):
             )
 
     template = 'core/update_file.html'
-    context = {'submission': book, 'file': _file, 'update': True}
+    context = {'submission': book, 'file': old_file, 'update': True}
 
     return render(request, template, context)
 
@@ -2246,11 +2246,11 @@ def assign_proposal(request):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         handle_proposal_file_form(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             _proposal,
                             'other',
                             request.user,
@@ -2259,10 +2259,10 @@ def assign_proposal(request):
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
-                    # TODO change value from string to list [value, value_type].
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.POST:
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
 
@@ -2529,11 +2529,11 @@ def proposal_assign_edit(request, proposal_id):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         handle_proposal_file_form(
-                            request.FILES[field.element.name],
+                            request.FILES[field_name],
                             _proposal,
                             'other',
                             request.user,
@@ -2542,10 +2542,10 @@ def proposal_assign_edit(request, proposal_id):
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.POST:
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
 
@@ -2712,7 +2712,7 @@ def create_proposal_form(proposal):
     data = json.loads(proposal.data)
 
     for relation in relations:
-        v = data.get(relation.element.name)
+        v = data.get(logic.ascii_encode(relation.element.name))
         if v:
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
@@ -3225,19 +3225,22 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name], 'proposal',
-                            review_assignment, 'reviewer')
+                            request.FILES[field_name],
+                            'proposal',
+                            review_assignment,
+                            'reviewer'
+                        )
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.POST:
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
 
@@ -3519,22 +3522,23 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             )
 
             for field in file_fields:
-                if field.element.name in request.FILES:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.FILES:
+                    save_dict[field_name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field.element.name], 'proposal',
-                            review_assignment, 'reviewer')
+                            request.FILES[field_name],
+                            'proposal',
+                            review_assignment,
+                            'reviewer')
                     ]
 
             for field in data_fields:
-                if field.element.name in request.POST:
-                    # TODO change value from string to list [value, value_type]
-                    save_dict[field.element.name] = [
-                        request.POST.get(field.element.name),
+                field_name = logic.ascii_encode(field.element.name)
+                if field_name in request.POST:
+                    save_dict[field_name] = [
+                        request.POST.get(field_name),
                         'text'
                     ]
-
             json_data = smart_text(json.dumps(save_dict))
             form_results = review_models.FormResult(
                 form=review_assignment.review_form,
@@ -3596,6 +3600,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
         'result': result,
         'form': form,
         'recommendation_form': recommendation_form,
+        'book_editors': _proposal.book_editors.all(),
         'active': 'proposal_review',
         'instructions': models.Setting.objects.get(
             group__name='general',
@@ -4194,7 +4199,7 @@ def create_completed_proposal_review_form(proposal, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            v = data[relation.element.name]
+            v = data.get(logic.ascii_encode(relation.element.name))
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
             document.add_paragraph(text).bold = True
