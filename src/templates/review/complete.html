@@ -2,6 +2,8 @@
 {% load static from staticfiles %}
 {% load bootstrap3 %}
 {% load dict_lookup %}
+{% load ascii_encode %}
+
 {% block css %}
     <style type="text/css">
     body {
@@ -80,9 +82,9 @@
   <div style="clear:both"></div>
       {% for item in data_ordered %}
       <div class="{% cycle 'left-float' 'right-float' %}">
-        
+
         <h4> <b>{{ item.0 }}:</b></h4>
-        <h5> {% lookup result.data item.0 %} </h5>
+        <h5> {% lookup result.data item.0|ascii_encode %} </h5>
       </div>
       <div {% cycle '' 'style="clear:both"' %}></div>
       {% endfor %}
