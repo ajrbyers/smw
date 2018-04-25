@@ -196,6 +196,16 @@ urlpatterns = patterns(
         name='manager_edit_form'
     ),
     url(
+        r'^forms/active/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
+        'manager.views.form_active',
+        name='manager_form_active'
+    ),
+    url(
+        r'^forms/prepare/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
+        'manager.views.edit_form_preparation',
+        name='manager_edit_form_preparation'
+    ),
+    url(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/switch/'
         r'(?P<field_1_id>\d+)/(?P<field_2_id>\d+)$',
         'manager.views.reorder_form',

@@ -665,14 +665,29 @@ def add_new_form(request, form_type):
     return render(request, template, context)
 
 
+def get_form_models(form_type):
+    """ Return appropriate Form and ElementsRelationship models for given type. """
+
+    if form_type == 'proposal':
+        form_model = core_models.ProposalForm
+        relation_model = core_models.ProposalFormElementsRelationship
+
+    else:
+        form_model = review_models.Form
+        relation_model = review_models.FormElementsRelationship
+
+    return form_model, relation_model
+
+
 @is_press_editor
 def list_forms(request, form_type):
     """ List the existing forms of the given type. """
 
     if form_type == 'proposal':
-        forms = core_models.ProposalForm.objects.all()
+        forms = core_models.ProposalForm.objects.filter(in_edit=False)
     else:
-        forms = review_models.Form.objects.all()
+        forms = review_models.Form.objects.filter(in_edit=False)
+
     template = 'manager/forms.html'
     context = {
         'forms': forms,
@@ -686,18 +701,12 @@ def list_forms(request, form_type):
 def reorder_form(request, form_type, form_id, field_1_id, field_2_id):
     """ Swap two given form elements in a given form. """
 
-    if form_type == 'proposal':
-        form_model = core_models.ProposalForm
-        element_model = core_models.ProposalFormElementsRelationship
-
-    else:
-        form_model = review_models.Form
-        element_model = review_models.FormElementsRelationship
+    form_model, relation_model = get_form_models(form_type)
 
     get_object_or_404(form_model, pk=form_id)
 
-    field_1 = get_object_or_404(element_model, pk=field_1_id)
-    field_2 = get_object_or_404(element_model, pk=field_2_id)
+    field_1 = get_object_or_404(relation_model, pk=field_1_id)
+    field_2 = get_object_or_404(relation_model, pk=field_2_id)
 
     order_1 = field_1.order
     order_2 = field_2.order
@@ -760,14 +769,74 @@ def form_order_field_list(form_type, form_id):
 
 
 @is_press_editor
+def edit_form_preparation(request, form_type, form_id):
+    """ Prepare form to be edited.
+     Delete existing in_edit forms, copy form being
+     edited, mark as in_edit and inactive, then
+     redirect to edit page for new form, so that
+     existing models using the form (e.g. Proposals)
+     aren't affected by having data in edited fields
+     being overwritten. Handles both Proposal and
+     Review form types.
+    """
+
+    form_model, relation_model = get_form_models(form_type)
+    for form in form_model.objects.all():
+        if form.in_edit:
+            form.delete()
+
+    # Copy existing form and mark as in_edit and inactive.
+    form = get_object_or_404(form_model, pk=form_id)
+    relations = relation_model.objects.filter(form=form_id)
+
+    form.pk = form_model.objects.last().pk + 1
+    form.in_edit = True
+    form.active = False
+    form.save()
+
+    # Copy relations to new form.
+    for relation in relations:
+        relation.pk = None
+        relation.form = form
+        relation.save()
+
+    return redirect(
+        reverse(
+            'manager_edit_form',
+            kwargs={
+                'form_type': form_type,
+                'form_id': form.pk,
+            }
+        )
+    )
+
+
+@is_press_editor
+def form_active(request, form_type, form_id):
+    """ Toggle active/inactive for given form. """
+
+    form_model, _ = get_form_models(form_type)
+    form = get_object_or_404(form_model, pk=form_id)
+    form.active = not form.active
+    form.save()
+
+    return redirect(
+        reverse(
+            'manager_forms',
+            kwargs={
+                'form_type': form_type
+            }
+        )
+    )
+
+
+@is_press_editor
 def edit_form(request, form_type, form_id, relation_id=None):
     """ Edit a form of the given type. """
 
     proposal_form = form_type == 'proposal'
-    if proposal_form:
-        elements_model = core_models.ProposalFormElementsRelationship
-    else:
-        elements_model = review_models.FormElementsRelationship
+    form_model, relation_model = get_form_models(form_type)
+    form = get_object_or_404(form_model, pk=form_id)
 
     element_form_args = []
     element_form_kwargs = {}
@@ -778,13 +847,25 @@ def edit_form(request, form_type, form_id, relation_id=None):
         element_form_args.append(request.POST)
         relation_form_args.append(request.POST)
 
+        if 'save_form' in request.POST:
+            form.in_edit = False
+            form.save()
+
+            return redirect(
+                reverse(
+                    'manager_forms',
+                    kwargs={
+                        'form_type': form_type
+                    }
+                )
+            )
+
     if relation_id:
-        relation = get_object_or_404(elements_model, pk=relation_id)
+        relation = get_object_or_404(relation_model, pk=relation_id)
         element_form_kwargs['instance'] = relation.element
         relation_form_kwargs['instance'] = relation
 
     if proposal_form:
-        form = get_object_or_404(core_models.ProposalForm, pk=form_id)
         element_form = forms.ProposalElement(
             *element_form_args,
             **element_form_kwargs
@@ -795,7 +876,6 @@ def edit_form(request, form_type, form_id, relation_id=None):
         )
 
     else:
-        form = get_object_or_404(review_models.Form, pk=form_id)
         element_form = forms.FormElement(
             *element_form_args,
             **element_form_kwargs
@@ -874,17 +954,11 @@ def preview_form(request, form_type, form_id):
 def delete_form_element(request, form_type, form_id, relation_id):
     """ Delete the given form element from the given form. """
 
-    if form_type == 'proposal':
-        form_model = core_models.ProposalForm
-        element_model = core_models.ProposalFormElementsRelationship
-
-    else:
-        form_model = review_models.Form
-        element_model = review_models.FormElementsRelationship
+    form_model, relation_model = get_form_models(form_type)
 
     get_object_or_404(form_model, pk=form_id)
     relation = get_object_or_404(
-        element_model,
+        relation_model,
         pk=relation_id,
     )
 
