@@ -2,18 +2,27 @@
 {% load bootstrap3 %}
 
 {% block body %}
-<div class="col-md-12 primary-heading container-fluid"style="margin-top:-20px" >
+<div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px" >
 	<h2>{{ press.general.press_name }} Edit Form
         <a href="{% url 'manager_forms' form_type %}"
-           class="btn  btn-transparent-white" style="position: absolute;right:30px;margin-top:-6.5px">
+           class="btn  btn-transparent-white" style="position: absolute;right:30px;margin-top:-2px">
             Go back
         </a>
         <a target="_blank"
            href="{% url 'manager_preview_form' form_type form.id %}"
            class="btn  btn-transparent-white"
-           style="position: absolute;right:120px;margin-top:-6.5px">
+           style="position: absolute;right:120px;margin-top:-2px">
             Preview form
         </a>
+        <form method="POST" style="margin: 0;">
+        {% csrf_token %}
+		    <button type="submit"
+                    class="btn btn-round btn-success"
+                    style="position: absolute;right:243px;margin-top:-36px;"
+                    name="save_form">
+                Save form
+            </button>
+        </form>
     </h2>
 </div>
 <div class="col-md-12">

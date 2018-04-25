@@ -25,6 +25,7 @@
 				<th>Ref</th>
 				<th>Field Count</th>
 				<th>Edit</th>
+                <th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,7 +35,16 @@
 				<td>{{ form.name }}</td>
 				<td>{{ form.ref }}</td>
 				<td>{{ form.form_fields.count }}</td>
-				<td><a href="{% url 'manager_edit_form' form_type form.id %}">Edit</a></td>
+				<td><a href="{% url 'manager_edit_form_preparation' form_type form.id %}">Edit</a></td>
+                <td>
+                    <a href="{% url 'manager_form_active' form_type form.id %}">
+                        {% if form.active %}
+                            <button class="btn btn-secondary">Make inactive</button>
+                        {% else %}
+                            <button class="btn btn-secondary">Make active</button>
+                        {% endif %}
+                    </a>
+                </td>
 			</tr>
 			{% empty %}
 			<tr>
