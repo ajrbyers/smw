@@ -470,17 +470,13 @@ def delete_incomplete_proposal(request, proposal_id):
 
 @login_required
 def incomplete_proposal(request, proposal_id):
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form').value
-    proposal_form = manager_forms.GeneratedForm(
-        form=core_models.ProposalForm.objects.get(pk=proposal_form_id))
+    active_form = core_logic.get_active_proposal_form()
+    proposal_form = manager_forms.GeneratedForm(form=active_form)
     _incomplete_journal = get_object_or_404(
         submission_models.IncompleteProposal,
         pk=proposal_id,
     )
-    proposal_form_validated = manager_forms.GeneratedForm(
-        form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
-    )
+    proposal_form_validated = manager_forms.GeneratedForm(form=active_form)
 
     default_fields_validated = manager_forms.DefaultForm(
         initial={
@@ -509,16 +505,14 @@ def incomplete_proposal(request, proposal_id):
         proposal_form = manager_forms.GeneratedForm(
             request.POST,
             request.FILES,
-            form=core_models.ProposalForm.objects.get(
-                pk=proposal_form_id,
-            )
+            form=active_form
         )
         default_fields = manager_forms.DefaultForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
             proposal = submission_models.Proposal(
-                form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                form=active_form,
                 data=None,
                 owner=request.user,
                 **defaults
@@ -529,7 +523,7 @@ def incomplete_proposal(request, proposal_id):
                 proposal.book_type = proposal_type
 
             proposal.save()
-            proposal_data_processing(request, proposal, proposal_form_id)
+            proposal_data_processing(request, proposal, active_form.pk)
             editors = User.objects.filter(profile__roles__slug='press-editor')
             message = (
                 "A new  Proposal '%s' with id %s has been submitted by %s ." % (
@@ -578,9 +572,7 @@ def incomplete_proposal(request, proposal_id):
             proposal_form = manager_forms.GeneratedForm(
                 request.POST,
                 request.FILES,
-                form=core_models.ProposalForm.objects.get(
-                    pk=proposal_form_id
-                ),
+                form=active_form,
             )
             default_fields = manager_forms.DefaultForm(request.POST)
 
@@ -588,17 +580,13 @@ def incomplete_proposal(request, proposal_id):
         proposal_form = manager_forms.GeneratedNotRequiredForm(
             request.POST,
             request.FILES,
-            form=core_models.ProposalForm.objects.get(
-                pk=proposal_form_id
-            )
+            form=active_form
         )
         default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
-            _incomplete_journal.form = core_models.ProposalForm.objects.get(
-                pk=proposal_form_id
-            )
+            _incomplete_journal.form = active_form
             _incomplete_journal.owner = request.user
             _incomplete_journal.title = defaults['title']
             _incomplete_journal.subtitle = defaults['subtitle']
@@ -609,7 +597,7 @@ def incomplete_proposal(request, proposal_id):
             proposal_data_processing(
                 request,
                 _incomplete_journal,
-                proposal_form_id,
+                active_form.pk,
             )
             messages.add_message(
                 request,
@@ -626,8 +614,7 @@ def incomplete_proposal(request, proposal_id):
         'default_fields': default_fields,
         'proposal_form_validated': proposal_form_validated,
         'default_fields_validated': default_fields_validated,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -643,12 +630,8 @@ def start_proposal(request):
     if not submit_proposals:
         return redirect(reverse('user_dashboard'))
 
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form'
-    ).value
-    proposal_form = manager_forms.GeneratedForm(
-        form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
-    )
+    active_form = core_logic.get_active_proposal_form()
+    proposal_form = manager_forms.GeneratedForm(form=active_form)
     default_fields = manager_forms.DefaultForm()
     errors = False
 
@@ -656,14 +639,14 @@ def start_proposal(request):
         proposal_form = manager_forms.GeneratedForm(
             request.POST,
             request.FILES,
-            form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
+            form=active_form
         )
         default_fields = manager_forms.DefaultForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
             proposal = submission_models.Proposal(
-                form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                form=active_form,
                 data=None,
                 owner=request.user,
                 **defaults
@@ -674,7 +657,7 @@ def start_proposal(request):
                 proposal.book_type = proposal_type
 
             proposal.save()
-            proposal_data_processing(request, proposal, proposal_form_id)
+            proposal_data_processing(request, proposal, active_form.pk)
             editors = User.objects.filter(profile__roles__slug='press-editor')
             message = (
                 "A new  Proposal '%s' with id %s has been submitted by %s ." % (
@@ -722,7 +705,7 @@ def start_proposal(request):
             proposal_form = manager_forms.GeneratedForm(
                 request.POST,
                 request.FILES,
-                form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
+                form=active_form
             )
             default_fields = manager_forms.DefaultForm(request.POST)
 
@@ -730,14 +713,14 @@ def start_proposal(request):
         proposal_form = manager_forms.GeneratedNotRequiredForm(
             request.POST,
             request.FILES,
-            form=core_models.ProposalForm.objects.get(pk=proposal_form_id)
+            form=active_form
         )
         default_fields = manager_forms.DefaultNotRequiredForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
             proposal = submission_models.IncompleteProposal(
-                form=core_models.ProposalForm.objects.get(pk=proposal_form_id),
+                form=active_form,
                 data=None,
                 owner=request.user,
                 **defaults
@@ -748,7 +731,7 @@ def start_proposal(request):
                 proposal.book_type = proposal_type
 
             proposal.save()
-            proposal_data_processing(request, proposal, proposal_form_id)
+            proposal_data_processing(request, proposal, active_form.pk)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -762,8 +745,7 @@ def start_proposal(request):
         'proposal_form': proposal_form,
         'errors': errors,
         'default_fields': default_fields,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -809,9 +791,8 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
 @login_required
 def proposal_revisions(request, proposal_id):
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form'
-    ).value
+
+    active_form = core_logic.get_active_proposal_form()
     proposal = get_object_or_404(
         submission_models.Proposal,
         pk=proposal_id,
@@ -872,7 +853,7 @@ def proposal_revisions(request, proposal_id):
                 'Revisions for Proposal %s submitted' % proposal.id
             )
 
-            proposal_data_processing(request, proposal, proposal_form_id)
+            proposal_data_processing(request, proposal, active_form.pk)
             proposal = submission_models.Proposal.objects.get(
                 form=core_models.ProposalForm.objects.get(pk=proposal.form.id),
                 owner=request.user,
@@ -961,9 +942,7 @@ def proposal_revisions(request, proposal_id):
         'revise': True,
         'notes': notes,
         'overdue': overdue,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id
-        ),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -1070,9 +1049,7 @@ def proposal_update_note(request, proposal_id, note_id):
 @login_required
 def proposal_view(request, proposal_id):
     proposal = submission_models.Proposal.objects.get(pk=proposal_id)
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form',
-    ).value
+    active_form = core_logic.get_active_proposal_form()
     notes = submission_models.ProposalNote.objects.filter(proposal=proposal)
 
     if proposal.owner == request.user:
@@ -1121,7 +1098,7 @@ def proposal_view(request, proposal_id):
         default_fields = manager_forms.DefaultForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
-            proposal_data_processing(request, proposal, proposal_form_id)
+            proposal_data_processing(request, proposal, active_form.pk)
             proposal = submission_models.Proposal.objects.get(
                 form=core_models.ProposalForm.objects.get(pk=proposal.form.id),
                 pk=proposal_id,
@@ -1202,8 +1179,7 @@ def proposal_view(request, proposal_id):
         'editor': _editor,
         'viewable': viewable,
         'notes': notes,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -1212,9 +1188,7 @@ def proposal_view(request, proposal_id):
 @login_required
 def proposal_history_view(request, proposal_id, history_id):
     parent_proposal = submission_models.Proposal.objects.get(pk=proposal_id)
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form',
-    ).value
+    active_form = core_logic.get_active_proposal_form()
     proposal = get_object_or_404(
         submission_models.HistoryProposal,
         proposal=parent_proposal,
@@ -1239,9 +1213,7 @@ def proposal_history_view(request, proposal_id, history_id):
         'proposal': proposal,
         'relationships': relationships,
         'data': data,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id
-        ),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -1255,9 +1227,7 @@ def proposal_history(request, proposal_id):
     ).order_by(
         'pk'
     )
-    proposal_form_id = core_models.Setting.objects.get(
-        name='proposal_form'
-    ).value
+    active_form = core_logic.get_active_proposal_form()
 
     if proposal.owner == request.user:
         viewable = True
@@ -1313,9 +1283,7 @@ def proposal_history(request, proposal_id):
         'open': True,
         'editor': _editor,
         'viewable': viewable,
-        'core_proposal': core_models.ProposalForm.objects.get(
-            pk=proposal_form_id
-        ),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)

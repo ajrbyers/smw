@@ -800,6 +800,11 @@ def edit_form_preparation(request, form_type, form_id):
         relation.form = form
         relation.save()
 
+        if form_type == 'proposal':
+            form.proposal_fields.add(relation)
+        else:
+            form.form_fields.add(relation)
+
     return redirect(
         reverse(
             'manager_edit_form',
@@ -817,6 +822,14 @@ def form_active(request, form_type, form_id):
 
     form_model, _ = get_form_models(form_type)
     form = get_object_or_404(form_model, pk=form_id)
+
+    if form_type == 'proposal':
+        # Only one proposal form can be active at a time.
+        existing_active_forms = form_model.objects.filter(active=True)
+        for existing_form in existing_active_forms:
+            existing_form.active = False
+            existing_form.save()
+
     form.active = not form.active
     form.save()
 
