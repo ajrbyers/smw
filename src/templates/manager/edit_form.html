@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 
 {% block body %}
-    <div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px" >
+    <div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px">
         <h2>{{ press.general.press_name }} Edit Form
             <a href="{% url 'manager_forms' form_type %}"
                class="btn  btn-transparent-white" style="position: absolute;right:30px;margin-top:-2px">
@@ -15,7 +15,7 @@
                 Preview form
             </a>
             <form method="POST" style="margin: 0;">
-            {% csrf_token %}
+                {% csrf_token %}
                 <button type="submit"
                         class="btn btn-round btn-success"
                         style="position: absolute;right:243px;margin-top:-35px;"
@@ -29,19 +29,19 @@
         <h4>Current Fields</h4>
         <table class="table table-bordered">
             <thead>
-                <tr>
-                    <th>Element Name</th>
-                    <th>Element Type</th>
-                    <th>Required</th>
-                    <th>Order</th>
-                    <th>Width</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                    <th colspan="2">Move</th>
-                </tr>
+            <tr>
+                <th>Element Name</th>
+                <th>Element Type</th>
+                <th>Required</th>
+                <th>Order</th>
+                <th>Width</th>
+                <th>Edit</th>
+                <th>Delete</th>
+                <th colspan="2">Move</th>
+            </tr>
             </thead>
             <tbody>
-                {% for field in fields %}
+            {% for field in fields %}
                 <tr>
                     <td>{{ field.field.element.name }}</td>
                     <td>{{ field.field.element.field_type|capfirst }}</td>
@@ -87,21 +87,22 @@
                         </td>
                     {% endifequal %}
                 </tr>
-                {% empty %}
+            {% empty %}
                 <tr>
                     <td colspan="6">This form has no elements</td>
                 </tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
-        <hr />
+        <hr/>
         <h4>Add New Field</h4>
         <div class="well well-sm">
             <form method="POST">
-            {% csrf_token %}
-            {% bootstrap_form element_form %}
-            {% bootstrap_form relation_form %}
-            <button type="submit" class="btn btn-success" name="add_field"><i class="fa fa-plus">&nbsp;</i>Add Field</button>
+                {% csrf_token %}
+                {% bootstrap_form element_form %}
+                {% bootstrap_form relation_form %}
+                <button type="submit" class="btn btn-success" name="add_field"><i class="fa fa-plus">&nbsp;</i>Add Field
+                </button>
             </form>
         </div>
     </div>
