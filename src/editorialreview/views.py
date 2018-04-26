@@ -76,7 +76,7 @@ def add_editorial_review(request, submission_type, submission_id):
         'editorial_reviewers': editorial_reviewers,
         'editorial_groups': editorial_groups,
         'form': form,
-        'review_forms': review_models.Form.objects.all(),
+        'review_forms': review_models.Form.objects.filter(active=True),
         'check': check,
     }
 

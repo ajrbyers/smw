@@ -1938,3 +1938,27 @@ def send_new_user_ack(email_text, new_user, profile):
 def ascii_encode(string):
     """ Replace non-ASCII char with HTML chars. """
     return string.encode('ascii', 'xmlcharrefreplace').strip()
+
+
+def get_active_proposal_form():
+    """ Return the current active proposal form.
+    Looks for the form matching the ID in the 'proposal_form'
+    setting, and if there isn't one it looks for the first
+    form marked as active (there should only be one), and
+    if there aren't any of those it looks for the first
+    form it can find.
+    """
+
+    try:
+        active_form_id = models.Setting.objects.get(
+            name='proposal_form'
+        ).value
+        active_form = models.ProposalForm.objects.get(pk=active_form_id)
+
+    except (ValueError, models.ProposalForm.DoesNotExist):
+        active_form = models.ProposalForm.objects.filter(active=True).first()
+
+    if not active_form:
+        active_form = models.ProposalForm.objects.all().first()
+
+    return active_form

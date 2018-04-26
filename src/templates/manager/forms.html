@@ -3,7 +3,12 @@
 {% block body %}
 <div class="col-md-12 primary-heading container-fluid"style="margin-top:-20px" >
 	<h2>
-        {{ press.general.press_name }} Review Forms
+        {{ press.general.press_name }}
+        {% if form_type == 'proposal' %}
+            Proposal Forms
+        {% else %}
+            Review Forms
+        {% endif %}
         <a href="{% url 'manager_index' %}"
            class="btn  btn-transparent-white"
            style="position: absolute;right:30px;margin-top:-6.5px">
@@ -26,6 +31,7 @@
 				<th>Field Count</th>
 				<th></th>
                 <th></th>
+                <th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,7 +40,19 @@
 				<td>{{ form.id }}</td>
 				<td>{{ form.name }}</td>
 				<td>{{ form.ref }}</td>
-				<td>{{ form.form_fields.count }}</td>
+				<td>
+                    {% if form_type == 'proposal' %}
+                        {{ form.proposal_fields.count }}
+                    {% else %}
+                        {{ form.form_fields.count }}
+                    {% endif %}
+                </td>
+                <td>
+                    <a target="_blank"
+                       href="{% url 'manager_preview_form' form_type form.id %}">
+                        View
+                    </a>
+                </td>
 				<td><a href="{% url 'manager_edit_form_preparation' form_type form.id %}">Edit</a></td>
                 <td style="width: 10%">
                     <a href="{% url 'manager_form_active' form_type form.id %}">
