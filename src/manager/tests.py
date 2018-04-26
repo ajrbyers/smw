@@ -11,29 +11,6 @@ from review import models as review_models
 from submission import models as submission_models
 
 
-class ProposalFormElementFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = core_models.ProposalFormElement
-    name = factory.Sequence(lambda n: "Proposal Form Element {}".format(n))
-    field_type = 'text'
-    required = False
-
-
-class ProposalFormFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = core_models.ProposalForm
-    name = factory.Sequence(lambda n: "Proposal Form {}".format(n))
-
-
-class ProposalFormElementsRelationshipFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = core_models.ProposalFormElementsRelationship
-    element = factory.SubFactory(ProposalFormElementFactory)
-    form = factory.SubFactory(ProposalFormFactory)
-    order = factory.Sequence(lambda n: n)
-    width = 'col-md-6'
-
-
 class ManagerTests(TestCase):
 
     # Dummy DBs
@@ -66,9 +43,6 @@ class ManagerTests(TestCase):
         self.user = User.objects.get(username="rua_user")
         self.user.save()
         self.book = core_models.Book.objects.get(pk=1)
-        # self.existing_proposal_form = ProposalFormFactory.create()
-        # self.proposal_form_elements = ProposalFormElementFactory.create()
-        # self.proposal_form_elements_relationship = ProposalFormElementsRelationshipFactory.create()
         login = self.client.login(username="rua_user", password="root")
         self.assertEqual(login, True)
 
@@ -657,38 +631,3 @@ class ManagerTests(TestCase):
         form_elements = review_models.FormElement.objects.all()
         self.assertEqual(len(form_elements), 0)
 
-    def test_opening_proposal_form_edit_creates_new_model(self):
-        proposal_forms = core_models.ProposalForm.objects.all()
-        for form in proposal_forms:
-            self.client.get(
-                reverse(
-                    'manager_edit_form',
-                    kwargs={
-                        'form_type': 'proposal',
-                        'form_id': form.id
-                    }
-                )
-            )
-            existing_form = core_models.ProposalForm.objects.get(pk=form.id)
-            self.assertEqual(existing_form.in_edit, False)
-            forms_in_edit = core_models.ProposalForm.objects.filter(
-                in_edit=True
-            )
-            self.assertEqual(len(forms_in_edit), 1)
-
-    def test_opening_review_form_edit_creates_new_model(self):
-        review_forms = review_models.Form.objects.all()
-        for form in review_forms:
-            self.client.get(
-                reverse(
-                    'manager_edit_form',
-                    kwargs={
-                        'form_type': 'review',
-                        'form_id': form.id
-                    }
-                )
-            )
-            existing_form = review_models.Form.objects.get(pk=form.id)
-            self.assertEqual(existing_form.in_edit, False)
-            forms_in_edit = review_models.Form.objects.filter(in_edit=True)
-            self.assertEqual(len(forms_in_edit), 1)
