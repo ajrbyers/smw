@@ -14,6 +14,8 @@
 	<h3>Editorial Review for {{ review.content_object.title }} ({{ review.content_type|capfirst }})</h3>
 	Viewing review by {{ review.user.profile.full_name }} - {{ review.id }}<br /><br />
 </div>
+    <a href="#review-files">Jump to review files.</a>
+    <br>
 	<h4>Review: </h4>
 	<div style="clear:both"></div>
 	{% for item in data_ordered %}
@@ -35,7 +37,8 @@
 	<br>
 	<br>
 	<hr />
-	<h4>Review Files</h4>
+	<a name="review-files"></a>
+    <h4>Review Files</h4>
 	<ul>
 	{% for file in review.files.all %}
 		<li><a href="{% url 'download_editor_er_file' file.id review.id %}?access_key={{ review.access_key }}">
