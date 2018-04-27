@@ -460,10 +460,13 @@ def editorial_review(request, review_id):
                 if editor.profile.salutation:
                     salutation = editor.profile.salutation
 
+                reviewer_full_name = review.user.profile.full_name()
+
                 context = {
                     'salutation': salutation,
                     'submission': submission,
                     'review': review,
+                    'reviewer_full_name': reviewer_full_name,
                     'base_url': core_models.Setting.objects.get(
                         name='base_url'
                     ).value,
