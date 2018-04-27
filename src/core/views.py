@@ -2208,24 +2208,23 @@ def view_proposal_log(request, proposal_id):
 
 @is_editor
 def assign_proposal(request):
-    proposal_form_id = models.Setting.objects.get(name='proposal_form').value
-    proposal_form = manager_forms.GeneratedForm(
-        form=models.ProposalForm.objects.get(pk=proposal_form_id)
-    )
+
+    active_form = logic.get_active_proposal_form()
+    proposal_form = manager_forms.GeneratedForm(form=active_form)
     default_fields = manager_forms.DefaultForm()
 
     if request.method == 'POST':
         proposal_form = manager_forms.GeneratedForm(
             request.POST,
             request.FILES,
-            form=models.ProposalForm.objects.get(pk=proposal_form_id)
+            form=active_form
         )
         default_fields = manager_forms.DefaultForm(request.POST)
 
         if proposal_form.is_valid() and default_fields.is_valid():
             defaults = {field.name: field.value() for field in default_fields}
             _proposal = submission_models.Proposal(
-                form=models.ProposalForm.objects.get(pk=proposal_form_id),
+                form=active_form,
                 data=None,
                 owner=None,
                 **defaults
@@ -2234,14 +2233,14 @@ def assign_proposal(request):
             save_dict = {}
             file_fields = (
                 models.ProposalFormElementsRelationship.objects.filter(
-                    form=models.ProposalForm.objects.get(pk=proposal_form_id),
+                    form=active_form,
                     element__field_type='upload'
                 )
             )
             data_fields = (
                 models.ProposalFormElementsRelationship.objects.filter(
                     ~Q(element__field_type='upload'),
-                    form=models.ProposalForm.objects.get(pk=proposal_form_id)
+                    form=active_form
                 )
             )
 
@@ -2310,7 +2309,7 @@ def assign_proposal(request):
         'proposal_form': proposal_form,
         'unassigned': True,
         'default_fields': default_fields,
-        'core_proposal': models.ProposalForm.objects.get(pk=proposal_form_id),
+        'core_proposal': active_form,
     }
 
     return render(request, template, context)
@@ -2356,7 +2355,7 @@ def proposal_assign_user(request, proposal_id, user_id):
 @is_editor
 def proposal_assign_view(request, proposal_id):
     _proposal = submission_models.Proposal.objects.get(pk=proposal_id)
-    proposal_form_id = models.Setting.objects.get(name='proposal_form').value
+    proposal_form = models.ProposalForm.objects.filter(active=True).first()
     authors = User.objects.filter(profile__roles__slug='author')
     email_text = get_email_content(
         request=request,
@@ -2459,7 +2458,7 @@ def proposal_assign_view(request, proposal_id):
         'editor': editor,
         'authors': authors,
         'viewable': viewable,
-        'core_proposal': models.ProposalForm.objects.get(pk=proposal_form_id),
+        'core_proposal': proposal_form,
     }
 
     return render(request, template, context)
@@ -2468,7 +2467,7 @@ def proposal_assign_view(request, proposal_id):
 @is_editor
 def proposal_assign_edit(request, proposal_id):
     _proposal = submission_models.Proposal.objects.get(pk=proposal_id)
-    proposal_form_id = models.Setting.objects.get(name='proposal_form').value
+    proposal_form = models.ProposalForm.objects.filter(active=True).first()
 
     if _proposal.owner == request.user:
         viewable = True
@@ -2591,7 +2590,7 @@ def proposal_assign_edit(request, proposal_id):
         'revise': True,
         'editor': editor,
         'viewable': viewable,
-        'core_proposal': models.ProposalForm.objects.get(pk=proposal_form_id),
+        'core_proposal': proposal_form,
     }
 
     return render(request, template, context)

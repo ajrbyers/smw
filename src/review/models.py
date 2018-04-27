@@ -25,6 +25,15 @@ class Form(models.Model):
         blank=True,
         related_name='form_fields',
     )
+    in_edit = models.BooleanField(
+        default=False,
+        help_text='True if form is in edit stage.'
+    )
+    active = models.BooleanField(
+        default=True,
+        help_text='If set to False, will be hidden'
+                  ' from use in proposal workflow.'
+    )
 
     def __unicode__(self):
         return u'%s' % self.name

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px">
+        <h2>
+            {{ press.general.press_name }}
+            {% if form_type == 'proposal' %}
+                Proposal Forms
+            {% else %}
+                Review Forms
+            {% endif %}
+            <a href="{% url 'manager_index' %}"
+               class="btn  btn-transparent-white"
+               style="position: absolute;right:30px;margin-top:-6.5px">
+                Go back
+            </a>
+            <a href="{% url 'manager_add_new_form' form_type %}"
+               class="btn  btn-transparent-white"
+               style="position: absolute;right:120px;margin-top:-6.5px">
+                Add New Form
+            </a>
+        </h2>
+    </div>
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Form Name</th>
+                <th>Ref</th>
+                <th>Field Count</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for form in forms %}
+                <tr>
+                    <td>{{ form.id }}</td>
+                    <td>{{ form.name }}</td>
+                    <td>{{ form.ref }}</td>
+                    <td>
+                        {% if form_type == 'proposal' %}
+                            {{ form.proposal_fields.count }}
+                        {% else %}
+                            {{ form.form_fields.count }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a target="_blank"
+                           href="{% url 'manager_preview_form' form_type form.id %}">
+                            View
+                        </a>
+                    </td>
+                    <td><a href="{% url 'manager_edit_form_preparation' form_type form.id %}">Edit</a></td>
+                    <td style="width: 10%">
+                        <a href="{% url 'manager_form_active' form_type form.id %}">
+                            {% if form.active %}
+                                <button type="button" class="btn btn-secondary">Make inactive</button>
+                            {% else %}
+                                <button type="button" class="btn btn-primary">Make active</button>
+                            {% endif %}
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">Press has no forms</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}
