@@ -1199,7 +1199,7 @@ def add_review_files(request, submission_id, review_type):
 def editor_add_reviewers(request, submission_id, review_type, round_number):
     submission = get_object_or_404(models.Book, pk=submission_id)
     reviewers = models.User.objects.filter(profile__roles__slug='reviewer')
-    review_forms = review_models.Form.objects.all()
+    review_forms = review_models.Form.objects.filter(active=True)
     committees = manager_models.Group.objects.filter(
         group_type='review_committee'
     )
