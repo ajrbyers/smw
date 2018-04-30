@@ -84,12 +84,11 @@ def add_editorial_review(request, submission_type, submission_id):
 
 
 @is_editor
-def remove_editorial_review(request, submission_id, review_id):
-    """Remove an editorial review.
+def remove_editorial_review(request, review_id):
+    """ Remove an editorial review. """
 
-    Currently just handles full submissions but can be expanded.
-    """
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review_assignment.content_object
     review_assignment.delete()
     messages.add_message(
         request,
@@ -97,22 +96,27 @@ def remove_editorial_review(request, submission_id, review_id):
         'Editorial review assignment {} deleted'.format(review_id)
     )
 
+    if isinstance(submission, submission_models.Proposal):
+        redirect_view = 'view_proposal'
+        redirect_kwargs = {'proposal_id': submission.id}
+    else:
+        redirect_view = 'editor_review'
+        redirect_kwargs = {'submission_id': submission.id}
+
     return redirect(
         reverse(
-            'editor_review',
-            kwargs={'submission_id': submission_id}
+            redirect_view,
+            kwargs=redirect_kwargs
         )
     )
 
 
 @is_editor
-def withdraw_editorial_review(request, submission_id, review_id):
-    """Withdraw an editorial review.
-
-    Currently just handles full submissions but can be expanded.
-    """
+def withdraw_editorial_review(request, review_id):
+    """ Withdraw an editorial review. """
 
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review_assignment.content_object
 
     if review_assignment.withdrawn:
         review_assignment.withdrawn = False
@@ -129,13 +133,21 @@ def withdraw_editorial_review(request, submission_id, review_id):
         )
     )
 
+    if isinstance(submission, submission_models.Proposal):
+        redirect_view = 'view_proposal'
+        redirect_kwargs = {'proposal_id': submission.id}
+
+    else:
+        redirect_view = 'editor_view_editorial_review'
+        redirect_kwargs = {
+                    'submission_id': submission.id,
+                    'editorial_review_id': review_id
+                }
+
     return redirect(
         reverse(
-            'editor_view_editorial_review',
-            kwargs={
-                'submission_id': submission_id,
-                'editorial_review_id': review_id
-            }
+            redirect_view,
+            kwargs=redirect_kwargs
         )
     )
 
