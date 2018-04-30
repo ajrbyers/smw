@@ -83,7 +83,13 @@
     </td>
     <td width="10%">
       <a href="{% url 'withdraw_proposal_review' proposal.id reviewer.pk %}"
-         class=" btn   {% if reviewer.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-sm pull-left"
+         class=" btn
+                {% if reviewer.withdrawn %}
+                    btn-info
+                {% else %}
+                    btn-warning
+                {% endif %}
+                    btn-sm pull-left"
          style="width:120px">
       {% if reviewer.withdrawn %}
         Re-Enable

@@ -59,11 +59,11 @@
                 </a>
             {% endif %}
             <p>
-                <a href="{% url 'remove_editorial_review' submission.id review.id %}"
+                <a href="{% url 'remove_editorial_review' review.id %}"
                    class=" btn btn-danger btn-xs pull-left">
                     Delete
                 </a>
-                <a href="{% url 'withdraw_editorial_review' submission.id review.id %}"
+                <a href="{% url 'withdraw_editorial_review' review.id %}"
                    class=" btn {% if review.withdrawn %}btn-info{% else %}btn-warning{% endif %} btn-xs pull-left"
                    style="margin-left:5px">
                     {% if review.withdrawn %} Re-Enable {% else %} Withdraw {% endif %}

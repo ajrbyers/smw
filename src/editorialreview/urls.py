@@ -24,13 +24,12 @@ urlpatterns = patterns(
         name='view_editorial_review'
    ),
    url(
-        r'(?P<submission_id>\d+)/remove_editorial_review/(?P<review_id>\d+)/$',
+        r'remove/(?P<review_id>\d+)/$',
         'editorialreview.views.remove_editorial_review',
         name='remove_editorial_review'
    ),
    url(
-        r'(?P<submission_id>\d+)/withdraw_editorial_review/'
-        r'(?P<review_id>\d+)/$',
+        r'withdraw/(?P<review_id>\d+)/$',
         'editorialreview.views.withdraw_editorial_review',
         name='withdraw_editorial_review'
    ),

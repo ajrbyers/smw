@@ -15,6 +15,8 @@
       <th>Status</th>
       <th>Recommendation</th>
       <th></th>
+      <th></th>
+      <th></th>
     </tr>
   {% for review in editorial_review_assignments %}
     <tr>
@@ -55,11 +57,37 @@
       </td>
       <td>
           {% if review.completed %}
-            <a class="btn btn-task" href="{% url 'view_editorial_review' review.id %}">View
+            <a class="btn btn-task"
+               href="{% url 'view_editorial_review' review.id %}">
+                View
             </a>
           {% else %}
             Awaiting Review
           {% endif %}
+      </td>
+      <td width="10%">
+          <a href="{% url 'withdraw_editorial_review' review.id %}"
+             class=" btn
+                    {% if review.withdrawn %}
+                        btn-info
+                    {% else %}
+                        btn-warning
+                    {% endif %}
+                        btn-sm pull-left"
+             style="width:120px">
+                {% if review.withdrawn %}
+                    Re-Enable
+                {% else %}
+                    Withdraw
+                {% endif %}
+          </a>
+      </td>
+      <td width="10%">
+          <a href="{% url 'remove_editorial_review' review.pk %}"
+             class=" btn btn-danger btn-sm pull-left"
+             style="width:120px">
+              Delete
+          </a>
       </td>
     </tr>
     {% empty %}
