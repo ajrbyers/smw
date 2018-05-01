@@ -17,7 +17,10 @@ class ProposalStart(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProposalStart, self).__init__(*args, **kwargs)
-        active_forms = review_models.Form.objects.filter(active=True)
+        active_forms = review_models.Form.objects.filter(
+            active=True,
+            in_edit=False
+        )
         self.fields['review_form'] = forms.ModelChoiceField(queryset=active_forms)
         self.fields['review_form'].required = True
 
