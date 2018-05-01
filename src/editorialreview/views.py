@@ -20,6 +20,7 @@ from core import (
     email,
     models as core_models,
     logic as core_logic,
+    views as core_views
 )
 from core.decorators import is_editor, is_editor_or_ed_reviewer
 from core.email import send_email_multiple
@@ -611,6 +612,10 @@ def view_content_summary(request, review_id):
             submission_models.Proposal,
             pk=review.object_id,
         )
+
+        if not request.POST and request.GET.get('download') == 'docx':
+            path = core_views.create_proposal_form(proposal)
+            return core_views.serve_proposal_file(request, path)
 
         template = 'editorialreview/view_content_summary_proposal.html'
         context = {

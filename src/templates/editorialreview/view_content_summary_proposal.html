@@ -16,6 +16,13 @@
 	<strong>Subtitle:</strong> {{ review.content_object.subtitle }}<br />
 	<strong>Author:</strong> {{ review.content_object.author }}
 	<br /><br />
+    <a class="btn btn-transparent-white"
+       style="margin-top: -15px; margin-bottom: 10px;"
+       href="?download=docx">
+        <i class="fa fa-cloud-download">
+            &nbsp; <strong>Download Proposal</strong>
+        </i>
+    </a>
 </div>
 
 {% for field in relationships %}
