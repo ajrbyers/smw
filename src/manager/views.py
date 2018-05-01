@@ -851,6 +851,16 @@ def edit_form(request, form_type, form_id, relation_id=None):
     form_model, relation_model = get_form_models(form_type)
     form = get_object_or_404(form_model, pk=form_id)
 
+    if not form.in_edit:
+        return redirect(
+            reverse(
+                'manager_forms',
+                kwargs={
+                    'form_type': form_type
+                }
+            )
+        )
+
     element_form_args = []
     element_form_kwargs = {}
     relation_form_args = []
