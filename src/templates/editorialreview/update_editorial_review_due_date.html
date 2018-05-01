@@ -12,18 +12,20 @@
 <form method="POST">
 	{% csrf_token %}
 	<h5>Set Due Date</h5>
-	<p class="small">Set a due date for this editorial review assignment. The reviewer will be politely reminded to submit the review before the due date.</p>
+	<p class="small">Set a due date for this editorial review assignment.</p>
 	<input type="text"
            name="due_date" id="due_date" required="required" class="form-control" value="{{ review.due|date:"Y-m-d" }}" />
 	<br>
-	<div class="form-group" style="margin-left:15px">
-        <div class="checkbox">
-            <label for="email">
-                <input class="" id="email" name="email" type="checkbox"> Notify reviewer<br>
-                <span class="small">Email user with the updated due date.</span>
-            </label>
+    {% if book %}
+        <div class="form-group" style="margin-left:15px">
+            <div class="checkbox">
+                <label for="email">
+                    <input class="" id="email" name="email" type="checkbox"> Notify reviewer<br>
+                    <span class="small">Email user with the updated due date.</span>
+                </label>
+            </div>
         </div>
-    </div>
+    {% endif %}
 	<br />
 	<input type="submit" style="width:120px" class="btn btn-accept btn-round" value="Update"/>
     <a href="{% url 'editor_view_editorial_review' submission.id review.id %}" style="margin-left:5px;width:120px"
