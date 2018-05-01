@@ -96,11 +96,12 @@
                             </span>
                         {% else %}
                             <a href="{% url 'editor_review_assignment' submission.id review_round.round_number review.id %}"
-                               style="margin-left:60px"
+                               style="margin-left:10px"
                                class="btn btn-xs btn-success">
                                 View Review
                             </a>
                         {% endif %}
+                        <hr style="border-top: 2px solid #e6e1e1;">
                     {% endif %}
                 {% empty %}
                     <p>
