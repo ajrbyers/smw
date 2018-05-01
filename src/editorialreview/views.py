@@ -29,7 +29,11 @@ from core.setting_util import get_setting
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
 from manager import models as manager_models
-from review import models as review_models, forms as review_forms
+from review import (
+    models as review_models,
+    forms as review_forms,
+    views as review_views
+)
 from submission import models as submission_models
 
 
@@ -349,6 +353,7 @@ def view_editorial_review(request, review_id):
     """ As an editorial reviewer, view a completed editorial review. """
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review.content_object
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(
         form=result.form,
@@ -357,6 +362,9 @@ def view_editorial_review(request, review_id):
         core_logic.decode_json(result.data),
         relations,
     )
+    if not request.POST and request.GET.get('download') == 'docx':
+        path = review_views.create_completed_review_form(submission, review.pk)
+        return core_views.serve_file(request, path)
 
     template = 'editorialreview/view_editorial_review.html'
     context = {
