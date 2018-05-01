@@ -362,9 +362,6 @@ def view_editorial_review(request, review_id):
         core_logic.decode_json(result.data),
         relations,
     )
-    if not request.POST and request.GET.get('download') == 'docx':
-        path = review_views.create_completed_review_form(submission, review.pk)
-        return core_views.serve_file(request, path)
 
     template = 'editorialreview/view_editorial_review.html'
     context = {
