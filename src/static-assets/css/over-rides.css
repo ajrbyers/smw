@@ -747,6 +747,7 @@ body > div.container-fluid > div > div > div > a {
 }
 
 .btn-proposal-header {
+    margin-top: -30px!important;
     margin-left:5px!important;
     height:28px!important;
 }
@@ -756,7 +757,7 @@ body > div.container-fluid > div > div > div > a {
 }
 .btn-proposal-header-2 {
     height:28px!important;
-    top:23px!important;
+    top:60px!important;
     position: absolute!important;
 }
 
