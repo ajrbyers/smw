@@ -34,8 +34,7 @@ urlpatterns = patterns(
         name='withdraw_editorial_review'
    ),
    url(
-        r'(?P<submission_id>\d+)/update_editorial_review_due_date/'
-        r'(?P<review_id>\d+)/$',
+        r'update_due_date/(?P<review_id>\d+)/$',
         'editorialreview.views.update_editorial_review_due_date',
         name='update_editorial_review_due_date'
    ),

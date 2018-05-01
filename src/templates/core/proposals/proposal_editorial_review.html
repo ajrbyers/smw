@@ -12,7 +12,8 @@
     <tr>
       <th>Name</th>
       <th>Assigned</th>
-      <th>Status</th>
+      <th>Due</th>
+      <th>Completed</th>
       <th>Recommendation</th>
       <th></th>
       <th></th>
@@ -37,13 +38,20 @@
           </sup>
       </td>
       <td>{{ review.assigned }}</td>
-      <td>
+        <td>
+            {{ review.due }}
+            <a href="{% url 'update_editorial_review_due_date' review.id %}">
+                <i class="fa fa-edit">&nbsp;</i>
+            </a>
+        </td>
+        <td>
           {% if review.completed %}
-            Completed: {{ review.completed }}
+              {{ review.completed }}
           {% else %}
-            Due: {{ review.due }}
+              ----
           {% endif %}
       </td>
+
       <td>
           {% if review.completed %}
             {% for rec in editorial_review_recommendations %}
@@ -57,9 +65,8 @@
       </td>
       <td>
           {% if review.completed %}
-            <a class="btn btn-task"
-               href="{% url 'view_editorial_review' review.id %}">
-                View
+            <a href="{% url 'view_editorial_review' review.id %}">
+                View Review
             </a>
           {% else %}
             Awaiting Review
