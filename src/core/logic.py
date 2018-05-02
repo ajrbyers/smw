@@ -1942,11 +1942,9 @@ def ascii_encode(string):
 
 def get_active_proposal_form():
     """ Return the current active proposal form.
-    Looks for the form matching the ID in the 'proposal_form'
-    setting, and if there isn't one it looks for the first
-    form marked as active (there should only be one), and
-    if there aren't any of those it looks for the first
-    form it can find.
+    Looks for the first form marked as active and
+    not in edit (there should only be one). If not,
+    returns the first form it can find not in edit.
     """
 
     active_form = models.ProposalForm.objects.filter(
