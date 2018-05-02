@@ -10,11 +10,18 @@
 {% endblock %}
 
 {% block body %}
-<div class="col-md-12 file-heading  container-fluid" style="margin-top:-20px">
+<div class="col-md-12 file-heading  container-fluid" style="margin-top:-20px; height: 115px">
 	<h4>Editorial Review for {{ review.content_object.title }} ({{ review.content_type|capfirst }})</h4>
-	Viewing summary<br /><br />
+	Viewing summary
+    <br /><br />
+    <a class="btn btn-transparent-white"
+        style="margin-top: -10px"
+        href="#submission-files">
+        <i class="fa fa-arrow-down"></i>
+            Jump to review files
+    </a>
+    <br /><br />
 </div>
-<a href="#submission-files">Jump to submission files.</a>
 <div class="row">
 	<div class="col-md-6">
 		<h4>EDITORS</h4>
