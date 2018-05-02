@@ -794,10 +794,21 @@ def edit_form_preparation(request, form_type, form_id):
     form.active = False
     form.save()
 
-    # Copy relations to new form.
+    # Make ref unique.
+    form.ref = '{}-{}'.format(form.ref, form.pk)
+    form.save()
+
+    # Copy relations and elements to new form.
     for relation in relations:
         relation.pk = None
         relation.form = form
+        relation.save()
+
+        element = relation.element
+        element.pk = None
+        element.save()
+
+        relation.element_id = element.pk
         relation.save()
 
         if form_type == 'proposal':
@@ -850,6 +861,16 @@ def edit_form(request, form_type, form_id, relation_id=None):
     proposal_form = form_type == 'proposal'
     form_model, relation_model = get_form_models(form_type)
     form = get_object_or_404(form_model, pk=form_id)
+
+    if not form.in_edit:
+        return redirect(
+            reverse(
+                'manager_forms',
+                kwargs={
+                    'form_type': form_type
+                }
+            )
+        )
 
     element_form_args = []
     element_form_kwargs = {}
