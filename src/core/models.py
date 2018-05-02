@@ -2806,7 +2806,7 @@ class ProposalForm(models.Model):
         max_length=100,
     )
     ref = models.CharField(
-        max_length=20,
+        max_length=50,
         help_text='for proposals: press_code-proposal eg. sup-proposal'
     )
     intro_text = models.TextField(

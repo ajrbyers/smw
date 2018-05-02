@@ -1949,16 +1949,12 @@ def get_active_proposal_form():
     form it can find.
     """
 
-    try:
-        active_form_id = models.Setting.objects.get(
-            name='proposal_form'
-        ).value
-        active_form = models.ProposalForm.objects.get(pk=active_form_id)
-
-    except (ValueError, models.ProposalForm.DoesNotExist):
-        active_form = models.ProposalForm.objects.filter(active=True).first()
+    active_form = models.ProposalForm.objects.filter(
+        active=True,
+        in_edit=False
+    ).first()
 
     if not active_form:
-        active_form = models.ProposalForm.objects.all().first()
+        active_form = models.ProposalForm.objects.filter(in_edit=False).first()
 
     return active_form
