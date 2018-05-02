@@ -800,6 +800,13 @@ def edit_form_preparation(request, form_type, form_id):
         relation.form = form
         relation.save()
 
+        element = relation.element
+        element.pk = None
+        element.save()
+
+        relation.element_id = element.pk
+        relation.save()
+
         if form_type == 'proposal':
             form.proposal_fields.add(relation)
         else:
