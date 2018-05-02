@@ -794,6 +794,10 @@ def edit_form_preparation(request, form_type, form_id):
     form.active = False
     form.save()
 
+    # Make ref unique.
+    form.ref = '{}-{}'.format(form.ref, form.pk)
+    form.save()
+
     # Copy relations and elements to new form.
     for relation in relations:
         relation.pk = None
