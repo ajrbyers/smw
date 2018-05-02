@@ -794,7 +794,7 @@ def edit_form_preparation(request, form_type, form_id):
     form.active = False
     form.save()
 
-    # Copy relations to new form.
+    # Copy relations and elements to new form.
     for relation in relations:
         relation.pk = None
         relation.form = form
