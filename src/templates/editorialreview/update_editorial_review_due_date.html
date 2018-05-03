@@ -28,7 +28,12 @@
     {% endif %}
 	<br />
 	<input type="submit" style="width:120px" class="btn btn-accept btn-round" value="Update"/>
-    <a href="{% url 'editor_view_editorial_review' submission.id review.id %}" style="margin-left:5px;width:120px"
+    <a {% if book %}
+            href="{% url 'editor_view_editorial_review' submission.id review.id %}"
+       {% else %}
+            href="{% url 'view_proposal' submission.id %}"
+       {% endif %}
+       style="margin-left:5px;width:120px"
        class="btn btn-primary btn-round pull-right">Go Back
     </a>
 </form>
