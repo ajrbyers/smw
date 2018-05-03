@@ -20,6 +20,7 @@ from core import (
     email,
     models as core_models,
     logic as core_logic,
+    views as core_views
 )
 from core.decorators import is_editor, is_editor_or_ed_reviewer
 from core.email import send_email_multiple
@@ -28,13 +29,17 @@ from core.setting_util import get_setting
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
 from manager import models as manager_models
-from review import models as review_models, forms as review_forms
+from review import (
+    models as review_models,
+    forms as review_forms,
+    views as review_views
+)
 from submission import models as submission_models
 
 
 @is_editor
 def add_editorial_review(request, submission_type, submission_id):
-    """Create a new editorial review."""
+    """ Create a new editorial review. """
 
     check = None
     submission = logic.get_submission(submission_type, submission_id)
@@ -87,12 +92,11 @@ def add_editorial_review(request, submission_type, submission_id):
 
 
 @is_editor
-def remove_editorial_review(request, submission_id, review_id):
-    """Remove an editorial review.
+def remove_editorial_review(request, review_id):
+    """ Remove an editorial review. """
 
-    Currently just handles full submissions but can be expanded.
-    """
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review_assignment.content_object
     review_assignment.delete()
     messages.add_message(
         request,
@@ -100,22 +104,27 @@ def remove_editorial_review(request, submission_id, review_id):
         'Editorial review assignment {} deleted'.format(review_id)
     )
 
+    if isinstance(submission, submission_models.Proposal):
+        redirect_view = 'view_proposal'
+        redirect_kwargs = {'proposal_id': submission.id}
+    else:
+        redirect_view = 'editor_review'
+        redirect_kwargs = {'submission_id': submission.id}
+
     return redirect(
         reverse(
-            'editor_review',
-            kwargs={'submission_id': submission_id}
+            redirect_view,
+            kwargs=redirect_kwargs
         )
     )
 
 
 @is_editor
-def withdraw_editorial_review(request, submission_id, review_id):
-    """Withdraw an editorial review.
-
-    Currently just handles full submissions but can be expanded.
-    """
+def withdraw_editorial_review(request, review_id):
+    """ Withdraw an editorial review. """
 
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review_assignment.content_object
 
     if review_assignment.withdrawn:
         review_assignment.withdrawn = False
@@ -132,24 +141,34 @@ def withdraw_editorial_review(request, submission_id, review_id):
         )
     )
 
+    if isinstance(submission, submission_models.Proposal):
+        redirect_view = 'view_proposal'
+        redirect_kwargs = {'proposal_id': submission.id}
+
+    else:
+        redirect_view = 'editor_view_editorial_review'
+        redirect_kwargs = {
+                    'submission_id': submission.id,
+                    'editorial_review_id': review_id
+                }
+
     return redirect(
         reverse(
-            'editor_view_editorial_review',
-            kwargs={
-                'submission_id': submission_id,
-                'editorial_review_id': review_id
-            }
+            redirect_view,
+            kwargs=redirect_kwargs
         )
     )
 
 
 @is_editor
-def update_editorial_review_due_date(request, submission_id, review_id):
-    """Update the due date of an editorial review."""
+def update_editorial_review_due_date(request, review_id):
+    """ Update the due date of an editorial review. """
 
-    submission = get_object_or_404(core_models.Book, pk=submission_id)
     review_assignment = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review_assignment.content_object
     previous_due_date = review_assignment.due
+    book = isinstance(submission, core_models.Book)
+    proposal = isinstance(submission, submission_models.Proposal)
 
     if request.POST:
         email_text = core_models.Setting.objects.get(
@@ -171,15 +190,25 @@ def update_editorial_review_due_date(request, submission_id, review_id):
                               review=review_assignment,
                           )
                 short_message = 'Due Date Changed'
-                log.add_log_entry(
-                    book=review_assignment.content_object,
-                    user=request.user,
-                    kind='Editorial Review',
-                    message=message,
-                    short_name=short_message,
-                )
 
-                if notify:
+                if proposal:
+                    log.add_proposal_log_entry(
+                        proposal=submission,
+                        user=request.user,
+                        kind='Editorial Review',
+                        message=message,
+                        short_name=short_message
+                    )
+                else:
+                    log.add_log_entry(
+                        book=submission,
+                        user=request.user,
+                        kind='Editorial Review',
+                        message=message,
+                        short_name=short_message,
+                    )
+
+                if notify and book:
                     editor_logic.send_review_update(
                         submission,
                         review_assignment,
@@ -193,27 +222,38 @@ def update_editorial_review_due_date(request, submission_id, review_id):
                     'Due date updated.'
                 )
 
-            return redirect(
-                reverse(
-                    'editor_view_editorial_review',
-                    kwargs={
-                        'submission_id': submission_id,
+            if proposal:
+                redirect_view = 'view_proposal'
+                redirect_kwargs = {'proposal_id': submission.id}
+            else:
+                redirect_view = 'editor_view_editorial_review'
+                redirect_kwargs = {
+                        'submission_id': submission.id,
                         'editorial_review_id': review_id
                     }
+
+            return redirect(
+                reverse(
+                    redirect_view,
+                    kwargs=redirect_kwargs
                 )
             )
 
     template = 'editorialreview/update_editorial_review_due_date.html'
-    context = {'submission': submission, 'review': review_assignment}
+    context = {
+        'submission': submission,
+        'book': book,
+        'review': review_assignment
+    }
 
     return render(request, template, context)
 
 
 @is_editor
 def email_editorial_review(request, review_id):
-    """Preview the content of an editorial review request email then send it
+    """ Preview the content of an editorial review request email then send it
      with any necessary attachments.
-     """
+    """
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
     email_setting = 'editorial_review_{0}'.format(review.content_type)
@@ -313,9 +353,10 @@ def email_editorial_review(request, review_id):
 
 @is_editor_or_ed_reviewer
 def view_editorial_review(request, review_id):
-    """As an editorial reviewer, view a completed editorial review."""
+    """ As an editorial reviewer, view a completed editorial review. """
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
+    submission = review.content_object
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(
         form=result.form,
@@ -338,7 +379,7 @@ def view_editorial_review(request, review_id):
 
 @is_editor_or_ed_reviewer
 def editorial_review(request, review_id):
-    """Complete an editorial review."""
+    """ Complete an editorial review. """
 
     review = get_object_or_404(
         models.EditorialReview,
@@ -463,10 +504,13 @@ def editorial_review(request, review_id):
                 if editor.profile.salutation:
                     salutation = editor.profile.salutation
 
+                reviewer_full_name = review.user.profile.full_name()
+
                 context = {
                     'salutation': salutation,
                     'submission': submission,
                     'review': review,
+                    'reviewer_full_name': reviewer_full_name,
                     'base_url': core_models.Setting.objects.get(
                         name='base_url'
                     ).value,
@@ -507,7 +551,7 @@ def editorial_review(request, review_id):
 
 @is_editor_or_ed_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
-    """As an editorial reviewer, view a completed peer review for the
+    """ As an editorial reviewer, view a completed peer review for the
     submission under review.
     """
 
@@ -577,6 +621,10 @@ def view_content_summary(request, review_id):
             pk=review.object_id,
         )
 
+        if not request.POST and request.GET.get('download') == 'docx':
+            path = core_views.create_proposal_form(proposal)
+            return core_views.serve_proposal_file(request, path)
+
         template = 'editorialreview/view_content_summary_proposal.html'
         context = {
             'data': data,
@@ -596,7 +644,8 @@ def view_content_summary(request, review_id):
 
 @is_editor_or_ed_reviewer
 def download_er_file(request, file_id, review_id):
-    """As an editorial reviewer, download an editorial review file."""
+    """ As an editorial reviewer, download an editorial review file. """
+
     review = get_object_or_404(
         models.EditorialReview,
         pk=review_id,

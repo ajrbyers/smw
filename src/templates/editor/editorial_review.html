@@ -81,7 +81,7 @@
 
         {% if not review_assignment.publication_committee_results and not review_assignment.editorial_board_results %}
 
-        <h5>Due: {{ review_assignment.due }}&nbsp;&nbsp;<a href="{% url 'update_editorial_review_due_date' submission.id review_assignment.pk %}"><i class="fa fa-edit"></i></a></h5>
+        <h5>Due: {{ review_assignment.due }}&nbsp;&nbsp;<a href="{% url 'update_editorial_review_due_date' review_assignment.pk %}"><i class="fa fa-edit"></i></a></h5>
 
 {% if review_assignment.publication_committee_results %}
 

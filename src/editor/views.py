@@ -592,14 +592,6 @@ def editor_review_round(request, submission_id, round_number):
     ).order_by(
         '-round_number'
     )
-    internal_review_assignments = models.ReviewAssignment.objects.filter(
-        book=book,
-        review_type='internal',
-        review_round__round_number=round_number
-    ).select_related(
-        'user', 'review_round'
-    )
-
     external_review_assignments = models.ReviewAssignment.objects.filter(
         book=book,
         review_type='external',
@@ -629,7 +621,6 @@ def editor_review_round(request, submission_id, round_number):
             book=book,
             revision_type='review',
         ),
-        'internal_review_assignments': internal_review_assignments,
         'external_review_assignments': external_review_assignments,
         'editorial_review_assignments': editorial_review_assignments,
         'active_page': 'editor_review',

@@ -12,8 +12,11 @@
     <tr>
       <th>Name</th>
       <th>Assigned</th>
-      <th>Status</th>
+      <th>Due</th>
+      <th>Completed</th>
       <th>Recommendation</th>
+      <th></th>
+      <th></th>
       <th></th>
     </tr>
   {% for review in editorial_review_assignments %}
@@ -35,13 +38,20 @@
           </sup>
       </td>
       <td>{{ review.assigned }}</td>
-      <td>
+        <td>
+            {{ review.due }}
+            <a href="{% url 'update_editorial_review_due_date' review.id %}">
+                <i class="fa fa-edit">&nbsp;</i>
+            </a>
+        </td>
+        <td>
           {% if review.completed %}
-            Completed: {{ review.completed }}
+              {{ review.completed }}
           {% else %}
-            Due: {{ review.due }}
+              ----
           {% endif %}
       </td>
+
       <td>
           {% if review.completed %}
             {% for rec in editorial_review_recommendations %}
@@ -55,11 +65,36 @@
       </td>
       <td>
           {% if review.completed %}
-            <a class="btn btn-task" href="{% url 'view_editorial_review' review.id %}">View
+            <a href="{% url 'view_editorial_review' review.id %}">
+                View Review
             </a>
           {% else %}
             Awaiting Review
           {% endif %}
+      </td>
+      <td width="10%">
+          <a href="{% url 'withdraw_editorial_review' review.id %}"
+             class=" btn
+                    {% if review.withdrawn %}
+                        btn-info
+                    {% else %}
+                        btn-warning
+                    {% endif %}
+                        btn-sm pull-left"
+             style="width:120px">
+                {% if review.withdrawn %}
+                    Re-Enable
+                {% else %}
+                    Withdraw
+                {% endif %}
+          </a>
+      </td>
+      <td width="10%">
+          <a href="{% url 'remove_editorial_review' review.pk %}"
+             class=" btn btn-danger btn-sm pull-left"
+             style="width:120px">
+              Delete
+          </a>
       </td>
     </tr>
     {% empty %}
