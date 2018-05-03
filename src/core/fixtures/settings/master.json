@@ -1310,7 +1310,7 @@
 },
 {
   "fields": {
-    "value": "<p>Dear {{ salutation }},</p><p>This is an automatic notification to let you know that {{ review.user }} has completed their Editorial Review Assignment for the book title '{{ submission.title }}' (RUA ID: {{ submission.id }}; Author(s): {% for author in authors %} {{ author.full_name }}, {% if forloop.last %} {{ author.full_name }}{% endif %}{% endfor %}).</p><p>Please log into the book management system via the link below to assess the Editorial Review comments and resume processing this project:</p><p>{{ base_url }}/editorialreview/editor/view/{{ review.id }}/</p><p>Many thanks,</p><p>{{ press_name }}</p>",
+    "value": "<p>Dear {{ salutation }},</p><p>This is an automatic notification to let you know that {{ reviewer_full_name }} has completed their Editorial Review Assignment for the book title '{{ submission.title }}' (RUA ID: {{ submission.id }}; Author(s): {% for author in authors %} {{ author.full_name }}, {% if forloop.last %} {{ author.full_name }}{% endif %}{% endfor %}).</p><p>Please log into the book management system via the link below to assess the Editorial Review comments and resume processing this project:</p><p>{{ base_url }}/editorialreview/editor/view/{{ review.id }}/</p><p>Many thanks,</p><p>{{ press_name }}</p>",
     "group": 3,
     "name": "editorialreview_completed_email",
     "types": "rich_text",

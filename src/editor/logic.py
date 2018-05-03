@@ -669,6 +669,8 @@ def send_review_update(
         sender,
         attachment=None,
 ):
+    """ Notify a reviewer that their review due date has been updated. """
+
     from_email = models.Setting.objects.get(
         group__name='email',
         name='from_address',
@@ -679,8 +681,10 @@ def send_review_update(
         get_setting(
             'review_due_date_subject',
             'email_subject',
-            'Review Assignment %s: Due Date Updated'
-        ) % review_assignment.id,
+            'Review Assignment {}: Due Date Updated'.format(
+                review_assignment.id
+            )
+        ),
         context,
         from_email.value,
         review_assignment.user.email,
