@@ -38,7 +38,9 @@
            {% ifequal decision 'invite-publishing' %}
 <p class="small">Select a review form for the publishing committee to complete.</p>
             <select name="review_form" id="review_form" class="form-control" required="">
-              {% for form in review_forms %}<option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>{% endfor %}
+              {% for form in review_forms %}
+                  <option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>
+              {% endfor %}
             </select>
           {% endifequal %}
              {% ifequal decision 'send-decision' %}

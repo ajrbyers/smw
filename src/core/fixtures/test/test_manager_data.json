@@ -1,1 +1,92 @@
-[{"fields": {"active": true, "name": "rua_editorial_group", "group_type": "editorial_group", "sequence": 1}, "model": "manager.group", "pk": 1}, {"fields": {"active": true, "name": "rua_review_committee", "group_type": "review_committee", "sequence": 2}, "model": "manager.group", "pk": 2}, {"fields": {"active": true, "name": "rua_generic", "group_type": "generic", "sequence": 3}, "model": "manager.group", "pk": 3}, {"fields": {"added": "2015-11-03", "group": 1, "user": 2, "sequence": 9999}, "model": "manager.groupmembership", "pk": 1}, {"fields": {"added": "2015-11-03", "group": 1, "user": 1, "sequence": 9999}, "model": "manager.groupmembership", "pk": 2}, {"fields": {"added": "2015-11-03", "group": 2, "user": 4, "sequence": 9999}, "model": "manager.groupmembership", "pk": 3}, {"fields": {"added": "2015-11-03", "group": 2, "user": 1, "sequence": 9999}, "model": "manager.groupmembership", "pk": 4}, {"fields": {"added": "2015-11-03", "group": 3, "user": 5, "sequence": 9999}, "model": "manager.groupmembership", "pk": 5}, {"fields": {"added": "2015-11-03", "group": 3, "user": 1, "sequence": 9999}, "model": "manager.groupmembership", "pk": 6}]
+[
+  {
+    "fields": {
+      "active": true,
+      "name": "rua_editorial_group",
+      "group_type": "editorial_group",
+      "sequence": 1
+    },
+    "model": "manager.group",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "active": true,
+      "name": "rua_review_committee",
+      "group_type": "review_committee",
+      "sequence": 2
+    },
+    "model": "manager.group",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "active": true,
+      "name": "rua_generic",
+      "group_type": "generic",
+      "sequence": 3
+    },
+    "model": "manager.group",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 1,
+      "user": 2,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 1,
+      "user": 1,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 2,
+      "user": 4,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 2,
+      "user": 1,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 3,
+      "user": 5,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "added": "2015-11-03",
+      "group": 3,
+      "user": 1,
+      "sequence": 9999
+    },
+    "model": "manager.groupmembership",
+    "pk": 6
+  }
+]

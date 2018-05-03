@@ -66,10 +66,7 @@ class SubmissionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        proposal_form_id = core_models.Setting.objects.get(
-            name='proposal_form').value
-        proposal_form = core_models.ProposalForm.objects.get(
-            pk=proposal_form_id)
+        proposal_form = core_models.ProposalForm.objects.filter(active=True).first()
         fields = core_models.ProposalFormElementsRelationship.objects.filter(
             form=proposal_form)
         self.assertEqual('name="title"' in content, True)
@@ -78,7 +75,6 @@ class SubmissionTests(TestCase):
 
         for field in fields:
             self.assertEqual('name="%s"' % field.element.name in content, True)
-            print field.element.name
         forms = models.Proposal.objects.all()
         self.assertEqual(len(forms), 0)
         resp = self.client.post(reverse('proposal_start'),

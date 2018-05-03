@@ -8,7 +8,9 @@
     "intro_text": "introduction",
     "completion_text": "completion",
     "ref": "test-proposal",
-    "name": "rua_proposal_form"
+    "name": "rua_proposal_form",
+    "in_edit": false,
+    "active": true
   },
   "model": "core.proposalform",
   "pk": 1
