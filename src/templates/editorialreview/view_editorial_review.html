@@ -11,12 +11,12 @@
 
 {% block body %}
 <div class="col-md-12 file-heading  container-fluid"
-     style="margin-top:-20px; height: 130px;">
+     style="margin-top:-20px">
 	<h3>Editorial Review for {{ review.content_object.title }} ({{ review.content_type|capfirst }})</h3>
 	Viewing review by {{ review.user.profile.full_name }} - {{ review.id }}
     <br /><br />
     <a class="btn btn-transparent-white"
-        style="margin-top: -10px;"
+        style="margin-bottom: 10px; margin-top: -10px;"
         href="#review-files">
         <i class="fa fa-arrow-down"></i>
             Jump to review files
