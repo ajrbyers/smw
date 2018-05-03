@@ -1,7 +1,11 @@
 from django import forms
 from django.forms import ModelForm
 
-from core import models as core_models, logic as core_logic
+from core import (
+    models as core_models,
+    logic as core_logic
+)
+from review import models as review_models
 from submission.models import SubmissionChecklistItem, Proposal, ProposalNote
 
 
@@ -13,6 +17,11 @@ class ProposalStart(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProposalStart, self).__init__(*args, **kwargs)
+        active_forms = review_models.Form.objects.filter(
+            active=True,
+            in_edit=False
+        )
+        self.fields['review_form'] = forms.ModelChoiceField(queryset=active_forms)
         self.fields['review_form'].required = True
 
 

@@ -1938,3 +1938,21 @@ def send_new_user_ack(email_text, new_user, profile):
 def ascii_encode(string):
     """ Replace non-ASCII char with HTML chars. """
     return string.encode('ascii', 'xmlcharrefreplace').strip()
+
+
+def get_active_proposal_form():
+    """ Return the current active proposal form.
+    Looks for the first form marked as active and
+    not in edit (there should only be one). If not,
+    returns the first form it can find not in edit.
+    """
+
+    active_form = models.ProposalForm.objects.filter(
+        active=True,
+        in_edit=False
+    ).first()
+
+    if not active_form:
+        active_form = models.ProposalForm.objects.filter(in_edit=False).first()
+
+    return active_form

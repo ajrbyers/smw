@@ -2806,7 +2806,7 @@ class ProposalForm(models.Model):
         max_length=100,
     )
     ref = models.CharField(
-        max_length=20,
+        max_length=50,
         help_text='for proposals: press_code-proposal eg. sup-proposal'
     )
     intro_text = models.TextField(
@@ -2823,6 +2823,15 @@ class ProposalForm(models.Model):
         'ProposalFormElementsRelationship',
         blank=True,
         related_name='proposal_fields',
+    )
+    in_edit = models.BooleanField(
+        default=False,
+        help_text='True if form is in edit stage.'
+    )
+    active = models.BooleanField(
+        default=True,
+        help_text='If set to False, will be hidden'
+                  ' from use in proposal workflow.'
     )
 
     def __unicode__(self):
@@ -2855,7 +2864,7 @@ class ProposalFormElement(models.Model):
         max_length=500,
         null=True,
         blank=True,
-        help_text='Seperate choices with the bar | character.'
+        help_text='Separate choices with the bar | character.'
     )
     required = models.BooleanField()
 
