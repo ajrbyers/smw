@@ -11,7 +11,7 @@
 {% block body %}
   <div class="col-md-12 other-heading container-fluid" style="margin-top:-20px">
   <h3>Book Proposal :  {{ proposal.title }}
-      {% if proposal.subtitle%}
+      {% if proposal.subtitle %}
           : {{ proposal.subtitle }}
       {% endif %}
       <br /><br />
@@ -33,8 +33,7 @@
         class="btn btn-proposal-header btn-transparent-white">
          <h5 class="btn-proposal-text"> Contract</h5>
      </a>
-    {% if proposal.status == 'accepted' or proposal.status == 'declined'%}
-    {% else %}
+    {% if not proposal.status == 'accepted' or not proposal.status == 'declined'%}
         <a href="{% url 'proposal_view_submitted' proposal.id %}"
            class="btn  btn-transparent-white btn-proposal-header-2"
            style="right:100px;">
