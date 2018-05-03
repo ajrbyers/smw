@@ -36,19 +36,19 @@
             </a>
             {% if not proposal.status == 'accepted' or not proposal.status == 'declined' %}
                 <a href="{% url 'proposal_view_submitted' proposal.id %}"
-                   class="btn  btn-transparent-white btn-proposal-header-2"
+                   class="btn  btn-transparent-white btn-proposal-header"
                    style="right:100px;">
                     <h5 class="btn-proposal-text">Edit</h5></a>
             {% endif %}
             {% if proposal.status == 'accepted' or proposal.status == 'declined' %}
                 <a href="{% url 'proposals_history' %}"
-                   class="btn btn-proposal-header-2 btn-transparent-white"
+                   class="btn btn-proposal-header btn-transparent-white"
                    style="right:20;">
                     <h5 class="btn-proposal-text">Go back</h5>
                 </a>
             {% else %}
                 <a href="{% url 'proposals' %}"
-                   class="btn btn-proposal-header-2 btn-transparent-white"
+                   class="btn btn-proposal-header btn-transparent-white"
                    style="right:20;">
                     <h5 class="btn-proposal-text">Go back</h5>
                 </a>
