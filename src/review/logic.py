@@ -40,7 +40,7 @@ def get_editors(review_assignment):
     if book_editors:
         book_editor_list = [
             {'editor': editor, 'isSeriesEditor': False} for
-            editor in book_editors if not editor in press_editors
+            editor in book_editors if editor not in press_editors
         ]
     else:
         book_editor_list = []

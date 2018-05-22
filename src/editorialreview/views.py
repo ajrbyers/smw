@@ -32,7 +32,6 @@ from manager import models as manager_models
 from review import (
     models as review_models,
     forms as review_forms,
-    views as review_views
 )
 from submission import models as submission_models
 
@@ -171,10 +170,7 @@ def update_editorial_review_due_date(request, review_id):
     proposal = isinstance(submission, submission_models.Proposal)
 
     if request.POST:
-        email_text = core_models.Setting.objects.get(
-            group__name='email',
-            name='review_due_ack',
-        ).value
+        email_text = get_setting('review_due_ack', 'email')
         due_date = request.POST.get('due_date', None)
         notify = request.POST.get('email', None)
 
@@ -356,7 +352,6 @@ def view_editorial_review(request, review_id):
     """ As an editorial reviewer, view a completed editorial review. """
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
-    submission = review.content_object
     result = review.results
     relations = review_models.FormElementsRelationship.objects.filter(
         form=result.form,
@@ -511,9 +506,7 @@ def editorial_review(request, review_id):
                     'submission': submission,
                     'review': review,
                     'reviewer_full_name': reviewer_full_name,
-                    'base_url': core_models.Setting.objects.get(
-                        name='base_url'
-                    ).value,
+                    'base_url': get_setting('base_url', 'general'),
                     'authors': [submission.author] if proposal
                     else submission.author.all(),
                     'press_name': press_name

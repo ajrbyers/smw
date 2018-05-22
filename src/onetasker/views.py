@@ -16,7 +16,7 @@ from core import logic as core_logic, models, log
 from core.decorators import is_onetasker
 from core.email import get_email_content
 from submission.logic import handle_book_labels
-
+from core.setting_util import get_setting
 import logic
 
 
@@ -47,20 +47,11 @@ def task_hub(request, assignment_type, assignment_id, about=None):
     submitted_files = logic.get_submitted_files(assignment)
 
     if assignment_type == 'copyedit':
-        instructions = models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_copyedit',
-        ).value
+        instructions = get_setting('instructions_for_task_copyedit', 'general')
     elif assignment_type == 'typesetting':
-        instructions = models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_typeset',
-        ).value
+        instructions = get_setting('instructions_for_task_typeset', 'general')
     elif assignment_type == 'indexing':
-        instructions = models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_index',
-        ).value
+        instructions = get_setting('instructions_for_task_index', 'general')
     else:
         instructions = ""
 
@@ -227,7 +218,7 @@ def upload(
             'ruaId': new_file.pk,
             'original_name': new_file.original_filename,
         }
-        _assignment = logic.add_file(assignment, new_file, author)
+        logic.add_file(assignment, new_file, author)
 
         return UploadResponse(request, file_dict)
 
@@ -261,7 +252,7 @@ def upload_author(request, assignment_type, assignment_id, type_to_handle):
             'ruaId': new_file.pk,
             'original_name': new_file.original_filename,
         }
-        _assignment = logic.add_file(assignment, new_file, True)
+        logic.add_file(assignment, new_file, True)
 
         return UploadResponse(request, file_dict)
 

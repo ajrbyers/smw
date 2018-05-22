@@ -22,17 +22,17 @@ def request_profile(orcid_id):
 
 
 def dict_getter(_dict, path_list):
-    to_return = _dict
+    """ This function appears to be intended to walk through a nested
+     dictionary and get a value identified by a path (list of keys)
+      However, id didn't do this. It just returned the value of the
+      last key in the list that's found in the dictionary. """
+    # TODO: investigate what this (and related functions) were intended to do
+    to_return = ''
 
     for path in path_list:
-        try:
-            to_return = to_return.get(path)
-        except:
-            to_return = None
+        to_return = _dict.get(path, '')
 
-    if to_return:
-        return to_return
-    return ''
+    return to_return
 
 
 def parse_profile(profile):

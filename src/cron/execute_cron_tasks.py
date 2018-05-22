@@ -10,16 +10,9 @@ from revisions import models as revision_models
 
 
 def remind_unaccepted_reviews(task):
-    days = int(
-        models.Setting.objects.get(
-            group__name='cron',
-            name='remind_unaccepted_reviews'
-        ).value
-    )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='unaccepted_reminder'
-    ).value
+    days = int(get_setting('remind_unaccepted_reviews', 'cron'))
+    email_text = get_setting('unaccepted_reminder', 'email')
+
     dt = timezone.now()
     target_date = dt - timedelta(days=days)
     books = models.Book.objects.filter(stage__current_stage='review')
@@ -49,16 +42,9 @@ def remind_unaccepted_reviews(task):
 
 
 def remind_accepted_reviews(task):
-    days = int(
-        models.Setting.objects.get(
-            group__name='cron',
-            name='remind_accepted_reviews'
-        ).value
-    )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='accepted_reminder'
-    ).value
+    days = int(get_setting('remind_accepted_reviews', 'cron'))
+    email_text = get_setting('accepted_reminder', 'email')
+
     dt = timezone.now()
     target_date = dt + timedelta(days=days)
     books = models.Book.objects.filter(stage__current_stage='review')
@@ -90,16 +76,9 @@ def remind_accepted_reviews(task):
 
 
 def remind_overdue_reviews(task):
-    days = int(
-        models.Setting.objects.get(
-            group__name='cron',
-            name='remind_overdue_reviews'
-        ).value
-    )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='overdue_reminder'
-    ).value
+    days = int(get_setting('remind_overdue_reviews', 'cron'))
+    email_text = get_setting('overdue_reminder', 'email')
+
     dt = timezone.now()
     target_date = dt - timedelta(days=days)
     books = models.Book.objects.filter(stage__current_stage='review')
@@ -131,16 +110,9 @@ def remind_overdue_reviews(task):
 
 
 def reminder_overdue_revisions(task):
-    days = int(
-        models.Setting.objects.get(
-            group__name='cron',
-            name='revisions_reminder'
-        ).value
-    )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='revisions_reminder_email'
-    ).value
+    days = int(get_setting('revisions_reminder', 'cron'))
+    email_text = get_setting('revisions_reminder_email', 'email')
+
     dt = timezone.now()
     target_date = dt - timedelta(days=days)
     books = models.Book.objects.filter(
@@ -172,18 +144,10 @@ def reminder_overdue_revisions(task):
 
 
 def reminder_notifications_not_emailed(task):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name'
-    ).value
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='notification_reminder_email'
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
+    email_text = get_setting('notification_reminder_email', 'email')
+
     editors = User.objects.filter(
         Q(profile__roles__slug='press-editor') |
         Q(profile__roles__slug='book-editor') |
@@ -209,10 +173,7 @@ def reminder_notifications_not_emailed(task):
                 'notifications': task_list,
                 'notification_count': tasks.count(),
                 'press_name': press_name,
-                'base_url': models.Setting.objects.get(
-                    group__name='general',
-                    name='base_url'
-                ).value,
+                'base_url': get_setting('base_url', 'general'),
             }
             email.send_email(
                 get_setting(
@@ -221,35 +182,26 @@ def reminder_notifications_not_emailed(task):
                     'Weekly Notification Reminder'
                 ),
                 context,
-                from_email.value,
+                from_email,
                 editor.email,
                 email_text
             )
 
 
 def send_reminder_email(book, subject, review, email_text):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name'
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
 
     context = {
         'book': book,
         'review': review,
         'press_name': press_name,
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url'
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
     }
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         review.user.email,
         email_text,
         book=book,
