@@ -21,7 +21,8 @@ class ProposalStart(forms.ModelForm):
             active=True,
             in_edit=False
         )
-        self.fields['review_form'] = forms.ModelChoiceField(queryset=active_forms)
+        self.fields['review_form'] = forms.ModelChoiceField(
+            queryset=active_forms)
         self.fields['review_form'].required = True
 
 

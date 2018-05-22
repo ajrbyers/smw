@@ -61,36 +61,15 @@ def check_stage(book, check):
 
 
 def send_acknowldgement_email(book, press_editors):
-    from_email = Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    ).value
-    author_text = Setting.objects.get(
-        group__name='email',
-        name='author_submission_ack',
-    ).value
-    editor_text = Setting.objects.get(
-        group__name='email',
-        name='editor_submission_ack',
-    ).value
-    press_name = Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    author_text = get_setting('author_submission_ack', 'email')
+    editor_text = get_setting('editor_submission_ack', 'email')
+    press_name = get_setting('press_name', 'general')
 
-    try:
-        principal_contact_name = Setting.objects.get(
-            group__name='general',
-            name='primary_contact_name'
-        ).value
-    except:
-        principal_contact_name = None
+    principal_contact_name = get_setting('primary_contact_name', 'general')
 
     context = {
-        'base_url': Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
         'submission': book,
         'press_name': press_name,
         'principal_contact_name': principal_contact_name,

@@ -666,7 +666,9 @@ def add_new_form(request, form_type):
 
 
 def get_form_models(form_type):
-    """ Return appropriate Form and ElementsRelationship models for given type. """
+    """
+    Return appropriate Form and ElementsRelationship models for given type.
+    """
 
     if form_type == 'proposal':
         form_model = core_models.ProposalForm

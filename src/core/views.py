@@ -29,6 +29,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
 
 from bs4 import BeautifulSoup
 from docx import Document
@@ -69,6 +70,7 @@ from review import (
     models as review_models,
     logic as review_logic
 )
+from setting_util import get_setting
 
 
 def index(request):
@@ -157,9 +159,9 @@ def switch_account(request):
     for profile in users:
         user_roles = [role.slug for role in profile.roles.all()]
         if (
-                not 'press-editor' in user_roles and
-                not 'book-editor' in user_roles and
-                not 'production-editor' in user_roles
+                'press-editor' not in user_roles and
+                'book-editor' not in user_roles and
+                'production-editor' not in user_roles
         ):
             if (
                     'author' in user_roles or
@@ -268,10 +270,7 @@ def register(request):
             messages.add_message(
                 request,
                 messages.INFO,
-                models.Setting.objects.get(
-                    group__name='general',
-                    name='registration_message'
-                ).value
+                get_setting('registration_message', 'general')
             )
             return redirect(reverse('login'))
     else:
@@ -324,7 +323,7 @@ def activate(request, code):
 def view_profile(request):
     try:
         user_profile = models.Profile.objects.get(user=request.user)
-    except:
+    except ObjectDoesNotExist:
         user_profile = models.Profile(user=request.user)
         user_profile.save()
 
@@ -350,7 +349,7 @@ def view_profile_readonly(request, user_id):
     try:
         user_profile = models.Profile.objects.get(user__pk=user_id)
         user_exists = True
-    except:
+    except ObjectDoesNotExist:
         user_exists = False
 
     name_len = len(request.user.first_name) + len(request.user.last_name)
@@ -410,31 +409,24 @@ def update_profile(request):
 
 
 def oai(request):
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url'
-    ).value
+    base_url = get_setting('base_url', 'general')
+
     oai_dc = 'http://%s/oai' % base_url
-    oai_identifier = models.Setting.objects.get(
-        group__name='general',
-        name='oai_identifier'
-    ).value
+    oai_identifier = get_setting('oai_identifier', 'general')
+
     books = models.Book.objects.all()
     list_of_books = [[{}] for t in range(0, len(books))]
 
     for t, book in enumerate(books):
-        try:
-            isbns = models.Identifier.objects.filter(
-                book=book
-            ).exclude(
-                identifier='pub_id'
-            ).exclude(
-                identifier='urn'
-            ).exclude(
-                identifier='doi'
-            )
-        except:
-            isbns = None
+        isbns = models.Identifier.objects.filter(
+            book=book
+        ).exclude(
+            identifier='pub_id'
+        ).exclude(
+            identifier='urn'
+        ).exclude(
+            identifier='doi'
+        )
 
         formats = book.formats()
         list_format = []
@@ -505,11 +497,11 @@ def user_home(request):
         ),
         'typesetting': models.TypesetAssignment.objects.filter(
             (
-                Q(requested__isnull=False) & Q(completed__isnull=True)) |
-                (
+                    Q(requested__isnull=False) & Q(completed__isnull=True)) |
+            (
                     Q(typesetter_invited__isnull=False) &
                     Q(typesetter_completed__isnull=True)
-                ),
+            ),
             typesetter=request.user
         ),
         'user_proposals': submission_models.Proposal.objects.filter(
@@ -606,10 +598,7 @@ def unauth_reset(request):
             user.profile.reset_code = password
             user.profile.save()
             user.save()
-            email_text = models.Setting.objects.get(
-                group__name='email',
-                name='reset_password'
-            ).value
+            email_text = get_setting('reset_password', 'email')
             send_reset_email(
                 user=user,
                 email_text=email_text,
@@ -918,25 +907,25 @@ def get_all(request, submission_id):
 
         for user in onetasker_results:
             if (
-                not string_any(
-                    user['value'] in result['value'] for result in results
-                )
+                    not string_any(
+                        user['value'] in result['value'] for result in results
+                    )
             ):
                 results.append(user)
 
         for author in author_results:
             if (
-                not string_any(
-                    author['value'] in result['value'] for result in results
-                )
+                    not string_any(
+                        author['value'] in result['value'] for result in results
+                    )
             ):
                 results.append(author)
 
         for editor in editor_results:
             if (
-                not string_any(
-                    editor['value'] in result['value'] for result in results
-                )
+                    not string_any(
+                        editor['value'] in result['value'] for result in results
+                    )
             ):
                 results.append(editor)
 
@@ -959,9 +948,9 @@ def get_proposal_users(request, proposal_id):
 
         for user in proposal_results:
             if (
-                not string_any(
-                    user['value'] in result['value'] for result in results
-                )
+                    not string_any(
+                        user['value'] in result['value'] for result in results
+                    )
             ):
                 results.append(user)
 
@@ -1282,9 +1271,9 @@ def email_users_proposal(request, proposal_id, user_id):
             )
 
     if (
-        not proposal.owner == user and
-        not proposal.requestor == user and
-        user not in list_of_reviewers
+            not proposal.owner == user and
+            not proposal.requestor == user and
+            user not in list_of_reviewers
     ):
         messages.add_message(
             request,
@@ -1537,7 +1526,7 @@ def serve_marc21_file(request, submission_id, type):
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
-            "attachment; filename=%s" % _file.original_filename
+                "attachment; filename=%s" % _file.original_filename
         )
         return response
     except IOError:
@@ -1552,7 +1541,8 @@ def serve_marc21_file(request, submission_id, type):
 @is_book_editor_or_author
 def serve_all_files(request, submission_id):
     """
-    reference: http://stackoverflow.com/questions/12881294/django-create-a-zip-of-multiple-files-and-make-it-downloadable
+    reference: http://stackoverflow.com/questions/12881294/
+    django-create-a-zip-of-multiple-files-and-make-it-downloadable
     """
     book = get_object_or_404(models.Book, pk=submission_id)
     files = book.files.all()
@@ -1761,7 +1751,7 @@ def serve_file(request, submission_id, file_id):
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
-            "attachment; filename=%s" % _file.original_filename
+                "attachment; filename=%s" % _file.original_filename
         )
         return response
     except IOError:
@@ -1798,7 +1788,7 @@ def serve_file_one_click(
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
-            "attachment; filename=%s" % _file.original_filename
+                "attachment; filename=%s" % _file.original_filename
         )
         return response
     except IOError:
@@ -1826,34 +1816,7 @@ def serve_proposal_file_id(request, proposal_id, file_id):
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
-            "attachment; filename=%s" % _file.original_filename
-        )
-        return response
-    except IOError:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            'File not found. %s' % file_path
-        )
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-@is_editor
-def serve_proposal_file(request, proposal_id, file_id):
-    get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    _file = get_object_or_404(models.File, pk=file_id)
-    file_path = os.path.join(
-        settings.PROPOSAL_DIR,
-        proposal_id,
-        _file.uuid_filename,
-    )
-
-    try:
-        fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
-        response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-            "attachment; filename=%s" % _file.original_filename
+                "attachment; filename=%s" % _file.original_filename
         )
         return response
     except IOError:
@@ -1880,7 +1843,7 @@ def serve_versioned_file(request, submission_id, revision_id):
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
-            "attachment; filename=%s" % _versions_file.original_filename
+                "attachment; filename=%s" % _versions_file.original_filename
         )
         return response
     except IOError:
@@ -2208,7 +2171,6 @@ def view_proposal_log(request, proposal_id):
 
 @is_editor
 def assign_proposal(request):
-
     active_form = logic.get_active_proposal_form()
     proposal_form = manager_forms.GeneratedForm(form=active_form)
     default_fields = manager_forms.DefaultForm()
@@ -2270,12 +2232,12 @@ def assign_proposal(request):
             _proposal.save()
             editors = User.objects.filter(profile__roles__slug='press-editor')
             message = (
-                "A new Unassigned Proposal '%s' "
-                "with id %s has been submitted by %s ." % (
-                    _proposal.title,
-                    _proposal.pk,
-                    request.user.username
-                )
+                    "A new Unassigned Proposal '%s' "
+                    "with id %s has been submitted by %s ." % (
+                        _proposal.title,
+                        _proposal.pk,
+                        request.user.username
+                    )
             )
 
             for editor in editors:
@@ -2298,7 +2260,7 @@ def assign_proposal(request):
                 user=request.user,
                 kind='proposal',
                 message='Unassigned Proposal has been submitted by %s.' %
-                request.user.profile.full_name(),
+                        request.user.profile.full_name(),
                 short_name='Unassigned Proposal Submitted'
             )
 
@@ -2321,10 +2283,8 @@ def proposal_assign_user(request, proposal_id, user_id):
     user = models.User.objects.get(pk=user_id)
     _proposal.owner = user
     _proposal.save()
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='proposal_submission_ack'
-    ).value
+    email_text = get_setting('proposal_submission_ack', 'email')
+
     logic.send_proposal_submission_ack(
         _proposal,
         email_text=email_text,
@@ -2362,16 +2322,13 @@ def proposal_assign_view(request, proposal_id):
         setting_name='change_principal_contact_proposal',
         context={
             'sender': request.user,
-            'base_url': models.Setting.objects.get(name='base_url').value,
+            'base_url': get_setting('base_url', 'general'),
             'receiver': _proposal.owner,
             'proposal_url': reverse(
                 'proposal_view_submitted', kwargs={'proposal_id': proposal_id}
-             ),
+            ),
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value
+            'press_name': get_setting('press_name', 'general')
         }
     )
 
@@ -2404,9 +2361,9 @@ def proposal_assign_view(request, proposal_id):
         viewable = True
         editor = True
         if (
-            _proposal.requestor and
-            not _proposal.requestor == request.user and
-            not 'press-editor' in user_roles
+                _proposal.requestor and
+                not _proposal.requestor == request.user and
+                'press-editor' not in user_roles
         ):
             editor = False
     else:
@@ -2516,10 +2473,11 @@ def proposal_assign_edit(request, proposal_id):
 
         if proposal_form.is_valid() and default_fields.is_valid():
             save_dict = {}
-            file_fields = models.ProposalFormElementsRelationship.objects.filter(
-                form=models.ProposalForm.objects.get(pk=_proposal.form.id),
-                element__field_type='upload'
-            )
+            file_fields = models.ProposalFormElementsRelationship.objects \
+                .filter(
+                    form=models.ProposalForm.objects.get(pk=_proposal.form.id),
+                    element__field_type='upload'
+                )
             data_fields = (
                 models.ProposalFormElementsRelationship.objects.filter(
                     ~Q(element__field_type='upload'),
@@ -2600,9 +2558,9 @@ def proposal_assign_edit(request, proposal_id):
 def proposal(request, user_id=None):
     proposal_list = submission_models.Proposal.objects.filter(
         (
-            ~Q(status='declined') &
-            ~Q(status='accepted') &
-            Q(owner__isnull=False)
+                ~Q(status='declined') &
+                ~Q(status='accepted') &
+                Q(owner__isnull=False)
         )
     )
     unassigned_proposals = submission_models.Proposal.objects.filter(
@@ -2623,9 +2581,9 @@ def proposal(request, user_id=None):
             elif _proposal.requestor == request.user:
                 proposals.append(_proposal)
             elif (
-                _proposal.book_editors.filter(
-                    username=request.user.username
-                ).exists()
+                    _proposal.book_editors.filter(
+                        username=request.user.username
+                    ).exists()
             ):
                 proposals.append(_proposal)
 
@@ -2781,10 +2739,8 @@ def start_proposal_review(request, proposal_id):
     committees = manager_models.Group.objects.filter(
         group_type='review_committee'
     )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='proposal_review_request'
-    ).value
+    email_text = get_setting('proposal_review_request', 'email')
+
     start_form = submission_forms.ProposalStart()
 
     if request.POST:
@@ -3013,12 +2969,12 @@ def view_proposal_review_decision(
             review_assignment.accepted = timezone.now()
             review_assignment.save()
             message = (
-                "Review Assignment request for proposal "
-                "'%s' has been accepted by %s %s." % (
-                    _proposal.title,
-                    review_assignment.user.first_name,
-                    review_assignment.user.last_name
-                )
+                    "Review Assignment request for proposal "
+                    "'%s' has been accepted by %s %s." % (
+                        _proposal.title,
+                        review_assignment.user.first_name,
+                        review_assignment.user.last_name
+                    )
             )
             log.add_proposal_log_entry(
                 proposal=_proposal,
@@ -3074,12 +3030,12 @@ def view_proposal_review_decision(
             review_assignment.declined = timezone.now()
             review_assignment.save()
             message = (
-                "Review Assignment request for proposal "
-                "'%s' has been declined by %s %s." % (
-                    _proposal.title,
-                    review_assignment.user.first_name,
-                    review_assignment.user.last_name,
-                )
+                    "Review Assignment request for proposal "
+                    "'%s' has been declined by %s %s." % (
+                        _proposal.title,
+                        review_assignment.user.first_name,
+                        review_assignment.user.last_name,
+                    )
             )
             log.add_proposal_log_entry(
                 proposal=_proposal,
@@ -3123,22 +3079,17 @@ def view_proposal_review_decision(
         'access_key': access_key,
         'active': 'proposal_review',
         'relationships': relationships,
-        'instructions': models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_proposal'
-        ).value
+        'instructions': get_setting('instructions_for_task_proposal', 'general')
     }
 
     return render(request, template, context)
 
 
 def proposal_review_submitted(request):
-
     return render(request, 'core/proposals/proposal_review_submitted.html')
 
 
 def proposal_review_declined(request):
-
     return render(request, 'core/proposals/proposal_review_declined.html')
 
 
@@ -3172,14 +3123,11 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
         review_assignment.save()
         form = review_forms.GeneratedForm(form=_proposal.review_form)
 
-    ci_required = models.Setting.objects.get(
-        group__name='general',
-        name='ci_required',
-    )
+    ci_required = get_setting('ci_required', 'general')
     recommendation_form = forms.RecommendationForm(
-        ci_required=ci_required.value
+        ci_required=ci_required
     )
-    
+
     if result:
         relations = review_models.FormElementsRelationship.objects.filter(
             form=result.form
@@ -3190,18 +3138,18 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
         )
     else:
         data_ordered = None
-        
+
     if not request.POST and request.GET.get('download') == 'proposal':
         path = create_proposal_form(_proposal)
         return serve_proposal_file(request, path)
-    
+
     elif not request.POST and request.GET.get('download') == 'docx':
         path = create_completed_proposal_review_form(
             _proposal,
             review_assignment.pk
         )
         return serve_proposal_file(request, path)
-    
+
     elif request.POST:
         form = review_forms.GeneratedForm(
             request.POST,
@@ -3210,7 +3158,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
         )
         recommendation_form = forms.RecommendationForm(
             request.POST,
-            ci_required=ci_required.value
+            ci_required=ci_required
         )
         if form.is_valid() and recommendation_form.is_valid():
             save_dict = {}
@@ -3282,10 +3230,7 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
         'recommendation_form': recommendation_form,
         'active': 'proposal_review',
         'relationships': relationships,
-        'instructions': models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_proposal'
-        ).value,
+        'instructions': get_setting('instructions_for_task_proposal', 'general'),
         'data': data,
     }
 
@@ -3321,15 +3266,9 @@ def proposal_add_editors(request, proposal_id):
         setting_name='book_editor_proposal_ack',
         context={
             'added_editors': _proposal.book_editors.all(),
-            'base_url': models.Setting.objects.get(
-                group__name='general',
-                name='base_url'
-            ).value,
+            'base_url': get_setting('base_url', 'general'),
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value
+            'press_name': get_setting('press_name', 'general')
         }
     )
 
@@ -3391,26 +3330,6 @@ def proposal_add_editors(request, proposal_id):
     return render(request, template, context)
 
 
-@is_book_editor
-def hide_review(request, proposal_id, assignment_id):
-    proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    review_assignment = get_object_or_404(
-        submission_models.ProposalReview,
-        pk=assignment_id,
-        withdrawn=False,
-    )
-    review_assignment.hide = False if review_assignment.hide else True
-    review_assignment.save()
-
-    return redirect(reverse(
-        'editor_review_round',
-        kwargs={
-            'submission_id': submission_id,
-            'round_number': submission.get_latest_review_round()
-        }
-    ))
-
-
 @is_reviewer
 def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
     _proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
@@ -3466,12 +3385,10 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 initial_data[k] = v[0]
             form.initial = initial_data
 
-    ci_required = models.Setting.objects.get(
-        group__name='general',
-        name='ci_required',
-    )
+    ci_required = get_setting('ci_required', 'general')
+
     recommendation_form = forms.RecommendationForm(
-        ci_required=ci_required.value,
+        ci_required=ci_required,
     )
 
     if review_assignment.reopened:
@@ -3507,7 +3424,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
         recommendation_form = forms.RecommendationForm(
             request.POST,
             request.FILES,
-            ci_required=ci_required.value,
+            ci_required=ci_required,
         )
         if form.is_valid() and recommendation_form.is_valid():
             save_dict = {}
@@ -3570,11 +3487,11 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                 review_assignment.files.add(review_file)
             review_assignment.save()
             message = (
-                "Review assignment for proposal '%s' "
-                "has been completed by %s ." % (
-                    review_assignment.proposal.title,
-                    review_assignment.user.profile.full_name()
-                )
+                    "Review assignment for proposal '%s' "
+                    "has been completed by %s ." % (
+                        review_assignment.proposal.title,
+                        review_assignment.user.profile.full_name()
+                    )
             )
             notification = models.Task(
                 assignee=review_assignment.proposal.requestor,
@@ -3601,10 +3518,8 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
         'recommendation_form': recommendation_form,
         'book_editors': _proposal.book_editors.all(),
         'active': 'proposal_review',
-        'instructions': models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_proposal',
-        ).value,
+        'instructions': get_setting('instructions_for_task_proposal',
+                                    'general'),
         'data': data,
     }
 
@@ -3618,10 +3533,7 @@ def add_proposal_reviewers(request, proposal_id):
     committees = manager_models.Group.objects.filter(
         group_type='review_committee'
     )
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='proposal_review_request'
-    ).value
+    email_text = get_setting('proposal_review_request', 'email')
     start_form = submission_forms.ProposalStart()
 
     if request.POST:
@@ -3776,10 +3688,7 @@ def decline_proposal(request, proposal_id):
             'sender': request.user,
             'receiver': _proposal.owner,
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value
+            'press_name': get_setting('press_name', 'general')
         }
     )
 
@@ -3885,12 +3794,10 @@ def contract_manager(request, proposal_id, contract_id=None):
                     _proposal.save()
 
                     if not new_contract.author_signed_off:
-                        email_text = models.Setting.objects.get(
-                            group__name='email',
-                            name='proposal_contract_author_sign_off'
-                        ).value
-                        logic.send_author_sign_off(
-                            submission,
+                        email_text = get_setting(
+                            'proposal_contract_author_sign_off', 'email')
+                        logic.send_proposal_contract_author_sign_off(
+                            proposal,
                             email_text,
                             sender=request.user,
                         )
@@ -3928,10 +3835,7 @@ def accept_proposal(request, proposal_id):
             'sender': request.user,
             'receiver': _proposal.owner,
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value
+            'press_name': get_setting('press_name', 'general')
         }
     )
 
@@ -3995,10 +3899,7 @@ def reopen_proposal_review(request, proposal_id, assignment_id):
             'review': review_assignment,
             'receiver': _proposal.owner,
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value
+            'press_name': get_setting('press_name', 'general')
         }
     )
 
@@ -4051,15 +3952,9 @@ def request_proposal_revisions(request, proposal_id):
             'sender': request.user,
             'receiver': _proposal.owner,
             'proposal': _proposal,
-            'press_name': models.Setting.objects.get(
-                group__name='general',
-                name='press_name'
-            ).value,
-            'base_url': models.Setting.objects.get(
-                group__name='general',
-                name='base_url'
-            ).value
-         }
+            'press_name': get_setting('press_name', 'general'),
+            'base_url': get_setting('base_url', 'general')
+        }
     )
 
     if request.POST:

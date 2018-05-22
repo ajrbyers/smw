@@ -4,13 +4,11 @@ from core import models
 from editor import models as editor_models
 from revisions import models as revisions_models
 from submission import models as submission_models
+from core.setting_util import get_setting
 
 
 def author_tasks(user):
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url'
-    ).value
+    base_url = get_setting('base_url', 'general')
     task_list = []
     revision_tasks = revisions_models.Revision.objects.filter(
         book__owner=user,
@@ -115,10 +113,7 @@ def author_tasks(user):
 
 def submission_tasks(book, user):
     task_list = []
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url',
-    ).value
+    base_url = get_setting('base_url', 'general')
     revision_tasks = revisions_models.Revision.objects.filter(
         book=book,
         requested__isnull=False,

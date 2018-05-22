@@ -19,18 +19,13 @@ from editor import models as editor_models
 from review import models as review_models
 from revisions import models as revision_models
 from submission import models as submission_models, logic as submission_logic
+from core.setting_util import get_setting
 
 
 @is_author
 def author_dashboard(request):
-    direct_submissions = models.Setting.objects.get(
-        group__name='general',
-        name='direct_submissions'
-    ).value
-    submit_proposals = models.Setting.objects.get(
-        group__name='general',
-        name='submit_proposals'
-    ).value
+    direct_submissions = get_setting('direct_submissions', 'general')
+    submit_proposals = get_setting('submit_proposals', 'general')
 
     template = 'author/dashboard.html'
     context = {
@@ -483,18 +478,11 @@ def author_production(request, submission_id):
 def author_view_typesetter(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_typeset_request'
-    ).value
-
+    email_text = get_setting('author_typeset_request', 'email')
     author_form = core_forms.TypesetAuthorInvite(instance=typeset)
     if typeset.editor_second_review:
         author_form = core_forms.TypesetTypesetterInvite(instance=typeset)
-        email_text = models.Setting.objects.get(
-            group__name='email',
-            name='typesetter_typeset_request'
-        ).value
+        email_text = get_setting('typesetter_typeset_request', 'email')
 
     if request.POST and 'invite_author' in request.POST:
         if not typeset.completed:
@@ -612,10 +600,7 @@ def view_copyedit(request, submission_id, copyedit_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
     author_form = core_forms.CopyeditAuthorInvite(instance=copyedit)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_copyedit_request'
-    ).value
+    email_text = get_setting('author_copyedit_request', 'email')
 
     if request.POST and 'invite_author' in request.POST:
         if not copyedit.completed:

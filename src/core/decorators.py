@@ -22,10 +22,6 @@ def is_author(_function):
             )
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if 'author' in user_roles:
             return _function(request, *args, **kwargs)
@@ -427,10 +423,6 @@ def has_reviewer_role(_function):
             )
 
         user_roles = [role.slug for role in request.user.profile.roles.all()]
-        submission_id = False
-
-        if kwargs.get('submission_id'):
-            submission_id = kwargs.get('submission_id')
 
         if 'reviewer' in user_roles:
             return _function(request, *args, **kwargs)

@@ -34,6 +34,7 @@ def index(request):
 
     return HttpResponse(json_content, content_type="application/json")
 
+
 class JuraBookViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
