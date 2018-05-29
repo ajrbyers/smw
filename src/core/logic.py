@@ -40,13 +40,13 @@ def book_to_mark21_file(book, owner, xml=False):
     """
     record = Record()  # New record.
 
-    l = list(record.leader)
-    l[5] = 'n'  # New
-    l[6] = 'a'  # For manuscript file use 't'
-    l[7] = 'm'  # Monograph
-    l[9] = 'a'
-    l[19] = '#'
-    record.leader = "".join(l)
+    leader_list = list(record.leader)
+    leader_list[5] = 'n'  # New
+    leader_list[6] = 'a'  # For manuscript file use 't'
+    leader_list[7] = 'm'  # Monograph
+    leader_list[9] = 'a'
+    leader_list[19] = '#'
+    record.leader = "".join(leader_list)
 
     # Category of material  - Text
     record.add_field(record_control_field('007', 't'))
@@ -89,13 +89,7 @@ def book_to_mark21_file(book, owner, xml=False):
             )
 
     # Source of acquisition.
-    try:
-        base_url = models.Setting.objects.get(
-            group__name='general',
-            name='base_url'
-        ).value
-    except:
-        base_url = 'localhost:8000'
+    base_url = get_setting('base_url', 'general')
 
     book_url = 'http://%s/editor/submission/%s/' % (base_url, book.id)
     record.add_field(record_field('030', ['#', '#'], ['b', book_url]))
@@ -132,29 +126,18 @@ def book_to_mark21_file(book, owner, xml=False):
             )
         )
 
-    try:  # Publication.
-        press_name = models.Setting.objects.get(
-            group__name='general',
-            name='press_name',
-        ).value
-    except:
-        press_name = None
-    try:
-        city = models.Setting.objects.get(
-            group__name='general',
-            name='city'
-        ).value
-    except:
-        city = None
+    # Publication.
+    press_name = get_setting('press_name', 'general')
+    city = get_setting('city', 'general')
 
     publication_info = []
     if book.publication_date:  # Press' city.
         if city:
             publication_info.append('a')
-            publication_info.append(str(city))
+            publication_info.append(city)
         if press_name:  # Press' name.
             publication_info.append('b')
-            publication_info.append(str(press_name))
+            publication_info.append(press_name)
         publication_info.append('c')  # Date of Publication.
         publication_info.append(str(book.publication_date))
         record.add_field(record_field('260', ['#', '#'], publication_info))
@@ -186,8 +169,11 @@ def book_to_mark21_file(book, owner, xml=False):
     press_editors = book.press_editors.all()
 
     for editor in press_editors:  # Editors.
-        record.add_field(record_field('700', ['1', '#'], ['a', '%s, %s' % (
-        editor.last_name, editor.first_name), 'e', 'Press editor']))
+        record.add_field(record_field(
+            '700',
+            ['1', '#'],
+            ['a', '%s, %s' % (editor.last_name,
+                              editor.first_name), 'e', 'Press editor']))
 
     if book.series:  # Series.
         record.add_field(
@@ -196,14 +182,9 @@ def book_to_mark21_file(book, owner, xml=False):
             record.add_field(record_field(
                 '700',
                 ['1', '#'],
-                [
-                    'a', '%s, %s' % (
-                        book.series.editor.last_name,
-                        book.series.editor.first_name
-                    ),
-                    'e',
-                    'Series editor'
-                ]
+                ['a', '%s, %s' % (book.series.editor.last_name,
+                                  book.series.editor.first_name),
+                 'e', 'Series editor']
             ))
 
     title = book.title  # Add record to file.
@@ -249,13 +230,13 @@ def book_to_mark21_file_content(book, owner, xml=False):
     """
     record = Record()  # New record.
 
-    l = list(record.leader)  # Adding Leader tags.
-    l[5] = 'n'  # New
-    l[6] = 'a'  # For manuscript file use 't'
-    l[7] = 'm'  # Monograph
-    l[9] = 'a'
-    l[19] = '#'
-    record.leader = "".join(l)
+    leader_list = list(record.leader)  # Adding Leader tags.
+    leader_list[5] = 'n'  # New
+    leader_list[6] = 'a'  # For manuscript file use 't'
+    leader_list[7] = 'm'  # Monograph
+    leader_list[9] = 'a'
+    leader_list[19] = '#'
+    record.leader = "".join(leader_list)
 
     # Category of material  - Text
     record.add_field(record_control_field('007', 't'))
@@ -267,7 +248,8 @@ def book_to_mark21_file_content(book, owner, xml=False):
     else:
         record.add_field(record_control_field('008', 'eng'))
 
-    isbn = models.Identifier.objects.filter(# International Standard Book Number
+    isbn = models.Identifier.objects.filter(
+        # International Standard Book Number
         book=book
     ).exclude(
         identifier='pub_id'
@@ -288,13 +270,8 @@ def book_to_mark21_file_content(book, owner, xml=False):
             record.add_field(
                 record_field('020', ['#', '#'], ['a', str(identifier.value)]))
 
-    try:  # Source of acquisition.
-        base_url = models.Setting.objects.get(
-            group__name='general',
-            name='base_url'
-        ).value
-    except:
-        base_url = 'localhost:8000'
+    # Source of acquisition.
+    base_url = get_setting('base_url', 'general', default='localhost:8000')
     book_url = 'http://%s/editor/submission/%s/' % (base_url, book.id)
     record.add_field(record_field('030', ['#', '#'], ['b', book_url]))
 
@@ -326,21 +303,9 @@ def book_to_mark21_file_content(book, owner, xml=False):
             ['a', book.title, 'c', author_names]
         ))
 
-    try:  # Publication.
-        press_name = models.Setting.objects.get(
-            group__name='general',
-            name='press_name',
-        ).value
-    except:
-        press_name = None
-    try:
-        city = models.Setting.objects.get(
-            group__name='general',
-            name='city',
-        ).value
-    except:
-        city = None
-
+    # Publication.
+    press_name = get_setting('press_name', 'general')
+    city = get_setting('city', 'general')
     publication_info = []
 
     if book.publication_date:
@@ -466,16 +431,19 @@ def get_editor_emails(submission_id, term):
     results = []
 
     for editor in editors:
-        try:
+        if hasattr(editor, 'full_name'):
             name = editor.full_name()
-        except:
-            name = editor.first_name + ' ' + editor.last_name
+        else:
+            name = '{first_name} {last_name}'.format(
+                first_name=editor.first_name,
+                last_name=editor.last_name
+            )
 
         editor_json = {'id': editor.id, 'label': name}
 
-        try:
+        if hasattr(editor, 'author_email'):
             editor_json['value'] = editor.author_email
-        except:
+        else:
             editor_json['value'] = editor.email
 
         if term:
@@ -490,17 +458,15 @@ def get_all_user_emails(term):
     results = []
 
     for user in users:
-        try:
+        if user.profile and hasattr(user.profile, 'full_name'):
             name = user.profile.full_name()
-        except:
-            name = user.first_name + ' ' + user.last_name
+        else:
+            name = '{first_name} {last_name}'.format(
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
 
-        user_json = {'id': user.id, 'label': name}
-
-        try:
-            user_json['value'] = user.email
-        except:
-            user_json['value'] = user.email
+        user_json = {'id': user.id, 'label': name, 'value': user.email}
 
         if term:
             if term.lower() in name.lower():
@@ -516,7 +482,10 @@ def get_onetasker_emails(submission_id, term):
     results = []
     for user in onetaskers:
         user_json = {}
-        name = user.first_name + ' ' + user.last_name
+        name = '{first_name} {last_name}'.format(
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
         user_json['id'] = user.id
         user_json['label'] = user.profile.full_name()
         user_json['value'] = user.email
@@ -533,7 +502,10 @@ def get_proposal_emails(proposal_id, term):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     results = []
     user = proposal.owner
-    name = user.first_name + ' ' + user.last_name
+    name = '{first_name} {last_name}'.format(
+        first_name=user.first_name,
+        last_name=user.last_name
+    )
     user_json = {
         'id': user.id,
         'label': user.profile.full_name(),
@@ -548,7 +520,10 @@ def get_proposal_emails(proposal_id, term):
 
     if proposal.requestor:
         user = proposal.requestor
-        name = user.first_name + ' ' + user.last_name
+        name = '{first_name} {last_name}'.format(
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
         user_json = {
             'id': user.id,
             'label': user.profile.full_name(),
@@ -627,21 +602,6 @@ def send_email(
     msg.send()
 
 
-''' 
-# this function is almost duplicated a little further down
-def send_author_sign_off(proposal, email_text, sender):
-    from_email = models.Setting.objects.get(group__name='email', name='from_address')
-
-    context = {
-        'base_url': models.Setting.objects.get(group__name='general', name='base_url').value,
-        'proposal': proposal,
-        'sender': sender,
-    }
-
-    email.send_email(get_setting('book_contract_uploaded_subject', 'email_subject', 'Book Contract Uploaded'), context, from_email.value, proposal.owner.email, email_text, proposal=proposal, kind='proposal')
-'''
-
-
 @cache_result(300)
 def press_settings():
     _dict = {}
@@ -656,21 +616,27 @@ def press_settings():
 
 
 def task_count(request):
-    """TODO: change to be handled based on whether the user is logged in or not.
     """
-    try:
+    Counts the number of incomplete tasks assigned to the user of a request
+    :param request: the request containing the user object used in the query
+    :return: the number of incomplete talks assigned to the request's user
+    """
+    if request.user.is_authenticated():
         return models.Task.objects.filter(
             assignee=request.user,
             completed__isnull=True,
         ).count()
-    except TypeError:
+    else:
         return 0
 
 
 def review_assignment_count(request):
-    """TODO: change to be handled based on whether the user is logged in or not.
     """
-    try:
+    Counts the number of active reviews assigned to the user of a request
+    :param request: the request containing the user object used in the query
+    :return: the number of active reviews assigned to the request's user
+    """
+    if request.user.is_authenticated():
         return models.ReviewAssignment.objects.filter(
             user=request.user,
             completed__isnull=True,
@@ -691,72 +657,76 @@ def review_assignment_count(request):
             completed__isnull=True,
             withdrawn=False
         ).count()
-    except TypeError:
+    else:
         return 0
 
 
 def author_tasks(user):
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url'
-    ).value
+    """
+    Returns a list of revision, typeset and copyedit tasks for a given user
+    :param user: the user for whom to get tasks
+    :return: a list of incomplete assigned to the user
+    """
     task_list = []
-    revision_tasks = revisions_models.Revision.objects.filter(
-        book__owner=user,
-        requested__isnull=False,
-        completed__isnull=True
-    ).select_related(
-        'book'
-    )
-    copyedit_tasks = models.CopyeditAssignment.objects.filter(
-        book__owner=user,
-        author_invited__isnull=False,
-        author_completed__isnull=True
-    ).select_related(
-        'book'
-    )
-    typeset_tasks = models.TypesetAssignment.objects.filter(
-        book__owner=user,
-        author_invited__isnull=False,
-        author_completed__isnull=True
-    ).select_related(
-        'book'
-    )
 
-    for revision in revision_tasks:
-        task_list.append(
-            {
-                'task': 'Revisions Requested',
-                'title': revision.book.title,
-                'url': 'http://%s/revisions/%s' % (base_url, revision.id)
-            }
+    if user.is_authenticated():
+        base_url = get_setting('base_url', 'general')
+        revision_tasks = revisions_models.Revision.objects.filter(
+            book__owner=user,
+            requested__isnull=False,
+            completed__isnull=True
+        ).select_related(
+            'book'
+        )
+        copyedit_tasks = models.CopyeditAssignment.objects.filter(
+            book__owner=user,
+            author_invited__isnull=False,
+            author_completed__isnull=True
+        ).select_related(
+            'book'
+        )
+        typeset_tasks = models.TypesetAssignment.objects.filter(
+            book__owner=user,
+            author_invited__isnull=False,
+            author_completed__isnull=True
+        ).select_related(
+            'book'
         )
 
-    for copyedit in copyedit_tasks:
-        task_list.append(
-            {
-                'task': 'Copyedit Review',
-                'title': copyedit.book.title,
-                'url': 'http://%s/copyedit/book/%s/edit/%s/author/' % (
-                     base_url,
-                     copyedit.book.id,
-                     copyedit.id
-                 )
-            }
-        )
+        for revision in revision_tasks:
+            task_list.append(
+                {
+                    'task': 'Revisions Requested',
+                    'title': revision.book.title,
+                    'url': 'http://%s/revisions/%s' % (base_url, revision.id)
+                }
+            )
 
-    for typeset in typeset_tasks:
-        task_list.append(
-            {
-                'task': 'Typesetting Review',
-                'title': typeset.book.title,
-                'url': 'http://%s/typeset/book/%s/typeset/%s/author/' % (
-                     base_url,
-                     typeset.book.id,
-                     typeset.id
-                 )
-            }
-        )
+        for copyedit in copyedit_tasks:
+            task_list.append(
+                {
+                    'task': 'Copyedit Review',
+                    'title': copyedit.book.title,
+                    'url': 'http://%s/copyedit/book/%s/edit/%s/author/' % (
+                        base_url,
+                        copyedit.book.id,
+                        copyedit.id
+                    )
+                }
+            )
+
+        for typeset in typeset_tasks:
+            task_list.append(
+                {
+                    'task': 'Typesetting Review',
+                    'title': typeset.book.title,
+                    'url': 'http://%s/typeset/book/%s/typeset/%s/author/' % (
+                        base_url,
+                        typeset.book.id,
+                        typeset.id
+                    )
+                }
+            )
 
     return task_list
 
@@ -764,11 +734,11 @@ def author_tasks(user):
 def typesetter_tasks(user):
     active = models.TypesetAssignment.objects.filter(
         (
-            Q(requested__isnull=False) &
-            Q(completed__isnull=True)
+                Q(requested__isnull=False) &
+                Q(completed__isnull=True)
         ) | (
-            Q(typesetter_invited__isnull=False) &
-            Q(typesetter_completed__isnull=True)
+                Q(typesetter_invited__isnull=False) &
+                Q(typesetter_completed__isnull=True)
         ),
         typesetter=user,
     ).select_related(
@@ -779,11 +749,11 @@ def typesetter_tasks(user):
 
     completed = models.TypesetAssignment.objects.filter(
         (
-            Q(completed__isnull=False) &
-            Q(typesetter_completed__isnull=True)
+                Q(completed__isnull=False) &
+                Q(typesetter_completed__isnull=True)
         ) | (
-            Q(completed__isnull=False) &
-            Q(typesetter_completed__isnull=False)
+                Q(completed__isnull=False) &
+                Q(typesetter_completed__isnull=False)
         ),
         typesetter=user,
     ).select_related(
@@ -1113,21 +1083,12 @@ def send_proposal_review_request(
         access_key=None,
 ):
     """ Email handler - should be moved to logic! """
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    base_url = get_setting('base_url', 'general')
+    press_name = get_setting('press_name', 'general')
 
     if access_key:
-        review_url = "http://{0}{1}".format(base_url.value, reverse(
+        review_url = "http://{0}{1}".format(base_url, reverse(
             'view_proposal_review_decision_access_key',
             kwargs={
                 'proposal_id': proposal.id,
@@ -1136,7 +1097,7 @@ def send_proposal_review_request(
             }
         ))
     else:
-        review_url = "http://{0}{1}".format(base_url.value, reverse(
+        review_url = "http://{0}{1}".format(base_url, reverse(
             'view_proposal_review_decision',
             kwargs={
                 'proposal_id': proposal.id,
@@ -1147,7 +1108,7 @@ def send_proposal_review_request(
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {
@@ -1181,27 +1142,18 @@ def send_proposal_review_reopen_request(
         email_text,
         attachment=None,
 ):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    base_url = get_setting('base_url', 'general')
+    press_name = get_setting('press_name', 'general')
 
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     review_url = "http://{0}{1}".format(
-        base_url.value,
+        base_url,
         reverse(
             'view_proposal_review_decision',
             kwargs={
@@ -1323,10 +1275,7 @@ def handle_typeset_assignment(
 
 def send_decision_ack(book, decision, email_text, url=None, attachment=None):
     """ Email Handlers - TODO: move to email.py? """
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
 
     if not decision == 'decline':
         decision_full = "Move to " + decision
@@ -1353,7 +1302,7 @@ def send_decision_ack(book, decision, email_text, url=None, attachment=None):
             email.send_email(
                 subject,
                 context,
-                from_email.value,
+                from_email,
                 author.author_email,
                 email_text,
                 kind=kind,
@@ -1364,7 +1313,7 @@ def send_decision_ack(book, decision, email_text, url=None, attachment=None):
             email.send_email(
                 subject,
                 context,
-                from_email.value,
+                from_email,
                 author.author_email,
                 email_text,
                 kind=kind,
@@ -1380,14 +1329,9 @@ def send_editorial_decision_ack(
         url=None,
         attachment=None,
 ):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    publishing_committee = models.Setting.objects.get(
-        group__name='general',
-        name='publishing_committee'
-    ).value
+    from_email = get_setting('from_address', 'email')
+    publishing_committee = get_setting('publishing_committee', 'general')
+
     decision_full = decision
 
     if contact == 'editorial-board':
@@ -1408,7 +1352,7 @@ def send_editorial_decision_ack(
             email.send_email(
                 subject,
                 context,
-                from_email.value,
+                from_email,
                 editor.email,
                 email_text,
                 book=review_assignment.book,
@@ -1433,7 +1377,7 @@ def send_editorial_decision_ack(
             email.send_email(
                 subject,
                 context,
-                from_email.value,
+                from_email,
                 author.author_email,
                 email_text,
                 book=review_assignment.book,
@@ -1458,7 +1402,7 @@ def send_editorial_decision_ack(
             email.send_email(
                 subject,
                 context,
-                from_email.value,
+                from_email,
                 current_email,
                 email_text,
                 book=review_assignment.book,
@@ -1469,10 +1413,8 @@ def send_editorial_decision_ack(
 
 def send_production_editor_ack(book, editor, email_text, attachment=None):
     """ Email Handlers - TODO: move to email.py? """
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
 
     context = {'submission': book, 'editor': editor}
     subject = get_setting(
@@ -1483,7 +1425,7 @@ def send_production_editor_ack(book, editor, email_text, attachment=None):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         editor.email,
         email_text,
         book=book,
@@ -1500,35 +1442,28 @@ def send_review_request(
         attachment=None,
         access_key=None,
 ):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    base_url = get_setting('base_url', 'general')
+    press_name = get_setting('press_name', 'general')
 
     if access_key:
         decision_url = (
-            'http://%s/review/%s/%s/assignment/%s/access_key/%s/decision/' % (
-                base_url.value,
-                review_assignment.review_type,
-                book.id,
-                review_assignment.id,
-                access_key,
+            'http://{base_url}/review/{review_type}/{book_id}/assignment/'
+            '{review_assignment_id}/access_key/{access_key}/decision/'.format(
+                base_url=base_url,
+                review_type=review_assignment.review_type,
+                book_id=book.id,
+                review_assignment_id=review_assignment.id,
+                access_key=access_key,
             )
         )
     else:
-        decision_url = 'http://%s/review/%s/%s/assignment/%s/decision/' % (
-            base_url.value,
-            review_assignment.review_type,
-            book.id,
-            review_assignment.id,
+        decision_url = 'http://{base_url}/review/{review_type}/{book_id}/' \
+                       'assignment/{review_assignment_id}/decision/'.format(
+            base_url=base_url,
+            review_type=review_assignment.review_type,
+            book_id=book.id,
+            review_assignment_id=review_assignment.id,
         )
 
     context = {
@@ -1536,7 +1471,7 @@ def send_review_request(
         'review': review_assignment,
         'decision_url': decision_url,
         'sender': sender,
-        'base_url': base_url.value,
+        'base_url': base_url,
         'press_name': press_name,
     }
 
@@ -1547,7 +1482,7 @@ def send_review_request(
             'Review Request',
         ),
         context=context,
-        from_email=from_email.value,
+        from_email=from_email,
         to=review_assignment.user.email,
         html_template=email_text,
         book=book,
@@ -1563,14 +1498,12 @@ def send_proposal_book_editor(
         sender,
         editor_email,
 ):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {'proposal': proposal, 'sender': sender}
@@ -1592,14 +1525,12 @@ def send_proposal_book_editor(
 
 
 def send_proposal_decline(request, proposal, email_text, sender):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {'proposal': proposal, 'sender': sender}
@@ -1621,10 +1552,8 @@ def send_proposal_decline(request, proposal, email_text, sender):
 
 
 def send_proposal_update(proposal, email_text, sender, receiver):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
     context = {'proposal': proposal, 'sender': sender, 'receiver': receiver}
     subject = get_setting(
         'proposal_update_subject',
@@ -1634,7 +1563,7 @@ def send_proposal_update(proposal, email_text, sender, receiver):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         proposal.owner.email,
         email_text,
         proposal=proposal,
@@ -1643,22 +1572,10 @@ def send_proposal_update(proposal, email_text, sender, receiver):
 
 
 def send_proposal_submission_ack(proposal, email_text, owner):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
 
-    try:
-        principal_contact_name = models.Setting.objects.get(
-            group__name='general',
-            name='primary_contact_name',
-        ).value
-    except:
-        principal_contact_name = None
+    principal_contact_name = get_setting('primary_contact_name', 'general')
 
     context = {
         'proposal': proposal,
@@ -1674,7 +1591,7 @@ def send_proposal_submission_ack(proposal, email_text, owner):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         proposal.owner.email,
         email_text,
         proposal=proposal,
@@ -1683,28 +1600,16 @@ def send_proposal_submission_ack(proposal, email_text, owner):
 
 
 def send_proposal_change_owner_ack(request, proposal, email_text, owner):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
 
-    try:
-        principal_contact_name = models.Setting.objects.get(
-            group__name='general',
-            name='primary_contact_name'
-        ).value
-    except:
-        principal_contact_name = None
+    principal_contact_name = get_setting('primary_contact_name', 'general')
 
     context = {
         'proposal': proposal,
         'receiver': owner,
         'sender': request.user,
-        'base_url': models.Setting.objects.get(name='base_url').value,
+        'base_url': get_setting('base_url', 'general'),
         'press_name': press_name,
         'principal_contact_name': principal_contact_name,
     }
@@ -1716,7 +1621,7 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         proposal.owner.email,
         email_text,
         proposal=proposal,
@@ -1726,14 +1631,12 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
 
 
 def send_task_decline(assignment, _type, email_text, sender, request):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {'assignment': assignment, 'sender': sender}
@@ -1741,9 +1644,9 @@ def send_task_decline(assignment, _type, email_text, sender, request):
         'assignment_declined_subject',
         'email_subject',
         '[abp] %s Assignment [id<%s>] Declined') % (
-             _type.title(),
-             assignment.id,
-    )
+                  _type.title(),
+                  assignment.id,
+              )
     email.send_email(
         subject,
         context,
@@ -1762,22 +1665,17 @@ def send_proposal_accept(
         submission, sender,
         attachment=None,
 ):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
+
 
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
         'proposal': proposal,
         'submission': submission,
         'sender': sender,
@@ -1802,26 +1700,17 @@ def send_proposal_accept(
 
 
 def send_proposal_revisions(request, proposal, email_text, sender):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
 
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
-            from_email.value,
+            from_email,
         )
 
     context = {
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
         'proposal': proposal,
         'sender': sender,
         'press_name': press_name,
@@ -1843,47 +1732,30 @@ def send_proposal_revisions(request, proposal, email_text, sender):
     )
 
 
-def send_author_sign_off(submission, email_text, sender):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+def send_proposal_contract_author_sign_off(proposal, email_text, sender):
+    from_email = get_setting('from_address', 'email')
 
     context = {
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
-        'submission': submission,
+        'base_url': get_setting('base_url', 'general'),
+        'proposal': proposal,
         'sender': sender,
     }
-    subject = get_setting(
-        'book_contract_uploaded_subject',
-        'email_subject',
-        'Book Contract Uploaded',
-    )
-    email.send_email(
-        subject,
-        context,
-        from_email.value,
-        submission.owner.email,
-        email_text,
-        book=submission,
-        kind='submission',
-    )
+
+    email.send_email(get_setting('book_contract_uploaded_subject',
+                                 'email_subject', 'Book Contract Uploaded'),
+                     context,
+                     from_email,
+                     proposal.owner.email,
+                     email_text,
+                     proposal=proposal,
+                     kind='proposal')
 
 
 def send_invite_typesetter(book, typeset, email_text, sender, attachment):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
+    from_email = get_setting('from_address', 'email')
 
     context = {
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
         'submission': typeset.book,
         'typeset': typeset,
         'sender': sender,
@@ -1892,7 +1764,7 @@ def send_invite_typesetter(book, typeset, email_text, sender, attachment):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         typeset.typesetter.email,
         email_text,
         book=book,
@@ -1902,20 +1774,11 @@ def send_invite_typesetter(book, typeset, email_text, sender, attachment):
 
 
 def send_new_user_ack(email_text, new_user, profile):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    press_name = models.Setting.objects.get(
-        group__name='general',
-        name='press_name',
-    ).value
+    from_email = get_setting('from_address', 'email')
+    press_name = get_setting('press_name', 'general')
 
     context = {
-        'base_url': models.Setting.objects.get(
-            group__name='general',
-            name='base_url',
-        ).value,
+        'base_url': get_setting('base_url', 'general'),
         'user': new_user,
         'profile': profile,
         'press_name': press_name,
@@ -1928,7 +1791,7 @@ def send_new_user_ack(email_text, new_user, profile):
     email.send_email(
         subject,
         context,
-        from_email.value,
+        from_email,
         new_user.email,
         email_text,
         kind='general',

@@ -212,7 +212,8 @@ urlpatterns = patterns(
         name='manager_reorder_form'
     ),
     url(
-        r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/(?P<relation_id>\d+)/$',
+        r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/'
+        r'(?P<relation_id>\d+)/$',
         'manager.views.edit_form',
         name='manager_edit_form_element'
     ),

@@ -24,6 +24,7 @@ from manager import models as manager_models, logic as manager_logic
 from review import models as review_models
 from revisions import models as revision_models
 from submission import forms as submission_forms
+from core.setting_util import get_setting
 
 
 @login_required
@@ -396,10 +397,7 @@ def editor_change_owner(request, submission_id):
             new_profile.save()
             book.owner = new_user
             book.save()
-            email_text = models.Setting.objects.get(
-                group__name='email',
-                name='new_user_owner_email'
-            ).value
+            email_text = get_setting('new_user_owner_email', 'email')
             logic.send_new_user_ack(book, email_text, new_user, new_pass)
 
         authors = get_list_of_authors(book)
@@ -815,10 +813,7 @@ def update_review_due_date(request, submission_id, round_id, review_id):
     review_assignment = get_object_or_404(models.ReviewAssignment, pk=review_id)
     previous_due_date = review_assignment.due
     if request.POST:
-        email_text = models.Setting.objects.get(
-            group__name='email',
-            name='review_due_ack',
-        ).value
+        email_text = get_setting('review_due_ack', 'email')
         due_date = request.POST.get('due_date', None)
         notify = request.POST.get('email', None)
 
@@ -864,14 +859,8 @@ def update_review_due_date(request, submission_id, round_id, review_id):
 @is_book_editor
 def editor_decision(request, submission_id, decision):
     book = get_object_or_404(models.Book, pk=submission_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='decision_ack',
-    ).value
-    editor_email_text = models.Setting.objects.get(
-        group__name='email',
-        name='production_editor_ack'
-    ).value
+    email_text = get_setting('decision_ack', 'email')
+    editor_email_text = get_setting('production_editor_ack', 'email')
     permission = True
 
     if book.stage.current_stage == 'editing':
@@ -1077,10 +1066,8 @@ def editor_decision(request, submission_id, decision):
 @is_book_editor
 def request_revisions(request, submission_id, returner):
     book = get_object_or_404(models.Book, pk=submission_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='request_revisions'
-    ).value
+    email_text = get_setting('request_revisions', 'email')
+
     form = forms.RevisionForm()
 
     if revision_models.Revision.objects.filter(
@@ -1359,10 +1346,7 @@ def editor_add_reviewers(request, submission_id, review_type, round_number):
         'reviewers': reviewers,
         'committees': committees,
         'active': 'new',
-        'email_text': models.Setting.objects.get(
-            group__name='email',
-            name='review_request',
-        ),
+        'email_text': get_setting('review_request', 'email'),
         'review_forms': review_forms,
         'submission': submission,
     }
@@ -1937,7 +1921,7 @@ def add_chapter(request, submission_id, chapter_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
 
     if chapter_id:
-        exist_chapter = get_object_or_404(models.Chapter, pk=file_id)
+        exist_chapter = get_object_or_404(models.Chapter, pk=chapter_id)
         chapter_form = core_forms.ChapterFormInitial()
     else:
         exist_chapter = None
@@ -2519,10 +2503,7 @@ def assign_typesetter(request, submission_id):
         ).order_by('sequence'),
         'typesetters': typesetters,
         'active_page': 'production',
-        'email_text': models.Setting.objects.get(
-            group__name='email',
-            name='typeset_request',
-        ),
+        'typeset_request': get_setting('typeset_request', 'email'),
     }
 
     return render(request, template, context)
@@ -2532,18 +2513,12 @@ def assign_typesetter(request, submission_id):
 def view_typesetter(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_typeset_request'
-    ).value
+    email_text = get_setting('author_typeset_request', 'email')
 
     author_form = forms.TypesetAuthorInvite(instance=typeset)
     if typeset.editor_second_review:
         author_form = forms.TypesetTypesetterInvite(instance=typeset)
-        email_text = models.Setting.objects.get(
-            group__name='email',
-            name='typesetter_typeset_request'
-        ).value
+        email_text = get_setting('typesetter_typeset_request', 'email')
 
     if request.POST and 'invite_author' in request.POST:
         if not typeset.completed:
@@ -2642,10 +2617,7 @@ def view_typesetter(request, submission_id, typeset_id):
 def view_typesetter_alter_due_date(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_typeset_request',
-    ).value
+    email_text = get_setting('author_typeset_request', 'email')
 
     date_form = forms.TypesetDate(instance=typeset)
 
@@ -2686,10 +2658,7 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
 def view_typesetter_alter_author_due(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_typeset_request',
-    ).value
+    email_text = get_setting('author_typeset_request', 'email')
 
     date_form = forms.TypesetAuthorDate(instance=typeset)
 
@@ -2892,10 +2861,7 @@ def assign_copyeditor(request, submission_id):
         'copyeditors': copyeditors,
         'author_include': 'editor/editing.html',
         'submission_files': 'editor/assign_copyeditor.html',
-        'email_text': models.Setting.objects.get(
-            group__name='email',
-            name='copyedit_request',
-        ),
+        'email_text': get_setting('copyedit_request', 'email'),
         'active_page': 'editing',
     }
 
@@ -2907,10 +2873,7 @@ def view_copyedit(request, submission_id, copyedit_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     copyedit = get_object_or_404(models.CopyeditAssignment, pk=copyedit_id)
     author_form = core_forms.CopyeditAuthorInvite(instance=copyedit)
-    email_text = models.Setting.objects.get(
-        group__name='email',
-        name='author_copyedit_request'
-    ).value
+    email_text = get_setting('author_copyedit_request', 'email')
 
     if request.POST and 'invite_author' in request.POST:
         if not copyedit.completed:
@@ -3042,10 +3005,7 @@ def assign_indexer(request, submission_id):
         'indexers': indexers,
         'author_include': 'editor/editing.html',
         'submission_files': 'editor/assign_indexer.html',
-        'email_text': models.Setting.objects.get(
-            group__name='email',
-            name='index_request',
-        ),
+        'email_text': get_setting('index_request', 'email'),
         'active_page': 'editing',
 
     }
@@ -3140,10 +3100,8 @@ def contract_manager(request, submission_id, contract_id=None):
                     submission.save()
 
                     if not new_contract.author_signed_off:
-                        email_text = models.Setting.objects.get(
-                            group__name='email',
-                            name='contract_author_sign_off',
-                        ).value
+                        email_text = get_setting('contract_author_sign_off',
+                                                 'email')
                         logic.send_author_sign_off(
                             submission,
                             email_text,
@@ -3248,7 +3206,8 @@ def files_for_production(request, submission_id):
         for x in index.index_files.all()
     ]
 
-    #'Primary Files' formed of manuscript, copyedit and index files, excluding those already in production_files.
+    # 'Primary Files' formed of manuscript, copyedit and index files,
+    # excluding those already in production_files.
     primary_files = sorted(
         set(chain(manuscript_files, copyedit_files, index_files))
         - set(production_files),
@@ -3256,7 +3215,8 @@ def files_for_production(request, submission_id):
         reverse=True
     )
 
-    # All files associated with book, excluding those already in primary files and production files, sorted by type.
+    # All files associated with book, excluding those already in primary files
+    # and production files, sorted by type.
     additional_files = sorted(
         set(
             chain(
@@ -3269,7 +3229,8 @@ def files_for_production(request, submission_id):
         key=attrgetter('kind')
     )
 
-    # Pre-populate production_files with most recently modified primary file, run only once so user can remove it.
+    # Pre-populate production_files with most recently modified primary file,
+    # run only once so user can remove it.
     if submission.first_run:
         submission.production_files.add(primary_files[0])
         submission.first_run = False

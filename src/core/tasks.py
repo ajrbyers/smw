@@ -10,6 +10,7 @@ from celery import task
 
 from core import models, email
 from services import ServiceHandler, JuraUpdateService
+from core.setting_util import get_setting
 
 
 def _read_csv(path):
@@ -122,10 +123,7 @@ def add_metadata():
                                     ]
                                 )
                             }
-                            email_text = models.Setting.objects.get(
-                                group__name='email',
-                                name='metadata_update'
-                            ).value
+                            email_text = get_setting('metadata_update', 'email')
                             email.send_email(
                                 subject='Metadata updated',
                                 context=email_context,
