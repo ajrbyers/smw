@@ -26,6 +26,7 @@ from core.decorators import is_reviewer, has_reviewer_role
 from editorialreview import models as editorialreview_models
 from review import forms, models, logic
 from submission import models as submission_models
+from core.setting_util import get_setting
 
 
 @has_reviewer_role
@@ -146,8 +147,10 @@ def reviewer_decision(
         decision=None,
         access_key=None,
 ):
-    # Check the review assignment has not been completed and is being accessed by the assigned user
-
+    """
+    Check the review assignment has not been completed
+    and is being accessed by the assigned user
+    """
     submission = get_object_or_404(core_models.Book, pk=submission_id)
     one_click_no_login = core_models.Setting.objects.filter(
         name='one_click_review_url',
@@ -369,15 +372,8 @@ def reviewer_decision(
         'editors': editors,
         'access_key': access_key,
         'one_click': one_click,
-        'file_preview': core_models.Setting.objects.get(
-            group__name='general',
-            name='preview_review_files',
-        ).value,
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
-
+        'file_preview': get_setting('preview_review_files', 'general'),
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
@@ -385,10 +381,7 @@ def reviewer_decision(
 
 @is_reviewer
 def review(request, review_type, submission_id, review_round, access_key=None):
-    ci_required = core_models.Setting.objects.get(
-        group__name='general',
-        name='ci_required',
-    )
+    ci_required = get_setting('ci_required', 'general')
     one_click_no_login = core_models.Setting.objects.filter(
         name='one_click_review_url',
     )
@@ -482,14 +475,15 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                     }
                 ))
 
-    # Check that this review is being access by the user, is not completed and has not been declined.
+    # Check that this review is bxweing access by the user,
+    # is not completed and has not been declined.
     if review_assignment:
         if not review_assignment.accepted and not review_assignment.declined:
             if access_key:
                 return redirect(reverse(
                     'reviewer_decision_without_access_key',
                     kwargs={
-                        'review_type': review_type,
+                         'review_type': review_type,
                          'submission_id': submission.pk,
                          'access_key': access_key,
                          'review_assignment_id': review_assignment.pk
@@ -695,10 +689,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         'access_key': access_key,
         'one_click': one_click,
         'has_additional_files': logic.has_additional_files(submission),
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
@@ -835,10 +826,7 @@ def review_complete(
         'result': result,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
@@ -913,20 +901,14 @@ def review_complete_no_redirect(
         'result': result,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
 
 
 def editorial_review(request, submission_id, access_key):
-    ci_required = core_models.Setting.objects.get(
-        group__name='general',
-        name='ci_required',
-    )
+    ci_required = get_setting('ci_required', 'general')
     # Check user has accessed review, is not completed and not declined.
     review_assignment = get_object_or_404(
         core_models.EditorialReviewAssignment,
@@ -1098,16 +1080,16 @@ def editorial_review(request, submission_id, access_key):
                 else:
                     file_fields = (
                         models.FormElementsRelationship.objects.filter(
-                            form=
-                            review_assignment.publication_committee_review_form,
+                            form=review_assignment.
+                            publication_committee_review_form,
                             element__field_type='upload',
                         )
                     )
                     data_fields = (
                         models.FormElementsRelationship.objects.filter(
                             ~Q(element__field_type='upload'),
-                            form=
-                            review_assignment.publication_committee_review_form,
+                            form=review_assignment.
+                            publication_committee_review_form,
                         )
                     )
 
@@ -1160,8 +1142,8 @@ def editorial_review(request, submission_id, access_key):
                         )
                     else:
                         result = models.FormResult(
-                            form=
-                            review_assignment.publication_committee_review_form,
+                            form=review_assignment.
+                            publication_committee_review_form,
                             data=data,
                         )
                     result.save()
@@ -1245,11 +1227,7 @@ def editorial_review(request, submission_id, access_key):
         'editorial_data_ordered': editorial_data_ordered,
         'editorial_result': editorial_result,
         'has_additional_files': logic.has_additional_files(submission),
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
-
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
@@ -1324,10 +1302,7 @@ def editorial_review_complete(request, submission_id, access_key):
         'editorial_board': editorial_board,
         'additional_files': logic.has_additional_files(submission),
         'editors': logic.get_editors(review_assignment),
-        'instructions': core_models.Setting.objects.get(
-            group__name='general',
-            name='instructions_for_task_review',
-        ).value
+        'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)

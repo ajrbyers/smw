@@ -55,10 +55,7 @@ def send_email(
     if request:
         reply_to = request.user.email
     else:
-        reply_to = models.Setting.objects.get(
-            group__name='email',
-            name='from_address',
-        ).value
+        reply_to = get_setting('from_address', 'email')
 
     msg = EmailMessage(
         subject,
@@ -164,10 +161,7 @@ def send_email_multiple(
     if request:
         reply_to = request.user.email
     else:
-        reply_to = models.Setting.objects.get(
-            group__name='email',
-            name='from_address',
-        )
+        reply_to = get_setting('from_address', 'email')
 
     msg = EmailMessage(
         subject,
@@ -219,22 +213,19 @@ def send_email_multiple(
 
 
 def send_reset_email(user, email_text, reset_code):
-    from_email = models.Setting.objects.get(
-        group__name='email',
-        name='from_address',
-    )
-    base_url = models.Setting.objects.get(
-        group__name='general',
-        name='base_url',
-    )
+    from_email = get_setting('from_address', 'email')
+    base_url = get_setting('base_url', 'general')
 
-    reset_url = 'http://%s/login/reset/code/%s/' % (base_url.value, reset_code)
+    reset_url = 'http://{base_url}/login/reset/code/{reset-code}/'.format(
+        base_url=base_url,
+        reset_code=reset_code
+    )
     context = {'reset_code': reset_code, 'reset_url': reset_url, 'user': user}
 
     send_email(
         get_setting('reset_code_subject', 'email_subject', '[abp] Reset Code'),
         context,
-        from_email.value,
+        from_email,
         user.email,
         email_text,
         kind='general',
@@ -261,10 +252,7 @@ def send_prerendered_email(
     if request:
         reply_to = request.user.email
     else:
-        reply_to = models.Setting.objects.get(
-            group__name='email',
-            name='from_address',
-        )
+        reply_to = get_setting('from_address', 'email')
 
     from_email = get_setting('from_address', 'general', 'noreply@rua.re')
     if custom_from_email:
@@ -316,10 +304,7 @@ def send_prerendered_email(
 
 def get_email_content(request, setting_name, context):
     try:
-        html_template = models.Setting.objects.get(
-            group__name='email',
-            name=setting_name,
-        ).value
+        html_template = get_setting(setting_name, 'email')
     except models.Setting.DoesNotExist:
         html_template = ''
 

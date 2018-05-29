@@ -3,6 +3,7 @@ import uuid
 from django import forms
 from django.contrib.auth.models import User
 
+from setting_util import get_setting
 from core import models, logic
 from submission import models as submission_models
 
@@ -76,10 +77,7 @@ class UserCreationForm(forms.ModelForm):
         profile.terms_and_conditions = True
         profile.save()
 
-        email_text = models.Setting.objects.get(  # Send email to the user.
-            group__name='email',
-            name='new_user_email',
-        ).value
+        email_text = get_setting('new_user_email', 'email')
         logic.send_new_user_ack(email_text, user, profile)
 
         if commit:

@@ -1,6 +1,7 @@
 from author.logic import author_tasks
 from core import logic, models as core_models
 from core.cache import cache_result
+from django.core.exceptions import DisallowedHost
 
 
 @cache_result(300)
@@ -9,10 +10,7 @@ def press(request):
 
 
 def task_count(request):
-    try:
-        return {'task_count': logic.task_count(request)}
-    except:
-        return {'task_count': 0}
+    return {'task_count': logic.task_count(request)}
 
 
 def switch_account(request):
@@ -28,43 +26,32 @@ def switch_account(request):
 
 
 def review_assignment_count(request):
-    try:
-        return {
-            'review_assignment_count': logic.review_assignment_count(request)}
-    except:
-        return {'review_assignment_count': 0}
+    return {'review_assignment_count': logic.review_assignment_count(request)}
 
 
 def onetasker_task_count(request):
-    try:
+    if request.user.is_authenticated():
         onetasker_tasks = logic.onetasker_tasks(request.user)
         return {'onetasker_task_count': len(onetasker_tasks.get('active')), }
-    except:
-        return {'onetasker_task_count': 0}
+    return {'onetasker_task_count': 0}
 
 
 def author_task_count(request):
-    try:
-        return {'author_task_count': len(author_tasks(request.user))}
-    except:
-        return {'author_task_count': 0}
+    return {'author_task_count': len(author_tasks(request.user))}
 
 
 def roles(request):
-    try:
-        if not request.user.is_anonymous():
-            return {
-                'roles': [
-                    role.slug for role in request.user.profile.roles.all()
-                ]
-            }
-        return {'roles': ''}
-    except:
-        return {'roles': ''}
+    if request.user.is_authenticated() and hasattr(request.user, 'profile'):
+        return {
+            'roles': [
+                role.slug for role in request.user.profile.roles.all()
+            ]
+        }
+    return {'roles': ''}
 
 
 def domain(request):
     try:
         return {'domain': request.get_host()}
-    except:
-        pass
+    except DisallowedHost:
+        return None

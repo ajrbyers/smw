@@ -456,12 +456,6 @@ urlpatterns = patterns(
     ),
     url(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)'
-        r'/hide/$',
-        'core.views.hide_review',
-        name='hide_proposal_review',
-    ),
-    url(
-        r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)'
         r'/completed/$',
         'core.views.view_completed_proposal_review',
         name='view_completed_proposal_review',

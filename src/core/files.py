@@ -243,7 +243,13 @@ def handle_email_file(_file, kind, owner, label=None):
     return new_file
 
 
-def handle_proposal_review_file(_file, proposal_review, kind, owner, label=None):
+def handle_proposal_review_file(
+        _file,
+        proposal_review,
+        kind,
+        owner,
+        label=None
+):
     original_filename = smart_text(
         _file._get_name()
     ).replace(

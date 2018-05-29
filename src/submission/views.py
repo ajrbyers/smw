@@ -1,11 +1,10 @@
-from  __builtin__ import any as string_any
+from __builtin__ import any as string_any
 from datetime import datetime
 import json
 import os
 import mimetypes as mime
 from uuid import uuid4
 
-from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -29,26 +28,16 @@ from core.views import create_proposal_form, serve_proposal_file
 from manager import forms as manager_forms
 from submission import forms
 from submission import logic, models as submission_models
+from core.setting_util import get_setting
 
 
 @login_required
 def start_submission(request, book_id=None):
-    direct_submissions = core_models.Setting.objects.get(
-        group__name='general',
-        name='direct_submissions'
-    ).value
-    default_review_type = core_models.Setting.objects.get(
-        group__name='general',
-        name='default_review_type'
-    ).value
-    review_type_selection = core_models.Setting.objects.get(
-        group__name='general',
-        name='review_type_selection'
-    ).value
-    ci_required = core_models.Setting.objects.get(
-        group__name='general',
-        name='ci_required',
-    )
+    direct_submissions = get_setting('direct_submissions', 'general')
+    default_review_type = get_setting('default_review_type', 'general')
+    review_type_selection = get_setting('review_type_selection', 'general')
+    ci_required = get_setting('ci_required', 'general')
+
     checklist_items = submission_models.SubmissionChecklistItem.objects.all()
 
     if book_id:
@@ -203,10 +192,7 @@ def submission_three(request, book_id):
         'active': 3,
         'manuscript_files': manuscript_files,
         'additional_files': additional_files,
-        'manuscript_guidelines': core_models.Setting.objects.get(
-            name='manuscript_guidelines'
-        ).value,
-
+        'manuscript_guidelines': get_setting('manuscript_guidelines', 'general')
     }
 
     return render(request, template, context)
@@ -234,10 +220,8 @@ def submission_three_additional(request, book_id):
         'book': book,
         'active': 4,
         'additional_files': additional_files,
-        'additional_guidelines': core_models.Setting.objects.get(
-            name='additional_files_guidelines'
-        ).value,
-
+        'additional_guidelines': get_setting('additional_files_guidelines',
+                                             'general')
     }
 
     return render(request, template, context)
@@ -547,10 +531,8 @@ def incomplete_proposal(request, proposal_id):
                 messages.SUCCESS,
                 'Proposal %s submitted' % proposal.id,
             )
-            email_text = core_models.Setting.objects.get(
-                group__name='email',
-                name='proposal_submission_ack'
-            ).value
+            email_text = get_setting('proposal_submission_ack', 'email')
+
             core_logic.send_proposal_submission_ack(
                 proposal,
                 email_text=email_text,
@@ -622,10 +604,7 @@ def incomplete_proposal(request, proposal_id):
 
 @login_required
 def start_proposal(request):
-    submit_proposals = core_models.Setting.objects.get(
-        group__name='general',
-        name='submit_proposals'
-    ).value
+    submit_proposals = get_setting('submit_proposals', 'general')
 
     if not submit_proposals:
         return redirect(reverse('user_dashboard'))
@@ -680,10 +659,8 @@ def start_proposal(request):
                 messages.SUCCESS,
                 'Proposal %s submitted' % proposal.id,
             )
-            email_text = core_models.Setting.objects.get(
-                group__name='email',
-                name='proposal_submission_ack',
-            ).value
+            email_text = get_setting('proposal_submission_ack', 'email')
+
             core_logic.send_proposal_submission_ack(
                 proposal,
                 email_text=email_text,
@@ -807,10 +784,7 @@ def proposal_revisions(request, proposal_id):
             'sender': request.user,
             'receiver': proposal.owner,
             'proposal': proposal,
-            'press_name': core_models.Setting.objects.get(
-                group__name='general',
-                name='press_name',
-            ).value}
+            'press_name': get_setting('press_name', 'general')}
     )
 
     overdue = False
@@ -1083,7 +1057,7 @@ def proposal_view(request, proposal_id):
         if (
                 proposal.requestor and
                 not proposal.requestor == request.user and
-                not 'press-editor' in user_roles
+                'press-editor' not in user_roles
         ):
             _editor = False
     else:
@@ -1138,8 +1112,7 @@ def proposal_view(request, proposal_id):
             proposal.requestor = request.user
             proposal.save()
 
-            update_email_text = core_models.Setting.objects.get(
-                group__name='email', name='proposal_update_ack').value
+            update_email_text = get_setting('proposal_update_ack', 'email')
             log.add_proposal_log_entry(
                 proposal=proposal,
                 user=request.user,
@@ -1260,7 +1233,7 @@ def proposal_history(request, proposal_id):
         if (
                 proposal.requestor and
                 not proposal.requestor == request.user and
-                not 'press-editor' in user_roles
+                'press-editor' not in user_roles
         ):
             _editor = False
     else:
