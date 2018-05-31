@@ -20,25 +20,28 @@ class CoreTests(TestCase):
     # Dummy DBs
     fixtures = [
         'settinggroups',
-        'settings',
+        'settings/master',
         'langs',
         'cc-licenses',
         'role',
         'test/test_auth_data',
         'test/test_unicode_core_data',
         'test/test_review_data',
+        'test/test_proposal_form',
+        'test/test_submission_proposal',
     ]
 
-    # Helper Function
-
-    def getmessage(cls, response):
+    # Helper Functions
+    @staticmethod
+    def getmessage(response):
         """Helper method to return first message from response """
         for c in response.context:
             message = [m for m in c.get('messages')][0]
             if message:
                 return message
 
-    def get_specific_message(cls, response, number):
+    @staticmethod
+    def get_specific_message(response, number):
         """Helper method to return first message from response """
         for c in response.context:
             message = [m for m in c.get('messages')][number]
@@ -48,7 +51,6 @@ class CoreTests(TestCase):
     def setUp(self):
         self.client = Client(HTTP_HOST="testing")
         self.user = User.objects.get(pk=1)
-        self.user.save()
         setup_test_environment()
         login = self.client.login(username=self.user.username, password="root")
         self.assertEqual(login, True)
@@ -63,13 +65,18 @@ class CoreTests(TestCase):
     def tearDown(self):
         pass
 
-    def all_x_exist(self, Model, key, expected_val_list):
+    def all_x_exist(self, model, key, expected_val_list):
         for expected_val in expected_val_list:
             try:
-                Model.objects.get(**{key: expected_val})
-            except Model.DoesNotExist:
-                self.fail("expected object with id %r not for model %r" % (
-                expected_val, Model))
+                model.objects.get(**{key: expected_val})
+            except model.DoesNotExist:
+                self.fail(
+                    "No {model_name} with a {key} of {value} found".format(
+                        model_name=model.__name__,
+                        key=key,
+                        value=expected_val,
+                    )
+                )
 
     # ## Fixture Tests ##
 
@@ -77,53 +84,100 @@ class CoreTests(TestCase):
         """
         testing roles fixture
         """
-        expected_roles = ["Reader", "Author", "Copyeditor", "Reviewer",
-                          "Press Editor", "Production Editor", "Book Editor",
-                          "Series Editor", "Indexer", "Typesetter"]
+        expected_roles = ["Reader",
+                          "Author",
+                          "Copyeditor",
+                          "Reviewer",
+                          "Press Editor",
+                          "Production Editor",
+                          "Book Editor",
+                          "Series Editor",
+                          "Indexer",
+                          "Typesetter"]
         self.all_x_exist(models.Role, 'name', expected_roles)
 
     def test_settings_fixture(self):
         """
         testing settings fixture
         """
-        settings = ["accronym", "editorial_assignment_feature",
-                    "proposal_contract_author_sign_off", "default_review_type",
-                    "review_type_selection", "submit_proposals",
-                    "additional_files_guidelines", "base_url", "ci_required",
-                    "city", "copyedit_author_instructions",
-                    "copyedit_instructions", "description",
-                    "direct_submissions", "footer", "index_instructions",
+        settings = ["accronym",
+                    "editorial_assignment_feature",
+                    "proposal_contract_author_sign_off",
+                    "default_review_type",
+                    "review_type_selection",
+                    "submit_proposals",
+                    "additional_files_guidelines",
+                    "base_url",
+                    "ci_required",
+                    "city",
+                    "copyedit_author_instructions",
+                    "copyedit_instructions",
+                    "description",
+                    "direct_submissions",
+                    "footer",
+                    "index_instructions",
                     "instructions_for_task_copyedit",
                     "instructions_for_task_index",
                     "instructions_for_task_proposal",
                     "instructions_for_task_review",
-                    "instructions_for_task_typeset", "manuscript_guidelines",
-                    "oai_identifier", "press_name", "preview_review_files",
-                    "primary_contact_email", "primary_contact_name",
-                    "proposal_form", "publishing_committee",
-                    "registration_message", "submission_checklist_help",
-                    "submission_guidelines", "suggested_reviewers",
-                    "suggested_reviewers_guide", "typeset_author_instructions",
-                    "typeset_instructions", "competing_interests",
-                    "terms-conditions", "accepted_reminder",
-                    "author_copyedit_request", "author_submission_ack",
-                    "author_typeset_request", "book_editor_ack",
-                    "contract_author_sign_off", "copyedit_request",
-                    "decision_ack", "editor_submission_ack",
-                    "editorial_decision_ack", "external_review_request",
-                    "from_address", "index_request", "new_user_email",
-                    "new_user_owner_email", "notification_reminder_email",
-                    "overdue_reminder", "production_editor_ack",
-                    "proposal_accept", "proposal_decline",
-                    "proposal_request_revisions", "proposal_review_request",
-                    "proposal_revision_submit_ack", "proposal_submission_ack",
-                    "proposal_update_ack", "request_revisions",
-                    "reset_password", "review_due_ack", "review_request",
-                    "revisions_reminder_email", "task_decline",
-                    "typeset_request", "typesetter_typeset_request",
-                    "unaccepted_reminder", "brand_header", "favicon",
-                    "notification_reminder", "remind_accepted_reviews",
-                    "remind_overdue_reviews", "remind_unaccepted_reviews",
+                    "instructions_for_task_typeset",
+                    "manuscript_guidelines",
+                    "oai_identifier",
+                    "press_name",
+                    "preview_review_files",
+                    "primary_contact_email",
+                    "primary_contact_name",
+                    "proposal_form",
+                    "publishing_committee",
+                    "registration_message",
+                    "submission_checklist_help",
+                    "submission_guidelines",
+                    "suggested_reviewers",
+                    "suggested_reviewers_guide",
+                    "typeset_author_instructions",
+                    "typeset_instructions",
+                    "competing_interests",
+                    "terms-conditions",
+                    "accepted_reminder",
+                    "author_copyedit_request",
+                    "author_submission_ack",
+                    "author_typeset_request",
+                    "book_editor_ack",
+                    "contract_author_sign_off",
+                    "copyedit_request",
+                    "decision_ack",
+                    "editor_submission_ack",
+                    "editorial_decision_ack",
+                    "external_review_request",
+                    "from_address",
+                    "index_request",
+                    "new_user_email",
+                    "new_user_owner_email",
+                    "notification_reminder_email",
+                    "overdue_reminder",
+                    "production_editor_ack",
+                    "proposal_accept",
+                    "proposal_decline",
+                    "proposal_request_revisions",
+                    "proposal_review_request",
+                    "proposal_revision_submit_ack",
+                    "proposal_submission_ack",
+                    "proposal_update_ack",
+                    "request_revisions",
+                    "reset_password",
+                    "review_due_ack",
+                    "review_request",
+                    "revisions_reminder_email",
+                    "task_decline",
+                    "typeset_request",
+                    "typesetter_typeset_request",
+                    "unaccepted_reminder",
+                    "brand_header",
+                    "favicon",
+                    "notification_reminder",
+                    "remind_accepted_reviews",
+                    "remind_overdue_reviews",
+                    "remind_unaccepted_reviews",
                     "revisions_reminder"]
         self.all_x_exist(models.Setting, 'name', settings)
 
@@ -511,11 +565,6 @@ class CoreTests(TestCase):
         self.assertEqual("Declined Proposals" in content, True)
 
     def test_proposals(self):
-        management.call_command('loaddata', 'test/test_proposal_form.json',
-                                verbosity=0)
-        management.call_command('loaddata',
-                                'test/test_submission_proposal.json',
-                                verbosity=0)
         proposal = submission_models.Proposal.objects.get(pk=1)
         self.client.login(username="rua_editor", password="tester")
         resp = self.client.get(reverse('proposals'))
@@ -535,9 +584,10 @@ class CoreTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        page_title = "Book Proposal :  %s : %s" % (
-        proposal.title, proposal.subtitle)
-        self.assertEqual(page_title in content, True)
+        page_title = "Book Proposal : {title}".format(
+            title=proposal.title,
+        )
+        self.assertTrue(page_title in content)
 
         proposal_reviews = submission_models.ProposalReview.objects.all()
         self.assertEqual(0, len(proposal_reviews))
@@ -646,11 +696,6 @@ class CoreTests(TestCase):
         self.assertEqual(resp['Location'], "http://testing/proposals/1/")
 
     def test_proposals_exists_in_committee(self):
-        management.call_command('loaddata', 'test/test_proposal_form.json',
-                                verbosity=0)
-        management.call_command('loaddata',
-                                'test/test_submission_proposal.json',
-                                verbosity=0)
         proposal = submission_models.Proposal.objects.get(pk=1)
         self.client.login(username="rua_editor", password="tester")
         proposal_reviews = submission_models.ProposalReview.objects.all()
@@ -723,30 +768,27 @@ class CoreTests(TestCase):
     def test_unauth_reset(self):
         resp = self.client.get(reverse('unauth_reset'))
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
+
         resp = self.client.post(reverse('unauth_reset'),
                                 {'username': 'rua_author'})
-        content = resp.content
         self.assertEqual(resp.status_code, 200)
         profile = models.Profile.objects.get(user__username='rua_author')
+
         resp = self.client.get(
             reverse('unauth_reset_code', kwargs={'uuid': profile.reset_code}))
-        content = resp.content
         self.assertEqual(resp.status_code, 302)
         resp = self.client.get(reverse('unauth_reset_password',
                                        kwargs={'uuid': profile.reset_code}))
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
+
         resp = self.client.post(reverse('unauth_reset_password',
                                         kwargs={'uuid': profile.reset_code}),
                                 {'password_1': 'testing12',
                                  'password_2': 'testing12'})
-        content = resp.content
-
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'], "http://testing/login/")
 
@@ -790,12 +832,14 @@ class CoreTests(TestCase):
         proposals = submission_models.Proposal.objects.filter(
             owner__isnull=True)
         self.assertEqual(proposals.count(), 0)
-        resp = self.client.post(reverse('proposal_assign'),
-                                {"book_submit": "True",
-                                 "title": "rua_proposal_title",
-                                 "subtitle": "rua_proposal_subtitle",
-                                 "author": "rua_user", "rua_element": "example",
-                                 "rua_element_2": "example"})
+        resp = self.client.post(
+            reverse('proposal_assign'),
+            {"book_submit": "True",
+             "title": "rua_proposal_title",
+             "subtitle": "rua_proposal_subtitle",
+             "author": "rua_user", "rua_element": "example",
+             "rua_element_2": "example"}
+        )
         proposals = submission_models.Proposal.objects.filter(
             owner__isnull=True)
         self.assertEqual(proposals.count(), 1)
@@ -806,22 +850,26 @@ class CoreTests(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        resp = self.client.post(reverse('proposal_assign_edit',
-                                        kwargs={'proposal_id': proposal.pk}),
-                                {"book_submit": "True",
-                                 "title": "rua_proposal_title updated",
-                                 "subtitle": "rua_proposal_subtitle",
-                                 "author": "rua_user", "rua_element": "example",
-                                 "rua_element_2": "example"})
+        resp = self.client.post(
+            reverse('proposal_assign_edit',
+                    kwargs={'proposal_id': proposal.pk}),
+            {"book_submit": "True",
+             "title": "rua_proposal_title updated",
+             "subtitle": "rua_proposal_subtitle",
+             "author": "rua_user",
+             "rua_element": "example",
+             "rua_element_2": "example"})
         content = resp.content
         self.assertEqual("403" in content, False)
         proposals = submission_models.Proposal.objects.filter(
             owner__isnull=True)
         proposal = proposals[0]
         self.assertEqual(proposal.title, "rua_proposal_title updated")
-        resp = self.client.get(reverse('proposal_assign_user',
-                                       kwargs={'proposal_id': proposal.pk,
-                                               'user_id': 1}))
+        resp = self.client.get(
+            reverse('proposal_assign_user',
+                   kwargs={'proposal_id': proposal.pk,
+                           'user_id': 1})
+        )
         content = resp.content
 
         self.assertEqual(resp.status_code, 302)
@@ -831,32 +879,26 @@ class CoreTests(TestCase):
         self.assertEqual(proposals.count(), 0)
 
     def test_proposal_history(self):
-        resp = self.client.post(reverse('proposal_start'),
-                                {"book_submit": "True",
-                                 "title": "rua_proposal_title",
-                                 "subtitle": "rua_proposal_subtitle",
-                                 "author": "rua_user", "rua_element": "example",
-                                 "rua_element_2": "example"})
+        # A proposal with the title 'rua_proposal_title'
+        # has bee loaded from a fixture
         resp = self.client.get(reverse('proposals_history'))
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
         self.assertEqual("rua_proposal_title" in content, True)
 
-    def test_proposal_review(self):
-        resp = self.client.post(
-            reverse('proposal_start'),
-            {"book_submit": "True",
-             "title": "rua_proposal_title",
-             "subtitle": "rua_proposal_subtitle",
-             "author": "rua_user",
-             "rua_element": "example",
-             "rua_element_2": "example"}
+    def test_start_proposal_review(self):
+        proposal = submission_models.Proposal.objects.get(pk=2)
+        self.assertEqual(
+            proposal.title,
+            'rua_proposal_title',
+            'The title of proposal with pk=2 does not match the fixture..'
         )
+
+        # Creating a proposal review
         resp = self.client.post(
             reverse('start_proposal_review',
-                    kwargs={'proposal_id': 1}),
+                    kwargs={'proposal_id': proposal.id}),
             {'due_date': '2016-04-29',
              'review_form': '1',
              'indv-reviewer_length': '5',
@@ -865,81 +907,172 @@ class CoreTests(TestCase):
              'reviewer': ['4', '1'],
              'committee': ['2']}
         )
-        proposal = submission_models.Proposal.objects.get(pk=1)
-        self.assertEqual(proposal.date_review_started is not None, True)
-        reviews = submission_models.ProposalReview.objects.filter(
-            proposal=proposal
+        self.assertEqual(resp.status_code, 302)
+
+        proposal.refresh_from_db()
+        self.assertFalse(
+            proposal.date_review_started is None,
+            'The proposal for which this test attempted to start a review has '
+            'no review start date (date_review_started is None).'
         )
-        self.assertEqual(reviews.count(), 2)
+        self.assertEqual(proposal.review_assignments.count(), 2)
+
+    def test_view_proposal_review_decision(self):
+        # Initialisation
+        proposal = submission_models.Proposal.objects.get(pk=2)
+        resp = self.client.post(
+            reverse('start_proposal_review',
+                    kwargs={'proposal_id': proposal.id}),
+            {'due_date': '2016-04-29',
+             'review_form': '1',
+             'indv-reviewer_length': '5',
+             'comm-reviewer_length': '5',
+             'email_text': 'Test',
+             'reviewer': ['4', '1'],
+             'committee': ['2']}
+        )
+        proposal_review_assignments = proposal.review_assignments.all()
+
+        # Testing acceptance and declination of proposal by assigned reviewers
         resp = self.client.get(
             reverse('view_proposal_review_decision',
-                    kwargs={'proposal_id': 1,
-                            'assignment_id': 1})
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id})
+        )
+        content = resp.content
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual("403" in content, False)
+
+        self.client.post(
+            reverse('view_proposal_review_decision',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id}),
+            {'accept': ''}
+        )
+        self.client.post(
+            reverse('view_proposal_review_decision',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[1].id}),
+            {'decline': ''}
+        )
+        self.assertTrue(proposal_review_assignments[0].accepted is not None)
+        self.assertFalse(proposal_review_assignments[0].declined is not None)
+        self.assertTrue(proposal_review_assignments[1].declined is not None)
+        self.assertFalse(proposal_review_assignments[1].accepted is not None)
+
+        resp = self.client.get(
+            reverse('view_proposal_review',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id})
+        )
+        content = resp.content
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse("403" in content)
+
+        resp = self.client.post(
+            reverse(
+                'view_proposal_review',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': proposal_review_assignments[0].id}
+                ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing'
+            }
+        )
+        proposal_review_assignments[0].refresh_from_db()
+        self.assertTrue(proposal_review_assignments[0].completed is not None)
+
+    def test_reopen_proposal_review(self):
+        # Initialisation
+        proposal = submission_models.Proposal.objects.get(pk=2)
+        self.client.post(
+            reverse('start_proposal_review',
+                    kwargs={'proposal_id': proposal.id}),
+            {'due_date': '2016-04-29',
+             'review_form': '1',
+             'indv-reviewer_length': '5',
+             'comm-reviewer_length': '5',
+             'email_text': 'Test',
+             'reviewer': ['4', '1'],
+             'committee': ['2']}
+        )
+        proposal_review_assignments = proposal.review_assignments.all()
+
+        self.client.post(
+            reverse('view_proposal_review_decision',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id}),
+            {'accept': ''}
+        )
+        self.client.post(
+            reverse(
+                'view_proposal_review',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': proposal_review_assignments[0].id}
+                ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing'
+            }
+        )
+
+        # Testing reopen_proposal_review function
+        resp = self.client.get(
+            reverse('reopen_proposal_review',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id})
         )
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        resp = self.client.post(reverse('view_proposal_review_decision',
-                                        kwargs={'proposal_id': 1,
-                                                'assignment_id': 1}),
-                                {'accept': ''})
-        resp = self.client.post(reverse('view_proposal_review_decision',
-                                        kwargs={'proposal_id': 1,
-                                                'assignment_id': 2}),
-                                {'decline': ''})
-        reviews = submission_models.ProposalReview.objects.filter(
-            proposal=proposal)
+        self.assertFalse("403" in content)
 
-        self.assertEqual(reviews[0].accepted is not None, True)
-        self.assertEqual(reviews[0].declined is not None, False)
-        self.assertEqual(reviews[1].declined is not None, True)
-        self.assertEqual(reviews[1].accepted is not None, False)
-        resp = self.client.get(reverse('view_proposal_review',
-                                       kwargs={'proposal_id': 1,
-                                               'assignment_id': 1}))
+        resp = self.client.post(
+            reverse(
+                'reopen_proposal_review',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': proposal_review_assignments[0].id
+                }
+            ),
+            {
+                'due_date': '2015-11-11',
+                'email': 'test',
+                'comments': 'testing'
+            }
+        )
+        proposal_review_assignments[0].refresh_from_db()
+
+        self.assertTrue(proposal_review_assignments[0].reopened)
+
+        resp = self.client.get(
+            reverse('view_proposal_review',
+                    kwargs={'proposal_id': proposal.id,
+                            'assignment_id': proposal_review_assignments[0].id})
+        )
         content = resp.content
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        resp = self.client.post(reverse('view_proposal_review',
-                                        kwargs={'proposal_id': 1,
-                                                'assignment_id': 1}),
-                                {'rua_name': 'example',
-                                 'recommendation': 'accept',
-                                 'competing_interests': 'nothing'})
-        review = submission_models.ProposalReview.objects.get(pk=1)
-        self.assertEqual(review.completed is not None, True)
-        resp = self.client.get(reverse('reopen_proposal_review',
-                                       kwargs={'proposal_id': 1,
-                                               'assignment_id': 1}))
-        content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.post(reverse('reopen_proposal_review',
-                                        kwargs={'proposal_id': 1,
-                                                'assignment_id': 1}),
-                                {'due_date': '2015-11-11', 'email': 'test',
-                                 'comments': 'testing'})
-        review = submission_models.ProposalReview.objects.get(pk=1)
-        self.assertEqual(review.reopened, True)
-        resp = self.client.get(reverse('view_proposal_review',
-                                       kwargs={'proposal_id': 1,
-                                               'assignment_id': 1}))
-        content = resp.content
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        resp = self.client.post(reverse('view_proposal_review',
-                                        kwargs={'proposal_id': 1,
-                                                'assignment_id': 1}),
-                                {'rua_name': 'example',
-                                 'recommendation': 'accept',
-                                 'competing_interests': 'nothing'})
-        review = submission_models.ProposalReview.objects.get(pk=1)
-        self.assertEqual(review.reopened, False)
+        resp = self.client.post(
+            reverse(
+                'view_proposal_review',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': proposal_review_assignments[0].id
+                }
+            ),
+            {'rua_name': 'example',
+             'recommendation': 'accept',
+             'competing_interests': 'nothing'}
+        )
+        proposal_review_assignments[0].refresh_from_db()
+        self.assertFalse(proposal_review_assignments[0].reopened)
 
     def test_readonly_profile(self):
         resp = self.client.get(
@@ -966,12 +1099,19 @@ class CoreTests(TestCase):
         self.assertEqual(resp['Location'], "http://testing/user/profile/")
 
     def test_register(self):
-        resp = self.client.post(reverse('register'),
-                                {'first_name': 'new', 'last_name': 'last',
-                                 'username': 'user1', 'email': 'fake@faked.com',
-                                 'password1': 'password1',
-                                 'password2': "password1"})
+        resp = self.client.post(
+            reverse('register'),
+            {'first_name': 'new',
+             'last_name': 'last',
+             'username': 'user1',
+             'email': 'fake@faked.com',
+             'password1': 'password1',
+             'password2': "password1",
+             'institution': 'Institute of Testable Hypotheses',
+             'country': 'GB'}
+        )
         self.assertEqual(resp.status_code, 302)
+
         self.assertEqual(resp['Location'], "http://testing/login/")
 
     def test_reset_password(self):
@@ -996,11 +1136,18 @@ class CoreTests(TestCase):
                          'Password is not long enough, must be greater than 8 characters.')
 
     def test_register_login(self):
-        resp = self.client.post(reverse('register'),
-                                {'first_name': 'new', 'last_name': 'last',
-                                 'username': 'user1', 'email': 'fake@faked.com',
-                                 'password1': 'password1',
-                                 'password2': "password1"})
+        resp = self.client.post(
+            reverse('register'),
+            {'first_name': 'new',
+             'last_name': 'last',
+             'username': 'user1',
+             'email': 'fake@faked.com',
+             'password1': 'password1',
+             'password2': "password1",
+             'institution': 'Institute of Testable Hypotheses',
+             'country': 'GB'})
+        self.assertEqual(resp.status_code, 302)
+
         user = User.objects.get(username="user1")
         roles = models.Role.objects.filter(name__icontains="Editor")
         for role in roles:

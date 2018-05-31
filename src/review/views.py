@@ -152,12 +152,10 @@ def reviewer_decision(
     and is being accessed by the assigned user
     """
     submission = get_object_or_404(core_models.Book, pk=submission_id)
-    one_click_no_login = core_models.Setting.objects.filter(
-        name='one_click_review_url',
-    )
+    one_click_no_login = get_setting('one_click_review_url', 'general')
 
-    if one_click_no_login:
-        if one_click_no_login[0].value == 'on':
+    if one_click_no_login is not None:
+        if one_click_no_login == 'on':
             one_click = True
             if access_key:
                 review_assignment = get_object_or_404(
@@ -519,7 +517,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             form.initial = initial_data
 
     recommendation_form = core_forms.RecommendationForm(
-        ci_required=ci_required.value
+        ci_required=ci_required
     )
 
     if review_assignment.reopened:
@@ -540,7 +538,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         )
         recommendation_form = core_forms.RecommendationForm(
             request.POST,
-            ci_required=ci_required.value,
+            ci_required=ci_required,
         )
         if form.is_valid() and recommendation_form.is_valid():
             save_dict = {}
@@ -986,7 +984,7 @@ def editorial_review(request, submission_id, access_key):
             resubmit = False
 
     recommendation_form = core_forms.RecommendationForm(
-        ci_required=ci_required.value,
+        ci_required=ci_required,
     )
 
     initial_data = {}
@@ -1049,7 +1047,7 @@ def editorial_review(request, submission_id, access_key):
 
         recommendation_form = core_forms.RecommendationForm(
             request.POST,
-            ci_required=ci_required.value,
+            ci_required=ci_required,
         )
 
         if form.is_valid() and recommendation_form.is_valid():

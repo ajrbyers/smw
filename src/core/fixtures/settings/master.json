@@ -1,31 +1,9 @@
 [
   {
   "fields": {
-    "value": "Dear {{proposal.owner.first_name}} {{proposal.owner.last_name}},\r\n<br><br>A contract has been uploaded by the Editor for you to review. Please login using the link below to review and sign off the contract.\r\n\r\n{{base_url}}/user/proposal/{{proposal.id}}\r\n\r\n<br><br>Regards<br>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br>",
-    "group": 3,
-    "name": "proposal_contract_author_sign_off",
-    "types": "rich_text",
-    "description": ""
-  },
-  "model": "core.setting",
-  "pk": null
-},
-  {
-  "fields": {
     "value": "Book Contract Uploaded",
     "group": 6,
     "name": "book_contract_uploaded_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Review Request",
-    "group": 6,
-    "name": "proposal_review_request_subject",
     "types": "text",
     "description": "Email subject. Do not remove '%s' or other string format related parts. "
   },
@@ -318,17 +296,6 @@
   "model": "core.setting",
   "pk": null
 },
-  {
-  "fields": {
-    "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential reviewer for a book proposal submitted to {{press_name}}. The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by _due_date_, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
-    "group": 3,
-    "name": "proposal_review_request",
-    "types": "rich_text",
-    "description": ""
-  },
-  "model": "core.setting",
-  "pk": null
-},
 {
   "fields": {
     "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Your review assignment of a book proposal submitted to {{press_name}} has reopened. <span style=\"background-color: yellow;\">[ADD REASON]</span> The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by _due_date_ , therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
@@ -362,73 +329,7 @@
   "model": "core.setting",
   "pk": 113
 },
-  {
-  "fields": {
-    "value": "tech@ubiquitypress.com;",
-    "group": 1,
-    "name": "publishing_committee",
-    "types": "text",
-    "description": "Publishing committee contacted during an editorial review assignment. Separate email addresses with this character ';'"
-  },
-  "model": "core.setting",
-  "pk": null
-},
 {
-  "fields": {
-    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
-    "group": 3,
-    "name": "editorial_decision_ack",
-    "types": "rich_text",
-    "description": "Email sent when a decision is made on an editorial review assignment."
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "submit_proposals",
-    "types": "boolean",
-    "description": "If enabled, authors/editors can submit proposals to the press. If disabled, authors/editors cannot submit proposals."
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "review_type_selection",
-    "types": "boolean",
-    "description": "If enabled the review_type selection will appear on the start new submission page. if disabled the default  review type from the 'default_review_type' setting will be assigned to new submissions and review_type list will be hidden"
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "open-with",
-    "group": 1,
-    "name": "default_review_type",
-    "types": "text",
-    "description": "Default review type used when review type selection is disabled"
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "'on'",
-    "group": 1,
-    "name": "editorial_assignment_feature",
-    "types": "boolean",
-    "description": "Editorial review assignment feature can be turned on or off."
-  },
-  "model": "core.setting",
-  "pk": null
-},
-  {
     "fields": {
         "value": "Template Press Name",
         "group": 1,

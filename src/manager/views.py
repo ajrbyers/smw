@@ -183,13 +183,12 @@ def flush_cache(request):
 def settings_index(request):
     template = 'manager/settings/index.html'
     context = {
-        'settings': [
+        'settings':
             {
-                gr.name:
-                core_models.Setting.objects.filter(group=gr).order_by('name')
-            }
-            for gr in core_models.SettingGroup.objects.all().order_by('name')
-        ],
+                g.name:
+                core_models.Setting.objects.filter(group=g).order_by('name')
+                for g in core_models.SettingGroup.objects.all().order_by('name')
+            },
     }
 
     return render(request, template, context)
@@ -657,7 +656,10 @@ def add_new_form(request, form_type):
         if form.is_valid:
             form.save()
 
-        return redirect(reverse('manager_{}_forms'.format(form_type)))
+        return redirect(
+            reverse('manager_forms',
+                    kwargs={'form_type': form_type})
+        )
 
     template = 'manager/add_new_form.html'
     context = {'form': form, 'form_type': form_type}
