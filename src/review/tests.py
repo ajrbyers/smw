@@ -100,10 +100,11 @@ class ReviewTests(TestCase):
         self.assertEqual("Review requested for" in content, True)
         self.assertEqual("rua_title" in content, True)
         self.assertEqual("View Task" in content, True)
-        # Elaborate formatting to match the date rendered by the template
+        # Manual formatting to match the date rendered by the template
         formatted_accepted_date = '{:%d %b %G}'.format(
-            self.assignment.accepted).strip('0')
-        message = 'You accepted on {date}'.format(date=formatted_accepted_date)
+            self.assignment.accepted
+        ).lstrip('0')
+        message = 'You accepted on {}'.format(formatted_accepted_date)
         self.assertEqual(message in content, True)
         self.assignment.completed = timezone.now()
         self.assignment.save()
@@ -253,9 +254,10 @@ class ReviewTests(TestCase):
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        # Elaborate formatting to match the date rendered by the template
+        # Manual formatting to match the date rendered by the template
         message = 'You accepted on ' + '{:%d %b %G}'.format(
-            self.assignment.accepted).strip('0')
+            self.assignment.accepted
+        ).lstrip('0')
         self.assertTrue(message in content)
         resp = self.client.get(reverse('review_complete', kwargs={
             'review_type': self.assignment.review_type, 'submission_id': 1,
