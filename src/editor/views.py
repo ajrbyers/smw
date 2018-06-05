@@ -252,6 +252,10 @@ def editor_submission(request, submission_id):
     not_additional = True
     files = book.files.all()
 
+    series_editor = None
+    if book.series and book.series.editor:
+        series_editor = book.series.editor
+
     for file_check in files:
         if file_check.kind == 'manuscript':
             not_manuscript = False
@@ -261,6 +265,7 @@ def editor_submission(request, submission_id):
     template = 'editor/submission.html'
     context = {
         'submission': book,
+        'series_editor': series_editor,
         'no_additional': not_additional,
         'no_manuscript': not_manuscript,
         'active': 'user_submission',
