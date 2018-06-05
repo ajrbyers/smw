@@ -1458,13 +1458,15 @@ def send_review_request(
             )
         )
     else:
-        decision_url = 'http://{base_url}/review/{review_type}/{book_id}/' \
-                       'assignment/{review_assignment_id}/decision/'.format(
-                            base_url=base_url,
-                            review_type=review_assignment.review_type,
-                            book_id=book.id,
-                            review_assignment_id=review_assignment.id,
-                       )
+        decision_url = (
+            'http://{base_url}/review/{review_type}/{book_id}/'
+            'assignment/{review_assignment_id}/decision/'.format(
+                base_url=base_url,
+                review_type=review_assignment.review_type,
+                book_id=book.id,
+                review_assignment_id=review_assignment.id,
+            )
+        )
 
     context = {
         'book': book,
