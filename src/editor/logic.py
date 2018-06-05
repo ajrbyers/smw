@@ -601,7 +601,6 @@ def send_proposal_revisions(proposal, email_text, sender):
 def send_author_sign_off(submission, email_text, sender):
     from_email = get_setting('from_address', 'email')
 
-
     context = {
         'base_url': get_setting('base_url', 'general'),
         'submission': submission,
@@ -631,7 +630,6 @@ def send_copyedit_assignment(
         attachment=None,
 ):
     from_email = get_setting('from_address', 'email')
-
 
     context = {
         'base_url': get_setting('base_url', 'general'),

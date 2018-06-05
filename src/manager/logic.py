@@ -1,6 +1,6 @@
 import random
 
-from core import email, models
+from core import email
 from core.setting_util import get_setting
 
 
