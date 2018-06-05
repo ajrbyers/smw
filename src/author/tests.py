@@ -22,7 +22,9 @@ class AuthorTests(TestCase):
         'test/test_auth_data',
         'test/test_core_data',
         'test/test_review_data',
-
+        'test/test_copyedit_assignment_data',
+        'test/test_index_assignment_data',
+        'test/test_contract_data',
     ]
 
     def setUp(self):
@@ -72,11 +74,15 @@ class AuthorTests(TestCase):
         self.assertEqual("Review" in content, True)
         self.assertEqual("Submission" in content, True)
 
-    def test_submission_tasks(self):
-        # core_models.CopyeditAssignment.objects.all()[0].delete()
-        resp = self.client.get(reverse('tasks', kwargs={'submission_id': self.book.id}))
-        content = resp.content
+    def test_submission_tasks_no_data(self):
+        # Clear assignments from fixture test/test_copyedit_assignment_data.json
+        for assignment in core_models.CopyeditAssignment.objects.all():
+            assignment.delete()
 
+        resp = self.client.get(
+            reverse('tasks',
+                    kwargs={'submission_id': self.book.id}))
+        content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
         self.assertEqual("My Tasks" in content, True)
@@ -84,33 +90,44 @@ class AuthorTests(TestCase):
         self.typeset_assignment = core_models.TypesetAssignment.objects.get(pk=1)
         self.typeset_assignment.author_invited = timezone.now()
         self.typeset_assignment.save()
-        resp = self.client.get(reverse('tasks', kwargs={'submission_id': self.book.id}))
+
+        resp = self.client.get(reverse('tasks',
+                                       kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
         self.assertEqual("My Tasks" in content, True)
         self.assertEqual("No outstanding tasks" in content, False)
         self.assertEqual("Typesetting Review" in content, True)
-        resp = self.client.get(reverse('author_dashboard'))
-        content = resp.content
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Typesetting Review" in content, True)
-        self.assertEqual("Invited on" in content, True)
+
+    def test_submission_tasks(self):
+        # Fixture data from test/test_copyedit_assignment_data.json is retained
         self.client.login(username="rua_editor", password="tester")
-        resp = self.client.post(reverse('request_revisions', kwargs={'submission_id': self.book.id, 'returner': 'review'}), {'notes_from_editor': 'notes', 'due': '2015-11-30', 'id_email_text': 'Hi User'})
-        self.client.login(username="rua_author", password="tester")
-        management.call_command('loaddata', 'test/test_copyedit_assignment_data.json', verbosity=0)
+        resp = self.client.post(
+            reverse('request_revisions',
+                    kwargs={'submission_id': self.book.id,
+                            'returner': 'review'}),
+            {'notes_from_editor': 'notes',
+             'due': '2015-11-30',
+             'id_email_text': 'Hi User'}
+        )
+        self.assertFalse('There is already an outstanding revision request'
+                         ' for this book' in resp.content)
+        self.assertEqual(resp.status_code, 302)
+
         copyedit = core_models.CopyeditAssignment.objects.get(pk=1)
         copyedit.author_completed = None
         copyedit.author_invited = timezone.now()
         copyedit.save()
-        resp = self.client.get(reverse('tasks', kwargs={'submission_id': self.book.id}))
+
+        self.client.login(username="rua_author", password="tester")
+        resp = self.client.get(reverse('tasks',
+                                       kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        self.assertEqual("Revisions Requested" in content, True)
-        self.assertEqual("Copyedit Review" in content, True)
+        self.assertTrue("Revisions Requested" in content)
+        self.assertTrue("Copyedit Review" in content)
 
     def test_review_assignment(self):
         resp = self.client.get(reverse('view_review_assignment', kwargs={'submission_id': self.book.id, 'round_id': 1, 'review_id': 1}))
@@ -163,8 +180,6 @@ class AuthorTests(TestCase):
         self.assertEqual("INDEXING" in content, True)
         self.assertEqual("Stage has not been initialised." in content, False)
 
-        management.call_command('loaddata', 'test/test_copyedit_assignment_data.json', verbosity=0)
-        management.call_command('loaddata', 'test/test_index_assignment_data.json', verbosity=0)
         copyedit = core_models.CopyeditAssignment.objects.get(pk=1)
         copyedit.author_completed = None
         copyedit.author_invited = timezone.now()
@@ -257,7 +272,6 @@ class AuthorTests(TestCase):
         self.assertEqual(typeset.completed is None, False)
 
     def test_contract_sign_off(self):
-        management.call_command('loaddata', 'test/test_contract_data.json', verbosity=0)
         self.book.contract = core_models.Contract.objects.get(pk=1)
         self.book.save()
         resp = self.client.get(reverse('author_submission', kwargs={'submission_id': self.book.id}))

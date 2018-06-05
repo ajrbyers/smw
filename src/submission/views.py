@@ -51,7 +51,7 @@ def start_submission(request, book_id=None):
 
         book_form = forms.SubmitBookStageOne(
             instance=book,
-            ci_required=ci_required.value,
+            ci_required=ci_required,
         )
         checklist_form = forms.SubmissionChecklist(
             checklist_items=checklist_items,
@@ -71,13 +71,13 @@ def start_submission(request, book_id=None):
             book_form = forms.SubmitBookStageOne(
                 request.POST,
                 instance=book,
-                ci_required=ci_required.value,
+                ci_required=ci_required,
                 review_type_required=review_type_selection,
             )
         else:
             book_form = forms.SubmitBookStageOne(
                 request.POST,
-                ci_required=ci_required.value,
+                ci_required=ci_required,
                 review_type_required=review_type_selection,
             )
 

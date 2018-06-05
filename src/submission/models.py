@@ -399,7 +399,7 @@ class ProposalReview(models.Model):
     )
     reopened = models.BooleanField(
         default=False
-    ),
+    )
     withdrawn = models.BooleanField(
         default=False
     )

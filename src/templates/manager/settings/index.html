@@ -2,16 +2,13 @@
 {% load bootstrap3 %}
 
 {% block body %}
-  <div class="col-md-12 primary-heading container-fluid"style="margin-top:-20px" >
-        	<h2>{{ press.general.press_name }} Settings <a href="{% url 'manager_index' %}" class="btn  btn-transparent-white" style="position: absolute;right:20px;margin-top:-8px">Go back</a></h2>
-        </div>
+    <div class="col-md-12 primary-heading container-fluid"style="margin-top:-20px" >
+        <h2>{{ press.general.press_name }} Settings <a href="{% url 'manager_index' %}" class="btn  btn-transparent-white" style="position: absolute;right:20px;margin-top:-8px">Go back</a></h2>
+    </div>
 	<div class="col-md-12">
-	
-
-		{% for setting_group in settings %}
-		{% for key, value in setting_group.items %}
+		{% for key, value in settings.items %}
 		<div class="col-md-4">
-			<h3>{{ key|capfirst }}</h3>
+			<h3>{{ key.title }}</h3>
 			<ul class="list-group">
 			{% for setting in value %}
 				<a class="list-group-item list-group-item-primary" href="{% url 'edit_setting' setting.group.name setting.name %}">{{ setting.name }}</a>
@@ -19,6 +16,5 @@
 			</ul>
 		</div>
 		{% endfor %}
-		{% endfor %}
-	</div>
+]	</div>
 {% endblock body %}
