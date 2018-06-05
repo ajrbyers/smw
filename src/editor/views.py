@@ -2850,10 +2850,12 @@ def assign_copyeditor(request, submission_id):
                 short_name='Copyeditor Assigned',
             )
 
-        return redirect(reverse(
-            'editor_editing',
-            kwargs={'submission_id': submission_id},
-        ))
+        return redirect(
+            reverse(
+                'editor_editing',
+                kwargs={'submission_id': submission_id},
+            )
+        )
 
     template = 'editor/submission.html'
     context = {
@@ -2883,13 +2885,14 @@ def view_copyedit(request, submission_id, copyedit_id):
                 'This copyedit has not been completed, '
                 'you cannot invite the author to review.'
             )
-            return redirect(reverse(
-                'view_copyedit',
-                kwargs={
-                    'submission_id': submission_id,
-                    'copyedit_id': copyedit_id,
-                }
-            ))
+            return redirect(
+                reverse('view_copyedit',
+                        kwargs={
+                            'submission_id': submission_id,
+                            'copyedit_id': copyedit_id,
+                        }
+                )
+            )
         else:
             copyedit.editor_review = timezone.now()
             log.add_log_entry(

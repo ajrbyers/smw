@@ -1,14 +1,17 @@
+import tempfile
+import datetime
+
 from django.test import TestCase, RequestFactory
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.utils import timezone
 from core import models as core_models
-import tempfile
-from django.core import management
-from revisions import models as revision_models
-
 import logging
+
+from revisions import models as revision_models
+from django.core import management
+import logic
 
 LOG = logging.getLogger(__name__)
 
@@ -27,6 +30,7 @@ class EditorTests(TestCase):
         'test/test_manager_data',
         'test/test_submission_checklist_item_data',
         'test/test_proposal_form',
+        'test/test_contract_data',
     ]
 
     # Helper Function
@@ -39,7 +43,8 @@ class EditorTests(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_HOST="testing")
-        self.user = User.objects.get(username="rua_editor")
+        self.superuser = User.objects.get(username="rua_editor")
+        self.editor_user = User.objects.get(username="rua_editor")
         self.book = core_models.Book.objects.get(pk=1)
         self.chapter = core_models.Chapter.objects.get(pk=1)
         self.chapter_authors = core_models.ChapterAuthor.objects.filter(
@@ -55,10 +60,18 @@ class EditorTests(TestCase):
         """Fetches the editor dashboard"""
         resp = self.client.get(reverse('editor_dashboard'))
         content = resp.content
-        self.assertTrue(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertContains(resp, "Book %s: %s %s %s" % (
-        self.book.id, self.book.prefix, self.book.title, self.book.subtitle))
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse("403" in content)
+        self.assertContains(
+            resp,
+            "Book {book_id} - {book_prefix}"
+            " {book_title}: {book_subtitle}".format(
+                book_id=self.book.id,
+                book_prefix=self.book.prefix,
+                book_title=self.book.title,
+                book_subtitle=self.book.subtitle
+            )
+        )
 
     def test_editor_dashboard_filter(self):
         """Tests out the filters on the Editor Dashboard"""
@@ -66,14 +79,23 @@ class EditorTests(TestCase):
         self.book.stage.review = None
         self.book.stage.save()
         self.book.save()
-        resp = self.client.post(reverse('editor_dashboard'),
-                                {'filter': 'review', 'order': 'title',
-                                 'search': 'rua'})
+
+        resp = self.client.post(
+            reverse('editor_dashboard'),
+        {'filter': 'review',
+         'order': 'title',
+         'search': 'rua'})
         content = resp.content
         self.assertTrue(resp.status_code, 200)
-        self.assertEqual("Book %s: %s %s %s" % (
-        self.book.id, self.book.prefix, self.book.title,
-        self.book.subtitle) in content, False)
+        self.assertNotContains(
+            resp,
+            "Book {book_id} - {book_prefix}"
+            " {book_title}: {book_subtitle}".format(
+                book_id=self.book.id,
+                book_prefix=self.book.prefix,
+                book_title=self.book.title,
+                book_subtitle=self.book.subtitle)
+        )
 
     def test_submission(self):
         self.book.stage.current_stage = 'submission'
@@ -82,8 +104,11 @@ class EditorTests(TestCase):
         self.book.save()
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(book.stage.current_stage == 'submission', True)
-        resp = self.client.get(reverse('editor_submission',
-                                       kwargs={'submission_id': self.book.id}))
+
+        resp = self.client.get(
+            reverse('editor_submission',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
@@ -97,12 +122,15 @@ class EditorTests(TestCase):
         self.assertEqual(self.book.reviewer_suggestions in content, True)
         self.assertEqual("COMPETING INTERESTS" in content, True)
         self.assertEqual(self.book.competing_interests in content, True)
-        resp = self.client.post(reverse('editor_decision',
-                                        kwargs={'submission_id': self.book.id,
-                                                'decision': 'review'}),
-                                {'skip': '', 'decision': 'review'})
+
+        resp = self.client.post(
+            reverse('editor_decision',
+                    kwargs={'submission_id': self.book.id,
+                            'decision': 'review'}),
+            {'decision': 'review'}
+        )
         book = core_models.Book.objects.get(pk=1)
-        self.assertEqual(book.stage.current_stage == 'review', True)
+        self.assertEqual(book.stage.current_stage, 'review')
 
     def test_submission_status(self):
         resp = self.client.get(
@@ -126,42 +154,50 @@ class EditorTests(TestCase):
 
     def test_submission_contract(self):
         resp = self.client.get(
-            reverse('contract_manager', kwargs={'submission_id': self.book.id}))
+            reverse('contract_manager',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp.content
         book = core_models.Book.objects.get(pk=1)
         contracts = core_models.Contract.objects.all()
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        self.assertEqual(len(contracts), 0)
+        self.assertEqual(len(contracts), 1)
         self.assertEqual(book.contract, None)
-        self.assertEqual("Upload Contract" in content, True)
-        self.assertEqual("Contract Info" in content, False)
-        management.call_command('loaddata', 'test/test_contract_data.json',
-                                verbosity=0)
+        self.assertTrue("Upload  Contract" in content)
+        self.assertFalse("Contract Info" in content)
+
         self.book.contract = core_models.Contract.objects.get(pk=1)
         self.book.save()
         resp = self.client.get(
-            reverse('contract_manager', kwargs={'submission_id': self.book.id}))
+            reverse('contract_manager',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
         self.assertEqual("Contract Info" in content, True)
         self.assertEqual("test_contract" in content, True)
 
-        resp = self.client.get(reverse('contract_manager_edit',
-                                       kwargs={'submission_id': self.book.id,
-                                               'contract_id': 1}))
+        resp = self.client.get(
+            reverse('contract_manager_edit',
+            kwargs={'submission_id': self.book.id,
+                   'contract_id': 1})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        self.assertEqual("Update Contract" in content, True)
+        self.assertEqual("Update  Contract" in content, True)
         self.assertEqual("test_contract" in content, True)
-        resp = self.client.post(reverse('contract_manager_edit',
-                                        kwargs={'submission_id': self.book.id,
-                                                'contract_id': 1}),
-                                {'title': 'updated_title', 'notes': 'notes',
-                                 'editor_signed_off': '2015-11-11',
-                                 'author_signed_off': '2015-11-23'})
+
+        resp = self.client.post(
+            reverse('contract_manager_edit',
+                    kwargs={'submission_id': self.book.id,
+                            'contract_id': 1}),
+            {'title': 'updated_title', 'notes': 'notes',
+             'editor_signed_off': '2015-11-11',
+             'author_signed_off': '2015-11-23'}
+        )
         contract = core_models.Contract.objects.get(pk=1)
         self.assertEqual(contract.title == "updated_title", True)
 
@@ -176,7 +212,7 @@ class EditorTests(TestCase):
         self.typeset_assignment = core_models.TypesetAssignment.objects.get(
             pk=1)
         self.typeset_assignment.accepted = timezone.now()
-        self.typeset_assignment.requestor = self.user
+        self.typeset_assignment.requestor = self.superuser
         self.typeset_assignment.author_invited = timezone.now()
         self.typeset_assignment.author_completed = timezone.now()
         self.typeset_assignment.save()
@@ -195,10 +231,13 @@ class EditorTests(TestCase):
         rounds = core_models.ReviewRound.objects.all()
         self.assertEqual(rounds.count(), 1)
         LOG.warn(
-            "possibly modifying server state with GET requests. this is a really bad idea")
-        self.client.get(reverse('editor_review_round_cancel',
-                                kwargs={'submission_id': self.book.id,
-                                        'round_number': 1}))
+            "possibly modifying server state with GET requests."
+            " this is a really bad idea")
+        self.client.get(
+            reverse('editor_review_round_cancel',
+                    kwargs={'submission_id': self.book.id,
+                            'round_number': 1})
+        )
         rounds = core_models.ReviewRound.objects.all()
         self.assertEqual(rounds.count(), 0)
 
@@ -266,8 +305,10 @@ class EditorTests(TestCase):
                          "http://testing/editor/submission/1/review/round/2/")
 
         assignment = \
-        core_models.ReviewAssignment.objects.filter(book=book, review_round=1,
-                                                    review_type='external')[0]
+            core_models.ReviewAssignment.objects.filter(book=book,
+                                                        review_round=1,
+                                                        review_type='external')[
+                0]
         resp = self.client.get(reverse('update_review_due_date',
                                        kwargs={'round_id': 1,
                                                'submission_id': self.book.id,
@@ -331,10 +372,10 @@ class EditorTests(TestCase):
         book = core_models.Book.objects.get(pk=1)
         resp = self.client.get(
             reverse('editor_add_editors', kwargs={'submission_id': 1}))
-        print resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in resp.content, False)
         self.assertEqual(len(book.book_editors.all()), 0)
+
         resp = self.client.get(
             reverse('editor_add_editors', kwargs={'submission_id': 1}),
             {'add': 1})
@@ -377,13 +418,19 @@ class EditorTests(TestCase):
         self.assertEqual("403" in resp.content, False)
         notes = core_models.Note.objects.all()
         self.assertEqual(notes.count(), 0)
+
         resp = self.client.get(
-            reverse('editor_notes_add', kwargs={'submission_id': 1}))
+            reverse('editor_notes_add',
+                    kwargs={'submission_id': 1})
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in resp.content, False)
+
         resp = self.client.post(
-            reverse('editor_notes_add', kwargs={"submission_id": 1}),
-            {"text": "note_test"})
+            reverse('editor_notes_add',
+                    kwargs={"submission_id": 1}),
+            {"text": "note_test"}
+        )
         notes = core_models.Note.objects.all()
         self.assertEqual(notes.count(), 1)
 
@@ -394,72 +441,31 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.get(reverse('editor_notes_update',
-                                       kwargs={"submission_id": 1,
-                                               "note_id": 1}))
+        resp = self.client.get(
+            reverse('editor_notes_update',
+                    kwargs={"submission_id": 1,
+                            "note_id": 1})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.post(reverse('editor_notes_update',
-                                        kwargs={"submission_id": 1,
-                                                "note_id": 1}),
-                                {"text": "note_test"})
+        resp = self.client.post(
+            reverse('editor_notes_update',
+                    kwargs={"submission_id": 1,
+                            "note_id": 1}),
+            {"text": "note_test"}
+        )
         content = resp.content
         self.assertEqual("403" in content, False)
-
-    def test_editorial_reviewer_assignment(self):
-        editorial_assignments = core_models.EditorialReviewAssignment.objects.all()
-        self.assertEqual(editorial_assignments.count(), 0)
-        resp = self.client.get(reverse('editor_add_editorial_reviewers',
-                                       kwargs={'submission_id': 1}))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
-        resp = self.client.post(reverse('editor_add_editorial_reviewers',
-                                        kwargs={'submission_id': 1}),
-                                {'due_date': [u'2016-04-22'],
-                                 'review_form': ['rua_test_form'],
-                                 'editor': ['2'], 'comm-editor_length': ['5'],
-                                 'indv-editor_length': ['5'],
-                                 'message': 'hello', 'attachment': ''})
-        self.assertEqual(resp.status_code, 302)
-        editorial_assignments = core_models.EditorialReviewAssignment.objects.all()
-        self.assertEqual(editorial_assignments.count(), 1)
-        editorial_assignment = core_models.EditorialReviewAssignment.objects.get(
-            pk=1)
-        resp = self.client.get(reverse('editorial_review',
-                                       kwargs={'submission_id': 1,
-                                               'access_key': editorial_assignment.editorial_board_access_key}))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
-        resp = self.client.post(reverse('editorial_review',
-                                        kwargs={'submission_id': 1,
-                                                'access_key': editorial_assignment.editorial_board_access_key}),
-                                {'rua_name': 'example',
-                                 'recommendation': 'accept',
-                                 'competing_interests': 'nothing'})
-        editorial_assignment = core_models.EditorialReviewAssignment.objects.get(
-            pk=1)
-        self.assertEqual(
-            editorial_assignment.editorial_board_results is not None, True)
-        resp = self.client.get(reverse('editorial_review_accept',
-                                       kwargs={'submission_id': 1,
-                                               'review_id': 1,
-                                               'type': 'editorial'}))
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in resp.content, False)
-        editorial_assignment = core_models.EditorialReviewAssignment.objects.get(
-            pk=1)
-        self.assertEqual(
-            editorial_assignment.publishing_committee_access_key is not None,
-            True)
-        self.assertEqual(editorial_assignment.editorial_board_passed, True)
 
     def test_editor_editing(self):
-        resp = self.client.post(reverse('editor_decision',
-                                        kwargs={'submission_id': self.book.id,
-                                                'decision': 'editing'}),
-                                {'skip': '', 'decision': 'editing'})
+        resp = self.client.post(
+            reverse('editor_decision',
+                    kwargs={'submission_id': self.book.id,
+                            'decision': 'editing'}),
+            {'decision': 'editing'}
+        )
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(book.stage.current_stage == 'editing', True)
 
@@ -475,8 +481,11 @@ class EditorTests(TestCase):
         self.book.stage.indexing = timezone.now()
         self.book.stage.save()
         self.book.save()
+
         resp = self.client.get(
-            reverse('editor_editing', kwargs={'submission_id': self.book.id}))
+            reverse('editor_editing',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
@@ -491,42 +500,72 @@ class EditorTests(TestCase):
         self.assertEqual("403" in content, False)
 
         resp = self.client.post(
-            reverse('assign_indexer', kwargs={'submission_id': book.id}),
-            {'due_date': '2016-04-21', 'indv-reviewer_length': ['5'],
-             'copyeditor': ['5'], 'attachment_file': '', 'note': 'Note',
-             'file': ['4'], 'assignment-files_length': ['5'],
-             'message': 'Dear'})
+            reverse('assign_indexer',
+                    kwargs={'submission_id': book.id}),
+            {'due_date': '2016-04-21',
+             'indv-reviewer_length': ['5'],
+             'copyeditor': ['5'],
+             'attachment_file': '',
+             'note': 'Note',
+             'file': ['4'],
+             'assignment-files_length': ['5'],
+             'message': 'Dear'}
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 302)
+
         resp = self.client.get(
-            reverse('assign_copyeditor', kwargs={'submission_id': book.id}))
+            reverse('assign_copyeditor',
+                    kwargs={'submission_id': book.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
+        self.assertEqual(core_models.CopyeditAssignment.objects.count(), 0)
 
         resp = self.client.post(
-            reverse('assign_copyeditor', kwargs={'submission_id': book.id}),
-            {'due_date': '2016-04-21', 'indv-reviewer_length': ['5'],
-             'copyeditor': ['5'], 'attachment_file': [''], 'note': 'Note',
-             'file': ['4'], 'assignment-files_length': ['5'],
-             'message': 'Dear'})
-        content = resp.content
+            reverse('assign_copyeditor',
+                    kwargs={'submission_id': book.id}),
+            {'due_date': '2016-04-21',
+             'indv-reviewer_length': ['5'],
+             'copyeditor': ['5'],
+             'attachment_file': [''],
+             'note': 'Note',
+             'file': ['4'],
+             'assignment-files_length': ['5'],
+             'message': 'Dear'}
+        )
         self.assertEqual(resp.status_code, 302)
+        self.assertEqual(core_models.CopyeditAssignment.objects.count(), 1)
+        new_assignment = core_models.CopyeditAssignment.objects.first()
         onetasker = User.objects.get(username="rua_onetasker")
-        resp = self.client.get(reverse('view_copyedit',
-                                       kwargs={'copyedit_id': 1,
-                                               'submission_id': self.book.id}))
+
+        resp = self.client.get(
+            reverse('view_copyedit',
+                    kwargs={
+                        'copyedit_id': new_assignment.id,
+                        'submission_id': self.book.id
+                    })
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
         self.assertEqual("COPYEDITING" in content, True)
         self.assertEqual("INDEXING" in content, True)
         self.assertEqual("Stage has not been initialised." in content, False)
-        title = "COPYEDITING: %s %s" % (
-        onetasker.first_name.upper(), onetasker.last_name.upper())
+        title = "COPYEDITING: {first_name} {last_name}".format(
+            first_name=onetasker.first_name.upper(),
+            last_name=onetasker.last_name.upper()
+        )
         self.assertEqual(title in content, True)
-        resp = self.client.get(reverse('view_index', kwargs={'index_id': 1,
-                                                             'submission_id': self.book.id}))
+
+        resp = self.client.get(
+            reverse('view_index',
+                    kwargs={
+                        'index_id': 1,
+                        'submission_id': self.book.id
+                    })
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
@@ -534,7 +573,7 @@ class EditorTests(TestCase):
         self.assertEqual("INDEXING" in content, True)
         self.assertEqual("Stage has not been initialised." in content, False)
         title = "INDEXING: %s %s" % (
-        onetasker.first_name.upper(), onetasker.last_name.upper())
+            onetasker.first_name.upper(), onetasker.last_name.upper())
         self.assertEqual(title in content, True)
 
     def test_editor_production(self):
@@ -570,7 +609,7 @@ class EditorTests(TestCase):
         self.assertEqual("Stage has not been initialised." in content, False)
         onetasker = User.objects.get(username="rua_onetasker")
         title = "TYPESETTING: %s %s" % (
-        onetasker.first_name.upper(), onetasker.last_name.upper())
+            onetasker.first_name.upper(), onetasker.last_name.upper())
         self.assertEqual(title in content, True)
 
     def test_editor_publish(self):
@@ -816,3 +855,200 @@ class EditorTests(TestCase):
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("Chapter Authors" in content, True)
+
+    def test_handle_copyeditor_assignment(self):
+        #  clear data
+        assignments = core_models.CopyeditAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            logic.handle_copyeditor_assignment(
+                request=self.factory.get('/'),
+                book=self.book,
+                copyedit=self.editor_user,
+                files=[],
+                due_date=datetime.date.today() + datetime.timedelta(days=9),
+                note='This is a copyeditor assignment.',
+                email_text='Dear...',
+                requestor=self.superuser,
+            )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.CopyeditAssignment.objects.all()
+        self.assertEqual(len(assignments), 1)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()
+
+    def test_handle_duplicate_copyeditor_assignment(self):
+        #  clear data
+        assignments = core_models.CopyeditAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            for i in range(2):
+                logic.handle_copyeditor_assignment(
+                    request=self.factory.get('/'),
+                    book=self.book,
+                    copyedit=self.editor_user,
+                    files=[],
+                    due_date=datetime.date.today() + datetime.timedelta(days=9),
+                    note='This is copyeditor assignment {num}.'.format(num=i),
+                    email_text='Dear...',
+                    requestor=self.superuser,
+                )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.CopyeditAssignment.objects.all()
+        self.assertEqual(len(assignments), 2)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()
+
+    def test_handle_indexer_assignment(self):
+        #  clear data
+        assignments = core_models.IndexAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            logic.handle_indexer_assignment(
+                request=self.factory.get('/'),
+                book=self.book,
+                index=self.editor_user,
+                files=[],
+                due_date=datetime.date.today() + datetime.timedelta(days=9),
+                note='This is a indexer assignment.',
+                email_text='Dear...',
+                requestor=self.superuser,
+                attachment=None,
+            )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.IndexAssignment.objects.all()
+        self.assertEqual(len(assignments), 1)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()
+
+    def test_handle_duplicate_indexer_assignment(self):
+        #  clear data
+        assignments = core_models.IndexAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            for i in range(2):
+                logic.handle_indexer_assignment(
+                    request=self.factory.get('/'),
+                    book=self.book,
+                    index=self.editor_user,
+                    files=[],
+                    due_date=datetime.date.today() + datetime.timedelta(days=9),
+                    note='This is indexer assignment {num}.'.format(num=i),
+                    email_text='Dear...',
+                    requestor=self.superuser,
+                    attachment=None,
+                )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.IndexAssignment.objects.all()
+        self.assertEqual(len(assignments), 2)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()
+
+    def test_handle_typeset_assignment(self):
+        #  clear data
+        assignments = core_models.TypesetAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            logic.handle_typeset_assignment(
+                request=self.factory.get('/'),
+                book=self.book,
+                typesetter=self.editor_user,
+                files=[],
+                due_date=datetime.date.today() + datetime.timedelta(days=9),
+                email_text='Dear...',
+                requestor=self.superuser,
+                attachment=None,
+            )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.TypesetAssignment.objects.all()
+        self.assertEqual(len(assignments), 1)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()
+
+    def test_handle_duplicate_typeset_assignment(self):
+        #  clear data
+        assignments = core_models.TypesetAssignment.objects.all()
+        for assignment in assignments:
+            assignment.delete()
+
+        exception = None
+        exception_raised = False
+        try:
+            for i in range(2):
+                logic.handle_typeset_assignment(
+                    request=self.factory.get('/'),
+                    book=self.book,
+                    typesetter=self.editor_user,
+                    files=[],
+                    due_date=datetime.date.today() + datetime.timedelta(days=9),
+                    email_text='Dear...',
+                    requestor=self.superuser,
+                    attachment=None,
+                )
+        except BaseException as e:
+            exception_raised = True
+            exception = e
+
+        self.assertFalse(exception_raised, msg=exception)
+
+        assignments = core_models.TypesetAssignment.objects.all()
+        self.assertEqual(len(assignments), 2)
+
+        # Cleanup
+        for assignment in assignments:
+            assignment.delete()

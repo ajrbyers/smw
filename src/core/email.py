@@ -216,7 +216,7 @@ def send_reset_email(user, email_text, reset_code):
     from_email = get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
 
-    reset_url = 'http://{base_url}/login/reset/code/{reset-code}/'.format(
+    reset_url = 'http://{base_url}/login/reset/code/{reset_code}/'.format(
         base_url=base_url,
         reset_code=reset_code
     )
