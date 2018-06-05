@@ -56,46 +56,36 @@ def handle_copyeditor_assignment(
         requestor,
         attachment=None,
 ):
-    try:
-        new_copyeditor = models.CopyeditAssignment(
-            book=book,
-            copyeditor=copyedit,
-            requestor=requestor,
-            note=note,
-            due=due_date,
-        )
-        new_copyeditor.save()
+    new_copyeditor = models.CopyeditAssignment(
+        book=book,
+        copyeditor=copyedit,
+        requestor=requestor,
+        note=note,
+        due=due_date,
+    )
+    new_copyeditor.save()
 
-        new_copyeditor.files.add(*files)
-        new_copyeditor.save()
+    new_copyeditor.files.add(*files)
+    new_copyeditor.save()
 
-        log.add_log_entry(
-            book=book,
-            user=requestor,
-            kind='copyedit',
-            message='Copyeditor %s %s assigned. Due %s' % (
-                copyedit.first_name,
-                copyedit.last_name,
-                due_date,
-            ),
-            short_name='Copyedit Assignment',
-        )
-        send_copyedit_assignment(
-            book,
-            new_copyeditor,
-            email_text,
-            requestor,
-            attachment=attachment,
-        )
-    except:
-        # TODO: Write tests to determine what exception, if any, is raised
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'Copyedit Assignment for user <%s> already exists. '
-            'User might already exist in one of the selected '
-            'committees' % copyedit.username
-        )
+    log.add_log_entry(
+        book=book,
+        user=requestor,
+        kind='copyedit',
+        message='Copyeditor %s %s assigned. Due %s' % (
+            copyedit.first_name,
+            copyedit.last_name,
+            due_date,
+        ),
+        short_name='Copyedit Assignment',
+    )
+    send_copyedit_assignment(
+        book,
+        new_copyeditor,
+        email_text,
+        requestor,
+        attachment=attachment,
+    )
 
 
 def handle_indexer_assignment(
@@ -109,43 +99,34 @@ def handle_indexer_assignment(
         requestor,
         attachment,
 ):
-    try:
-        new_indexer = models.IndexAssignment(
-            book=book,
-            indexer=index,
-            requestor=requestor,
-            note=note,
-            due=due_date,
-        )
+    new_indexer = models.IndexAssignment(
+        book=book,
+        indexer=index,
+        requestor=requestor,
+        note=note,
+        due=due_date,
+    )
 
-        new_indexer.save()
-        [new_indexer.files.add(_file) for _file in files]
-        new_indexer.save()
-        send_invite_indexer(
-            book,
-            new_indexer,
-            email_text,
-            requestor,
-            attachment,
-        )
+    new_indexer.save()
+    [new_indexer.files.add(_file) for _file in files]
+    new_indexer.save()
+    send_invite_indexer(
+        book,
+        new_indexer,
+        email_text,
+        requestor,
+        attachment,
+    )
 
-        log.add_log_entry(
-            book=book,
-            user=requestor,
-            kind='index',
-            message='Indexer %s %s assigned. Due %s' % (
-                index.first_name, index.last_name, due_date
-            ),
-            short_name='Indexing Assignment',
-        )
-    except:
-        # TODO: Write tests to determine what exception, if any, is raised
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'Indexing Assignment for user <%s> already exists. User might '
-            'already exist in one of the selected committees' % index.username
-        )
+    log.add_log_entry(
+        book=book,
+        user=requestor,
+        kind='index',
+        message='Indexer %s %s assigned. Due %s' % (
+            index.first_name, index.last_name, due_date
+        ),
+        short_name='Indexing Assignment',
+    )
 
 
 def handle_typeset_assignment(
@@ -158,44 +139,34 @@ def handle_typeset_assignment(
         requestor,
         attachment,
 ):
-    try:
-        new_typesetter = models.TypesetAssignment(
-            book=book,
-            typesetter=typesetter,
-            requestor=requestor,
-            due=due_date,
-            note=email_text,
-        )
-        new_typesetter.save()
+    new_typesetter = models.TypesetAssignment(
+        book=book,
+        typesetter=typesetter,
+        requestor=requestor,
+        due=due_date,
+        note=email_text,
+    )
+    new_typesetter.save()
 
-        new_typesetter.files.add(*files)
-        new_typesetter.save()
+    new_typesetter.files.add(*files)
+    new_typesetter.save()
 
-        send_invite_typesetter(
-            book,
-            new_typesetter,
-            email_text,
-            requestor,
-            attachment,
-        )
+    send_invite_typesetter(
+        book,
+        new_typesetter,
+        email_text,
+        requestor,
+        attachment,
+    )
 
-        log.add_log_entry(
-            book=book,
-            user=requestor,
-            kind='typeset',
-            message='Typesetter %s %s assigned. Due %s' % (
-                typesetter.first_name, typesetter.last_name,
-                due_date), short_name='Typeset Assignment'
-        )
-    except:
-        # TODO: Write tests to determine what exception, if any, is raised
-        messages.add_message(
-            request,
-            messages.WARNING,
-            'Typeset Assignment for user <%s> already exists. '
-            'User might already exist in one of the selected '
-            'committees' % typesetter.username
-        )
+    log.add_log_entry(
+        book=book,
+        user=requestor,
+        kind='typeset',
+        message='Typesetter %s %s assigned. Due %s' % (
+            typesetter.first_name, typesetter.last_name,
+            due_date), short_name='Typeset Assignment'
+    )
 
 
 def get_submission_tasks(book, user):

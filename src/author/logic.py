@@ -8,105 +8,106 @@ from core.setting_util import get_setting
 
 
 def author_tasks(user):
-    base_url = get_setting('base_url', 'general')
     task_list = []
-    revision_tasks = revisions_models.Revision.objects.filter(
-        book__owner=user,
-        requested__isnull=False,
-        completed__isnull=True,
-    ).select_related(
-        'book',
-    )
-    copyedit_tasks = models.CopyeditAssignment.objects.filter(
-        book__owner=user,
-        author_invited__isnull=False,
-        author_completed__isnull=True,
-    ).select_related(
-        'book',
-    )
-    typeset_tasks = models.TypesetAssignment.objects.filter(
-        book__owner=user,
-        author_invited__isnull=False,
-        author_completed__isnull=True,
-    ).select_related(
-        'book',
-    )
-    proofing_tasks = editor_models.CoverImageProof.objects.filter(
-        book__owner=user,
-        completed__isnull=True
-    ).select_related(
-        'book',
-    )
-    proposal_tasks = submission_models.Proposal.objects.filter(
-        owner=user,
-        status='revisions_required',
-    )
+    if user.is_authenticated():
+        base_url = get_setting('base_url', 'general')
+        revision_tasks = revisions_models.Revision.objects.filter(
+            book__owner=user,
+            requested__isnull=False,
+            completed__isnull=True,
+        ).select_related(
+            'book',
+        )
+        copyedit_tasks = models.CopyeditAssignment.objects.filter(
+            book__owner=user,
+            author_invited__isnull=False,
+            author_completed__isnull=True,
+        ).select_related(
+            'book',
+        )
+        typeset_tasks = models.TypesetAssignment.objects.filter(
+            book__owner=user,
+            author_invited__isnull=False,
+            author_completed__isnull=True,
+        ).select_related(
+            'book',
+        )
+        proofing_tasks = editor_models.CoverImageProof.objects.filter(
+            book__owner=user,
+            completed__isnull=True
+        ).select_related(
+            'book',
+        )
+        proposal_tasks = submission_models.Proposal.objects.filter(
+            owner=user,
+            status='revisions_required',
+        )
 
-    for revision in revision_tasks:
-        task_list.append({
-            'type': 'revisions',
-            'book': revision.book,
-            'task': 'Revisions',
-            'date': revision.due,
-            'title': revision.book.title,
-            'url': '/author/submission/%s/revisions/%s/' % (
-                revision.book.id,
-                revision.id,
-            )
-        })
+        for revision in revision_tasks:
+            task_list.append({
+                'type': 'revisions',
+                'book': revision.book,
+                'task': 'Revisions',
+                'date': revision.due,
+                'title': revision.book.title,
+                'url': '/author/submission/%s/revisions/%s/' % (
+                    revision.book.id,
+                    revision.id,
+                )
+            })
 
-    for copyedit in copyedit_tasks:
-        task_list.append({
-            'type': 'copyedit',
-            'book': copyedit.book,
-            'task': 'Copyedit Review',
-            'date': copyedit.author_invited,
-            'title': copyedit.book.title,
-            'url': '/author/submission/%s/editing/copyedit/%s/' % (
-                copyedit.book.id,
-                copyedit.id,
-            )
-        })
+        for copyedit in copyedit_tasks:
+            task_list.append({
+                'type': 'copyedit',
+                'book': copyedit.book,
+                'task': 'Copyedit Review',
+                'date': copyedit.author_invited,
+                'title': copyedit.book.title,
+                'url': '/author/submission/%s/editing/copyedit/%s/' % (
+                    copyedit.book.id,
+                    copyedit.id,
+                )
+            })
 
-    for typeset in typeset_tasks:
-        task_list.append({
-            'type': 'typeset',
-            'book': typeset.book,
-            'task': 'Typesetting Review',
-            'date': typeset.author_invited,
-            'title': typeset.book.title,
-            'url': '/author/submission/%s/editing/typeset/%s/' % (
-                typeset.book.id,
-                typeset.id,
-            )
-        })
+        for typeset in typeset_tasks:
+            task_list.append({
+                'type': 'typeset',
+                'book': typeset.book,
+                'task': 'Typesetting Review',
+                'date': typeset.author_invited,
+                'title': typeset.book.title,
+                'url': '/author/submission/%s/editing/typeset/%s/' % (
+                    typeset.book.id,
+                    typeset.id,
+                )
+            })
 
-    for proof in proofing_tasks:
-        task_list.append({
-            'type': 'coverimage',
-            'book': proof.book,
-            'task': 'Cover Image Proof',
-            'date': proof.assigned,
-            'title': proof.book.title,
-            'url': 'http://%s/author/submission/%s/production/#%s' % (
-                base_url,
-                proof.book.id,
-                proof.id
-            )
-        })
+        for proof in proofing_tasks:
+            task_list.append({
+                'type': 'coverimage',
+                'book': proof.book,
+                'task': 'Cover Image Proof',
+                'date': proof.assigned,
+                'title': proof.book.title,
+                'url': 'http://%s/author/submission/%s/production/#%s' % (
+                    base_url,
+                    proof.book.id,
+                    proof.id
+                )
+            })
 
-    for proposal in proposal_tasks:
-        overdue = False
+        for proposal in proposal_tasks:
+            overdue = False
 
-        if proposal.revision_due_date.date() < datetime.today().date():
-            overdue = True
+            if proposal.revision_due_date.date() < datetime.today().date():
+                overdue = True
 
-        task_list.append({
-            'type': 'proposal',
-            'task': 'Proposal Revision',
-            'proposal': proposal,
-            'overdue': overdue
-        })
+            task_list.append({
+                'type': 'proposal',
+                'task': 'Proposal Revision',
+                'proposal': proposal,
+                'overdue': overdue
+            })
 
     return task_list
 
