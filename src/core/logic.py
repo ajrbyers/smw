@@ -1415,13 +1415,13 @@ def send_production_editor_ack(book, editor, email_text, attachment=None):
     """ Email Handlers - TODO: move to email.py? """
     from_email = get_setting('from_address', 'email')
 
-
     context = {'submission': book, 'editor': editor}
     subject = get_setting(
         'production_editor_subject',
         'email_subject',
         'Production Editor for {0}'.format(book.full_title),
     )
+
     email.send_email(
         subject,
         context,
@@ -1458,12 +1458,14 @@ def send_review_request(
             )
         )
     else:
-        decision_url = 'http://{base_url}/review/{review_type}/{book_id}/' \
-                       'assignment/{review_assignment_id}/decision/'.format(
-            base_url=base_url,
-            review_type=review_assignment.review_type,
-            book_id=book.id,
-            review_assignment_id=review_assignment.id,
+        decision_url = (
+            'http://{base_url}/review/{review_type}/{book_id}/'
+            'assignment/{review_assignment_id}/decision/'.format(
+                base_url=base_url,
+                review_type=review_assignment.review_type,
+                book_id=book.id,
+                review_assignment_id=review_assignment.id,
+            )
         )
 
     context = {
@@ -1666,7 +1668,6 @@ def send_proposal_accept(
         attachment=None,
 ):
     from_email = get_setting('from_address', 'email')
-
 
     if request:
         from_email = "%s <%s>" % (

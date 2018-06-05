@@ -2886,11 +2886,12 @@ def view_copyedit(request, submission_id, copyedit_id):
                 'you cannot invite the author to review.'
             )
             return redirect(
-                reverse('view_copyedit',
-                        kwargs={
+                reverse(
+                    'view_copyedit',
+                    kwargs={
                             'submission_id': submission_id,
                             'copyedit_id': copyedit_id,
-                        }
+                    }
                 )
             )
         else:
