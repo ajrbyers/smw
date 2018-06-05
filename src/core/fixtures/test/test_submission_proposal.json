@@ -15,5 +15,22 @@
   },
   "model": "submission.proposal",
   "pk": 1
+},
+{
+  "fields": {
+    "status": "submission",
+    "review_form": 1,
+    "subtitle": "rua_proposal_subtitle",
+    "form": 1,
+    "author": "rua_user",
+    "title": "rua_proposal_title",
+    "date_submitted": "2018-05-30T17:32:38.675Z",
+    "review_assignments": [],
+    "date_review_started": null,
+    "owner": 1,
+    "data": "{\"rua_element\": [\"example\", \"text\"], \"rua_element_2\": [\"example\", \"text\"]}"
+  },
+  "model": "submission.proposal",
+  "pk": 2
 }
 ]
