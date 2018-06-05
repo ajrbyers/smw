@@ -43,7 +43,6 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 NOSE_ARGS = [
-    # '--with-coverage',  # activate coverage report
     #  '--with-doctest',  # activate doctest: find and run docstests
     '--verbosity=2',   # verbose output
     '--nocapture',
