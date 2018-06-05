@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
 
 from core import email
-from core.models import Author, Editor, Setting, Task
+from core.models import Author, Editor, Task
 from core.setting_util import get_setting
 
 

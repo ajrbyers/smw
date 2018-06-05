@@ -3230,7 +3230,10 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
         'recommendation_form': recommendation_form,
         'active': 'proposal_review',
         'relationships': relationships,
-        'instructions': get_setting('instructions_for_task_proposal', 'general'),
+        'instructions': get_setting(
+            'instructions_for_task_proposal',
+            'general'
+        ),
         'data': data,
     }
 
