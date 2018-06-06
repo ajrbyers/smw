@@ -1,14 +1,22 @@
-<div class="dash-container" style="margin-top:-25px;color:rgb(150,150,150)">
-  <h5>Contact Editors: </h5>
-
-  {% for editor_dict in editors %}
-    {% if editor_dict.isSeriesEditor == True %}
-    <a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor_dict.editor.pk}}/','editors_{{editor_dict.editor.pk}}')" class="btn btn-lg btn-other btn-contact"  type="submit" >Contact {{ editor_dict.editor.profile.full_name }}</a> 
-    {% else %}
-    <a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor_dict.editor.pk}}/','editors_{{editor_dict.editor.pk}}')"class="btn btn-lg btn-task btn-contact"  type="submit" >Contact {{ editor_dict.editor.profile.full_name }}</a>
+<div class="dash-container" style="margin-top:-25px; color:rgb(150,150,150)">
+    <h5>Contact Book Editors: </h5>
+    {% for editor in book_editors %}
+        <a href="core/email.html"
+           onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editors_{{ editor.pk }}')"
+           class="btn btn-lg btn-task btn-contact"
+           type="submit">Contact {{ editor.profile.full_name }}</a>
+    {% empty %}
+        <a href="core/email.html"
+           onclick="return popitup('/email/primary-contact')"
+           class="btn btn-lg btn-task btn-contact" type="submit">Contact Press
+            (No book editors assigned)</a>
+    {% endfor %}
+    {% if series_editor %}
+        <h5>Contact Series Editor:</h5>
+        <a href="core/email.html"
+           onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ series_editor.pk }}/','editors_{{ series_editor.pk }}')"
+           class="btn btn-lg btn-task btn-contact"
+           type="submit">Contact {{ series_editor.profile.full_name }}</a>
     {% endif %}
-    <br><br>
-  {% empty %}
-    <a href="core/email.html" onclick="return popitup('/email/primary-contact')" class="btn btn-lg btn-task btn-contact" type="submit">Contact Press (No Editors Assigned)</a>
-  {% endfor %}
+    <h5></h5>
 </div>
