@@ -1055,36 +1055,36 @@ class Book(models.Model):
                 users.append(user)
         return users
 
-    def all_editors(self):
-        press_editors = self.press_editors.all()
-        book_editors = self.book_editors.all()
+    def get_series_editor(self):
+        """Gets the editor of this book's series, if it is part of one.
 
+        Returns:
+            User: the book's series editor.
+        """
         if self.series:
-            series_editor = self.series.editor
+            return self.series.editor
+        return None
 
-            if series_editor:
-                series_editor_list = [series_editor]
-                press_editor_list = [
-                    editor for editor in press_editors
-                    if not editor == series_editor_list[0]
-                ]
-            else:
-                series_editor_list = []
-                press_editor_list = [editor for editor in press_editors]
+    def get_all_editors(self):
+        """Gets all unique editors assigned to this book.
 
+        Returns:
+            list: the Users who are assigned to this book as editors.
+        """
+        editors_list = []
+        series_editor = self.get_series_editor()
+
+        if series_editor:
+            editors_list.append(series_editor)
+            press_editors = self.press_editors.exclude(id=series_editor.id)
         else:
-            series_editor_list = []
-            press_editor_list = [editor for editor in press_editors]
+            press_editors = self.press_editors.all()
+        editors_list.extend(list(press_editors))
 
-        if book_editors:
-            book_editor_list = [
-                editor for editor in book_editors
-                if editor not in press_editor_list
-            ]
-        else:
-            book_editor_list = []
+        book_editors = self.book_editors.exclude(id__in=press_editors)
+        editors_list.extend(list(book_editors))
 
-        return press_editor_list + series_editor_list + book_editor_list
+        return editors_list
 
     def full_title(self):
         if self.prefix and self.subtitle:

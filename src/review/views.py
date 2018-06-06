@@ -231,10 +231,11 @@ def reviewer_decision(
                 Q(access_key__isnull=True) | Q(access_key__exact=''),
             )
 
+    book_editors = None
+    series_editor = None
     if review_assignment:
-        editors = logic.get_editors(review_assignment)
-    else:
-        editors = None
+        book_editors = review_assignment.book.book_editors.all()
+        series_editor = review_assignment.book.get_series_editor()
 
     if review_assignment.accepted:
         if access_key:
@@ -259,81 +260,94 @@ def reviewer_decision(
     elif review_assignment.declined:
         return redirect(reverse('reviewer_dashboard'))
 
+    # Declaration of dictionaries containing redundant keyword arguments
+    # used in calls to function in review.logic
+    editor_notification_kwargs = {
+        'book': submission,
+        'book_editors': book_editors,
+        'series_editor': series_editor,
+        'creator': user,
+        'workflow': 'review'
+    }
+    decision_log_kwargs = {
+        'book': submission,
+        'user': user,
+        'kind': 'review',
+    }
+
     if decision and decision == 'accept':
         review_assignment.accepted = timezone.now()
         message = (
-            "Review Assignment request for '%s' has been accepted by %s %s." % (
-                submission.title,
-                review_assignment.user.first_name,
-                review_assignment.user.last_name,
+            "Review Assignment request for '{book_title}' has been accepted "
+            "by {first_name} {last_name}.".format(
+                book_title=submission.title,
+                first_name=review_assignment.user.first_name,
+                last_name=review_assignment.user.last_name,
             )
         )
-        log.add_log_entry(
-            book=submission,
-            user=user,
-            kind='review',
-            message=message,
-            short_name='Assignment accepted',
-        )
-        logic.notify_editors(submission, message, editors, user, 'review')
+
+        decision_log_kwargs['message'] = message
+        decision_log_kwargs['short_name'] = 'Assignment accepted'
+        log.add_log_entry(**decision_log_kwargs)
+
+        editor_notification_kwargs['message'] = message
+        logic.notify_editors(**editor_notification_kwargs)
 
     elif decision and decision == 'decline':
         review_assignment.declined = timezone.now()
         message = (
-            "Review Assignment request for '%s' has been declined by %s %s." % (
-                submission.title,
-                review_assignment.user.first_name,
-                review_assignment.user.last_name,
+            "Review Assignment request for '{book_title}' has been declined "
+            "by {reviewer_first_name} {reviewer_last_name}.".format(
+                book_title=submission.title,
+                reviewer_first_name=review_assignment.user.first_name,
+                reviewer_last_name=review_assignment.user.last_name,
             )
         )
-        logic.notify_editors(submission, message, editors, user, 'review')
-        log.add_log_entry(
-            book=submission,
-            user=user,
-            kind='review',
-            message=message,
-            short_name='Assignment declined',
-        )
+
+        decision_log_kwargs['message'] = message
+        decision_log_kwargs['short_message'] = 'Assignment declined'
+        log.add_log_entry(**decision_log_kwargs)
+
+        editor_notification_kwargs['message'] = message
+        logic.notify_editors(**editor_notification_kwargs)
 
     # If we didn't get a decision above, offer the user a choice.
     if request.POST:
         if 'accept' in request.POST:
             review_assignment.accepted = timezone.now()
             message = (
-                "Review Assignment request for '%s' "
-                "has been accepted by %s %s." % (
-                    submission.title,
-                    review_assignment.user.first_name,
-                    review_assignment.user.last_name,
+                "Review Assignment request for '{book_title} has been accepted'"
+                " by {first_name} {last_name}.".format(
+                    book_title=submission.title,
+                    first_name=review_assignment.user.first_name,
+                    last_name=review_assignment.user.last_name,
                 )
             )
-            log.add_log_entry(
-                book=submission,
-                user=user,
-                kind='review',
-                message=message,
-                short_name='Assignment accepted',
-            )
-            logic.notify_editors(submission, message, editors, user, 'review')
+
+            decision_log_kwargs['message'] = message
+            decision_log_kwargs['short_message'] = 'Assignment accepted'
+            log.add_log_entry(**decision_log_kwargs)
+
+            editor_notification_kwargs['message'] = message
+            logic.notify_editors(**editor_notification_kwargs)
 
         elif 'decline' in request.POST:
             review_assignment.declined = timezone.now()
             message = (
-                "Review Assignment request for '%s' "
-                "has been declined by %s %s." % (
-                    submission.title,
-                    review_assignment.user.first_name,
-                    review_assignment.user.last_name,
+                "Review Assignment request for '{book_title}' has been declined"
+                " by {first_name} {last_name}.".format(
+                    book_title=submission.title,
+                    first_name=review_assignment.user.first_name,
+                    last_name=review_assignment.user.last_name,
                 )
             )
-            logic.notify_editors(submission, message, editors, user, 'review')
-            log.add_log_entry(
-                book=submission,
-                user=user,
-                kind='review',
-                message=message,
-                short_name='Assignment declined',
-            )
+
+            decision_log_kwargs['message'] = message
+            decision_log_kwargs['short_message'] = 'Assignment declined'
+            log.add_log_entry(**decision_log_kwargs)
+
+            editor_notification_kwargs['message'] = message
+            logic.notify_editors(**editor_notification_kwargs)
 
     if request.POST or decision:
         review_assignment.save()
@@ -367,7 +381,8 @@ def reviewer_decision(
         'submission': submission,
         'review_assignment': review_assignment,
         'has_additional_files': logic.has_additional_files(submission),
-        'editors': editors,
+        'book_editors': book_editors,
+        'series_editor': series_editor,
         'access_key': access_key,
         'one_click': one_click,
         'file_preview': get_setting('preview_review_files', 'general'),
@@ -473,7 +488,10 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                     }
                 ))
 
-    # Check that this review is bxweing access by the user,
+    book_editors = review_assignment.book.book_editors.all()
+    series_editor = review_assignment.book.get_series_editor()
+
+    # Check that this review is being access by the user,
     # is not completed and has not been declined.
     if review_assignment:
         if not review_assignment.accepted and not review_assignment.declined:
@@ -496,8 +514,6 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                         'review_assignment_id': review_assignment.pk
                     }
                 ))
-
-    editors = logic.get_editors(review_assignment)
 
     if review_assignment.review_form:
         form = forms.GeneratedForm(form=review_assignment.review_form)
@@ -647,11 +663,12 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                     review_assignment.user.last_name,
                 )
                 logic.notify_editors(
-                    submission,
-                    message,
-                    editors,
-                    user,
-                    'review'
+                    book=submission,
+                    message=message,
+                    book_editors=book_editors,
+                    series_editor=series_editor,
+                    creator=user,
+                    workflow='review'
                 )
 
             if access_key:
@@ -683,7 +700,8 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         'form': form,
         'form_info': review_assignment.review_form,
         'recommendation_form': recommendation_form,
-        'editors': editors,
+        'book_editors': book_editors,
+        'series_editor': series_editor,
         'access_key': access_key,
         'one_click': one_click,
         'has_additional_files': logic.has_additional_files(submission),
@@ -823,7 +841,8 @@ def review_complete(
         'data_ordered': data_ordered,
         'result': result,
         'additional_files': logic.has_additional_files(submission),
-        'editors': logic.get_editors(review_assignment),
+        'book_editors': review_assignment.book.book_editors.all(),
+        'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
@@ -898,7 +917,8 @@ def review_complete_no_redirect(
         'data_ordered': data_ordered,
         'result': result,
         'additional_files': logic.has_additional_files(submission),
-        'editors': logic.get_editors(review_assignment),
+        'book_editors': review_assignment.book.book_editors.all(),
+        'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
@@ -915,6 +935,8 @@ def editorial_review(request, submission_id, access_key):
     )
     submission = get_object_or_404(core_models.Book, pk=submission_id)
 
+    resubmit = True
+
     if review_assignment.completed and not review_assignment.reopened:
         return redirect(reverse(
             'editorial_review_complete',
@@ -926,9 +948,6 @@ def editorial_review(request, submission_id, access_key):
         editorial_board = True
     elif access_key == review_assignment.publishing_committee_access_key:
         editorial_board = False
-
-    resubmit = True
-    editors = logic.get_editors(review_assignment)
 
     if editorial_board:
         editorial_result = None
@@ -1220,7 +1239,8 @@ def editorial_review(request, submission_id, access_key):
         'editorial_board': editorial_board,
         'form_info': form_info,
         'recommendation_form': recommendation_form,
-        'editors': editors,
+        'book_editors': review_assignment.book.book_editors.all(),
+        'series_editor': review_assignment.book.get_series_editor(),
         'resubmit': resubmit,
         'editorial_data_ordered': editorial_data_ordered,
         'editorial_result': editorial_result,
@@ -1299,7 +1319,8 @@ def editorial_review_complete(request, submission_id, access_key):
         'result': result,
         'editorial_board': editorial_board,
         'additional_files': logic.has_additional_files(submission),
-        'editors': logic.get_editors(review_assignment),
+        'book_editors': review_assignment.book.book_editors.all(),
+        'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 

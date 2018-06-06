@@ -393,7 +393,7 @@ def is_editor_or_ed_reviewer(_function):
             submission = review_assignment.content_object  # Editor permissions.
 
             if review_assignment.content_type.model == 'book':
-                if request.user in submission.all_editors():
+                if request.user in submission.get_all_editors():
                     return _function(request, *args, **kwargs)
 
             messages.add_message(
@@ -633,7 +633,7 @@ def is_onetasker(_function):
             book = get_object_or_404(models.Book, pk=submission_id)
             if (
                 request.user in book.onetaskers() or
-                request.user in book.all_editors() or
+                request.user in book.get_all_editors() or
                 book.owner == request.user
             ):
                 return _function(request, *args, **kwargs)
