@@ -1,32 +1,54 @@
+{% if series_editor %}
+    <h3>SERIES EDITOR</h3>
+    <h4 class="author-note">
+        {{ series_editor.profile.full_name }}
+        <sup>
+            <a href="core/email.html"
+               onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ series_editor.pk }}/','editors_{{ series_editor.pk }}')"
+               class="fa fa-envelope-o btn btn-xs btn-default">
+            </a>
+        </sup>
+    </h4>
+{% endif %}
 <h3>
     BOOK EDITORS
     <a href="{% url 'editor_add_editors' submission.id %}"
-       class="btn btn-xs  {% if submission.book_editors.all %}btn-accept btn-round-sm{% else %}btn-info{% endif %} ">  +
+       class="btn btn-xs  {% if submission.book_editors.all %}btn-accept btn-round-sm{% else %}btn-info{% endif %} ">
+        +
         {% if submission.book_editors.all %}
-               Update {% else %} Add {% endif %} editor
+            Update {% else %} Add {% endif %} editor
     </a>
 </h3>
-     <h4 class="author-note">
-     {% for editor in submission.book_editors.all %}
-         {{ editor.profile.full_name }}<sup> <a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editors_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>{% if not forloop.last %}, {% endif %}
-     {% empty %}
-      No book editors have been assigned yet.
-     {% endfor %}
-     </h4>
-     
+<h4 class="author-note">
+    {% for editor in submission.book_editors.all %}
+        {{ editor.profile.full_name }}
+        <sup>
+            <a href="core/email.html"
+               onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editors_{{ editor.pk }}')"
+               class="fa fa-envelope-o btn btn-xs btn-default">
+            </a>
+        </sup>
+        {% if not forloop.last %}, {% endif %}
+    {% empty %}
+        No book editors have been assigned yet.
+    {% endfor %}
+</h4>
 <h3>AUTHORS</h3>
 {% if submission.book_type == 'monograph' %}
-	<h4 class="author-note">
-	{% for author in submission.author.all %}
-		{{ author.full_name }}<sup> <a href="core/email.html" onclick="return popitup('/email/authors/submission/{{submission.id}}/user/{{author.pk}}/','authors_{{author.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>{% if not forloop.last %}, {% endif %}
-	{% endfor %}
-	</h4>
+    <h4 class="author-note">
+        {% for author in submission.author.all %}
+            {{ author.full_name }}<sup> <a href="core/email.html"
+                                           onclick="return popitup('/email/authors/submission/{{ submission.id }}/user/{{ author.pk }}/','authors_{{ author.pk }}')"
+                                           class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </h4>
 {% else %}
-	<h4 class="author-note">
-	{% for editor in submission.editor.all %}
-		{{ editor.full_name }}{% if not forloop.last %}, {% endif %}
-	{% endfor %}
-	</h4>
+    <h4 class="author-note">
+        {% for editor in submission.editor.all %}
+            {{ editor.full_name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </h4>
 {% endif %}
 
 <h3>Abstract</h3>
@@ -36,37 +58,39 @@
 
 <table class="table table-bordered">
     <tr>
-      <th>Revision</th>
-      <th>Requested</th>
-      <th></th>
+        <th>Revision</th>
+        <th>Requested</th>
+        <th></th>
     </tr>
     {% for revision in submission.revision_set.all %}
-    {% if revision_id %}
-           {% ifequal revision_id revision.id %}
-           <tr class="selected-row-table">
-            {% else %}
+        {% if revision_id %}
+            {% ifequal revision_id revision.id %}
+                <tr class="selected-row-table">
+                    {% else %}
+                <tr>
+            {% endifequal %}
+        {% else %}
             <tr>
-            {% endifequal %}
-    {% else %}
-    <tr>
-    {% endif %}
-    	<td>Revision {{ forloop.counter }} </td>
-    	<td>{{ revision.requested }}</td>
-      {% if revision_id %}
-           {% ifequal revision_id revision.id %}
+        {% endif %}
+    <td>Revision {{ forloop.counter }} </td>
+    <td>{{ revision.requested }}</td>
+    {% if revision_id %}
+        {% ifequal revision_id revision.id %}
             <td class="selected-row-table-arrow"
-            {% else %}
+        {% else %}
             <td
-            {% endifequal %}
+        {% endifequal %}
     {% else %}
-    <td
+        <td
     {% endif %}
-    	width="25%">{% if revision.completed %}<a class="btn btn-task" href="{% url 'editor_view_revisions' submission.id revision.id %}">View</a>{% else %}<small>Due on {{ revision.due }}</small>{% endif %}</td>
+    width="25%">{% if revision.completed %}<a class="btn btn-task"
+                                              href="{% url 'editor_view_revisions' submission.id revision.id %}">View</a>{% else %}
+        <small>Due on {{ revision.due }}</small>{% endif %}</td>
     </tr>
     {% empty %}
-    <tr>
-    	<td colspan="3">This book has no revisions</td>
-    </tr>
+        <tr>
+            <td colspan="3">This book has no revisions</td>
+        </tr>
     {% endfor %}
 </table>
 
@@ -80,9 +104,10 @@
 {{ submission.competing_interests|safe }}
 
 {% if submission.proposal %}
-<hr>
+    <hr>
 
-<h3>PROPOSAL</h3> <br>
-<a href="{% url 'view_proposal' submission.proposal.pk %}" class="btn btn-other" target="_blank"> View Proposal Detail</a>
+    <h3>PROPOSAL</h3> <br>
+    <a href="{% url 'view_proposal' submission.proposal.pk %}"
+       class="btn btn-other" target="_blank"> View Proposal Detail</a>
 
 {% endif %}
