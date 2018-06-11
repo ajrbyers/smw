@@ -306,6 +306,20 @@ class LicenseSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
+class SeriesSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = models.Series
+        fields = (
+            'id',
+            'handle',
+            'title',
+            'issn',
+            'description',
+            'url',
+        )
+
+
 class BookSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
@@ -370,11 +384,14 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
             'cover',
             'submission_date',
             'publication_date',
+            'publisher_name',
+            'publisher_location',
             'license',
             'pages',
             'book_type',
             'author',
             'editor',
+            'series',
             'description',
             'keywords',
             'subject',
@@ -398,6 +415,9 @@ class JuraBookSerializer(serializers.HyperlinkedModelSerializer):
     )
     editor = EditorSerializer(
         many=True,
+    )
+    series = SeriesSerializer(
+        many=False
     )
     keywords = KeywordSerializer(
         many=True,
