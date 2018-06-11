@@ -65,7 +65,7 @@ def editor_dashboard(request):
 
     book_list = []
     if query_list:
-        query_books = models.Book.objects.filter(
+        books = models.Book.objects.filter(
             publication_date__isnull=True
         ).filter(
             *query_list
@@ -78,7 +78,7 @@ def editor_dashboard(request):
         ).order_by(
             order
         )
-        for book in query_books:
+        for book in books:
             if filter_by == 'revisions':
                 if book.revisions_requested():
                     book_list.append(book)
@@ -95,11 +95,15 @@ def editor_dashboard(request):
         ).order_by(
             order
         )
-        [book_list.append(book) for book in books]
+        book_list.extend(list(books))
 
     if 'series-editor' in request.user_roles:
         series_books = models.Book.objects.filter(
             series__editor=request.user
+        ).exclude(
+            id__in=books
+        ).filter(
+            publication_date__isnull=True
         ).exclude(
             stage__current_stage='declined'
         ).select_related(
@@ -107,10 +111,7 @@ def editor_dashboard(request):
         ).order_by(
             order
         )
-
-        for series_book in series_books:
-            if series_book not in book_list:
-                book_list.append(series_book)
+        book_list.extend(list(series_books))
 
     template = 'editor/dashboard.html'
     context = {
