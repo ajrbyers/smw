@@ -29,7 +29,7 @@ DATABASES = {
         'USER': os.getenv('DATABASE_USER', 'root'),
         'PASSWORD': os.getenv('DATABASE_PASS', ''),
         'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DATABASE_PORT', '')
+        'PORT': os.getenv('DATABASE_PORT', '3306')
     }
 }
 
