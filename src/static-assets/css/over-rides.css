@@ -1285,6 +1285,12 @@ body {
   background-color: #f5f5f5;
 }
 
+.footer-fixed {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+}
+
 .author_header {
   margin-bottom: 0;
 }
