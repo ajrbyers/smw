@@ -1291,6 +1291,11 @@ body {
     bottom: 0px;
 }
 
+p.footer {
+    font-size: 14px !important;
+    font-weight:600 !important;
+}
+
 .author_header {
   margin-bottom: 0;
 }

@@ -23,6 +23,11 @@
 		{% block body %}{% endblock body %}
 	</div>
 	</body>
+
+	<footer class="footer footer-fixed">
+		<p class="footer">Rua version {{ request.rua_version }}</p>
+	</footer>
+
 	<script>var padding = "{% static 'css/bottom-space-padding.css' %}";
 		var nopadding = "{% static 'css/bottom-space.css' %}";</script>
 	<script type="text/javascript" src="{% static 'js/bottom-space-check.js' %}"></script>
