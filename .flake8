@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 80
+exclude =
+    */migrations/*,
+    *settings_*,
+    *_settings*,
+    commands,
+    fixtures,
+    tests,
+    tests.py,
+    __init__.py
