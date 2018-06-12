@@ -34,31 +34,6 @@ DATABASES = {
 }
 
 
-# ## TESTS ##
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
-
-
-class DisableMigrations(object):
-    def __contains__(self, item):
-        return True
-
-    def __getitem__(self, item):
-        return 'notmigrations'
-
-
-MIGRATION_MODULES = DisableMigrations()
-
-NOSE_ARGS = [
-    '--verbosity=2',
-    '--nocapture',
-    '--nologcapture',
-    # Run test: python manage.py test --cover-package=(app)
-    '--cover-package=core,author,editor,manager,onetasker,review,submission',
-]
-
-
 # ## EXTERNAL SERVICES ##
 
 ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
