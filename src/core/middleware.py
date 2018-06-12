@@ -1,3 +1,5 @@
+from base_settings import RUA_VERSION
+
 class Roles(object):
 
     def process_request(self, request):
@@ -8,3 +10,9 @@ class Roles(object):
             ]
         else:
             request.user_roles = []
+
+
+class Version(object):
+
+    def process_request(self, request):
+        request.rua_version = RUA_VERSION
