@@ -1,5 +1,6 @@
 from base_settings import RUA_VERSION
 
+
 class Roles(object):
 
     def process_request(self, request):
