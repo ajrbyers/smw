@@ -112,7 +112,7 @@ def add_metadata():
                         book.description = description
                         book.save()
 
-                        for editor in book.all_editors():
+                        for editor in book.get_all_editors():
                             email_context = {
                                 'book': book,
                                 'editor': editor,

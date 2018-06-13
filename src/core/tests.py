@@ -6,14 +6,40 @@ import json
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.client import Client
+from django.test import TestCase
 from django.test.utils import setup_test_environment
 from django.utils import timezone
+
+import factory
 
 from core import models
 from submission import models as submission_models
 import tempfile
+
+
+class UserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'auth.User'
+        django_get_or_create = ('username',)
+
+    username = 'test_user'
+
+
+class BookFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'core.Book'
+        django_get_or_create = ('title',)
+
+    title = 'Testing for Dummies'
+
+
+class SeriesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'core.Series'
+        django_get_or_create = ('name',)
+
+    name = 'A Series of Tests'
 
 
 class CoreTests(TestCase):
@@ -1422,3 +1448,243 @@ class CoreTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("was sent" in resp.content, True)
+
+    def test_book_get_all_editors_no_editors(self):
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            0,
+            'A non-empty list was returned for a book with no editors assigned.'
+        )
+
+    def test_book_get_all_editors_press_editor(self):
+        book = BookFactory(title='Transatlantic Testing Networks')
+        press_editor = UserFactory(username='Preston')
+
+        book.press_editors = [press_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            1,
+            'A list with a length other than 1 was returned for a book '
+            'with one editor assigned.'
+        )
+        self.assertTrue(
+            press_editor in editors,
+            'The press editor assigned to a book was not '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_series_editor(self):
+        book = BookFactory(title='Transatlantic Testing Networks')
+        series_editor = UserFactory(username='Saul')
+        series = SeriesFactory(
+            name='Global Guides to Testing',
+            editor=series_editor
+        )
+
+        book.series = series
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            1,
+            'A list with a length other than 1 was returned for a book '
+            'with one editor assigned.'
+        )
+        self.assertTrue(
+            series_editor in editors,
+            'The series editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_book_editor(self):
+        book = BookFactory(title='Transatlantic Testing Networks')
+        book_editor = UserFactory(username='Edmund')
+
+        book.press_editors = [book_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            1,
+            'A list with a length other than 1 was returned for a book '
+            'with one editor assigned.'
+        )
+        self.assertTrue(
+            book_editor in editors,
+            'The book editor assigned to a book was not '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_press_and_series_editors(self):
+        press_editor = UserFactory(username='Preston')
+        series_editor = UserFactory(username='Saul')
+        series = SeriesFactory(
+            name='Global Guides to Testing',
+            editor=series_editor
+        )
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        book.series = series
+        book.press_editors = [press_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            2,
+            'A list with a length other than 2 was returned for a book '
+            'with two editors assigned.'
+        )
+        self.assertTrue(
+            series_editor in editors,
+            'The series editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            press_editor in editors,
+            'The press editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_press_and_book_editors(self):
+        press_editor = UserFactory(username='Preston')
+        book_editor = UserFactory(username='Edmund')
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        book.press_editors = [press_editor]
+        book.book_editors = [book_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            2,
+            'A list with a length other than 2 was returned for a book '
+            'with two editors assigned.'
+        )
+        self.assertTrue(
+            book_editor in editors,
+            'The book editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            press_editor in editors,
+            'The press editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_series_and_book_editors(self):
+        series_editor = UserFactory(username='Saul')
+        book_editor = UserFactory(username='Edmund')
+        series = SeriesFactory(
+            name='Global Guides to Testing',
+            editor=series_editor
+        )
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        book.series = series
+        book.book_editors = [book_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            2,
+            'A list with a length other than 2 was returned for a book '
+            'with two editors assigned.'
+        )
+        self.assertTrue(
+            series_editor in editors,
+            'The series editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            book_editor in editors,
+            'The book editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_all_editor_types(self):
+        press_editor = UserFactory(username='Preston')
+        series_editor = UserFactory(username='Saul')
+        book_editor = UserFactory(username='Edmund')
+        series = SeriesFactory(
+            name='Global Guides to Testing',
+            editor=series_editor
+        )
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        book.series = series
+        book.press_editors = [press_editor]
+        book.book_editors = [book_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            3,
+            'A list with a length other than 3 was returned for a book '
+            'with three editors assigned.'
+        )
+        self.assertTrue(
+            series_editor in editors,
+            'The series editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            press_editor in editors,
+            'The press editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            book_editor in editors,
+            'The book editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+
+    def test_book_get_all_editors_ensure_no_duplicates(self):
+        press_editor = UserFactory(username='Preston')
+        series_editor = UserFactory(username='Saul')
+        book_editor = UserFactory(username='Edmund')
+        series = SeriesFactory(
+            name='Global Guides to Testing',
+            editor=series_editor
+        )
+        book = BookFactory(title='Transatlantic Testing Networks')
+
+        book.series = series
+        book.press_editors = [press_editor, series_editor]
+        book.book_editors = [press_editor, book_editor]
+        book.save()
+        editors = book.get_all_editors()
+
+        self.assertEqual(
+            len(editors),
+            3,
+            'A list with a length other than 3 was returned for a book '
+            'with three unique editors assigned (5 in total, 2 duplicates).'
+        )
+        self.assertTrue(
+            series_editor in editors,
+            'The series editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            press_editor in editors,
+            'The press editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
+        self.assertTrue(
+            book_editor in editors,
+            'The book editor assigned to a book was not in '
+            'the list of editors returned.'
+        )
