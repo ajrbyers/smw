@@ -72,6 +72,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.Roles',
+    'core.middleware.Version',
 )
 
 MESSAGE_TAGS = {
