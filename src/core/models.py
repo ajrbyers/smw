@@ -2008,7 +2008,11 @@ class License(models.Model):
 
 class Series(models.Model):
 
-    name = models.CharField(
+    handle = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+    )
+    title = models.CharField(
         max_length=100,
     )
     editor = models.ForeignKey(
