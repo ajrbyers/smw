@@ -305,7 +305,7 @@ def reviewer_decision(
         )
 
         decision_log_kwargs['message'] = message
-        decision_log_kwargs['short_message'] = 'Assignment declined'
+        decision_log_kwargs['short_name'] = 'Assignment declined'
         log.add_log_entry(**decision_log_kwargs)
 
         editor_notification_kwargs['message'] = message
@@ -325,7 +325,7 @@ def reviewer_decision(
             )
 
             decision_log_kwargs['message'] = message
-            decision_log_kwargs['short_message'] = 'Assignment accepted'
+            decision_log_kwargs['short_name'] = 'Assignment accepted'
             log.add_log_entry(**decision_log_kwargs)
 
             editor_notification_kwargs['message'] = message
@@ -343,7 +343,7 @@ def reviewer_decision(
             )
 
             decision_log_kwargs['message'] = message
-            decision_log_kwargs['short_message'] = 'Assignment declined'
+            decision_log_kwargs['short_name'] = 'Assignment declined'
             log.add_log_entry(**decision_log_kwargs)
 
             editor_notification_kwargs['message'] = message

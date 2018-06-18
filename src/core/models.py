@@ -2033,10 +2033,10 @@ class Series(models.Model):
     )
 
     def __unicode__(self):
-        return u'%s' % self.name
+        return u'%s' % self.title
 
     def __repr__(self):
-        return u'%s' % self.name
+        return u'%s' % self.title
 
 
 class Editor(models.Model):

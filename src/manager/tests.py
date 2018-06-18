@@ -431,66 +431,88 @@ class ManagerTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.post(reverse('series_add'),
-                                {'name': 'test_series', 'editor': 1,
-                                 'issn': 'test issn',
-                                 'description': 'test description',
-                                 'url': 'http://localhost:8000/'})
+        resp = self.client.post(
+            reverse('series_add'),
+            {
+                'title': 'test_series',
+                'editor': 1,
+                'issn': 'test issn',
+                'description': 'test description',
+                'url': 'http://localhost:8000/'
+            }
+        )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual("403" in resp.content, False)
         self.assertEqual(resp['Location'], 'http://testing/manager/series/')
 
-        series = core_models.Series.objects.all()
-        self.assertEqual(series.count(), 1)
+        all_series = core_models.Series.objects.all()
+        self.assertEqual(all_series.count(), 1)
 
-        resp = self.client.get(reverse('series_edit', kwargs={'series_id': 1}))
+        resp = self.client.get(
+            reverse('series_edit',
+                    kwargs={'series_id': all_series.first().id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.post(reverse('series_edit', kwargs={'series_id': 1}),
-                                {'register': '', 'name': 'test_series',
-                                 'editor': '1', 'issn': 'test issn',
-                                 'description': 'test description updated',
-                                 'url': 'http://localhost:8000/'})
+        resp = self.client.post(
+            reverse('series_edit',
+                    kwargs={'series_id': all_series.first().id}),
+            {
+                'register': '',
+                'title': 'test_series',
+                'editor': '1',
+                'issn': 'test issn',
+                'description': 'test description updated',
+                'url': 'http://localhost:8000/'
+            }
+        )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual("403" in resp.content, False)
         self.assertEqual(resp['Location'], 'http://testing/manager/series/')
-        series = core_models.Series.objects.get(pk=1)
+        series = core_models.Series.objects.first()
         self.assertEqual(series.description, 'test description updated')
 
         resp = self.client.get(
-            reverse('series_delete', kwargs={'series_id': 1}))
+            reverse('series_delete',
+                    kwargs={'series_id': series.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
 
-        resp = self.client.get(reverse('series_submission_add',
-                                       kwargs={'submission_id': 1,
-                                               'series_id': 1}))
-        content = resp.content
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in content, False)
-
-        book = core_models.Book.objects.get(pk=1)
-
-        self.assertEqual(book.series, core_models.Series.objects.get(pk=1))
+        book = core_models.Book.objects.first()
 
         resp = self.client.get(
-            reverse('series_submission_remove', kwargs={'submission_id': 1}))
+            reverse('series_submission_add',
+                    kwargs={'submission_id': book.id,
+                            'series_id': series.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 302)
         self.assertEqual("403" in content, False)
 
-        book = core_models.Book.objects.get(pk=1)
+        book.refresh_from_db()
+        self.assertEqual(book.series, series)
+
+        resp = self.client.get(
+            reverse('series_submission_remove',
+                    kwargs={'submission_id': book.id})
+        )
+        content = resp.content
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual("403" in content, False)
+
+        book.refresh_from_db()
         self.assertEqual(book.series, None)
 
         resp = self.client.post(
-            reverse('series_delete', kwargs={'series_id': 1}))
+            reverse('series_delete',
+                    kwargs={'series_id': series.id})
+        )
         series = core_models.Series.objects.all()
         self.assertEqual(series.count(), 0)
-
-        book = core_models.Book.objects.get(pk=1)
 
     def test_manager_proposal_forms(self):
         resp = self.client.get(

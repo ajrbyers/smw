@@ -756,39 +756,51 @@ class EditorTests(TestCase):
         except:
             found = False
         self.assertEqual(found, True)
-        resp = self.client.post(reverse('add_contributor',
-                                        kwargs={'submission_id': self.book.id,
-                                                'contributor_type': 'author'}),
-                                {'salutation': 'Mr',
-                                 'first_name': 'rua_first_new_name',
-                                 'last_name': 'rua_last_new_name',
-                                 'middle_name': '', 'biography': 'updated bio',
-                                 'institution': 'rua_testing', 'department': '',
-                                 'country': 'GB', 'orcid': '', 'twitter': '',
-                                 'facebook': '', 'linkedin': '',
-                                 'author_email': 'fake_changed@fakeaddress.com'})
-        found = False
+        resp = self.client.post(
+            reverse('add_contributor',
+                    kwargs={'submission_id': self.book.id,
+                            'contributor_type': 'author'}),
+            {'salutation': 'Mr',
+             'first_name': 'rua_first_new_name',
+             'last_name': 'rua_last_new_name',
+             'middle_name': '',
+             'biography': 'updated bio',
+             'institution': 'rua_testing',
+             'department': '',
+             'country': 'GB',
+             'orcid': '', 'twitter': '',
+             'facebook': '', 'linkedin': '',
+             'author_email': 'fake_changed@fakeaddress.com'}
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        found = True
         try:
-            author = core_models.Author.objects.get(pk=2)
-            found = True
+            # Get new author without relying on hard coded pk
+            author = core_models.Author.objects.get(
+                first_name='rua_first_new_name'
+            )
         except:
             found = False
         self.assertEqual(found, True)
         self.assertEqual(author.first_name, 'rua_first_new_name')
         self.assertEqual(author.last_name, 'rua_last_new_name')
-        resp = self.client.post(reverse('delete_contributor',
-                                        kwargs={'submission_id': self.book.id,
-                                                'contributor_type': 'author',
-                                                'contributor_id': author.pk}))
-        found = False
+        resp = self.client.post(
+            reverse('delete_contributor',
+            kwargs={'submission_id': self.book.id,
+                    'contributor_type': 'author',
+                    'contributor_id': author.pk})
+        )
+        found = True
         try:
-            author = core_models.Author.objects.get(pk=2)
-            found = True
+            author = core_models.Author.objects.get(name='rua_first_new_name')
         except:
             found = False
         self.assertEqual(found, False)
         resp = self.client.get(
-            reverse('retailers', kwargs={'submission_id': self.book.id}))
+            reverse('retailers',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
@@ -798,38 +810,52 @@ class EditorTests(TestCase):
         self.assertEqual("Enabled" in content, True)
         self.assertEqual("Use the form to add a new retailer." in content, True)
         resp = self.client.post(
-            reverse('retailers', kwargs={'submission_id': self.book.id}),
-            {'name': 'Amazon', 'link': 'http://www.amazon.co.uk/mybook/',
-             'price': '9.99', 'enabled': True})
+            reverse('retailers',
+                    kwargs={'submission_id': self.book.id}),
+            {'name': 'Amazon',
+             'link': 'http://www.amazon.co.uk/mybook/',
+             'price': '9.99',
+             'enabled': True}
+        )
         retailers = core_models.Retailer.objects.all()
         self.assertEqual(len(retailers), 1)
         resp_get = self.client.get(
-            reverse('retailers', kwargs={'submission_id': self.book.id}))
+            reverse('retailers',
+                    kwargs={'submission_id': self.book.id})
+        )
         content = resp_get.content
         self.assertEqual(resp_get.status_code, 200)
         self.assertEqual("403" in content, False)
-        self.assertEqual("Use the form to add a new retailer." in content,
-                         False)
-        self.assertEqual("/editor/submission/1/catalog/retailers/1/" in content,
-                         True)
+        self.assertEqual(
+            "Use the form to add a new retailer." in content,
+             False
+        )
+        self.assertEqual(
+            "/editor/submission/1/catalog/retailers/1/" in content,
+            True
+        )
         self.assertEqual(
             "/editor/submission/1/catalog/retailers/1/?delete=true" in content,
             True)
         retailer = core_models.Retailer.objects.get(pk=1)
         self.assertEqual(int(retailer.price), int(9.99))
-        resp = self.client.get(reverse('retailer_with_id',
-                                       kwargs={'submission_id': self.book.id,
-                                               'retailer_id': 1}))
+        resp = self.client.get(
+            reverse('retailer_with_id',
+                    kwargs={'submission_id': self.book.id,
+                            'retailer_id': 1})
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual("403" in content, False)
-        resp = self.client.post(reverse('retailer_with_id',
-                                        kwargs={'submission_id': self.book.id,
-                                                'retailer_id': 1}),
-                                {'name': 'Amazon',
-                                 'link': 'http://www.amazon.co.uk/mybook/',
-                                 'price': '19.99', 'enabled': True,
-                                 'update': ''})
+        resp = self.client.post(
+            reverse('retailer_with_id',
+                    kwargs={'submission_id': self.book.id,
+                            'retailer_id': 1}),
+            {'name': 'Amazon',
+             'link': 'http://www.amazon.co.uk/mybook/',
+             'price': '19.99', 'enabled': True,
+             'update': ''}
+        )
         retailer = core_models.Retailer.objects.get(pk=1)
         self.assertEqual(int(retailer.price), int(19.99))
 
@@ -845,7 +871,8 @@ class EditorTests(TestCase):
 			'slug':'slug',
 			'review_type':'open-with',
 			'languages':'124',
-			'publication_date':None}) '''
+			'publication_date':None}) 
+			'''
 
     def test_view_chapter(self):
         resp = self.client.get(reverse('editor_view_chapter', kwargs={
