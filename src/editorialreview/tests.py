@@ -60,11 +60,13 @@ class EditorialReviewTests(TestCase):
     def setUp(self):
         self.client = Client(HTTP_HOST='testing')
         self.editorialreviewer = EditorialReviewerFactory.create()
+        self.editorialreviewer.set_password('reviewerpass')
+        self.editorialreviewer.save()
         self.book = BookFactory.create()
         self.proposal = ProposalFactory.create()
         self.client.login(
             username=self.editorialreviewer.username,
-            password=self.editorialreviewer.password
+            password='reviewerpass'  # Must be unhashed
         )
 
     def tearDown(self):
@@ -80,9 +82,14 @@ class EditorialReviewTests(TestCase):
             'editorialreviewer@email.com'
         )
 
-    @skip('The factoryboy package will be properly addressed later')
+    @skip(
+        'Model factories need expanding.'
+        'editorialreview.content_object.data is None.'
+    )
     def test_ed_reviewer_download_proposal(self):
-        self.editorialreview = ProposalEditorialReviewFactory.create()
+        self.editorialreview = ProposalEditorialReviewFactory.create(
+            user=self.editorialreviewer
+        )
         resp = self.client.get(
             reverse(
                 'view_content_summary',
@@ -91,4 +98,5 @@ class EditorialReviewTests(TestCase):
                 }
             )
         )
+        print resp.url
         self.assertEqual(resp.status_code, 200)
