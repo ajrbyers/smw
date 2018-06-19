@@ -1277,6 +1277,11 @@ body {
   padding: 0 0 60px;
 }
 
+/* Add margin to content to allow room for footer*/
+.content {
+  margin-bottom: 60px;
+}
+
 /* Set the fixed height of the footer here */
 .footer {
   margin-top: 10px;
