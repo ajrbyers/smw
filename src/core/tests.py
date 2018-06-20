@@ -37,9 +37,9 @@ class BookFactory(factory.django.DjangoModelFactory):
 class SeriesFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'core.Series'
-        django_get_or_create = ('name',)
+        django_get_or_create = ('title',)
 
-    name = 'A Series of Tests'
+    title = 'A Series of Tests'
 
 
 class CoreTests(TestCase):
@@ -1484,7 +1484,7 @@ class CoreTests(TestCase):
         book = BookFactory(title='Transatlantic Testing Networks')
         series_editor = UserFactory(username='Saul')
         series = SeriesFactory(
-            name='Global Guides to Testing',
+            title='Global Guides to Testing',
             editor=series_editor
         )
 
@@ -1528,7 +1528,7 @@ class CoreTests(TestCase):
         press_editor = UserFactory(username='Preston')
         series_editor = UserFactory(username='Saul')
         series = SeriesFactory(
-            name='Global Guides to Testing',
+            title='Global Guides to Testing',
             editor=series_editor
         )
         book = BookFactory(title='Transatlantic Testing Networks')
@@ -1586,7 +1586,7 @@ class CoreTests(TestCase):
         series_editor = UserFactory(username='Saul')
         book_editor = UserFactory(username='Edmund')
         series = SeriesFactory(
-            name='Global Guides to Testing',
+            title='Global Guides to Testing',
             editor=series_editor
         )
         book = BookFactory(title='Transatlantic Testing Networks')
@@ -1618,7 +1618,7 @@ class CoreTests(TestCase):
         series_editor = UserFactory(username='Saul')
         book_editor = UserFactory(username='Edmund')
         series = SeriesFactory(
-            name='Global Guides to Testing',
+            title='Global Guides to Testing',
             editor=series_editor
         )
         book = BookFactory(title='Transatlantic Testing Networks')
@@ -1656,7 +1656,7 @@ class CoreTests(TestCase):
         series_editor = UserFactory(username='Saul')
         book_editor = UserFactory(username='Edmund')
         series = SeriesFactory(
-            name='Global Guides to Testing',
+            title='Global Guides to Testing',
             editor=series_editor
         )
         book = BookFactory(title='Transatlantic Testing Networks')
