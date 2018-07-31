@@ -15,7 +15,7 @@
             <h4>Start</h4>
             <div class="well" style="overflow:auto;">
             <div class="col-md-3"><strong>Type:</strong><br />{{ book.get_book_type_display }}</div>
-            <div class="col-md-3" ><strong>Series:</strong><br />{% if book.series %}{{ book.series.name }}{% else %}------{% endif %}</div>
+            <div class="col-md-3" ><strong>Series:</strong><br />{% if book.series %}{{ book.series.title }}{% else %}------{% endif %}</div>
             <div class="col-md-3"><strong>License:</strong><br />{% if book.license %}{{ book.license.short_name }}{% else %}------{% endif %}</div>
             <div class="col-md-3"><strong>Review Type:</strong><br />{% if book.review_type %}{{ book.review_type_verbose }}{% else %}------{% endif %}</div>
              <hr />
