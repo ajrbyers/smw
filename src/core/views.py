@@ -1766,7 +1766,7 @@ def serve_file(request, submission_id, file_id):
                 file_name=_file.original_filename.encode(
                     'ascii',
                     errors='ignore'
-                ).decode()
+                )
             )
         )
         return response
@@ -1819,7 +1819,7 @@ def serve_file_one_click(
                 file_name=_file.original_filename.encode(
                     'ascii',
                     errors='ignore'
-                ).decode()
+                )
             )
         )
         return response
