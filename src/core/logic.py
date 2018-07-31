@@ -177,7 +177,7 @@ def book_to_mark21_file(book, owner, xml=False):
 
     if book.series:  # Series.
         record.add_field(
-            record_field('830', ['#', '0'], ['a', book.series.name]))
+            record_field('830', ['#', '0'], ['a', book.series.title]))
         if book.series.editor:
             record.add_field(record_field(
                 '700',
@@ -372,7 +372,7 @@ def book_to_mark21_file_content(book, owner, xml=False):
 
     if book.series:  # Series.
         record.add_field(
-            record_field('830', ['#', '0'], ['a', book.series.name]))
+            record_field('830', ['#', '0'], ['a', book.series.title]))
         if book.series.editor:
             record.add_field(record_field(
                 '700',

@@ -3,57 +3,77 @@
 {% load bootstrap3 %}
 
 {% block css %}
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock css %}
 
 {% block body %}
-<div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px">
-  <h3>Book Series<span class="pull-right"><a href="{% url 'series_add' %}" class="btn btn-transparent-white" style="position: absolute;right:105px;margin-top:-8px"><i class="fa fa-plus">&nbsp;</i>Add New Series</a><a href="{% url 'manager_index' %}" class="btn  btn-transparent-white" style="position: absolute;right:20px;margin-top:-8px">Go back</a></h3>
-</div>
-
-	<div class="col-md-12">
-
-    <table class="table table-bordered" cellspacing="0" width="100%" id='users'>
-      <thead>
-      <tr>
-        <th width="15%">Name</th>
-        <th width="15%">Editor</th>
-        <th width="25%">Description</th>
-        <th width="15%"></th>
-        <th width="15%"></th>
-        {% if send_enabled %}
-        <th width="15%"></th>
-        {% endif %}
-      </tr>
-      </thead>
-      {% for series in all_series %}
-      <tr>
-        <td>{{ series.name }}</td>
-        <td>{{ series.editor.profile.full_name }}</td>
-        <td>{{ series.description }}</td>
-        <td><a class="btn btn-primary btn-round-half"style="width:75px"href="{% url 'series_edit' series.id %}">Edit</a></td>
-        <td><a class="btn btn-decline btn-round-half"style="width:75px"href="{% url 'series_delete' series.id %}">Delete</a></td>
-
-        {% if send_enabled %}
-           <td><a class="btn btn-success btn-round-half"style="width:75px"href="{% url 'series_send_series' series.id %}">Send</a></td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+    <div class="col-md-12 primary-heading container-fluid" style="margin-top:-20px">
+        <h3>Book Series
+            <span class="pull-right">
+                <a href="{% url 'series_add' %}" class="btn btn-transparent-white" style="position: absolute;right:105px;margin-top:-8px">
+                    <i class="fa fa-plus">&nbsp;</i>Add New Series
+                </a>
+                <a href="{% url 'manager_index' %}"
+                   class="btn  btn-transparent-white"
+                   style="position: absolute;right:20px;margin-top:-8px">
+                    Go back
+                </a>
+            </span>
+        </h3>
+    </div>
+    <div class="col-md-12">
+        <table class="table table-bordered" cellspacing="0" width="100%" id='users'>
+            <thead>
+            <tr>
+                <th width="15%">Title</th>
+                <th width="15%">Editor</th>
+                <th width="25%">Description</th>
+                <th width="15%"></th>
+                <th width="15%"></th>
+                {% if send_enabled %}
+                    <th width="15%"></th>
+                {% endif %}
+            </tr>
+            </thead>
+            {% for series in all_series %}
+                <tr>
+                    <td>{{ series.title }}</td>
+                    <td>{{ series.editor.profile.full_name }}</td>
+                    <td>{{ series.description }}</td>
+                    <td><a class="btn btn-primary btn-round-half"
+                           style="width:75px"
+                           href="{% url 'series_edit' series.id %}">Edit</a>
+                    </td>
+                    <td><a class="btn btn-decline btn-round-half"
+                           style="width:75px"
+                           href="{% url 'series_delete' series.id %}">Delete</a>
+                    </td>
+                    {% if send_enabled %}
+                        <td><a class="btn btn-success btn-round-half"
+                               style="width:75px"
+                               href="{% url 'series_send_series' series.id %}">Send</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock body %}
 
 
 {% block js %}
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script>
-  $(document).ready(function() {
-      $('#users').DataTable({
-        "lengthMenu": [[10, 15, 20, -1], [10, 15, 20, "All"]]
-      });
-  } );
-</script>
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#users').DataTable({
+                "lengthMenu": [[10, 15, 20, -1], [10, 15, 20, "All"]]
+            });
+        });
+    </script>
 
 
 {% endblock js %}
