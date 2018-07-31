@@ -10,8 +10,12 @@
 {% endblock css %}
 
 {% block body %}
-<h3>You have declined this review request.</h3>
-<br>
-<a href="{% url 'login' %}" class="btn btn-primary">Go to Login page</a>
-
+    <h3>Thank you for taking the time to respond to this review request.</h3>
+    {% if request.user.is_authenticated %}
+        <p>You have declined this review request and may now proceed to your dashboard to deal with any other outstanding tasks.</p>
+        <a href="{%  url 'user_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+    {%  else %}
+        <p>You have declined this review request and may now proceed to the login page to deal with any other outstanding tasks.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary">Go to Login page</a>
+    {% endif %}
 {% endblock body %}
