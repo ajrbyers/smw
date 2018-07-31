@@ -278,8 +278,8 @@ def reviewer_decision(
     if decision and decision == 'accept':
         review_assignment.accepted = timezone.now()
         message = (
-            "Review Assignment request for '{book_title}' has been accepted "
-            "by {first_name} {last_name}.".format(
+            u"Review Assignment request for '{book_title}' has been accepted "
+            u"by {first_name} {last_name}.".format(
                 book_title=submission.title,
                 first_name=review_assignment.user.first_name,
                 last_name=review_assignment.user.last_name,
@@ -296,8 +296,8 @@ def reviewer_decision(
     elif decision and decision == 'decline':
         review_assignment.declined = timezone.now()
         message = (
-            "Review Assignment request for '{book_title}' has been declined "
-            "by {reviewer_first_name} {reviewer_last_name}.".format(
+            u"Review Assignment request for '{book_title}' has been declined "
+            u"by {reviewer_first_name} {reviewer_last_name}.".format(
                 book_title=submission.title,
                 reviewer_first_name=review_assignment.user.first_name,
                 reviewer_last_name=review_assignment.user.last_name,
@@ -316,8 +316,8 @@ def reviewer_decision(
         if 'accept' in request.POST:
             review_assignment.accepted = timezone.now()
             message = (
-                "Review Assignment request for '{book_title} has been accepted'"
-                " by {first_name} {last_name}.".format(
+                u"Review Assignment request for '{book_title}' has been "
+                u"accepted by {first_name} {last_name}.".format(
                     book_title=submission.title,
                     first_name=review_assignment.user.first_name,
                     last_name=review_assignment.user.last_name,
@@ -334,8 +334,8 @@ def reviewer_decision(
         elif 'decline' in request.POST:
             review_assignment.declined = timezone.now()
             message = (
-                "Review Assignment request for '{book_title}' has been declined"
-                " by {first_name} {last_name}.".format(
+                u"Review Assignment request for '{book_title}' has been "
+                u"declined by {first_name} {last_name}.".format(
                     book_title=submission.title,
                     first_name=review_assignment.user.first_name,
                     last_name=review_assignment.user.last_name,
