@@ -322,8 +322,8 @@ def send_series(request, series_id):
             data={
                 'press_code': 'up',
                 'omp_series_id': _series.pk,
-                'title': _series.name,
-                'slug': slugify(_series.name),
+                'title': _series.title,
+                'slug': slugify(_series.title),
                 'editor': _series.editor.profile.full_name,
                 'editor_email': _series.editor.email,
                 'description': _series.description
