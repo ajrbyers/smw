@@ -1,25 +1,33 @@
 {% load dict_lookup %}
 {% load ascii_encode %}
 
- <h6>You may <a href="{% if review.access_key %}{% url 'generate_review_form_access_key' review.review_type review.book.id review.id review.access_key %}{% else %}{% url 'generate_review_form' review.review_type review.book.id  review.id %}{% endif %}">download</a> the completed review form if you want.</h6>
- <br>
-<h4>{% if book.review_type == 'open-with' or active == 'review' %}Review by {{ review.user.profile.full_name }}{% else %}This review is anonymous.{% endif %}</h4>
+<h6>You may <a href="
+        {% if review.access_key %}{% url 'generate_review_form_access_key' review.review_type review.book.id review.id review.access_key %}{% else %}{% url 'generate_review_form' review.review_type review.book.id  review.id %}{% endif %}">download</a>
+    the completed review form if you want.</h6>
+<br>
+<h4>{% if book.review_type == 'open-with' or active == 'review' %}Review by
+    {{ review.user.profile.full_name }}{% else %}This review is
+    anonymous.{% endif %}</h4>
 <h5>Review Files</h5>
 {% include "shared/review_files.html" with file_data=review.files.all %}
- <hr />
+<hr/>
 <h4>Recommendation: </h4>
- {{ review.get_recommendation_display }}
- {% if book.review_type == 'open-with' or active == 'review' %}
-  <hr />
- <h4>Competing Interests: </h4>
-{{ review.competing_interests|safe }}<br>If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
+{{ review.get_recommendation_display }}
+{% if book.review_type == 'open-with' or active == 'review' %}
+    <hr/>
+    <h4>Competing Interests: </h4>
+    {{ review.competing_interests|safe }}<br>If any of the authors or editors
+    have any competing interests please add them here. e.g.. 'This study was
+    paid for by corp xyz.'.
+    <A href='/page/competing_interests/' target="_blank">More info</A></small>
+    <br><br>
 {% endif %}
-<hr />
+<hr/>
 <h4>Review: </h4>
 <div style="clear:both"></div>
 {% for item in data_ordered %}
-<div>
-  <label>{{ item.0 }}</label>
-  <p>{% lookup result.data item.0|ascii_encode %} </p>
-</div>
+    <div>
+        <label>{{ item.0 }}</label>
+        <p>{% lookup result.data item.0|ascii_encode %} </p>
+    </div>
 {% endfor %}

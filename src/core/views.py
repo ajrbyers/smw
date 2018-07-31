@@ -1748,10 +1748,26 @@ def serve_file(request, submission_id, file_id):
 
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+        mimetype_guess = mimetypes.guess_type(file_path)
+
+        try:
+            mimetype = mimetype_guess[0]
+            if not mimetype:
+                mimetype = 'unknown'
+        except IndexError:
+            mimetype = 'unknowns'
+
         response = StreamingHttpResponse(fsock, content_type=mimetype)
+
+        # Strip non-ascii characters from filename
+        # to avoid a bug where an unusable ZIP file is served
         response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
+            "attachment; filename={file_name}".format(
+                file_name=_file.original_filename.encode(
+                    'ascii',
+                    errors='ignore'
+                ).decode()
+            )
         )
         return response
     except IOError:
@@ -1785,10 +1801,26 @@ def serve_file_one_click(
 
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+
+        mimetype_guess = mimetypes.guess_type(file_path)
+        try:
+            mimetype = mimetype_guess[0]
+            if not mimetype:
+                mimetype = 'unknown'
+        except IndexError:
+            mimetype = 'unknowns'
+
         response = StreamingHttpResponse(fsock, content_type=mimetype)
+
+        # Strip non-ascii characters from filename
+        # to avoid a bug where an unusable ZIP file is served
         response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
+            "attachment; filename={file_name}".format(
+                file_name=_file.original_filename.encode(
+                    'ascii',
+                    errors='ignore'
+                ).decode()
+            )
         )
         return response
     except IOError:

@@ -610,8 +610,11 @@ def review(request, review_type, submission_id, review_round, access_key=None):
 
             if request.FILES.get('review_file_upload'):
                 logic.handle_review_file(
-                    request.FILES.get('review_file_upload'), 'book',
-                    review_assignment, 'reviewer')
+                    request.FILES.get('review_file_upload'),
+                    'book',
+                    review_assignment,
+                    'reviewer'
+                )
 
             review_assignment.completed = timezone.now()
             if not review_assignment.accepted:
