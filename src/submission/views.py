@@ -345,7 +345,11 @@ def submission_five(request, book_id):
         press_editors = core_models.User.objects.filter(  # Send ack email.
             profile__roles__slug='press-editor'
         )
-        logic.send_acknowldgement_email(book, press_editors)
+        logic.send_acknowldgement_email(
+            book,
+            press_editors,
+            sender=request.user
+        )
         return redirect(reverse('author_dashboard'))
 
     template = 'submission/submission_five.html'
@@ -534,6 +538,7 @@ def incomplete_proposal(request, proposal_id):
             email_text = get_setting('proposal_submission_ack', 'email')
 
             core_logic.send_proposal_submission_ack(
+                request,
                 proposal,
                 email_text=email_text,
                 owner=request.user,
@@ -662,6 +667,7 @@ def start_proposal(request):
             email_text = get_setting('proposal_submission_ack', 'email')
 
             core_logic.send_proposal_submission_ack(
+                request,
                 proposal,
                 email_text=email_text,
                 owner=request.user,
@@ -892,6 +898,7 @@ def proposal_revisions(request, proposal_id):
                 short_name='Proposal Revisions Submitted'
             )
             core_logic.send_proposal_update(
+                request,
                 proposal,
                 email_text=update_email_text,
                 sender=request.user,
@@ -1124,6 +1131,7 @@ def proposal_view(request, proposal_id):
                 short_name='Proposal Updated',
             )
             core_logic.send_proposal_update(
+                request,
                 proposal,
                 email_text=update_email_text,
                 sender=request.user,
