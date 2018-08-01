@@ -2286,6 +2286,7 @@ def proposal_assign_user(request, proposal_id, user_id):
     email_text = get_setting('proposal_submission_ack', 'email')
 
     logic.send_proposal_submission_ack(
+        request,
         _proposal,
         email_text=email_text,
         owner=user,
@@ -3798,7 +3799,9 @@ def contract_manager(request, proposal_id, contract_id=None):
 
                     if not new_contract.author_signed_off:
                         email_text = get_setting(
-                            'proposal_contract_author_sign_off', 'email')
+                            'proposal_contract_author_sign_off',
+                            'email'
+                        )
                         logic.send_proposal_contract_author_sign_off(
                             proposal,
                             email_text,
