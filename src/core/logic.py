@@ -1,6 +1,7 @@
 from __builtin__ import any as string_any
 import datetime
 import json
+import mimetypes
 import re
 
 from django.contrib.auth.models import User
@@ -1820,3 +1821,43 @@ def get_active_proposal_form():
         active_form = models.ProposalForm.objects.filter(in_edit=False).first()
 
     return active_form
+
+
+def get_file_mimetype(file_path):
+    """Returns a guessed mimetype for a given file path.
+
+    Args:
+        file_path (str): the path to the storage location of the file.
+
+    Returns:
+        str
+    """
+    mimetype_guess = mimetypes.guess_type(file_path)
+
+    mimetype = mimetype_guess[0]
+    if not mimetype:
+        mimetype = 'unknown'
+
+    return mimetype
+
+
+def get_file_content_dispostion(original_filename):
+    """Returns a Content-Disposition response header for a given filename.
+
+    Args:
+        original_filename (unicode): the name under which the file was uploaded
+
+    Returns:
+        str
+    """
+
+    # Strip non-ascii characters from filename
+    # to avoid a bug where an unusable ZIP file is served
+    return (
+        "attachment; filename={file_name}".format(
+            file_name=original_filename.encode(
+                'ascii',
+                errors='ignore'
+            )
+        )
+    )
