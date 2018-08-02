@@ -1,58 +1,80 @@
 <ul class="media-list manuscript-upload-states">
-  {% for file in file_data %}
-   <li class="media grey-container ">
-   
-      <div class="media-left" >
-      <span > <h1 style="margin-top:10px" >
-        {% if file.mime_type == 'image/jpeg' or file.mime_type == 'image/png' %}
-       &nbsp; &nbsp;    <i class="fa fa-file-image-o"></i>
-        {% else %}
-        &nbsp; &nbsp;   <i class="fa fa-file-text-o"></i>
-        {% endif %}
-      </span></h1>
-    </div>
-    <div class="media-body">
-
-        <div class="col-md-6">
-        <h5>{{ file.truncated_label }}</h5>
-        <h5>{{ file.truncated_filename }}</h5>
-   
-      </div>
-    </div>
-        <div class="media-right">
-                {% if assignment == 'typeset'%}
-
-        <h6 style="position:absolute;margin-bottom:5px;margin-top:4px;right:8px">Create Publication</h6>
-         {% endif %}
-           <div class="button-group" role="group">
-         {% if file_type == 'internal' or file_type == 'external' %}
-
-        <a href="{% url 'delete_review_files' submission.id file.id 'external'  %}" type="button"  class="btn btn-sm btn-danger btn-round-half download-small" style="margin-right:0px!important" ><i class="fa fa-trash"></i></a>
-
-       {% endif %}
-       {% if assignment == 'copyedit' or assignment == 'indexing' %}
-         <a href="{% url 'update_file' submission.id file.id 'user_submission' %}" type="button"  class="btn btn-sm btn-accept download-small" ><i class="fa fa-cloud-upload"></i></a>
-       {% endif %}
-       {% if editorialreviewer %}
-         <a href="{% url 'download_er_file' file.id review.id %}?access_key={{ review.access_key }}" type="button"  class="btn btn-sm btn-task download-small" ><i class="fa fa-cloud-download"></i></a>
-       {% else %}
-         <a href="{% url 'serve_file' submission.id file.id %}" type="button"  class="btn btn-sm btn-task download-small" ><i class="fa fa-cloud-download"></i></a>
-       {% endif %}
-        {% if assignment == 'typeset'%}
-
-         <a href="{% url 'add_format_existing' submission.id file.id  %}" type="button" class="btn btn-xs btn-green download-small" style="margin-left:-20px;height:23px;align:center"> Format </a>
-         <a href="{% url 'add_chapter_existing' submission.id file.id %}" type="button"  class="btn btn-xs btn-green download-small" style="margin-left:-28px;height:23px"> Chapter </a>
-       {% endif %}
-    </div>    </div>
-  
-   
-  </li>
-  {% empty %}
-  <li class="grey-container">
-  <p>
-  <strong>No files assigned.</strong>
-  </p>
-  </li>
-  {% endfor %}
+    {% for file in file_data %}
+        <li class="media grey-container ">
+            <div class="media-left">
+                <span>
+                   <h1 style="margin-top:10px">
+                        {% if file.mime_type == 'image/jpeg' or file.mime_type == 'image/png' %}
+                            &nbsp; &nbsp; <i class="fa fa-file-image-o"></i>
+                        {% else %}
+                            &nbsp; &nbsp; <i class="fa fa-file-text-o"></i>
+                        {% endif %}
+                    </h1>
+                </span>
+            </div>
+            <div class="media-body">
+                <div class="col-md-6">
+                    <h5>{{ file.truncated_label }}</h5>
+                    <h5>{{ file.truncated_filename }}</h5>
+                </div>
+            </div>
+            <div class="media-right">
+                {% if assignment == 'typeset' %}
+                    <h6 style="position:absolute;margin-bottom:5px;margin-top:4px;right:8px">
+                        Create Publication</h6>
+                {% endif %}
+                <div class="button-group" role="group">
+                    {% if file_type == 'internal' or file_type == 'external' %}
+                        <a href="{% url 'delete_review_files' submission.id file.id 'external' %}"
+                           type="button"
+                           class="btn btn-sm btn-danger btn-round-half download-small"
+                           style="margin-right:0px!important">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    {% endif %}
+                    {% if assignment == 'copyedit' or assignment == 'indexing' %}
+                        <a href="{% url 'update_file' submission.id file.id 'user_submission' %}"
+                           type="button"
+                           class="btn btn-sm btn-accept download-small">
+                            <i class="fa fa-cloud-upload"></i>
+                        </a>
+                    {% endif %}
+                    {% if editorialreviewer %}
+                        <a href="{% url 'download_er_file' file.id review.id %}?access_key={{ review.access_key }}"
+                           type="button"
+                           class="btn btn-sm btn-task download-small">
+                            <i class="fa fa-cloud-download"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'serve_file' submission.id file.id %}"
+                           type="button"
+                           class="btn btn-sm btn-task download-small">
+                            <i class="fa fa-cloud-download"></i>
+                        </a>
+                    {% endif %}
+                    {% if assignment == 'typeset' %}
+                        <a href="{% url 'add_format_existing' submission.id file.id %}"
+                           type="button"
+                           class="btn btn-xs btn-green download-small"
+                           style="margin-left:-20px;height:23px;align:center">
+                            Format
+                        </a>
+                        <a href="{% url 'add_chapter_existing' submission.id file.id %}"
+                           type="button"
+                           class="btn btn-xs btn-green download-small"
+                           style="margin-left:-28px;height:23px">
+                            Chapter
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% empty %}
+        <li class="grey-container">
+            <p>
+                <strong>No files assigned.</strong>
+            </p>
+        </li>
+    {% endfor %}
 </ul>
 <br>
