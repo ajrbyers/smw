@@ -1601,6 +1601,27 @@ def send_proposal_submission_ack(proposal, email_text, owner):
     )
 
 
+def send_new_proposal_notification(sender, proposal, email_text, recipient):
+    from_email = sender.email or get_setting('from_address', 'email')
+    subject = get_setting('new_proposal_notification_subject', 'email_subject')
+
+    context = {
+        'proposal': proposal,
+        'recipient': recipient,
+        'sender': sender,
+    }
+
+    email.send_email(
+        subject,
+        context,
+        from_email,
+        recipient.email,
+        email_text,
+        proposal=proposal,
+        kind='proposal',
+    )
+
+
 def send_proposal_change_owner_ack(request, proposal, email_text, owner):
     from_email = get_setting('from_address', 'email')
     press_name = get_setting('press_name', 'general')
