@@ -1761,10 +1761,10 @@ def serve_file(request, submission_id, file_id):
 
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+        mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
+        response['Content-Disposition'] = logic.get_file_content_dispostion(
+            _file.original_filename
         )
         return response
     except IOError:
@@ -1798,10 +1798,10 @@ def serve_file_one_click(
 
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+        mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
+        response['Content-Disposition'] = logic.get_file_content_dispostion(
+            _file.original_filename
         )
         return response
     except IOError:
@@ -1828,8 +1828,8 @@ def serve_proposal_file_id(request, proposal_id, file_id):
         fsock = open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
+        response['Content-Disposition'] = logic.get_file_content_dispostion(
+            _file.original_filename
         )
         return response
     except IOError:
@@ -1853,10 +1853,10 @@ def serve_versioned_file(request, submission_id, revision_id):
 
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+        mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-                "attachment; filename=%s" % _versions_file.original_filename
+        response['Content-Disposition'] = logic.get_file_content_dispostion(
+            _versions_file.original_filename
         )
         return response
     except IOError:
@@ -4188,7 +4188,7 @@ def create_completed_proposal_review_form(proposal, review_id):
 def serve_proposal_file(request, file_path):
     try:
         fsock = open(file_path, 'r')
-        mimetype = mimetypes.guess_type(file_path)
+        mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
             "attachment; filename=proposal_form.docx"
