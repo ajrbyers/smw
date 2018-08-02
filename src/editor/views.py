@@ -916,6 +916,7 @@ def editor_decision(request, submission_id, decision):
 
             if 'inform' in request.POST:
                 core_logic.send_decision_ack(
+                    request=request,
                     book=book,
                     decision=decision,
                     email_text=request.POST.get('id_email_text'),
@@ -949,6 +950,7 @@ def editor_decision(request, submission_id, decision):
 
             if 'inform' in request.POST:
                 core_logic.send_decision_ack(
+                    request=request,
                     book=book,
                     decision=decision,
                     email_text=request.POST.get('id_email_text'),
@@ -986,6 +988,7 @@ def editor_decision(request, submission_id, decision):
                 else:
                     url = None
                 core_logic.send_decision_ack(
+                    request=request,
                     book=book,
                     decision=decision,
                     email_text=request.POST.get('id_email_text'),
@@ -1015,6 +1018,7 @@ def editor_decision(request, submission_id, decision):
             book.stage.save()
             if 'inform' in request.POST:
                 core_logic.send_decision_ack(
+                    request=request,
                     book=book,
                     decision=decision,
                     email_text=request.POST.get('id_email_text'),
@@ -1026,6 +1030,7 @@ def editor_decision(request, submission_id, decision):
 
                 for editor in production_editor_list:
                     core_logic.send_production_editor_ack(
+                        request,
                         book,
                         editor,
                         request.POST.get('id_editor_email_text'),

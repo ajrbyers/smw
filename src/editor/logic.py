@@ -364,7 +364,7 @@ def send_review_request(
         attachment=None,
         access_key=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
@@ -420,7 +420,7 @@ def send_editorial_review_request(
         email_text, sender,
         attachment=None
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
@@ -473,7 +473,7 @@ def send_editorial_review_update(
         sender,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {'book': book, 'review': review_assignment, 'sender': sender}
 
@@ -502,8 +502,7 @@ def send_review_update(
         attachment=None,
 ):
     """ Notify a reviewer that their review due date has been updated. """
-
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {'book': book, 'review': review_assignment, 'sender': sender}
 
@@ -526,7 +525,7 @@ def send_review_update(
 
 
 def send_proposal_decline(proposal, email_text, sender):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {'proposal': proposal, 'sender': sender}
 
@@ -551,7 +550,7 @@ def send_proposal_accept(
         sender,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -576,7 +575,7 @@ def send_proposal_accept(
 
 
 def send_proposal_revisions(proposal, email_text, sender):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -599,7 +598,7 @@ def send_proposal_revisions(proposal, email_text, sender):
 
 
 def send_author_sign_off(submission, email_text, sender):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -629,7 +628,7 @@ def send_copyedit_assignment(
         sender,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -661,7 +660,7 @@ def send_author_invite(
         sender,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -687,7 +686,7 @@ def send_author_invite(
 
 
 def send_invite_indexer(book, index, email_text, sender, attachment=None):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
     press_name = get_setting('press_name', 'general')
 
     context = {
@@ -715,7 +714,7 @@ def send_invite_indexer(book, index, email_text, sender, attachment=None):
 
 
 def send_invite_typesetter(book, typeset, email_text, sender, attachment=None):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -774,7 +773,7 @@ def send_requests_revisions(
         email_text,
         attachments=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
