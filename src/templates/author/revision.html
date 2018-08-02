@@ -1,23 +1,26 @@
 {% load bootstrap3 %}
 {% load static from staticfiles %}
 <h2>{{ revision.book.title }}</h2>
-Your book's Editor, {{ revision.requestor.profile.full_name }}, has requested that you make some revisions before it can proceed. You can download the original submission files using the <i class="fa fa-download"></i> button and you can update revise the file using the <i class="fa fa-upload"></i> button.
+Your book's Editor, {{ revision.requestor.profile.full_name }}, has requested that you make some revisions before it can proceed. You can download the original submission files using the
+<i class="fa fa-download"></i> button and you can update revise the file using the
+<i class="fa fa-upload"></i> button.
 <h4>Notes from Editor</h4>
 <div class="well sm">
-{{ revision.notes_from_editor|safe }}</div>
-<hr />
+    {{ revision.notes_from_editor|safe }}</div>
+<hr/>
 <h4>Step 1</h4>
 Upload revisions to your submission files.
 {% include "author/revision_submission_files.html" %}
-<hr />
+<hr/>
 <h4>Step 2</h4>
 Complete the Cover Letter and submit.
-<form method="post" class="form" action="{% url 'author_revision' submission.id revision.id %}">
-{% csrf_token %}
-{% bootstrap_form form %}
-{% buttons %}
-    <button name="submit" id="submit" type="submit" class="btn btn-primary">
-       Submit Revisions
-    </button>
-{% endbuttons %}
+<form method="post" class="form"
+      action="{% url 'author_revision' submission.id revision.id %}">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+        <button name="submit" id="submit" type="submit" class="btn btn-primary">
+            Submit Revisions
+        </button>
+    {% endbuttons %}
 </form>

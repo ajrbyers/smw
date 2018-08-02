@@ -243,6 +243,32 @@ def handle_email_file(_file, kind, owner, label=None):
     return new_file
 
 
+def handle_multiple_email_files(request_files, file_owner):
+    """Processes in-memory files from a HTTP response and returns saved files.
+
+    Args:
+        request_files (list): in-memory files from a Django http response.
+        file_owner(django.contrib.auth.models.User): the owner of the saved files.
+
+    Returns:
+        list: file objects that can be sent as email attachemnts
+
+    """
+    attachments = []
+    for request_file in request_files:
+        attachment = handle_email_file(
+            _file=request_file,
+            kind='other',
+            owner=file_owner,
+            label="Attachment: Uploaded by {username}".format(
+                username=file_owner.username
+            )
+        )
+        attachments.append(attachment)
+
+    return attachments
+
+
 def handle_proposal_review_file(
         _file,
         proposal_review,

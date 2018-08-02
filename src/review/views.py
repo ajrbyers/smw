@@ -11,12 +11,15 @@ from django.db.models import Q
 from django.http import Http404, StreamingHttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
+from django.views.generic import FormView
 
 from bs4 import BeautifulSoup
 from docx import Document
 
 from core import (
+    email,
     forms as core_forms,
     log,
     logic as core_logic,
@@ -24,7 +27,12 @@ from core import (
 )
 from core.decorators import is_reviewer, has_reviewer_role
 from editorialreview import models as editorialreview_models
-from review import forms, models, logic
+from core.files import handle_multiple_email_files
+from review import (
+    forms,
+    logic,
+    models,
+)
 from submission import models as submission_models
 from core.setting_util import get_setting
 
@@ -260,8 +268,15 @@ def reviewer_decision(
     elif review_assignment.declined:
         return redirect(reverse('reviewer_dashboard'))
 
+    # Form data POSTED to view takes precedence over 'decision' parameter
+    if request.POST:
+        if 'accept' in request.POST:
+            decision = 'accept'
+        elif 'decline' in request.POST:
+            decision = 'decline'
+
     # Declaration of dictionaries containing redundant keyword arguments
-    # used in calls to function in review.logic
+    # used in calls to log function in review.logic
     editor_notification_kwargs = {
         'book': submission,
         'book_editors': book_editors,
@@ -275,11 +290,11 @@ def reviewer_decision(
         'kind': 'review',
     }
 
-    if decision and decision == 'accept':
+    if decision == 'accept':
         review_assignment.accepted = timezone.now()
         message = (
-            u"Review Assignment request for '{book_title}' has been accepted "
-            u"by {first_name} {last_name}.".format(
+            u"Review Assignment request for '{book_title}' has been "
+            u"accepted by {first_name} {last_name}.".format(
                 book_title=submission.title,
                 first_name=review_assignment.user.first_name,
                 last_name=review_assignment.user.last_name,
@@ -293,14 +308,14 @@ def reviewer_decision(
         editor_notification_kwargs['message'] = message
         logic.notify_editors(**editor_notification_kwargs)
 
-    elif decision and decision == 'decline':
+    elif decision == 'decline':
         review_assignment.declined = timezone.now()
         message = (
-            u"Review Assignment request for '{book_title}' has been declined "
-            u"by {reviewer_first_name} {reviewer_last_name}.".format(
+            u"Review Assignment request for '{book_title}' has been "
+            u"declined by {first_name} {last_name}.".format(
                 book_title=submission.title,
-                reviewer_first_name=review_assignment.user.first_name,
-                reviewer_last_name=review_assignment.user.last_name,
+                first_name=review_assignment.user.first_name,
+                last_name=review_assignment.user.last_name,
             )
         )
 
@@ -311,70 +326,34 @@ def reviewer_decision(
         editor_notification_kwargs['message'] = message
         logic.notify_editors(**editor_notification_kwargs)
 
-    # If we didn't get a decision above, offer the user a choice.
-    if request.POST:
-        if 'accept' in request.POST:
-            review_assignment.accepted = timezone.now()
-            message = (
-                u"Review Assignment request for '{book_title}' has been "
-                u"accepted by {first_name} {last_name}.".format(
-                    book_title=submission.title,
-                    first_name=review_assignment.user.first_name,
-                    last_name=review_assignment.user.last_name,
-                )
-            )
-
-            decision_log_kwargs['message'] = message
-            decision_log_kwargs['short_name'] = 'Assignment accepted'
-            log.add_log_entry(**decision_log_kwargs)
-
-            editor_notification_kwargs['message'] = message
-            logic.notify_editors(**editor_notification_kwargs)
-
-        elif 'decline' in request.POST:
-            review_assignment.declined = timezone.now()
-            message = (
-                u"Review Assignment request for '{book_title}' has been "
-                u"declined by {first_name} {last_name}.".format(
-                    book_title=submission.title,
-                    first_name=review_assignment.user.first_name,
-                    last_name=review_assignment.user.last_name,
-                )
-            )
-
-            decision_log_kwargs['message'] = message
-            decision_log_kwargs['short_name'] = 'Assignment declined'
-            log.add_log_entry(**decision_log_kwargs)
-
-            editor_notification_kwargs['message'] = message
-            logic.notify_editors(**editor_notification_kwargs)
-
-    if request.POST or decision:
+    if decision:
         review_assignment.save()
-        if review_assignment.accepted:
-            if access_key:
-                return redirect(reverse(
-                    'review_with_access_key',
+
+        if access_key:
+            return redirect(
+                reverse(
+                    'reviewer_decision_email_with_access_key',
                     kwargs={
                         'review_type': review_type,
                         'submission_id': submission.pk,
+                        'review_assignment_id': review_assignment_id,
                         'access_key': access_key,
-                        'review_round':
-                            review_assignment.review_round.round_number
+                        'decision': decision,
                     }
-                ))
-            else:
-                return redirect(reverse(
-                    'review_without_access_key',
+                )
+            )
+        else:
+            return redirect(
+                reverse(
+                    'reviewer_decision_email',
                     kwargs={
                         'review_type': review_type,
-                        'submission_id': submission.pk,
-                        'review_round':
-                            review_assignment.review_round.round_number
+                        'submissions_id': submission.pk,
+                        'review_assignment_id': review_assignment_id,
+                        'decision': decision,
                     }
-                ))
-        elif review_assignment.declined:
-            return redirect(reverse('review_request_declined'))
+                )
+            )
 
     template = 'review/reviewer_decision.html'
     context = {
@@ -390,6 +369,168 @@ def reviewer_decision(
     }
 
     return render(request, template, context)
+
+
+class ReviewerDecisionEmail(FormView):
+    """
+    Allows requested reviewers to send an email to requesting editors
+    after they have responded to a peer review request.
+    """
+    template_name = 'review/reviewer_decision_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(is_reviewer)
+    def dispatch(self, request, *args, **kwargs):
+        self.review_type = self.kwargs['review_type']
+        self.review_assignment_id = self.kwargs['review_assignment_id']
+        self.access_key = self.kwargs.get('access_key')
+        self.decision = self.kwargs.get('decision')
+
+        self.submission = get_object_or_404(
+            core_models.Book,
+            pk=self.kwargs['submission_id']
+        )
+
+        if self.access_key:
+            self.review_assignment = get_object_or_404(
+                core_models.ReviewAssignment,
+                access_key=self.access_key,
+                pk=self.review_assignment_id,
+                review_type=self.review_type,
+            )
+        else:
+            self.review_assignment = get_object_or_404(
+                core_models.ReviewAssignment,
+                Q(user=self.request.user),
+                Q(book=self.submission),
+                Q(pk=self.review_assignment_id),
+                Q(review_type=self.review_type),
+                Q(access_key__isnull=True) | Q(access_key__exact=''),
+            )
+
+        return super(ReviewerDecisionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(ReviewerDecisionEmail, self).get_form_kwargs()
+
+        if (
+                self.review_assignment.assigning_editor and
+                self.review_assignment.assigning_editor.profile.full_name()
+        ):
+            recipient_greeting = 'Dear {assigning_editor_name}'.format(
+                assigning_editor_name=(
+                    self.review_assignment.assigning_editor.profile.full_name()
+                )
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'recipient_greeting': recipient_greeting,
+            'submission': self.submission,
+            'sender': self.review_assignment.user,
+        }
+
+        if self.decision == 'accept':
+            email_body = email.get_email_content(
+                request=self.request,
+                setting_name='requested_reviewer_accept',
+                context=email_context,
+            )
+            email_subject = (
+                'Review request accepted - {title}: {subtitle}'.format(
+                    title=self.submission.title,
+                    subtitle=self.submission.subtitle,
+                )
+            )
+        else:
+            email_body = email.get_email_content(
+                request=self.request,
+                setting_name='requested_reviewer_decline',
+                context=email_context,
+            )
+            email_subject = (
+                'Review request declined - {title}: {subtitle}'.format(
+                    title=self.submission.title,
+                    subtitle=self.submission.subtitle,
+                )
+            )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ReviewerDecisionEmail, self).get_context_data(**kwargs)
+        context['submission'] = get_object_or_404(
+            core_models.Book,
+            pk=self.kwargs['submission_id']
+        )
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+
+        if self.review_assignment.assigning_editor:
+            assigning_editor_email = (
+                self.review_assignment.assigning_editor.email
+            )
+        else:
+            assigning_editor_email = ''
+
+        other_editors_emails = [
+            editor.email
+            for editor in self.submission.get_all_editors()
+            if editor.email != assigning_editor_email
+            and editor.username is not 'tech'
+        ]
+        logic.send_requested_reviewer_decision_notification(
+            from_email=self.review_assignment.user.email,
+            to=assigning_editor_email,
+            cc=other_editors_emails,
+            subject=form.cleaned_data['email_subject'],
+            email_text=form.cleaned_data['email_body'],
+            attachments=attachments,
+            submission=self.submission,
+        )
+        
+        return super(ReviewerDecisionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+
+        if self.access_key:
+            return reverse(
+                'review_with_access_key',
+                kwargs={
+                    'review_type': self.review_type,
+                    'submission_id': self.submission.pk,
+                    'access_key': self.access_key,
+                    'review_round':
+                        self.review_assignment.review_round.round_number
+                }
+            )
+        else:
+            return reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.review_type,
+                    'submission_id': self.submission.pk,
+                    'review_round':
+                        self.review_assignment.review_round.round_number
+                }
+            )
 
 
 @is_reviewer
@@ -570,9 +711,14 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             for field in file_fields:
                 field_name = core_logic.ascii_encode(field.element.name)
                 if field_name in request.FILES:
-                    save_dict[field_name] = [logic.handle_review_file(
-                        request.FILES[field_name], 'book',
-                        review_assignment, 'reviewer')]
+                    save_dict[field_name] = [
+                        logic.handle_review_file(
+                            request.FILES[field_name],
+                            'book',
+                            review_assignment,
+                            'reviewer'
+                        )
+                    ]
 
             for field in data_fields:
                 field_name = core_logic.ascii_encode(field.element.name)
@@ -677,7 +823,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             if access_key:
                 return redirect(
                     reverse(
-                        'review_complete_with_access_key', kwargs={
+                        'review_completion_email_with_access_key', kwargs={
                             'review_type': review_type,
                             'submission_id': submission.id,
                             'access_key': access_key,
@@ -688,7 +834,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             else:
                 return redirect(
                     reverse(
-                        'review_complete', kwargs={
+                        'review_completion_email', kwargs={
                             'review_type': review_type,
                             'submission_id': submission.id,
                             'review_round': review_round
@@ -714,9 +860,149 @@ def review(request, review_type, submission_id, review_round, access_key=None):
     return render(request, template, context)
 
 
+@is_reviewer
 def review_request_declined(request):
     template = 'review/review_request_declined.html'
     return render(request, template)
+
+
+class ReviewCompletionEmail(FormView):
+    """
+    Allows peer reviewers who have just completed a review to
+    customise a notification email before it is sent to the editors.
+    """
+    template_name = 'review/review_completion_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(is_reviewer)
+    def dispatch(self, request, *args, **kwargs):
+        self.review_type = self.kwargs['review_type']
+        self.submission_id = self.kwargs['submission_id']
+        self.review_round = self.kwargs['review_round']
+        self.access_key = self.kwargs.get('access_key')
+
+        self.submission = get_object_or_404(
+            core_models.Book,
+            pk=self.submission_id
+        )
+
+        self.recipient_editors = []
+        self.recipient_editors.extend(self.submission.book_editors.all())
+        series_editor = self.submission.get_series_editor()
+        if series_editor:
+            self.recipient_editors.append(series_editor)
+
+        if self.request.user.is_authenticated:
+            self.requested_reviewer = self.request.user
+        else:
+            self.requested_reviewer = self.review_assignment.user
+
+        return super(ReviewCompletionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(ReviewCompletionEmail, self).get_form_kwargs()
+
+        if self.recipient_editors:
+            recipient_greeting = email.get_email_greeting(
+                recipients=self.recipient_editors
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'greeting': recipient_greeting,
+            'submission': self.submission,
+            'sender': self.request.user,
+        }
+
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='peer_review_completed',
+            context=email_context,
+        )
+        email_subject = 'Review completed for {title}: {subtitle}'.format(
+            title=self.submission.title,
+            subtitle=self.submission.subtitle,
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ReviewCompletionEmail, self).get_context_data(**kwargs)
+        context['submission'] = get_object_or_404(
+            core_models.Book,
+            pk=self.kwargs['submission_id']
+        )
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+
+        if self.recipient_editors:
+            editor_email_addresses = [
+                editor.email for editor in self.recipient_editors
+            ]
+        else:
+            editor_email_addresses = [
+                press_editor.email
+                for press_editor in User.objects.filter(
+                        profile__roles__slug='press-editor'
+                    ).order_by('-first_name')
+            ]
+
+        other_editors_emails = [
+            editor.email
+            for editor in self.submission.get_all_editors()
+            if editor.email not in editor_email_addresses
+            and editor.username != settings.INTERNAL_USER
+        ]
+        logic.send_requested_reviewer_decision_notification(
+            from_email=self.requested_reviewer.email,
+            to=editor_email_addresses,
+            cc=other_editors_emails,
+            subject=form.cleaned_data['email_subject'],
+            email_text=form.cleaned_data['email_body'],
+            attachments=attachments,
+            submission=self.submission,
+        )
+
+        return super(ReviewCompletionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+
+        if self.access_key:
+            return reverse(
+                'review_complete_with_access_key',
+                kwargs={
+                    'review_type': self.review_type,
+                    'submission_id': self.submission.pk,
+                    'access_key': self.access_key,
+                    'review_round': self.review_round,
+                }
+            )
+        else:
+            return reverse(
+                'review_complete',
+                kwargs={
+                    'review_type': self.review_type,
+                    'submission_id': self.submission.pk,
+                    'review_round': self.review_round,
+                }
+            )
 
 
 @is_reviewer

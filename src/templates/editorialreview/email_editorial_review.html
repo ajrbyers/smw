@@ -3,44 +3,58 @@
 {% load bootstrap3 %}
 
 {% block css %}
-	<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+    <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
-<div class="col-md-12 file-heading  container-fluid" style="margin-top:-20px">
-	<h3>Editorial Review Request</h3>
-	{% if review.content_type.model == 'proposal' %}
-	<a href="{% url 'view_proposal' review.object_id  %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-4px">Go back</a></h3>
-	{% else %}
-	<a href="{% url 'editor_submission' review.object_id  %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-4px">Go back</a></h3>
-	{% endif %}
-	<p>Title: {{ review.content_object.title }} ({{ review.content_type }})<br />
-	To: {{ review.user.email }}<br />
-	Subject: {{ subject }}</p>
-</div>
-	<br /><br />
-	<form method="POST" enctype="multipart/form-data">
-	{% csrf_token %}
-	<textarea class="form-control" rows="10" id="email_text" name="email_text">{{ email_text }}</textarea>
-	<br />
-	<label class="control-label" for="id_label">Attachments</label>
-	  <p class="small">Please add any additional files here. Use 'shift' or 'ctrl' to select multiple files.</p>
-	  <div class="input-group">
-	    <span class="input-group-btn">
-	      <span class="btn btn-primary btn-file">
-	        Browse&hellip; <input type="file" id="attachment" name="attachment" multiple>
-	      </span>
-	    </span>
-	    <input type="text" class="form-control" readonly>
-	  </div>
-	<br>
-	<button type="submit" class="btn btn-primary pull-right">Submit</button>
-	<br>
-	<hr>
+    <div class="col-md-12 file-heading  container-fluid"
+         style="margin-top:-20px">
+        <h3>Editorial Review Request</h3>
+        {% if review.content_type.model == 'proposal' %}
+            <a href="{% url 'view_proposal' review.object_id %}"
+               class="btn  btn-transparent-white"
+               style="position: absolute;right:20;margin-top:-4px">Go back</a>
+            </h3>
+        {% else %}
+            <a href="{% url 'editor_submission' review.object_id %}"
+               class="btn  btn-transparent-white"
+               style="position: absolute;right:20;margin-top:-4px">Go back</a>
+            </h3>
+        {% endif %}
+        <p>Title: {{ review.content_object.title }}
+            ({{ review.content_type }})<br/>
+            To: {{ review.user.email }}<br/>
+            Subject: {{ subject }}</p>
+    </div>
+    <br/><br/>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <textarea class="form-control" rows="10" id="email_text"
+                  name="email_text">{{ email_text }}</textarea>
+        <br/>
+        <label class="control-label" for="id_label">Attachments</label>
+        <p class="small">
+            Please add any additional files here. Use 'shift' or 'ctrl'
+            to select multiple files.
+        </p>
+        <div class="input-group">
+            <span class="input-group-btn">
+                <span class="btn btn-primary btn-file">
+                    Browse&hellip;
+                    <input type="file" id="attachment" name="attachment" multiple>
+                </span>
+            </span>
+            <input type="text" class="form-control" readonly>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+        <br>
+        <hr>
+    </form>
 {% endblock body %}
-
 {% block js %}
-<script type="text/javascript">$("textarea").jqte();</script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">$("textarea").jqte();</script>
+    <script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
 {% endblock js %}

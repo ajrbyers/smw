@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+
+{% block title %}Revision Completion Email{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12 bottom-space">
+            <h3>Please ensure that your are happy with the below email to the editor informing them that you have completed the requested revisions</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <input value="Send email" id="submit" type="submit" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+{% endblock %}

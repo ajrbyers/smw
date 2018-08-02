@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, url
 
+import views
+
 
 urlpatterns = patterns(
     '',
@@ -30,9 +32,23 @@ urlpatterns = patterns(
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
         r'(?P<review_assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/'
-        r'decision/(?P<decision>[-\w]+)/$',
+        r'decision-email/(?P<decision>[-\w]+)/$',
         'review.views.reviewer_decision',
         name='reviewer_decision_with_access_key'
+    ),
+    url(
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
+        r'(?P<review_assignment_id>\d+)/decision-email/'
+        r'(?P<decision>accept|decline)/$',
+        views.ReviewerDecisionEmail.as_view(),
+        name='reviewer_decision_email'
+    ),
+    url(
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
+        r'(?P<review_assignment_id>\d+)/access-key/(?P<access_key>[-\w+]+)/'
+        r'decision-email/(?P<decision>accept|decline)/$',
+        views.ReviewerDecisionEmail.as_view(),
+        name='reviewer_decision_email_with_access_key'
     ),
     url(  # Review.
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
@@ -45,6 +61,19 @@ urlpatterns = patterns(
         r'(?P<review_round>\d+)/$',
         'review.views.review',
         name='review_without_access_key'
+    ),
+    url(
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
+        r'(?P<review_round>\d+)/completion-email/$',
+        views.ReviewCompletionEmail.as_view(),
+        name='review_completion_email'
+    ),
+    url(
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
+        r'(?P<review_round>\d+)/access_key/(?P<access_key>[-\w+]+)/'
+        r'completion-email/$',
+        views.ReviewCompletionEmail.as_view(),
+        name='review_completion_email_with_access_key'
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'

@@ -3,8 +3,10 @@ import uuid
 from django import forms
 from django.contrib.auth.models import User
 
-from setting_util import get_setting
+from django_summernote.widgets import SummernoteWidget
+
 from core import models, logic
+from setting_util import get_setting
 from submission import models as submission_models
 
 
@@ -339,3 +341,14 @@ class ChangeReviewDueDateForm(forms.ModelForm):
     class Meta:
         model = submission_models.ProposalReview
         fields = ('due',)
+
+
+class CustomEmailForm(forms.Form):
+    email_subject = forms.CharField()
+    email_body = forms.CharField(widget=SummernoteWidget())
+    attachments = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput(
+            attrs={'multiple': True}
+         )
+    )
