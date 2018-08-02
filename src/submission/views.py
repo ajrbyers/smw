@@ -521,7 +521,19 @@ def incomplete_proposal(request, proposal_id):
                 )
             )
 
+            notification_email_template = get_setting(
+                setting_name='new_proposal_notification',
+                setting_group_name='email',
+            )
+
             for _editor in editors:
+                core_logic.send_new_proposal_notification(
+                    sender=request.user,
+                    proposal=proposal,
+                    email_text=notification_email_template,
+                    recipient=_editor,
+                )
+
                 notification = core_models.Task(
                     assignee=_editor,
                     creator=request.user,
@@ -530,17 +542,21 @@ def incomplete_proposal(request, proposal_id):
                 )
                 notification.save()
 
+
             messages.add_message(
                 request,
                 messages.SUCCESS,
                 'Proposal %s submitted' % proposal.id,
             )
-            email_text = get_setting('proposal_submission_ack', 'email')
+            acknowledgement_email_template = get_setting(
+                'proposal_submission_ack',
+                'email'
+            )
 
             core_logic.send_proposal_submission_ack(
                 request,
                 proposal,
-                email_text=email_text,
+                email_text=acknowledgement_email_template,
                 owner=request.user,
             )
 
