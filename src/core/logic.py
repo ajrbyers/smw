@@ -1082,8 +1082,7 @@ def send_proposal_review_request(
         attachment=None,
         access_key=None,
 ):
-    """ Email handler - should be moved to logic! """
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
@@ -1142,7 +1141,7 @@ def send_proposal_review_reopen_request(
         email_text,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
@@ -1273,9 +1272,16 @@ def handle_typeset_assignment(
     )
 
 
-def send_decision_ack(book, decision, email_text, url=None, attachment=None):
+def send_decision_ack(
+        request,
+        book,
+        decision,
+        email_text,
+        url=None,
+        attachment=None
+):
     """ Email Handlers - TODO: move to email.py? """
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
 
     if not decision == 'decline':
         decision_full = "Move to " + decision
@@ -1322,6 +1328,7 @@ def send_decision_ack(book, decision, email_text, url=None, attachment=None):
 
 
 def send_editorial_decision_ack(
+        request,
         review_assignment,
         contact,
         decision,
@@ -1329,7 +1336,7 @@ def send_editorial_decision_ack(
         url=None,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     publishing_committee = get_setting('publishing_committee', 'general')
 
     decision_full = decision
@@ -1411,10 +1418,15 @@ def send_editorial_decision_ack(
             )
 
 
-def send_production_editor_ack(book, editor, email_text, attachment=None):
+def send_production_editor_ack(
+        request,
+        book,
+        editor,
+        email_text,
+        attachment=None
+):
     """ Email Handlers - TODO: move to email.py? """
-    from_email = get_setting('from_address', 'email')
-
+    from_email = request.user.email or get_setting('from_address', 'email')
     context = {'submission': book, 'editor': editor}
     subject = get_setting(
         'production_editor_subject',
@@ -1435,6 +1447,7 @@ def send_production_editor_ack(book, editor, email_text, attachment=None):
 
 
 def send_review_request(
+        request,
         book,
         review_assignment,
         email_text,
@@ -1442,7 +1455,7 @@ def send_review_request(
         attachment=None,
         access_key=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
     press_name = get_setting('press_name', 'general')
 
@@ -1500,8 +1513,7 @@ def send_proposal_book_editor(
         sender,
         editor_email,
 ):
-    from_email = get_setting('from_address', 'email')
-
+    from_email = request.user.email or get_setting('from_address', 'email')
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
@@ -1527,8 +1539,7 @@ def send_proposal_book_editor(
 
 
 def send_proposal_decline(request, proposal, email_text, sender):
-    from_email = get_setting('from_address', 'email')
-
+    from_email = request.user.email or get_setting('from_address', 'email')
     if request:
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
@@ -1553,9 +1564,14 @@ def send_proposal_decline(request, proposal, email_text, sender):
     )
 
 
-def send_proposal_update(proposal, email_text, sender, receiver):
-    from_email = get_setting('from_address', 'email')
-
+def send_proposal_update(
+        request,
+        proposal,
+        email_text,
+        sender,
+        receiver
+):
+    from_email = request.user.email or get_setting('from_address', 'email')
     context = {'proposal': proposal, 'sender': sender, 'receiver': receiver}
     subject = get_setting(
         'proposal_update_subject',
@@ -1573,10 +1589,9 @@ def send_proposal_update(proposal, email_text, sender, receiver):
     )
 
 
-def send_proposal_submission_ack(proposal, email_text, owner):
-    from_email = get_setting('from_address', 'email')
+def send_proposal_submission_ack(request, proposal, email_text, owner):
+    from_email = request.user.email or get_setting('from_address', 'email')
     press_name = get_setting('press_name', 'general')
-
     principal_contact_name = get_setting('primary_contact_name', 'general')
 
     context = {
@@ -1602,9 +1617,8 @@ def send_proposal_submission_ack(proposal, email_text, owner):
 
 
 def send_proposal_change_owner_ack(request, proposal, email_text, owner):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     press_name = get_setting('press_name', 'general')
-
     principal_contact_name = get_setting('primary_contact_name', 'general')
 
     context = {
@@ -1633,13 +1647,14 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
 
 
 def send_task_decline(assignment, _type, email_text, sender, request):
-    from_email = get_setting('from_address', 'email')
-
-    if request:
+    if request and request.user.is_authenticated:
+        from_email = request.user.email
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),
             from_email,
         )
+    else:
+        from_email = get_setting('from_address', 'email')
 
     context = {'assignment': assignment, 'sender': sender}
     subject = get_setting(
@@ -1667,7 +1682,7 @@ def send_proposal_accept(
         submission, sender,
         attachment=None,
 ):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
 
     if request:
         from_email = "%s <%s>" % (
@@ -1701,7 +1716,7 @@ def send_proposal_accept(
 
 
 def send_proposal_revisions(request, proposal, email_text, sender):
-    from_email = get_setting('from_address', 'email')
+    from_email = request.user.email or get_setting('from_address', 'email')
     press_name = get_setting('press_name', 'general')
 
     if request:
@@ -1734,7 +1749,7 @@ def send_proposal_revisions(request, proposal, email_text, sender):
 
 
 def send_proposal_contract_author_sign_off(proposal, email_text, sender):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),
@@ -1753,7 +1768,7 @@ def send_proposal_contract_author_sign_off(proposal, email_text, sender):
 
 
 def send_invite_typesetter(book, typeset, email_text, sender, attachment):
-    from_email = get_setting('from_address', 'email')
+    from_email = sender.email or get_setting('from_address', 'email')
 
     context = {
         'base_url': get_setting('base_url', 'general'),

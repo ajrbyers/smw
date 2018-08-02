@@ -60,8 +60,8 @@ def check_stage(book, check):
         raise PermissionDenied()
 
 
-def send_acknowldgement_email(book, press_editors):
-    from_email = get_setting('from_address', 'email')
+def send_acknowldgement_email(book, press_editors, sender):
+    from_email = sender.email or get_setting('from_address', 'email')
     author_text = get_setting('author_submission_ack', 'email')
     editor_text = get_setting('editor_submission_ack', 'email')
     press_name = get_setting('press_name', 'general')
