@@ -142,7 +142,13 @@ def login(request):
                 'Account not found with those details.',
             )
 
-    context = {}
+    disable_user_self_registration = get_setting(
+        setting_name='disable_user_self_registration',
+        setting_group_name='general'
+    )
+    context = {
+        'disable_user_self_registration': disable_user_self_registration
+    }
     template = 'core/login.html'
 
     return render(request, template, context)
@@ -235,6 +241,13 @@ def logout(request):
 
 
 def register(request):
+    disable_user_self_registration = get_setting(
+        setting_name='disable_user_self_registration',
+        setting_group_name='general'
+    )
+    if disable_user_self_registration:
+        return HttpResponse(status=403)
+
     display_interests = []
 
     if request.method == 'POST':

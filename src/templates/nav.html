@@ -1,66 +1,118 @@
 <!-- Static navbar -->
-          <nav class="navbar navbar-inverse navbar-static-top">
-            <div class="container">
-              <div class="navbar-header">
-                <a class="navbar-brand" href="#">
-                  {% if press.look.brand_header %}<img class="img-responsive" alt="Brand" src="{{ MEDIA_URL }}settings/{{ press.look.brand_header }}">{% else %}<img class="img-responsive" alt="Brand" src="{{ MEDIA_URL }}img/default_brand.png">{% endif %}
-                </a>
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                </button>
-              </div>
-              <div id="navbar" class="navbar-collapse collapse" >
-                <ul class="nav navbar-nav navbar-right">
-                  {% if user.is_authenticated %}
-                  {% if 'typesetter' in roles or 'copyeditor' in roles or 'indexer' in roles %}
-                  <li><a class="hover-nav" href="{% url 'onetasker_dashboard' %}">Task Dashboard <span class="badge circle"> {{onetasker_task_count}}</span></a></li>
-                  {% endif %}
-                  {% if 'reviewer' in roles %}
-                  <li><a class="hover-nav" href="{% url 'reviewer_dashboard' %}">Reviewer Dashboard <span class="badge circle"> {{review_assignment_count}}</span></a></li>
-                  {% endif %}
-                  {% if 'author' in roles %}
-                  <li><a class="hover-nav" href="{% url 'author_dashboard' %}">Author Dashboard <span class="badge circle"> {{author_task_count}}</span></a></li>
-                  {% endif %}
-                  {% if 'book-editor' in roles or 'press-editor' in roles or 'series-editor' in roles %}
-                  <li><a class="hover-nav" href="{% url 'editor_dashboard' %}">Editor Dashboard <span class="badge circle"><label id="editor_notifications_nav" style="height:7px">{{task_count}}</label></span></a></li>
-                     <li><a class="hover-nav " href="{% url 'proposals' %}">Proposals Dashboard</a></li>
-                  {% endif %}
-                  
-                  <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Hi, {{ request.user.first_name }} <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a class="hover-dropdown "  href="{% url 'view_profile' %}">Profile</a></li>  
-                      {% if switch_account %}
-                      <li class="divider"></li>
-                      <li><a class="hover-dropdown "  href="{% url 'switch-account' %}"><i class="fa fa-users"></i>&nbsp; Switch Account</a></li>
-                      {% endif %}
-                      <li class="divider"></li>
-                      {% if request.user.is_staff or 'press-editor' in roles %}
-                      <li><a class="hover-dropdown" href="{% url 'overview' %}">Overview</a></li>
-                      <li><a class="hover-dropdown" href="{% url 'proposal_overview' %}">Proposal Overview</a></li>
-                      <li><a class="hover-dropdown" href="{% url 'overview_inprogress' %}">In Progress Overview</a></li>
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                {% if press.look.brand_header %}
+                    <img class="img-responsive" alt="Brand"
+                         src="{{ MEDIA_URL }}settings/{{ press.look.brand_header }}">{% else %}
+                    <img class="img-responsive" alt="Brand"
+                         src="{{ MEDIA_URL }}img/default_brand.png">{% endif %}
+            </a>
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    {% if 'typesetter' in roles or 'copyeditor' in roles or 'indexer' in roles %}
+                        <li><a class="hover-nav"
+                               href="{% url 'onetasker_dashboard' %}">Task
+                            Dashboard <span
+                                    class="badge circle"> {{ onetasker_task_count }}</span></a>
+                        </li>
+                    {% endif %}
+                    {% if 'reviewer' in roles %}
+                        <li><a class="hover-nav"
+                               href="{% url 'reviewer_dashboard' %}">Reviewer
+                            Dashboard <span
+                                    class="badge circle"> {{ review_assignment_count }}</span></a>
+                        </li>
+                    {% endif %}
+                    {% if 'author' in roles %}
+                        <li><a class="hover-nav"
+                               href="{% url 'author_dashboard' %}">Author
+                            Dashboard <span
+                                    class="badge circle"> {{ author_task_count }}</span></a>
+                        </li>
+                    {% endif %}
+                    {% if 'book-editor' in roles or 'press-editor' in roles or 'series-editor' in roles %}
+                        <li><a class="hover-nav"
+                               href="{% url 'editor_dashboard' %}">Editor
+                            Dashboard <span class="badge circle"><label
+                                    id="editor_notifications_nav"
+                                    style="height:7px">{{ task_count }}</label></span></a>
+                        </li>
+                        <li><a class="hover-nav " href="{% url 'proposals' %}">Proposals
+                            Dashboard</a></li>
+                    {% endif %}
 
-                      <li class="divider"></li>
-                      <li><a class="hover-dropdown" href="{% url 'editor_published_books' %}">Published Books</a></li>
-                      <li class="divider"></li>
-                       <li><a class="hover-dropdown" href="https://github.com/ubiquitypress/rua/wiki">Help</a></li>
-                        <li><a class="hover-dropdown" href="href="core/email.html" onclick="return popitup('/email/general/','general')"">Contact</a></li>
-                        <li class="divider"></li>
-                      <li><a class="hover-dropdown "  href="{% url 'manager_index' %}">Manager</a></li>
-                      {% endif %}
-                      {% if request.user.is_staff %}
-                      <li><a class="hover-dropdown "  href="/admin/">Admin</a></li>
-                      {% endif %}
-                      <li><a class="hover-dropdown "  href="{% url 'logout' %}">Logout</a></li>
-                    </ul>
-                  </li>
-                  {% else %}
-                  <li><a href="{% url 'login' %}">Login</a></li><li><a href="{% url 'register' %}">Register</a></li>
-                  {% endif %}
-                </ul>
-              </div><!--/.nav-collapse -->
-            </div>
-          </nav>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle"
+                           data-toggle="dropdown" role="button"
+                           aria-expanded="false">Hi, {{ request.user.first_name }}
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a class="hover-dropdown "
+                                   href="{% url 'view_profile' %}">Profile</a>
+                            </li>
+                            {% if switch_account %}
+                                <li class="divider"></li>
+                                <li><a class="hover-dropdown "
+                                       href="{% url 'switch-account' %}"><i
+                                        class="fa fa-users"></i>&nbsp; Switch
+                                    Account</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            {% if request.user.is_staff or 'press-editor' in roles %}
+                                <li><a class="hover-dropdown"
+                                       href="{% url 'overview' %}">Overview</a>
+                                </li>
+                                <li><a class="hover-dropdown"
+                                       href="{% url 'proposal_overview' %}">Proposal
+                                    Overview</a></li>
+                                <li><a class="hover-dropdown"
+                                       href="{% url 'overview_inprogress' %}">In
+                                    Progress Overview</a></li>
+
+                                <li class="divider"></li>
+                                <li><a class="hover-dropdown"
+                                       href="{% url 'editor_published_books' %}">Published
+                                    Books</a></li>
+                                <li class="divider"></li>
+                                <li><a class="hover-dropdown"
+                                       href="https://github.com/ubiquitypress/rua/wiki">Help</a>
+                                </li>
+                                <li><a class="hover-dropdown" href="href=" core/email.html"
+                                    onclick="return
+                                    popitup('/email/general/','general')"">Contact</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a class="hover-dropdown "
+                                       href="{% url 'manager_index' %}">Manager</a>
+                                </li>
+                            {% endif %}
+                            {% if request.user.is_staff %}
+                                <li><a class="hover-dropdown " href="/admin/">Admin</a>
+                                </li>
+                            {% endif %}
+                            <li><a class="hover-dropdown "
+                                   href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    {% if not disable_user_self_registration %}
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
