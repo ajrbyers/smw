@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
 
+import views
 
 urlpatterns = patterns(
    '',
@@ -53,6 +54,11 @@ urlpatterns = patterns(
         r'review/(?P<review_id>\d+)/thanks/$',
         'editorialreview.views.editorial_review_thanks',
         name='editorial_review_thanks'
+   ),
+   url(
+        r'review/(?P<review_id>\d+)/completion_email/$',
+        views.EditorialReviewCompletionEmail.as_view(),
+        name='editorial_review_completion_email'
    ),
    url(
         r'review/(?P<review_id>\d+)/$',

@@ -5,193 +5,254 @@
 {% block title %}Update File{% endblock %}
 
 {% block css %}
- <style type="text/css">
-    body {
-        overflow:hidden;
-    } 
- </style>
-	<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+    <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
-<div class="row">
-	<div class="col-md-12 book-heading container-fluid" style="margin-top:-20px">
-	      <h3>{% if submission.prefix %}{{ submission.prefix|title }}: {% endif %}{{ submission.title|title }}</h3>
-	</div>
-	<div class="col-md-3 dash-left grey-container">
-        <div class="dash-container" >
-            <h4 class="header-text">  {% if submission.prefix %}{{ submission.prefix }} {% endif %}{{ submission.title }}</h4> 
-            <h5 class="subtitle-text">{{submission.subtitle}}</h5>
+    <div class="row">
+        <div class="col-md-12 book-heading container-fluid"
+             style="margin-top:-20px">
+            <h3>{% if submission.prefix %}{{ submission.prefix|title }}
+                : {% endif %}{{ submission.title|title }}</h3>
+        </div>
+        <div class="col-md-3 dash-left grey-container">
+            <div class="dash-container">
+                <h4 class="header-text">{% if submission.prefix %}
+                    {{ submission.prefix }} {% endif %}{{ submission.title }}</h4>
+                <h5 class="subtitle-text">{{ submission.subtitle }}</h5>
+            </div>
+
+            <div class="book-info">
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th>Series</th>
+                        <td>{{ submission.series }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ submission.get_book_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>License</th>
+                        <td>{{ submission.license.short_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Review Type</th>
+                        <td>{{ submission.get_review_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Expected Completion Date</th>
+                        <td>{% if submission.expected_completion_date %}
+                            {{ submission.expected_completion_date|date:"Y-m-d" }}{% else %}
+                            None {% endif %}</td>
+                    </tr>
+                </table>
+            </div>
+
         </div>
 
-	    <div class="book-info">
-		    <table class="table table-bordered table-condensed small">
-		        <tr>
-		            <th>Series</th>
-		            <td>{{ submission.series }}</td>
-		        </tr>
-		        <tr>
-		            <th>Type</th>
-		            <td>{{ submission.get_book_type_display }}</td>
-		        </tr>
-		        <tr>
-		            <th>License</th>
-		            <td>{{ submission.license.short_name }}</td>
-		        </tr>
-		        <tr>
-		            <th>Review Type</th>
-		            <td>{{ submission.get_review_type_display }}</td>
-		        </tr>
-		           <tr>
-                <th>Expected Completion Date</th>
-                <td>{% if submission.expected_completion_date %}{{ submission.expected_completion_date|date:"Y-m-d" }}{% else %} None {% endif %}</td>
-            </tr>
-		    </table>
-	    </div>
-               
-    </div>
+        <div class="col-md-9 dash-center">
+            </br>
+            <div class="col-md-12 file-heading container-fluid ">
+                <h4>Add Reviewers
+                    <form method="post" class="form"
+                          enctype="multipart/form-data">  {% csrf_token %}
+                        <button type="submit" name="add_user" id="add_user"
+                                class="btn btn-transparent-white"
+                                style="position: absolute;right:75px;margin-top:-22px">
+                            <i class="fa fa-plus">&nbsp;</i>Add New User
+                        </button>
+                    </form>
+                </h4>
+            </div>
 
-    <div class="col-md-9 dash-center">
-    </br>
-    	<div class="col-md-12 file-heading container-fluid ">
-      		<h4>Add Reviewers 
-    <form method="post" class="form" enctype="multipart/form-data">  {% csrf_token %}<button type="submit"  name="add_user" id="add_user"  class="btn btn-transparent-white" style="position: absolute;right:75px;margin-top:-22px"><i class="fa fa-plus">&nbsp;</i>Add New User</button></form></h4>
-		</div>
-
-    	<div class="dash-container">
-    		<div class="media-body bottom-space-sm">
-				<div class="col-md-12">
-          			<form method="post" enctype="multipart/form-data">
-					<div class="modal-body">
-						{% csrf_token %}
-					  <h3>1. Select a Review Type</h3>
-					  <p class="small">You can select a single or multiple individuals for internal review, or you can select a committee or any combination of both.</p>
-					  <h4>1.1 Individual Review</h4>
-					  <p class="small">You can assign an individual reviewer. The reviewer will be asked to comment and make a recommendation.</p>
-					  <hr />
-					  <table class="table table-bordered small" cellspacing="0" width="100%" id='indv-reviewer'>
-					    <thead>
-					    <tr>
-					      <th>First Name</th>
-                          <th>Last Name</th>
-                          <th>Email</th>
-                          <th>Profile</th>
-                          <th>Active Reviews</th>
-                          <th>Completed Reviews</th>
-                          <th>Declined Reviews</th>
-                          <th>Review History</th>
-                          <th>Select</th>
-					    </tr>
-					    </thead>
-					    <tbody>
-					    {% for reviewer in reviewers %}
-					    <tr>
-					      <td>{{ reviewer.first_name }}</td>
-                          <td>{{ reviewer.last_name }}</td>
-                          <td>{{ reviewer.email }}</td>
-                          <td><a href="{% url 'view_profile_readonly' reviewer.id %}" target="_blank">
-                              {{ reviewer.first_name }} {{ reviewer.last_name }}</a></td>
-                          <td>{{ reviewer.profile.number_active_reviews }}</td>
-                          <td>{{ reviewer.profile.number_completed_reviews }}</td>
-                          <td>{{ reviewer.profile.number_declined_reviews }}</td>
-                          <td><a href="{% url 'view_review_history' reviewer.id %}" target="_blank">View</a></td>
-                          <td><input type="checkbox" name="reviewer" value="{{ reviewer.id }}"/></td>
-					    </tr>
-					    {% endfor %}
-						</tbody>
-					  </table>
-					  <hr />
-					  <h4>1.2 Committee Review</h4>
-					  <p class="small">You can assign a committee to review your submission. The committee will each be asked to comment and vote on a recommended decision.</p>
-					  <table class="table table-bordered small" cellspacing="0" width="100%" id='comm-reviewer'>
-					    <thead>
-					    <tr>
-					      <th>Committee Name</th>
-					      <th>Number of Members</th>
-					      <th>Select</th>
-					    </tr>
-					    </thead>
-					    <tbody>
-					    {% for committee in committees %}
-					    <tr>
-					      <td>{{ committee.name }}</td>
-					      <td>{{ committee.groupmembership_set.all.count }}</td>
-					      <td><input type="checkbox" name="committee" value="{{ committee.id }}"/></td>
-					    </tr>
-					    {% endfor %}
-					    </tbody>
-					  </table>
-					  <hr />
-					  <h3>2. Set Due Date</h3>
-					  <p class="small">Set a due date for the reviews. Reviewers will be politely reminded to submit their review before the due date.</p>
-					  <input type="text" name="due_date" id="due_date" required="required" class="form-control" />
-					  <hr />
-					  <h3>3. Message to Reviewers</h3>
-					  <p class="small">Add a message that will go out in the email to reviewers.</p>
-					  <textarea class="form-control" rows="10" id="message" name="message">{{ email_text }}</textarea>
-					  <br />
-					  <label class="control-label" for="id_label">Attachment</label>
-					  <p class="small">Please add any additional files here.</p>
-					  <div class="input-group">
+            <div class="dash-container">
+                <div class="media-body bottom-space-sm">
+                    <div class="col-md-12">
+                        <form method="post" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <h3>1. Select a Review Type</h3>
+                                <p class="small">You can select a single or
+                                    multiple individuals for internal review, or
+                                    you can select a committee or any
+                                    combination of both.</p>
+                                <h4>1.1 Individual Review</h4>
+                                <p class="small">You can assign an individual
+                                    reviewer. The reviewer will be asked to
+                                    comment and make a recommendation.</p>
+                                <hr/>
+                                <table class="table table-bordered small"
+                                       cellspacing="0" width="100%"
+                                       id='indv-reviewer'>
+                                    <thead>
+                                    <tr>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Email</th>
+                                        <th>Profile</th>
+                                        <th>Active Reviews</th>
+                                        <th>Completed Reviews</th>
+                                        <th>Declined Reviews</th>
+                                        <th>Review History</th>
+                                        <th>Select</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for reviewer in reviewers %}
+                                        <tr>
+                                            <td>{{ reviewer.first_name }}</td>
+                                            <td>{{ reviewer.last_name }}</td>
+                                            <td>{{ reviewer.email }}</td>
+                                            <td>
+                                                <a href="{% url 'view_profile_readonly' reviewer.id %}"
+                                                   target="_blank">
+                                                    {{ reviewer.first_name }} {{ reviewer.last_name }}</a>
+                                            </td>
+                                            <td>{{ reviewer.profile.number_active_reviews }}</td>
+                                            <td>{{ reviewer.profile.number_completed_reviews }}</td>
+                                            <td>{{ reviewer.profile.number_declined_reviews }}</td>
+                                            <td>
+                                                <a href="{% url 'view_review_history' reviewer.id %}"
+                                                   target="_blank">View</a></td>
+                                            <td><input type="checkbox"
+                                                       name="reviewer"
+                                                       value="{{ reviewer.id }}"/>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <hr/>
+                                <h4>1.2 Committee Review</h4>
+                                <p class="small">You can assign a committee to
+                                    review your submission. The committee will
+                                    each be asked to comment and vote on a
+                                    recommended decision.</p>
+                                <table class="table table-bordered small"
+                                       cellspacing="0" width="100%"
+                                       id='comm-reviewer'>
+                                    <thead>
+                                    <tr>
+                                        <th>Committee Name</th>
+                                        <th>Number of Members</th>
+                                        <th>Select</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for committee in committees %}
+                                        <tr>
+                                            <td>{{ committee.name }}</td>
+                                            <td>{{ committee.groupmembership_set.all.count }}</td>
+                                            <td><input type="checkbox"
+                                                       name="committee"
+                                                       value="{{ committee.id }}"/>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <hr/>
+                                <h3>2. Set Due Date</h3>
+                                <p class="small">Set a due date for the reviews.
+                                    Reviewers will be politely reminded to
+                                    submit their review before the due date.</p>
+                                <input type="text" name="due_date" id="due_date"
+                                       required="required"
+                                       class="form-control"/>
+                                <hr/>
+                                <h3>3. Message to Reviewers</h3>
+                                <p class="small">Add a message that will go out
+                                    in the email to reviewers.</p>
+                                <textarea class="form-control" rows="10"
+                                          id="message"
+                                          name="message">{{ email_text }}</textarea>
+                                <br/>
+                                <label class="control-label" for="id_label">Attachment</label>
+                                <p class="small">Please add any additional files
+                                    here.</p>
+                                <div class="input-group">
 					    <span class="input-group-btn">
 					      <span class="btn btn-primary btn-file">
-					        Browse&hellip; <input type="file" id="attachment" name="attachment">
+					        Browse&hellip; <input type="file" id="attachment"
+                                                  name="attachment">
 					      </span>
 					    </span>
-					    <input type="text" class="form-control" readonly>
-					  </div>
-					  <hr />
-					  <h3>4. Review Form</h3>
-					  <p class="small">Select a review form for reviewers to complete.</p>
-					  <select name="review_form" id="review_form" class="form-control">
-					    {% for form in review_forms %}<option value="{{ form.ref }}" name="{{ form.ref }}">{{ form.name }}</option>{% endfor %}
-					  </select>
-					
-					<br>
-					{% if press.general.one_click_review_url == 'on' %}
-					  <hr />
-					  <h3>5. Enable One-Click Reviewer Access</h3>
-					<div class="row">
-				  		<div class="col-md-12">
-								<label class="control-label" for="access_key">Allow users to complete reviews without logging in.</label><br /><input type="checkbox" name="access_key" checked/>
-						</div>
-				  	</div>
-				  	{% endif %}
-				  	</div>
-					<br>
-					<div class="modal-footer">
-					  <button id="#ext-review" type="submit" class="btn btn-primary">Submit</button>
-					
-					</div>
-					</form>
-			<br>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+                                    <input type="text" class="form-control"
+                                           readonly>
+                                </div>
+                                <hr/>
+                                <h3>4. Review Form</h3>
+                                <p class="small">Select a review form for
+                                    reviewers to complete.</p>
+                                <select name="review_form" id="review_form"
+                                        class="form-control">
+                                    {% for form in review_forms %}
+                                        <option value="{{ form.ref }}"
+                                                name="{{ form.ref }}">{{ form.name }}</option>{% endfor %}
+                                </select>
+
+                                <br>
+                                {% if press.general.one_click_review_url == 'on' %}
+                                    <hr/>
+                                    <h3>5. Enable One-Click Reviewer Access</h3>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label class="control-label"
+                                                   for="access_key">Allow users
+                                                to complete reviews without
+                                                logging in.</label><br/><input
+                                                type="checkbox"
+                                                name="access_key" checked/>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <br>
+                            <div class="modal-footer">
+                                <button id="#ext-review" type="submit"
+                                        class="btn btn-primary">Submit
+                                </button>
+
+                            </div>
+                        </form>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script>
-  $(document).ready(function() {
-      $('#indv-reviewer').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-      $('#comm-reviewer').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-  } );
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#indv-reviewer').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#comm-reviewer').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+        });
 
-</script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-      $('#due_date').datepicker({ dateFormat: 'yy-mm-dd' }).val();
-  });
-</script>
-<script type="text/javascript">$("textarea").jqte();</script>
+    </script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#due_date').datepicker({dateFormat: 'yy-mm-dd'}).val();
+        });
+    </script>
+    <script type="text/javascript">$("textarea").jqte();</script>
 {% endblock js %}

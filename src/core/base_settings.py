@@ -13,6 +13,9 @@ ADMINS = (
     ('UP Tech', TECH_EMAIL)
 )
 
+# Username of upadmin
+INTERNAL_USER = 'tech'
+
 DEBUG = False  # SECURITY WARNING: don't run with debug turned on in production!
 
 SITE_ID = 1

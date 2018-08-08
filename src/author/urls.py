@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
 
+import views
 
 urlpatterns = patterns(
    '',
@@ -86,12 +87,17 @@ urlpatterns = patterns(
       'author.views.author_view_typesetter',
       name='author_view_typesetter'
    ),
-
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/$',
       'author.views.revision',
       name='author_revision'
+   ),
+   url(
+      r'^submission/(?P<submission_id>\d+)/revisions/'
+      r'(?P<revision_id>\d+)/completion_email/$',
+      views.RevisionCompletionEmail.as_view(),
+      name='author_revision_completion_email'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'

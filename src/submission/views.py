@@ -15,15 +15,26 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import FormView
 
 from jfu.http import upload_receive, UploadResponse, JFUResponse
 
-from core import models as core_models, log, logic as core_logic
+from core import (
+    email,
+    forms as core_forms,
+    log,
+    logic as core_logic,
+    models as core_models,
+)
 from core.decorators import is_book_editor_or_author
 from core.email import get_email_content
-from core.files import handle_proposal_file_form
+from core.files import (
+    handle_proposal_file_form,
+    handle_multiple_email_files,
+)
 from core.views import create_proposal_form, serve_proposal_file
 from manager import forms as manager_forms
 from submission import forms
@@ -350,7 +361,12 @@ def submission_five(request, book_id):
             press_editors,
             sender=request.user
         )
-        return redirect(reverse('author_dashboard'))
+        return redirect(
+            reverse(
+                'submission_complete_email',
+                kwargs={'book_id': book.id}
+            )
+        )
 
     template = 'submission/submission_five.html'
     context = {
@@ -367,6 +383,90 @@ def submission_five(request, book_id):
     }
 
     return render(request, template, context)
+
+
+class SubmissionCompleteEmail(FormView):
+    """
+    Allows authors who have just completed a full book submission
+    to customise a notification email before it is sent to the editors.
+    """
+    template_name = 'submission/completed_submission_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.book = get_object_or_404(
+            core_models.Book,
+            pk=self.kwargs['book_id']
+        )
+
+        return super(SubmissionCompleteEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(SubmissionCompleteEmail, self).get_form_kwargs()
+
+        email_context = {
+            'book': self.book,
+            'sender': self.request.user,
+        }
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='completed_submission_notification',
+            context=email_context,
+        )
+        email_subject = (
+            'Submission completed - {title}: {subtitle}'.format(
+                title=self.book.title,
+                subtitle=self.book.subtitle,
+            )
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionCompleteEmail, self).get_context_data(
+            **kwargs
+        )
+        context['book'] = self.book
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+
+        press_editors = User.objects.filter(
+            profile__roles__slug='press-editor'
+        ).order_by(
+            '-first_name'
+        )
+        email.send_prerendered_email(
+            from_email=self.request.user.email,
+            to=[
+                editor.email for editor in press_editors
+                if editor.username != settings.INTERNAL_USER
+            ],
+            subject=form.cleaned_data['email_subject'],
+            html_content=form.cleaned_data['email_body'],
+            attachments=attachments,
+            book=self.book,
+        )
+
+        return super(SubmissionCompleteEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('author_dashboard')
 
 
 @login_required
@@ -521,19 +621,7 @@ def incomplete_proposal(request, proposal_id):
                 )
             )
 
-            notification_email_template = get_setting(
-                setting_name='new_proposal_notification',
-                setting_group_name='email',
-            )
-
             for _editor in editors:
-                core_logic.send_new_proposal_notification(
-                    sender=request.user,
-                    proposal=proposal,
-                    email_text=notification_email_template,
-                    recipient=_editor,
-                )
-
                 notification = core_models.Task(
                     assignee=_editor,
                     creator=request.user,
@@ -541,7 +629,6 @@ def incomplete_proposal(request, proposal_id):
                     workflow='proposal',
                 )
                 notification.save()
-
 
             messages.add_message(
                 request,
@@ -569,7 +656,13 @@ def incomplete_proposal(request, proposal_id):
                 short_name='Proposal Submitted',
             )
             _incomplete_journal.delete()
-            return redirect(reverse('user_dashboard', kwargs={}))
+
+            return redirect(
+                reverse(
+                    'proposal_submission_email',
+                    kwargs={'proposal_id': proposal.id}
+                )
+            )
 
         else:
             proposal_form = manager_forms.GeneratedForm(
@@ -697,7 +790,12 @@ def start_proposal(request):
                 short_name='Proposal Submitted'
             )
 
-            return redirect(reverse('user_dashboard', kwargs={}))
+            return redirect(
+                reverse(
+                    'proposal_submission_email',
+                    kwargs={'proposal_id': proposal.id}
+                )
+            )
 
         else:
             errors = True
@@ -748,6 +846,87 @@ def start_proposal(request):
     }
 
     return render(request, template, context)
+
+
+class ProposalSubmissionEmail(FormView):
+    """
+    Allows authors who have just submitted a book proposal
+    to customise a notification email before it is sent to the editors.
+    """
+    template_name = 'submission/proposal_submission_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.proposal = get_object_or_404(
+            submission_models.Proposal,
+            pk=self.kwargs['proposal_id']
+        )
+        return super(ProposalSubmissionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(ProposalSubmissionEmail, self).get_form_kwargs()
+
+        email_context = {
+            'proposal': self.proposal,
+            'sender': self.request.user,
+        }
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='new_proposal_notification',
+            context=email_context,
+        )
+        email_subject = (
+            'Proposal submitted - {proposal_title}'.format(
+                proposal_title=self.proposal.title
+            )
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ProposalSubmissionEmail, self).get_context_data(**kwargs)
+        context['proposal'] = self.proposal
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+
+        press_editors = User.objects.filter(
+            profile__roles__slug='press-editor'
+        ).order_by(
+            '-first_name'
+        )
+        email.send_prerendered_email(
+            from_email=self.request.user.email,
+            to=[
+                editor.email for editor in press_editors
+                if editor.username != settings.INTERNAL_USER
+            ],
+            subject=form.cleaned_data['email_subject'],
+            html_content=form.cleaned_data['email_body'],
+            attachments=attachments,
+            proposal=self.proposal,
+        )
+
+        return super(ProposalSubmissionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('user_dashboard')
 
 
 def proposal_data_processing(request, proposal, proposal_form_id):

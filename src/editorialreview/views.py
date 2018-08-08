@@ -13,18 +13,21 @@ from django.http import (
 )
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.generic import FormView
 
 from core import (
     setting_util,
     log,
     email,
+    forms as core_forms,
     models as core_models,
     logic as core_logic,
     views as core_views
 )
 from core.decorators import is_editor, is_editor_or_ed_reviewer
 from core.email import send_email_multiple
-from core.files import handle_email_file
+from core.files import handle_multiple_email_files
 from core.setting_util import get_setting
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
@@ -290,14 +293,13 @@ def email_editorial_review(request, review_id):
 
         if review.content_type.model == 'proposal':
             email.send_prerendered_email(
-                request=request,
-                html_template=email_text,
+                from_email=custom_from_email,
+                html_content=email_text,
                 subject=subject,
                 to=review.user.email,
                 attachments=attachments,
                 book=None,
                 proposal=review.content_object,
-                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
@@ -314,14 +316,13 @@ def email_editorial_review(request, review_id):
             )
         else:
             email.send_prerendered_email(
-                request=request,
-                html_template=email_text,
+                from_email=custom_from_email,
+                html_content=email_text,
                 subject=subject,
                 to=review.user.email,
                 attachments=attachments,
                 book=review.content_object,
                 proposal=None,
-                custom_from_email=custom_from_email
             )
             messages.add_message(
                 request,
@@ -524,7 +525,7 @@ def editorial_review(request, review_id):
                 )
             return redirect(
                 reverse(
-                    'editorial_review_thanks',
+                    'editorial_review_completion_email',
                     kwargs={'review_id': review_id}
                 )
             )
@@ -540,6 +541,115 @@ def editorial_review(request, review_id):
     }
 
     return render(request, template, context)
+
+
+class EditorialReviewCompletionEmail(FormView):
+    """
+    Allows editorial reviewers who have just completed a  review to
+    customise a notification email before it is sent to the requesting editor.
+    """
+    template_name = 'editorialreview/editorial_review_completed_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(is_editor_or_ed_reviewer)
+    def dispatch(self, request, *args, **kwargs):
+        self.review = get_object_or_404(
+            models.EditorialReview,
+            pk=self.kwargs['review_id']
+        )
+        self.submission = get_object_or_404(
+            core_models.Book,
+            pk=self.review.object_id,
+        )
+
+        return super(EditorialReviewCompletionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(EditorialReviewCompletionEmail, self).get_form_kwargs()
+
+        if (
+                self.review.assigning_editor and
+                self.review.assigning_editor.profile.full_name()
+        ):
+            recipient_greeting = 'Dear {assigning_editor_name}'.format(
+                assigning_editor_name=(
+                    self.review.assigning_editor.profile.full_name()
+                )
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'greeting': recipient_greeting,
+            'submission': self.submission,
+            'review': self.review,
+            'sender': self.review.user,
+        }
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='editorial_review_completed',
+            context=email_context,
+        )
+        email_subject = (
+            'Review request accepted - {title}: {subtitle}'.format(
+                title=self.submission.title,
+                subtitle=self.submission.subtitle,
+            )
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(EditorialReviewCompletionEmail, self).get_context_data(**kwargs)
+        context['review'] = self.review
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user
+        )
+
+        assigning_editor_email = ''
+        if self.review.assigning_editor:
+            assigning_editor_email = (
+                self.review.assigning_editor.email
+            )
+
+        other_editors_emails = [
+            editor.email
+            for editor in self.submission.get_all_editors()
+            if editor.email != assigning_editor_email
+            and editor.username is not 'tech'
+        ]
+        email.send_prerendered_email(
+            from_email=self.review.user.email,
+            to=assigning_editor_email,
+            cc=other_editors_emails,
+            subject=form.cleaned_data['email_subject'],
+            html_content=form.cleaned_data['email_body'],
+            attachments=attachments,
+            book=self.submission,
+        )
+
+        return super(EditorialReviewCompletionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            'editorial_review_thanks',
+            kwargs={'review_id': self.review.id}
+        )
 
 
 @is_editor_or_ed_reviewer
@@ -595,7 +705,6 @@ def view_non_editorial_review(request, review_id, non_editorial_review_id):
 def view_content_summary(request, review_id):
     """As an editorial reviewer, view a summary of the submission under review.
     """
-
     review = get_object_or_404(
         models.EditorialReview,
         pk=review_id,
@@ -637,8 +746,8 @@ def view_content_summary(request, review_id):
 
 @is_editor_or_ed_reviewer
 def download_er_file(request, file_id, review_id):
-    """ As an editorial reviewer, download an editorial review file. """
-
+    """ As an editorial reviewer, download an editorial review file.
+    """
     review = get_object_or_404(
         models.EditorialReview,
         pk=review_id,

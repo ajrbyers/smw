@@ -2,88 +2,89 @@
 {% load static from staticfiles %}
 {% load bootstrap3 %}
 
-
 {% block body %}
-
-<div class="row">
-<div class="col-md-12 book-heading  container-fluid" style="margin-top:-20px">
-      <h3>{% if submission.prefix %}{{ submission.prefix|title }}: {% endif %}{{ submission.title|title }}</h3>
-
-</div>
-	 <div class="col-md-3 dash-left grey-container bottom-space">
-
-        <div class="dash-container" >
-              <h4 class="header-text">  {% if submission.prefix %}{{ submission.prefix }} {% endif %}{{ submission.title }}</h4> 
-            <h5 class="subtitle-text">{{submission.subtitle}}</h5>
-            </div>
-        <div class="book-info">
-    <b>Series: </b>{{submission.series}} </br>
-    <b>Type: </b>{{submission.book_type}} </br>
-    <b>License: </b>{{submission.license}} </br>
-    <b>Review Type: </b>{{submission.get_review_type_display}} </br>
-    
-    <b>Expected Completion Date: </b>{% if submission.expected_completion_date %}{{ submission.expected_completion_date|date:"Y-m-d" }}{% else %} None {% endif %}</br>
-    </div> </br>
-             <div class="band {{ submission.stage.current_stage }}">
-                        {{ submission.stage.get_current_stage_display }}
-                    </div>
-             <div class="band" class="task-left-text">
-                      <h4>  My Task </h4>
-                    </div>
-
-   
-    </div>
-    <div class="col-md-5 dash-center bottom-space" >
-    <div class="dash-container" >
-                       
-        <div class="dash-container">
-
-        <h4><b>INSTRUCTIONS FOR TASK</b></h4>
-        </br>
-        <p class="task-info-text">{{instructions|safe}}</p>
-          
-         <h5> Task Due <span class="subtitle-text">{{ review_assignment.due }}</span></h5>
-         <hr>
-         <div class="col-md-12 container-fluid decision-info-undecided">                 
-  
-                     <p>You can accept or reject this task</p>
-
-                    </div>
-            </br>
-            </br>
-          <div class="dash-container" >
-          <form method="post">
-          {% csrf_token %}
-             <input class="btn btn-lg btn-decline" type="submit" name="decline" value="I Decline"id="decline" style="width:120px; font-size: 14px;">
-             <input class="btn btn-lg btn-accept" type="submit"  name="accept" id="accept" value="I Accept" style="width:120px; font-size: 14px;" >
-             </form>
-            </div>
-
-          {% include "review/contact_editors.html"  %}
-
-        <p> <h4>Abstract</h4>
-         {{ submission.description|safe }}</p>
-         {% if file_preview %}
-        {% include "review/submission_files.html" %}
-        {% endif %}
+    <div class="row">
+        <div class="col-md-12 book-heading  container-fluid"
+             style="margin-top:-20px">
+            <h3>{% if submission.prefix %}{{ submission.prefix|title }}
+                : {% endif %}{{ submission.title|title }}</h3>
         </div>
-
-</div>
-</div>
-
+        <div class="col-md-3 dash-left grey-container bottom-space">
+            <div class="dash-container">
+                <h4 class="header-text">{% if submission.prefix %}
+                    {{ submission.prefix }} {% endif %}{{ submission.title }}</h4>
+                <h5 class="subtitle-text">{{ submission.subtitle }}</h5>
+            </div>
+            <div class="book-info">
+                <strong>Series: </strong>{{ submission.series }} <br />
+                <strong>Type: </strong>{{ submission.book_type }} <br />
+                <strong>License: </strong>{{ submission.license }} <br />
+                <strong>Review Type: </strong>{{ submission.get_review_type_display }} <br />
+                <strong>Expected Completion Date: </strong>
+                {% if submission.expected_completion_date %}
+                {{ submission.expected_completion_date|date:"Y-m-d" }}{% else %}
+                None
+            {% endif %}<br />
+            </div>
+            <br />
+            <div class="band {{ submission.stage.current_stage }}">
+                {{ submission.stage.get_current_stage_display }}
+            </div>
+            <div class="band task-left-text">
+                <h4> My Task </h4>
+            </div>
+        </div>
+        <div class="col-md-5 dash-center bottom-space">
+            <div class="dash-container">
+                <div class="dash-container">
+                    <h4>INSTRUCTIONS FOR TASK</h4>
+                    <br/>
+                    <p class="task-info-text">{{ instructions|safe }}</p>
+                    <h5>
+                        Task Due <span class="subtitle-text">{{ review_assignment.due }}</span>
+                    </h5>
+                    <hr>
+                    <div class="col-md-12 container-fluid decision-info-undecided">
+                        <p>You can accept or reject this task</p>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="dash-container">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-lg btn-decline" type="submit"
+                                   name="decline" value="I Decline" id="decline"
+                                   style="width:120px; font-size: 14px;">
+                            <input class="btn btn-lg btn-accept" type="submit"
+                                   name="accept" id="accept" value="I Accept"
+                                   style="width:120px; font-size: 14px;">
+                        </form>
+                    </div>
+                    {% include "review/contact_editors.html" %}
+                    <h4>Abstract</h4>
+                    <p>{{ submission.description|safe }}</p>
+                    {% if file_preview %}
+                        {% include "review/submission_files.html" %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock body %}
 
 {% block js %}
-<script language="javascript" type="text/javascript">
-<!--
-function popitup(url,title) {
-    newwindow=window.open(url,title,'height=750,width=600');
-    if (window.focus) {newwindow.focus()}
-    return false;
-}
+    <script language="javascript" type="text/javascript">
+        <!--
+        function popitup(url, title) {
+            newwindow = window.open(url, title, 'height=750,width=600');
+            if (window.focus) {
+                newwindow.focus()
+            }
+            return false;
+        }
+        // -->
+    </script>
 
-// -->
-</script>
-
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
 {% endblock js %}

@@ -1347,6 +1347,12 @@ class ReviewAssignment(models.Model):
     user = models.ForeignKey(
         User,
     )
+    assigning_editor = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        related_name='review_assignments'
+    )
     assigned = models.DateField(
         auto_now_add=True,
     )

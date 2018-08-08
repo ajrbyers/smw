@@ -233,30 +233,25 @@ def send_reset_email(user, email_text, reset_code):
 
 
 def send_prerendered_email(
-        request,
-        html_template,
+        html_content,
         subject,
+        from_email,
         to,
         bcc=None,
         cc=None,
         attachments=None,
         book=None,
         proposal=None,
-        custom_from_email=None
 ):
-    html_content = html_template
 
-    if not type(to) in [list, tuple]:
+    if not type(to) in (list, tuple):
         to = [to]
 
-    if request:
-        reply_to = request.user.email
-    else:
-        reply_to = get_setting('from_address', 'email')
-
-    from_email = get_setting('from_address', 'general', 'noreply@rua.re')
-    if custom_from_email:
-        from_email = custom_from_email
+    from_email = from_email or get_setting(
+        'from_address',
+        'general',
+        'noreply@rua.re'
+    )
 
     msg = EmailMessage(
         subject,
@@ -265,31 +260,31 @@ def send_prerendered_email(
         to,
         bcc=bcc,
         cc=cc,
-        headers={'Reply-To': reply_to},
+        reply_to=[from_email],
     )
 
     if book:
         log.add_email_log_entry_multiple(
             book=book,
             subject=subject,
-            from_address=reply_to,
+            from_address=from_email,
             to=to,
             bcc=bcc,
             cc=cc,
             content=html_content,
-            attachments=attachments if attachments else None,
+            attachments=attachments,
         )
 
     if proposal:
         log.add_email_log_entry_multiple(
             proposal=proposal,
             subject=subject,
-            from_address=reply_to,
+            from_address=from_email,
             to=to,
             bcc=bcc,
             cc=cc,
             content=html_content,
-            attachments=attachments if attachments else None,
+            attachments=attachments,
         )
 
     msg.content_subtype = "html"
@@ -315,3 +310,28 @@ def get_email_content(request, setting_name, context):
     html_content = htmly.render(con)
 
     return html_content
+
+
+def get_email_greeting(recipients, adjective='Dear'):
+    """Composes an email greeting to a list of Users.
+
+    Args:
+        recipients (list): ordered enumerable containing Users.
+        adjective (str): the leading adjective to the greeting.
+
+    Returns:
+         str: an email greeting to one or more users.
+
+    """
+    recipient_forenames = [recipient.first_name for recipient in recipients]
+
+    return '{adjective} {recipients}'.format(
+        adjective=adjective,
+        recipients=', '.join(
+            filter(
+                None,
+                [', '.join(recipient_forenames[:-2])] +
+                [' and '.join(recipient_forenames[-2:])]
+            )
+        )
+    )

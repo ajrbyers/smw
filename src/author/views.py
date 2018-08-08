@@ -1,18 +1,24 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.generic import FormView
 
 from author import forms, logic
 from core import models, log, task, logic as core_logic, forms as core_forms
 from core.decorators import is_author
+from core import email
 from core.files import (
-    handle_file_update,
     handle_attachment,
+    handle_file_update,
     handle_file,
-    handle_typeset_file,
+    handle_multiple_email_files,
     handle_proposal_file,
+    handle_typeset_file,
 )
 from core.logic import order_data, decode_json
 from editor import models as editor_models
@@ -297,21 +303,29 @@ def revision(request, revision_id, submission_id):
             )
             _task.save()
             log.add_log_entry(
-                    book=book,
-                    user=request.user,
-                    kind='revisions',
-                    message='%s submitted revisions for %s' % (
-                        request.user.profile.full_name(),
-                        _revision.book.title,
-                    ),
-                    short_name='Revisions submitted',
+                book=book,
+                user=request.user,
+                kind='revisions',
+                message='%s submitted revisions for %s' % (
+                    request.user.profile.full_name(),
+                    _revision.book.title,
+                ),
+                short_name='Revisions submitted',
             )
             messages.add_message(
                 request,
                 messages.SUCCESS,
                 'Revisions recorded, thanks.',
             )
-            return redirect(reverse('author_dashboard'))
+            return redirect(
+                reverse(
+                    'author_revision_completion_email',
+                    kwargs={
+                        'submission_id': submission_id,
+                        'revision_id': revision_id,
+                    }
+                )
+            )
 
     has_manuscript = False
     has_additional = False
@@ -333,6 +347,116 @@ def revision(request, revision_id, submission_id):
     }
 
     return render(request, template, context)
+
+
+class RevisionCompletionEmail(FormView):
+    """
+    Allows authors who have just submitted revisions to customise
+    a notification email to the requester.
+    """
+    template_name = 'author/revision_complete_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            models.Book,
+            pk=self.kwargs['submission_id']
+        )
+        self.revision = get_object_or_404(
+            revision_models.Revision,
+            pk=self.kwargs['revision_id']
+        )
+
+        return super(RevisionCompletionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form
+        """
+        kwargs = super(RevisionCompletionEmail, self).get_form_kwargs()
+
+        if self.revision.requestor:
+            recipient_greeting = email.get_email_greeting(
+                recipients=[self.revision.requestor]
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'greeting': recipient_greeting,
+            'submission': self.submission,
+            'sender': self.request.user,
+        }
+
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='author_revisions_completed',
+            context=email_context,
+        )
+        email_subject = 'Review completed for {title}: {subtitle}'.format(
+            title=self.submission.title,
+            subtitle=self.submission.subtitle,
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(RevisionCompletionEmail, self).get_context_data(**kwargs)
+        context['submission'] = get_object_or_404(
+            models.Book,
+            pk=self.kwargs['submission_id']
+        )
+        return context
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+
+        other_editors = []
+        for book_editor in self.submission.book_editors.all():
+            if book_editor != self.revision.requestor:
+                other_editors.append(book_editor)
+
+        series_editor = self.submission.get_series_editor()
+        if series_editor and series_editor != self.revision.requestor:
+            other_editors.append(series_editor)
+
+        copy_email_addresses = []
+        if self.revision.requestor:
+            recipient_email_addresses = [self.revision.requestor.email]
+            copy_email_addresses.extend(
+                [editor.email for editor in other_editors]
+            )
+        else:
+            recipient_email_addresses = [
+                editor.email for editor in other_editors
+            ]
+
+        email.send_prerendered_email(
+            from_email=self.request.user.email,
+            to=recipient_email_addresses,
+            cc=copy_email_addresses,
+            subject=form.cleaned_data['email_subject'],
+            html_content=form.cleaned_data['email_body'],
+            attachments=attachments,
+            book=self.submission,
+        )
+
+        return super(RevisionCompletionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('author_dashboard')
 
 
 @login_required
