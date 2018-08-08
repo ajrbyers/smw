@@ -29,6 +29,12 @@ class EditorialReview(models.Model):
     user = models.ForeignKey(
         User,
     )
+    assigning_editor = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        related_name='editorial_review_assignments'
+    )
     assigned = models.DateField(
         auto_now_add=True,
     )

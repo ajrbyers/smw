@@ -240,7 +240,7 @@ def handle_review_assignment(
         review_type,
         due_date,
         review_round,
-        user,
+        assigning_editor,
         email_text,
         review_form,
         attachment=None,
@@ -249,6 +249,7 @@ def handle_review_assignment(
     obj, created = models.ReviewAssignment.objects.get_or_create(
         review_type=review_type,
         user=reviewer,
+        assigning_editor=assigning_editor,
         book=book,
         review_round=review_round,
         defaults={
@@ -262,7 +263,7 @@ def handle_review_assignment(
         book.review_assignments.add(obj)
         log.add_log_entry(
             book=book,
-            user=user,
+            user=assigning_editor,
             kind='review',
             message='Reviewer %s %s assigned. Round %d' % (
                 reviewer.first_name,
@@ -271,7 +272,14 @@ def handle_review_assignment(
             ),
             short_name='Review Assignment',
         )
-        send_review_request(book, obj, email_text, user, attachment, access_key)
+        send_review_request(
+            book=book,
+            review_assignment=obj,
+            email_text=email_text,
+            sender=assigning_editor,
+            attachment=attachment,
+            access_key=access_key
+        )
         return created
     else:
         messages.add_message(

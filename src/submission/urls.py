@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
 
+import views
 
 urlpatterns = patterns(
     '',
@@ -58,6 +59,11 @@ urlpatterns = patterns(
         'submission.views.submission_five',
         name='submission_five'),
     url(
+        r'book/(?P<book_id>\d+)/submission-complete-email',
+        views.SubmissionCompleteEmail.as_view(),
+        name='submission_complete_email',
+    ),
+    url(
         r'^book/(?P<book_id>\d+)/stage/3/(?P<file_type>[-\w./]+)/$',
         'submission.views.submission_additional_files',
         name='submission_additional_files',
@@ -96,6 +102,11 @@ urlpatterns = patterns(
         r'^proposal/(?P<proposal_id>\d+)/view/$',
         'submission.views.proposal_view',
         name='proposal_view_submitted',
+    ),
+    url(
+        r'^proposal/(?P<proposal_id>\d+)/submission-email/$',
+        views.ProposalSubmissionEmail.as_view(),
+        name='proposal_submission_email',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/history/$',

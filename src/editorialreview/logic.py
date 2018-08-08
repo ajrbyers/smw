@@ -48,6 +48,7 @@ def check_editorial_post(form, reviewers, review_form):
 def handle_editorial_post(request, submission, form, reviewer, review_form):
     new_editorial_review = form.save(commit=False)
     new_editorial_review.user = reviewer
+    new_editorial_review.assigning_editor = request.user
     new_editorial_review.access_key = uuid4()
     new_editorial_review.review_form = review_form
 

@@ -2,195 +2,212 @@
 {% load static from staticfiles %}
 {% load bootstrap3 %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Submission{% endblock %}
 
 {% block css %}
     <style type="text/css">
-    body {
-        overflow:hidden;
-    } 
-    .navbar {
-        margin-bottom: 0px !important;
-    }
+        body {
+            overflow: hidden;
+        }
 
-    .timeline > li > .timeline-badge{
-        left: 92% !important;
-    }
+        .navbar {
+            margin-bottom: 0px !important;
+        }
 
-    .timeline > li > .timeline-panel {
-        width: 80% !important;
-        float: none;
-    }
+        .timeline > li > .timeline-badge {
+            left: 92% !important;
+        }
 
-    .timeline:before {
-        left: 92% !important;
-    }
+        .timeline > li > .timeline-panel {
+            width: 80% !important;
+            float: none;
+        }
+
+        .timeline:before {
+            left: 92% !important;
+        }
     </style>
     <link href="{% static "css/timeline.css" %}" rel="stylesheet">
     <!-- Generic page styles -->
-<link rel="stylesheet" href="/static/css/style.css">
-<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-<link rel="stylesheet" href="/static/css/jquery.fileupload.css">
-<link rel="stylesheet" href="/static/css/jquery.fileupload-ui.css">
-<!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="/static/css/jquery.fileupload-noscript.css"></noscript>
-<noscript><link rel="stylesheet" href="/static/css/jquery.fileupload-ui-noscript.css"></noscript>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="/static/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="/static/css/jquery.fileupload-ui.css">
+    <!-- CSS adjustments for browsers with JavaScript disabled -->
+    <noscript>
+        <link rel="stylesheet"
+              href="/static/css/jquery.fileupload-noscript.css">
+    </noscript>
+    <noscript>
+        <link rel="stylesheet"
+              href="/static/css/jquery.fileupload-ui-noscript.css">
+    </noscript>
 {% endblock %}
-
 {% block body %}
-
-<div class="row">
-    <div class="col-md-12 book-heading container-fluid">
-        <h3>Book {{ submission.id }}: {{ submission.title }}</h3>
-    </div>
-    <div class="col-md-3 dash-left grey-container bottom-space" style="height:80%">
-          <div class="dash-container" >
-            <h4 class="header-text">  {% if submission.prefix %}{{ submission.prefix }} {% endif %}{{ submission.title }}</h4> 
-            <h5 class="subtitle-text">{{submission.subtitle}}</h5>
+    <div class="row">
+        <div class="col-md-12 book-heading container-fluid">
+            <h3>Book {{ submission.id }}: {{ submission.title }}</h3>
         </div>
-          <div class="book-info">
-        <table class="table table-bordered table-condensed small">
-            <tr>
-                <th>Series</th>
-                <td>{{ submission.series }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ submission.get_book_type_display }}</td>
-            </tr>
-            <tr>
-                <th>License</th>
-                <td>{{ submission.license.short_name }}</td>
-            </tr>
-            <tr>
-                <th>Review Type</th>
-                <td>{{ submission.get_review_type_display }}</td>
-            </tr>
-               <tr>
-                <th>Expected Completion Date</th>
-                <td>{% if submission.expected_completion_date %}{{ submission.expected_completion_date|date:"Y-m-d" }}{% else %} None {% endif %}</td>
-            </tr>
-        </table>
-        <table class="table table-bordered table-condensed small">
-            <tr>
-                <th>Editor Name</th>
-                <th>Contact</th>
+        <div class="col-md-3 dash-left grey-container bottom-space"
+             style="height:80%">
+            <div class="dash-container">
+                <h4 class="header-text">{% if submission.prefix %}
+                    {{ submission.prefix }} {% endif %}{{ submission.title }}</h4>
+                <h5 class="subtitle-text">{{ submission.subtitle }}</h5>
+            </div>
+            <div class="book-info">
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th>Series</th>
+                        <td>{{ submission.series }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ submission.get_book_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>License</th>
+                        <td>{{ submission.license.short_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Review Type</th>
+                        <td>{{ submission.get_review_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Expected Completion Date</th>
+                        <td>{% if submission.expected_completion_date %}
+                            {{ submission.expected_completion_date|date:"Y-m-d" }}{% else %}
+                            None {% endif %}</td>
+                    </tr>
+                </table>
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th>Editor Name</th>
+                        <th>Contact</th>
+                    </tr>
+                    {% for editor in submission.all_editors %}
+                        <tr>
+                            <th>{{ editor.profile.full_name }}</th>
 
-            </tr>
-            {% for editor in submission.all_editors %}
-             <tr>
-                <th>{{ editor.profile.full_name }}</th>
-
-                <td><a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editors_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default">&nbsp;Email</a></td>
-            </tr>
-            {% empty %}
-            {% if not submission.series %}
-            <tr>
-                <td colspan="2">No Editors assigned</td>
-            </tr>
+                            <td><a href="core/email.html"
+                                   onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editors_{{ editor.pk }}')"
+                                   class="fa fa-envelope-o btn btn-xs btn-default">&nbsp;Email</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        {% if not submission.series %}
+                            <tr>
+                                <td colspan="2">No Editors assigned</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    {% if submission.series %}
+                        <tr>
+                            <td>{{ submission.series.editor.profile.full_name }}
+                                (<i>Series</i>)
+                            </td>
+                            <td><a href="core/email.html"
+                                   onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ submission.series.editor.pk }}/','editors_{{ submission.series.editor.pk }}')"
+                                   class="fa fa-envelope-o btn btn-xs btn-default">&nbsp;Email</a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+            <a href="{% url 'tasks' submission.pk %}">
+                <div class="dash-menu">
+                    <h5>My Tasks <i class="fa fa-chevron-right pull-right"></i>
+                    </h5>
+                </div>
+            </a>
+            <a href="{% url 'status' submission.pk %}">
+                <div class="dash-menu">
+                    <h5>Current Status <i
+                            class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            <a href="{% url 'author_submission' submission.pk %}">
+                <div class="dash-menu">
+                    <h5>Submission Details <i
+                            class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            {% if submission.stage.review %}
+                <a href="{% url 'review' submission.pk %}">
+                    <div class="dash-menu">
+                        <h5>Review <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
             {% endif %}
-            {% endfor %}
-            {% if submission.series %}
-            <tr>
-                <td>{{ submission.series.editor.profile.full_name }} (<i>Series</i>)</td>
-                <td><a href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{submission.series.editor.pk}}/','editors_{{submission.series.editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default">&nbsp;Email</a></td>
-            </tr>
+            {% if submission.stage.editing %}
+                <a href="{% url 'editing' submission.pk %}">
+                    <div class="dash-menu">
+                        <h5>Editing <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
             {% endif %}
-        </table>
-      </div>
-        <a href="{% url 'tasks' submission.pk %}">
-        <div class="dash-menu">
-            <h5>My Tasks <i class="fa fa-chevron-right pull-right"></i></h5>
+            {% if submission.stage.production %}
+                <a href="{% url 'author_production' submission.id %}">
+                    <div class="dash-menu">
+                        <h5>Production <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
+            {% endif %}
         </div>
-
-        </a>
-       
-        <a href="{% url 'status' submission.pk %}">
-        <div class="dash-menu">
-            <h5>Current Status <i class="fa fa-chevron-right pull-right"></i></h5>
+        <div class="col-md-5 dash-center bottom-space" style="height:80%">
+            <div class="dash-container">
+                {% if author_include %}
+                    {% include author_include %}
+                {% endif %}
+            </div>
         </div>
-        </a>
-        <a href="{% url 'author_submission' submission.pk %}">
-        <div class="dash-menu">
-            <h5>Submission Details <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% if submission.stage.review %}
-        <a href="{% url 'review' submission.pk %}">
-        <div class="dash-menu">
-            <h5>Review <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-        {% if submission.stage.editing %}
-        <a href="{% url 'editing' submission.pk %}">
-        <div class="dash-menu">
-            <h5>Editing <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-        {% if submission.stage.production %}
-        <a href="{% url 'author_production' submission.id %}">
-        <div class="dash-menu">
-            <h5>Production <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-    </div>
-
-    <div class="col-md-5 dash-center bottom-space" style="height:80%">
-        <div class="dash-container">
-        {% if author_include %}
-            {% include author_include %}
-        {% endif %}
+        <div class="col-md-4 dash-right bottom-space" style="height:80%">
+            <div class="dash-container">
+                {% if submission_files %}
+                    {% include submission_files %}
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="col-md-4 dash-right bottom-space" style="height:80%">
-        <div class="dash-container">
-        {% if submission_files %}
-            {% include submission_files %}
-        {% endif %}
-        </div>
-    </div>
-</div>
-
 {% endblock %}
-
-
 {% block js %}
-<script language="javascript" type="text/javascript">
-<!--
-function popitup(url,title) {
-    newwindow=window.open(url,title,'height=750,width=600');
-    if (window.focus) {newwindow.focus()}
-    return false;
-}
-
-// -->
-</script>
-<script type="text/javascript">$("textarea").jqte();</script>
-<script type="text/javascript" src="{% static "js/messages.js" %}"></script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
-<script type="text/javascript">
-    $(window.location.hash).modal('show')
-</script>
-
-<script src="{% static "js/tag-it.min.js" %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#disabled-tags").tagit(
-        {readOnly: true});
-  });
-</script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#disabled-stags").tagit(
-        {readOnly: true});
-  });
-</script>
-{% verbatim %}
-<!-- The template to display files available for upload -->
-<script id="template-upload" type="text/x-tmpl">
+    <script language="javascript" type="text/javascript">
+        <!--
+        function popitup(url, title) {
+            newwindow = window.open(url, title, 'height=750,width=600');
+            if (window.focus) {
+                newwindow.focus()
+            }
+            return false;
+        }
+        // -->
+    </script>
+    <script type="text/javascript">$("textarea").jqte();</script>
+    <script type="text/javascript" src="{% static "js/messages.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">
+        $(window.location.hash).modal('show')
+    </script>
+    <script src="{% static "js/tag-it.min.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#disabled-tags").tagit(
+                {readOnly: true});
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#disabled-stags").tagit(
+                {readOnly: true});
+        });
+    </script>
+    {% verbatim %}
+    <!-- The template to display files available for upload -->
+    <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-upload fade">
         <td>
@@ -220,9 +237,10 @@ function popitup(url,title) {
         </td>
     </tr>
 {% } %}
-</script>
-<!-- The template to display files available for download -->
-<script id="template-download" type="text/x-tmpl">
+
+    </script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
         <td>
@@ -264,34 +282,35 @@ function popitup(url,title) {
         </td>
     </tr>
 {% } %}
-</script>
-{% endverbatim %}
-<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
-<script src="/static/js/vendor/jquery.ui.widget.js"></script>
-<!-- The Templates plugin is included to render the upload/download listings -->
-<script src="/static/js/tmpl.min.js"></script>
-<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
-<script src="/static/js/load-image.all.min.js"></script>
-<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="/static/js/jquery.iframe-transport.js"></script>
-<!-- The basic File Upload plugin -->
-<script src="/static/js/jquery.fileupload.js"></script>
-<!-- The File Upload processing plugin -->
-<script src="/static/js/jquery.fileupload-process.js"></script>
-<!-- The File Upload image preview & resize plugin -->
-<script src="/static/js/jquery.fileupload-image.js"></script>
-<!-- The File Upload audio preview plugin -->
-<script src="/static/js/jquery.fileupload-audio.js"></script>
-<!-- The File Upload video preview plugin -->
-<script src="/static/js/jquery.fileupload-video.js"></script>
-<!-- The File Upload validation plugin -->
-<script src="/static/js/jquery.fileupload-validate.js"></script>
-<!-- The File Upload user interface plugin -->
-<script src="/static/js/jquery.fileupload-ui.js"></script>
-<!-- The main application script -->
-<script src="/static/js/onetasker_main_author.js"></script>
-<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
-<!--[if (gte IE 8)&(lt IE 10)]>
+
+    </script>
+    {% endverbatim %}
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="/static/js/vendor/jquery.ui.widget.js"></script>
+    <!-- The Templates plugin is included to render the upload/download listings -->
+    <script src="/static/js/tmpl.min.js"></script>
+    <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+    <script src="/static/js/load-image.all.min.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="/static/js/jquery.iframe-transport.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="/static/js/jquery.fileupload.js"></script>
+    <!-- The File Upload processing plugin -->
+    <script src="/static/js/jquery.fileupload-process.js"></script>
+    <!-- The File Upload image preview & resize plugin -->
+    <script src="/static/js/jquery.fileupload-image.js"></script>
+    <!-- The File Upload audio preview plugin -->
+    <script src="/static/js/jquery.fileupload-audio.js"></script>
+    <!-- The File Upload video preview plugin -->
+    <script src="/static/js/jquery.fileupload-video.js"></script>
+    <!-- The File Upload validation plugin -->
+    <script src="/static/js/jquery.fileupload-validate.js"></script>
+    <!-- The File Upload user interface plugin -->
+    <script src="/static/js/jquery.fileupload-ui.js"></script>
+    <!-- The main application script -->
+    <script src="/static/js/onetasker_main_author.js"></script>
+    <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
+    <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="js/cors/jquery.xdr-transport.js"></script>
 <![endif]-->
 {% endblock js %}

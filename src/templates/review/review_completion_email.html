@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+{% load dict_lookup %}
+{% load ascii_encode %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12 dash-center bottom-space">
+            <h3>Please ensure that you are happy with the below email to the editor notifying them that you have completed your review</h3>
+            <form method="post" enctype="multipart/form-data">
+                {%  csrf_token %}
+                {% bootstrap_form form %}
+                <input class="btn btn-lg btn-accept" type="submit"
+                       name="send" id="send" value="Send email"
+                       style="width:120px; font-size: 14px;">
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+{% block js %}
+    <script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+{% endblock js %}
