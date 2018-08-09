@@ -8,7 +8,7 @@
 
 <div class="col-md-12">
     <h3>Please ensure that you are happy with the below email to the editors notifying them of your submission</h3>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% bootstrap_form form %}
         <button name="book_submit" id="book_submit" type="submit"

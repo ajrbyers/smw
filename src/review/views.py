@@ -336,7 +336,7 @@ def reviewer_decision(
                     kwargs={
                         'review_type': review_type,
                         'submission_id': submission.pk,
-                        'review_assignment_id': review_assignment_id,
+                        'review_assignment_id': review_assignment.pk,
                         'access_key': access_key,
                         'decision': decision,
                     }
@@ -348,8 +348,8 @@ def reviewer_decision(
                     'reviewer_decision_email',
                     kwargs={
                         'review_type': review_type,
-                        'submissions_id': submission.pk,
-                        'review_assignment_id': review_assignment_id,
+                        'submission_id': submission.pk,
+                        'review_assignment_id': review_assignment.pk,
                         'decision': decision,
                     }
                 )
@@ -444,9 +444,8 @@ class ReviewerDecisionEmail(FormView):
                 context=email_context,
             )
             email_subject = (
-                'Review request accepted - {title}: {subtitle}'.format(
+                'Review request accepted - {title}'.format(
                     title=self.submission.title,
-                    subtitle=self.submission.subtitle,
                 )
             )
         else:
@@ -456,9 +455,8 @@ class ReviewerDecisionEmail(FormView):
                 context=email_context,
             )
             email_subject = (
-                'Review request declined - {title}: {subtitle}'.format(
+                'Review request declined - {title}'.format(
                     title=self.submission.title,
-                    subtitle=self.submission.subtitle,
                 )
             )
 
@@ -509,28 +507,24 @@ class ReviewerDecisionEmail(FormView):
         return super(ReviewerDecisionEmail, self).form_valid(form)
 
     def get_success_url(self):
+        if self.decision == 'accept':
+            kwargs = {
+                'review_type': self.review_type,
+                'submission_id': self.submission.pk,
+                'review_round':
+                    self.review_assignment.review_round.round_number
+            }
 
-        if self.access_key:
-            return reverse(
-                'review_with_access_key',
-                kwargs={
-                    'review_type': self.review_type,
-                    'submission_id': self.submission.pk,
-                    'access_key': self.access_key,
-                    'review_round':
-                        self.review_assignment.review_round.round_number
-                }
-            )
+            if self.access_key:
+                view_name = 'review_with_access_key'
+                kwargs['access_key'] = self.access_key
+            else:
+                view_name = 'review_without_access_key'
+
+            return reverse(view_name, kwargs=kwargs)
+
         else:
-            return reverse(
-                'review_without_access_key',
-                kwargs={
-                    'review_type': self.review_type,
-                    'submission_id': self.submission.pk,
-                    'review_round':
-                        self.review_assignment.review_round.round_number
-                }
-            )
+            return reverse('review_request_declined')
 
 
 @is_reviewer
@@ -823,7 +817,8 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             if access_key:
                 return redirect(
                     reverse(
-                        'review_completion_email_with_access_key', kwargs={
+                        'review_completion_email_with_access_key',
+                        kwargs={
                             'review_type': review_type,
                             'submission_id': submission.id,
                             'access_key': access_key,
@@ -834,7 +829,8 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             else:
                 return redirect(
                     reverse(
-                        'review_completion_email', kwargs={
+                        'review_completion_email',
+                        kwargs={
                             'review_type': review_type,
                             'submission_id': submission.id,
                             'review_round': review_round
@@ -860,7 +856,6 @@ def review(request, review_type, submission_id, review_round, access_key=None):
     return render(request, template, context)
 
 
-@is_reviewer
 def review_request_declined(request):
     template = 'review/review_request_declined.html'
     return render(request, template)
@@ -926,9 +921,8 @@ class ReviewCompletionEmail(FormView):
             setting_name='peer_review_completed',
             context=email_context,
         )
-        email_subject = 'Review completed for {title}: {subtitle}'.format(
+        email_subject = 'Review completed for {title}'.format(
             title=self.submission.title,
-            subtitle=self.submission.subtitle,
         )
 
         kwargs['initial'] = {

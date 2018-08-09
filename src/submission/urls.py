@@ -59,7 +59,7 @@ urlpatterns = patterns(
         'submission.views.submission_five',
         name='submission_five'),
     url(
-        r'book/(?P<book_id>\d+)/submission-complete-email',
+        r'book/(?P<book_id>\d+)/submission-complete-email/$',
         views.SubmissionCompleteEmail.as_view(),
         name='submission_complete_email',
     ),

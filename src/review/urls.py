@@ -32,7 +32,7 @@ urlpatterns = patterns(
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
         r'(?P<review_assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/'
-        r'decision-email/(?P<decision>[-\w]+)/$',
+        r'decision/(?P<decision>[-\w]+)/$',
         'review.views.reviewer_decision',
         name='reviewer_decision_with_access_key'
     ),
@@ -45,7 +45,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
-        r'(?P<review_assignment_id>\d+)/access-key/(?P<access_key>[-\w+]+)/'
+        r'(?P<review_assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/'
         r'decision-email/(?P<decision>accept|decline)/$',
         views.ReviewerDecisionEmail.as_view(),
         name='reviewer_decision_email_with_access_key'

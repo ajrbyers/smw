@@ -5,126 +5,189 @@
 {% block title %}{{ submission.title }} - Log{% endblock %}
 
 {% block css %}
-<style type="text/css">
-body {
-    overflow:hidden;
-}
-</style>
-  <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+    </style>
+    <link href="{% static "css/timeline.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
-  <div class="col-md-12 book-heading  container-fluid" style="margin-top:-20px">
-  <h3>Book {{ submission.id }}: {{ submission.title }}<a href="{% url 'editor_submission' submission.id  %}" class="btn  btn-transparent-white" style="position: absolute;right:20;margin-top:-4px">Go back</a></h3>
-</div>
-  <div class="col-md-12 file-sub-heading-grey  container-fluid">
-  <h4>Logs</h4>
-</div>
-  <hr />
-  <ul id="main_summary_tabs" class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#activity" aria-controls="home" role="tab" data-toggle="tab">Activity Log</a></li>
-            <li role="presentation"><a href="#email" aria-controls="home" role="tab" data-toggle="tab">Email Log</a></li>
-  </ul>
-  <div class="dash-center col-md-12"  style="height:68%!important">
-  <!-- Tab panes -->
-  <div class="tab-content">
-    <div role="tabpanel"  class="tab-pane active" id="activity">
-      <br>
-                <form method="POST">
-                  {% csrf_token %}  
-                 <div class= "col-md-6 input-group">
-                  <input type="text" class="form-control" id="search" name="search" {% if search %} value="{{ search }}" {% else %} placeholder="Search for an activity log..."{% endif %}>
-                  <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                  <div class="input-group-addon" style="padding: 0px">
-                     <a href="{% url 'view_log' submission.id %}" style="border: none; background-color: #eeeeee" class="btn btn-default" id="clear_search" name="clear_search"><i class="fa fa-times"></i></a>
-                  </div>
-                </div>
-                </form>
-                <br />
-      <ul class="timeline">
-        {% for item in log_list %}
-          <li {% if forloop.counter|divisibleby:2 %}class="timeline-inverted"{% endif %}>
-              <div class="timeline-badge">
-              </div>
-              <div class="timeline-panel">
-                  <div class="timeline-heading">
-                      <h4 class="timeline-title">{{ item.get_kind_display }}: {{ item.short_name }}</h4>
-                      <p><small class="text-muted"><i class="fa fa-check"></i> {{ item.date_logged }}</small></p>
-                  </div>
-                  <div class="timeline-body">
-                      <p>{{ item.message }}</p>
-                   
-                  </div>
-              </div>
-          </li>
-          {% endfor %}
-      </ul>
+    <div class="col-md-12 book-heading  container-fluid"
+         style="margin-top:-20px">
+        <h3>Book {{ submission.id }}: {{ submission.title }}<a
+                href="{% url 'editor_submission' submission.id %}"
+                class="btn  btn-transparent-white"
+                style="position: absolute;right:20;margin-top:-4px">Go back</a>
+        </h3>
     </div>
- <div role="tabpanel"  class="tab-pane" id="email"> 
-                  <br>
-                <form method="POST">
-                  {% csrf_token %}
-                <div class="col-md-6 form-group">
-                <strong>Filter By</strong>
-                    <select name="filter" class="form-control" onchange="this.form.submit()">
-                        <option value="">------</option>
-                        {% for filter in filters %}
-
-                        <option value="{{filter}}" {% ifequal filterby filter %}selected="selected"{% endifequal %}>
-                        {% ifequal filter 'proposal_review' %} Proposal Review {% else %}{{filter|capfirst}} {% endifequal %}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <strong>Search</strong>
-                 <div class="input-group col-md-6">
-                  <input type="text" class="form-control" id="email_search" name="email_search" {% if email_search %} value="{{ email_search }}" {% else %} placeholder="Search for an email log..."{% endif %}>
-                  <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                  <div class="input-group-addon" style="padding: 0px">
-                     <a href="{% url 'view_log' submission.id %}" style="border: none; background-color: #eeeeee" class="btn btn-default" id="clear_email_search" name="clear_email_search"><i class="fa fa-times"></i></a>
-                  </div>
-                </div>
-                </form>
-                <br />
-      <ul class="timeline">
-        {% for item in email_list %}
-          <li {% if forloop.counter|divisibleby:2 %}class="timeline-inverted"{% endif %}>
-              <div class="timeline-badge email-badge-{{item.kind}}">
-              </div>
-              <div class="timeline-panel">
-                  <div class="timeline-heading">
-                      <h4 class="timeline-title"><i class="fa fa-envelope">&nbsp;</i>{{ item.subject }}</h4>
-                      <p><small class="text-muted">Sent: {{ item.sent }} to {{ item.to }}</small></p>
-                  </div>
-                  <div class="timeline-body">
-                      <p><small>{{ item.content|safe }}</small></p>
-                         <hr>
-                         <p>
-                             Attachments: {% for attachment in item.attachment.all %}
-                             <a href="{% url 'serve_file' submission.id attachment.id %}">
-                             {% if forloop.last %}{{ attachment }}{% else %}{{ attachment }}, {% endif %}</a>
-                             {% empty %} None. {% endfor %}</p>
-                  </div>
-                  <hr>
-                   <div class="email-border-{{item.kind}}"></div>
-              </div>
-          </li>
-          {% endfor %}
-      </ul>
+    <div class="col-md-12 file-sub-heading-grey  container-fluid">
+        <h4>Logs</h4>
     </div>
-  </div>
-   </div>
+    <hr/>
+    <ul id="main_summary_tabs" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#activity"
+              aria-controls="home"
+                role="tab" data-toggle="tab">
+                Activity Log
+            </a>
+        </li>
+        <li role="presentation">
+            <a href="#email" aria-controls="home" role="tab" data-toggle="tab">
+                Email Log
+            </a>
+        </li>
+    </ul>
+    <div class="dash-center col-md-12" style="height:68%!important">
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="activity">
+                <br>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="col-md-6 input-group">
+                        <input type="text" class="form-control" id="search"
+                               name="search" {% if search %}
+                               value="{{ search }}" {% else %}
+                               placeholder="Search for an activity log..."{% endif %}>
+                        <div class="input-group-addon"><i
+                                class="fa fa-search"></i></div>
+                        <div class="input-group-addon" style="padding: 0px">
+                            <a href="{% url 'view_log' submission.id %}"
+                               style="border: none; background-color: #eeeeee"
+                               class="btn btn-default" id="clear_search"
+                               name="clear_search"><i
+                                    class="fa fa-times"></i></a>
+                        </div>
+                    </div>
+                </form>
+                <br/>
+                <ul class="timeline">
+                    {% for item in log_list %}
+                        <li {% if forloop.counter|divisibleby:2 %}class="timeline-inverted"{% endif %}>
+                            <div class="timeline-badge">
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h4 class="timeline-title">{{ item.get_kind_display }}: {{ item.short_name }}</h4>
+                                    <p>
+                                        <small class="text-muted"><i
+                                                class="fa fa-check"></i> {{ item.date_logged }}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>{{ item.message }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="email">
+                <br>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="col-md-6 form-group">
+                        <strong>Filter By</strong>
+                        <select name="filter" class="form-control"
+                                onchange="this.form.submit()">
+                            <option value="">------</option>
+                            {% for filter in filters %}
+                                <option value="{{ filter }}"
+                                    {% ifequal filterby filter %}
+                                        selected="selected"
+                                    {% endifequal %}>
+                                    {% ifequal filter 'proposal_review' %}
+                                        Proposal Review
+                                        {% else %}
+                                        {{ filter|capfirst }}
+                                    {% endifequal %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <strong>Search</strong>
+                    <div class="input-group col-md-6">
+                        <input type="text" class="form-control"
+                           id="email_search" name="email_search"
+                            {% if email_search %}
+                                value="{{ email_search }}"
+                            {% else %}
+                            placeholder="Search for an email log..."{% endif %}>
+                        <div class="input-group-addon">
+                            <i class="fa fa-search"></i>
+                        </div>
+                        <div class="input-group-addon" style="padding: 0px">
+                            <a href="{% url 'view_log' submission.id %}"
+                               style="border: none; background-color: #eeeeee"
+                               class="btn btn-default" id="clear_email_search"
+                               name="clear_email_search">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <br/>
+                <ul class="timeline">
+                    {% for item in email_list %}
+                        <li {% if forloop.counter|divisibleby:2 %}class="timeline-inverted"{% endif %}>
+                            <div class="timeline-badge email-badge-{{ item.kind }}">
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h4 class="timeline-title"><i
+                                            class="fa fa-envelope">&nbsp;</i>{{ item.subject }}
+                                    </h4>
+                                    <p>
+                                        <small class="text-muted">
+                                            Sent: {{ item.sent }}
+                                            to {{ item.to }}</small>
+                                    </p>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>
+                                        <small>{{ item.content|safe }}</small>
+                                    </p>
+                                    <hr>
+                                    <p>
+                                        Attachments:
+                                        {% for attachment in item.attachment.all %}
+                                            <a href="{% url 'serve_email_file' attachment.id %}">
+                                                {% if forloop.last %}
+                                                    {{ attachment }}
+                                                {% else %}
+                                                    {{ attachment }},
+                                                {% endif %}
+                                            </a>
+                                        {% empty %}
+                                            None.
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <hr>
+                                <div class="email-border-{{ item.kind }}"></div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-<script>
-$(function() {
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        localStorage.setItem('log_tabs', $(this).attr('href'));
-    });
-    var lastTab = localStorage.getItem('log_tabs');
-    if (lastTab) {
-        $('[href="' + lastTab + '"]').tab('show');
-    }
-});
-</script>
+    <script>
+        $(function () {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                localStorage.setItem('log_tabs', $(this).attr('href'));
+            });
+            var lastTab = localStorage.getItem('log_tabs');
+            if (lastTab) {
+                $('[href="' + lastTab + '"]').tab('show');
+            }
+        });
+    </script>
 {% endblock js %}

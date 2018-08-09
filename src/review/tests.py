@@ -165,10 +165,14 @@ class ReviewTests(TestCase):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
 
         resp = self.client.get(
-            reverse('reviewer_decision_without',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1})
+            reverse(
+                'reviewer_decision_without',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1
+                }
+            )
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
@@ -178,64 +182,99 @@ class ReviewTests(TestCase):
         self.assertEqual("I Decline" in content, True)
 
         resp = self.client.get(
-            reverse('reviewer_decision_with',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1,
-                            'decision': 'decline'})
+            reverse(
+                'reviewer_decision_with',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'decision': 'decline'
+                }
+            )
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], 'http://testing/review/review/'
-                                           'review-request-declined/')
+        self.assertEqual(
+            resp['Location'],
+            'http://testing/review/external/1/assignment/1/decision-email/'
+            'decline/'
+        )
         self.assignment.declined = None
         self.assignment.save()
 
         resp = self.client.get(
-            reverse('reviewer_decision_with',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1,
-                            'decision': 'accept'})
+            reverse(
+                'reviewer_decision_with',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'decision': 'accept'
+                }
+            )
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         "http://testing/review/external/1/review-round/1/")
+        self.assertEqual(
+            resp['Location'],
+            "http://testing/review/external/1/assignment/1/decision-email/"
+            "accept/"
+        )
 
     def test_reviewer_decision_accept(self):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
         resp = self.client.post(
-            reverse('reviewer_decision_without',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1}),
+            reverse(
+                'reviewer_decision_without',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1
+                }
+            ),
             {'accept': 'I Accept'}
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         "http://testing/review/%s/%s/review-round/1/" % (
-                             self.assignment.review_type, 1))
+        self.assertEqual(
+            resp['Location'],
+            "http://testing/review/{review_type}/{submission_id}/assignment/"
+            "{review_assignment_id}/decision-email/accept/".format(
+                review_type=self.assignment.review_type,
+                submission_id=self.assignment.book.id,
+                review_assignment_id=self.assignment.id,
+            )
+        )
 
     def test_reviewer_decision_decline(self):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
         resp = self.client.post(
-            reverse('reviewer_decision_without',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1}),
+            reverse(
+                'reviewer_decision_without',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1
+                }
+            ),
             {'decline': 'I Decline'}
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], 'http://testing/review/review/'
-                                           'review-request-declined/')
+        self.assertEqual(
+            resp['Location'],
+            'http://testing/review/external/1/assignment/1/decision-email/'
+            'decline/'
+        )
 
     def test_reviewer_assignment(self):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
         self.assignment.save()
         resp = self.client.get(
-            reverse('review_without_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_round': 1})
+            reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1
+                }
+            )
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
@@ -246,10 +285,14 @@ class ReviewTests(TestCase):
         self.assignment.save()
 
         resp = self.client.get(
-            reverse('review_without_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_round': 1})
+            reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1
+                }
+            )
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
@@ -263,21 +306,29 @@ class ReviewTests(TestCase):
             'review_type': self.assignment.review_type, 'submission_id': 1,
             'review_round': 1}))
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         "http://testing/review/external/1/review-round/1/")
+        self.assertEqual(
+            resp['Location'],
+             "http://testing/review/external/1/review-round/1/"
+        )
         resp = self.client.post(
-            reverse('review_without_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_round': 1}),
-            {'rua_name': 'example',
-             'recommendation': 'accept',
-             'competing_interests': 'nothing'}
+            reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1
+                }
+            ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing'
+            }
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-             "http://testing/review/external/1/review-round/1/complete/"
+             "http://testing/review/external/1/review-round/1/completion-email/"
         )
 
         resp = self.client.get(reverse('review_complete', kwargs={
@@ -296,21 +347,31 @@ class ReviewTests(TestCase):
         self.assertEqual(self.assignment.reopened, True)
 
         resp = self.client.get(
-            reverse('review_without_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_round': 1})
+            reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1
+                }
+            )
         )
         self.assertEqual(resp.status_code, 200)
 
         resp = self.client.post(
-            reverse('review_without_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_round': 1}),
-            {'rua_name': 'example',
-             'recommendation': 'accept',
-             'competing_interests': 'nothing'}
+            reverse(
+                'review_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1
+                }
+            ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing'
+            }
         )
         self.assertEqual(resp.status_code, 302)
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
@@ -322,20 +383,27 @@ class ReviewTests(TestCase):
         self.assignment.save()
 
         resp = self.client.get(
-            reverse('reviewer_decision_without',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'review_assignment_id': 1})
+            reverse(
+                'reviewer_decision_without',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1
+                }
+            )
         )
         self.assertEqual(resp.status_code, 404)
 
         resp = self.client.get(
-            reverse('reviewer_decision_without_access_key',
-                    kwargs={
-                        'review_type': self.assignment.review_type,
-                        'submission_id': 1,
-                        'review_assignment_id': 1,
-                        'access_key': "enter"})
+            reverse(
+                'reviewer_decision_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'access_key': "enter"
+                }
+            )
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
@@ -345,30 +413,40 @@ class ReviewTests(TestCase):
         self.assertEqual("I Decline" in content, True)
 
         resp = self.client.post(
-            reverse('reviewer_decision_without_access_key',
-                    kwargs={
-                        'review_type': self.assignment.review_type,
-                        'submission_id': 1,
-                        'review_assignment_id': 1,
-                        'access_key': "enter"}),
-            {'accept': 'I Accept'})
+            reverse(
+                'reviewer_decision_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'access_key': "enter"
+                }
+            ),
+            {
+                'accept': 'I Accept'
+            }
+        )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
             'http://testing/review/{review_type}/{submission_id}/'
-            'review-round/1/access_key/{access_key}/'.format(
+            'assignment/1/access_key/{access_key}/decision-email/accept/'.format(
                 review_type=self.assignment.review_type,
                 submission_id=1,
-                access_key='enter')
+                access_key='enter'
+            )
         )
 
         resp = self.client.get(
-            reverse('review_complete_with_access_key',
-                    kwargs={
-                        'review_type': self.assignment.review_type,
-                        'submission_id': 1,
-                        'access_key': "enter",
-                        'review_round': 1})
+            reverse(
+                'review_complete_with_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'access_key': "enter",
+                    'review_round': 1
+                }
+            )
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
@@ -379,46 +457,62 @@ class ReviewTests(TestCase):
         self.assignment.save()
 
         resp = self.client.post(
-            reverse('reviewer_decision_without_access_key',
-                    kwargs={
-                        'review_type': self.assignment.review_type,
-                        'submission_id': 1,
-                        'review_assignment_id': 1,
-                        'access_key': "enter"}),
-            {'decline': 'I Decline'}
+            reverse(
+                'reviewer_decision_without_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_assignment_id': 1,
+                    'access_key': "enter"
+                }
+            ),
+            {
+                'decline': 'I Decline'
+            }
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/review/review-request-declined/'
+            'http://testing/review/external/1/assignment/1/access_key/enter/'
+            'decision-email/decline/'
         )
         self.assignment.declined = None
         self.assignment.accepted = timezone.now()
         self.assignment.save()
 
         resp = self.client.post(
-            reverse('review_with_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'access_key': "enter",
-                            'review_round': 1}),
-            {'rua_name': 'example',
-             'recommendation': 'accept',
-             'competing_interests': 'nothing'}
+            reverse(
+                'review_with_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'access_key': "enter",
+                    'review_round': 1
+                }
+            ),
+            {
+                'rua_name': 'example',
+                'recommendation': 'accept',
+                'competing_interests': 'nothing'
+            }
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/"
-            "access_key/enter/complete/"
+            'http://testing/review/external/1/review-round/1/access_key/enter/'
+            'completion-email/'
         )
 
         resp = self.client.get(
-            reverse('review_complete_with_access_key',
-                    kwargs={'review_type': self.assignment.review_type,
-                            'submission_id': 1,
-                            'access_key': "enter",
-                            'review_round': 1})
+            reverse(
+                'review_complete_with_access_key',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'access_key': "enter",
+                    'review_round': 1
+                }
+            )
         )
         content = resp.content
 
@@ -467,7 +561,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/access_key/enter/complete/"
+            "http://testing/review/external/1/review-round/1/access_key/"
+            "enter/completion-email/"
         )
 
     def test_editor_download_completed_review_form(self):

@@ -536,4 +536,7 @@ class SubmissionTests(TestCase):
         content = resp.content
         self.assertEqual(resp.status_code, 302)
         self.assertEqual("403" in content, False)
-        self.assertEqual(resp['Location'], "http://testing/author/dashboard/")
+        self.assertEqual(
+            resp['Location'],
+            "http://testing/submission/book/1/submission-complete-email/"
+        )
