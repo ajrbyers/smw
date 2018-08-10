@@ -27,7 +27,10 @@ from core import (
 )
 from core.decorators import is_editor, is_editor_or_ed_reviewer
 from core.email import send_email_multiple
-from core.files import handle_multiple_email_files
+from core.files import (
+    handle_email_file,
+    handle_multiple_email_files,
+)
 from core.setting_util import get_setting
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
@@ -597,9 +600,8 @@ class EditorialReviewCompletionEmail(FormView):
             context=email_context,
         )
         email_subject = (
-            'Review request accepted - {title}: {subtitle}'.format(
+            'Review request accepted - {title}'.format(
                 title=self.submission.title,
-                subtitle=self.submission.subtitle,
             )
         )
 

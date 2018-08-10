@@ -1,3 +1,5 @@
+import mimetypes
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import Context, Template, RequestContext
@@ -291,8 +293,18 @@ def send_prerendered_email(
 
     if attachments:
         for attachment in attachments:
-            if attachment:
-                msg.attach_file(filepath_general(attachment))
+            filepath = filepath_general(attachment)
+            with open(filepath, 'rb') as file:
+                content = file.read()
+
+            filename = attachment.original_filename
+            mimetype = mimetypes.guess_type(filepath)[0] or 'unknown'
+
+            msg.attach(
+                filename=filename,
+                content=content,
+                mimetype=mimetype,
+            )
 
     msg.send()
 

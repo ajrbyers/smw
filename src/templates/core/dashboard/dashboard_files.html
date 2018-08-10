@@ -1,106 +1,140 @@
 <h4>Files</h4>
 <table class="table table-bordered table-condensed small">
-	<tr>
-		<th>Label</th>
-		<th>Mimetype</th>
-		<th>File Type</th>
-		<th>Owner</th>
-		<th>Download</th>
-		<th>Update</th>
-	</tr>
-{% for file in submission.files.all %}
-	<tr>
-		<td>{{ file.label }}</td>
-		<td>{{ file.mime_type }}</td>
-		<td>{{ file.kind }}</td>
-		<td>{{ file.owner.profile.full_name }}</td>
-		<td><a href="{% url 'serve_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a></td>
-  		<td><a target="_blank" href="{% url 'versions_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a></td>
-  	</tr>
-{% endfor %}
-{% for file in submission.internal_review_files.all %}
-	<tr>
-		<td>{{ file.label }}</td>
-		<td>{{ file.mime_type }}</td>
-		<td>{{ file.kind }}</td>
-		<td>{{ file.owner.profile.full_name }}</td>
-		<td><a href="{% url 'serve_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a></td>
-  		<td><a target="_blank" href="{% url 'versions_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a></td>
-  	</tr>
-{% endfor %}
-{% for file in submission.external_review_files.all %}
-	<tr>
-		<td>{{ file.label }}</td>
-		<td>{{ file.mime_type }}</td>
-		<td>{{ file.kind }}</td>
-		<td>{{ file.owner.profile.full_name }}</td>
-		<td><a href="{% url 'serve_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a></td>
-  		<td><a target="_blank" href="{% url 'versions_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a></td>
-  	</tr>
-{% endfor %}
-{% for file in submission.misc_files.all %}
-	<tr>
-		<td>{{ file.label }}</td>
-		<td>{{ file.mime_type }}</td>
-		<td>{{ file.kind }}</td>
-		<td>{{ file.owner.profile.full_name }}</td>
-		<td><a href="{% url 'serve_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a></td>
-  		<td><a target="_blank" href="{% url 'versions_file' submission.id file.id %}" class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a></td>
-  	</tr>
-{% endfor %}
+    <tr>
+        <th>Label</th>
+        <th>Mimetype</th>
+        <th>File Type</th>
+        <th>Owner</th>
+        <th>Download</th>
+        <th>Update</th>
+    </tr>
+    {% for file in submission.files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.mime_type }}</td>
+            <td>{{ file.kind }}</td>
+            <td>{{ file.owner.profile.full_name }}</td>
+            <td><a href="{% url 'serve_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a>
+            </td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a>
+            </td>
+        </tr>
+    {% endfor %}
+    {% for file in submission.internal_review_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.mime_type }}</td>
+            <td>{{ file.kind }}</td>
+            <td>{{ file.owner.profile.full_name }}</td>
+            <td><a href="{% url 'serve_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a>
+            </td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a>
+            </td>
+        </tr>
+    {% endfor %}
+    {% for file in submission.external_review_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.mime_type }}</td>
+            <td>{{ file.kind }}</td>
+            <td>{{ file.owner.profile.full_name }}</td>
+            <td><a href="{% url 'serve_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a>
+            </td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a>
+            </td>
+        </tr>
+    {% endfor %}
+    {% for file in submission.misc_files.all %}
+        <tr>
+            <td>{{ file.label }}</td>
+            <td>{{ file.mime_type }}</td>
+            <td>{{ file.kind }}</td>
+            <td>{{ file.owner.profile.full_name }}</td>
+            <td><a href="{% url 'serve_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-download">&nbsp;</i>Download</a>
+            </td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id file.id %}"
+                   class="btn btn-sm btn-primary"><i class="fa fa-files-o">&nbsp;</i>Versions</a>
+            </td>
+        </tr>
+    {% endfor %}
 </table>
 <h4>Production Files</h4>
 <h5>Formats</h5>
 <table class="table table-bordered table-condensed small">
-	<tr>
-      <th>Name</th>
-      <th>Identifier</th>
-      <th>Original Filename</th>
-      <th>Filename</th>
-      <th>Type</th>
-      <th>Date Uploaded</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-	{% for format in submission.chapter_set.all %}
     <tr>
-      <td>{{ format.name }}</td>
-      <td>{{ format.identifier }}</td>
-      <td>{{ format.file.original_filename }}</td>
-      <td>{{ format.file.uuid_filename }}</td>
-      <td>{{ format.file.mime_type }}</td>
-      <td>{{ format.file.date_uploaded }}</td>
-      <td><a target="_blank" href="{% url 'versions_file' submission.id format.file.id %}" class="btn btn-primary"><i class="fa fa-code-fork"></i></a></td>
-      <td><a href="{% url 'update_format_or_chapter' submission.id 'format' format.id %}" class="btn btn-primary"><i class="fa fa-upload"></i></a></td>
-      <td><a href="{% url 'delete_format_or_chapter' submission.id 'format' format.id %}" class="btn btn-danger"><i class="fa fa-trash"></i></a></td>
+        <th>Name</th>
+        <th>Identifier</th>
+        <th>Original Filename</th>
+        <th>Filename</th>
+        <th>Type</th>
+        <th>Date Uploaded</th>
+        <th></th>
+        <th></th>
+        <th></th>
     </tr>
+    {% for format in submission.chapter_set.all %}
+        <tr>
+            <td>{{ format.name }}</td>
+            <td>{{ format.identifier }}</td>
+            <td>{{ format.file.original_filename }}</td>
+            <td>{{ format.file.uuid_filename }}</td>
+            <td>{{ format.file.mime_type }}</td>
+            <td>{{ format.file.date_uploaded }}</td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id format.file.id %}"
+                   class="btn btn-primary"><i class="fa fa-code-fork"></i></a>
+            </td>
+            <td>
+                <a href="{% url 'update_format_or_chapter' submission.id 'format' format.id %}"
+                   class="btn btn-primary"><i class="fa fa-upload"></i></a></td>
+            <td>
+                <a href="{% url 'delete_format_or_chapter' submission.id 'format' format.id %}"
+                   class="btn btn-danger"><i class="fa fa-trash"></i></a></td>
+        </tr>
     {% endfor %}
 </table>
 <h5>Chapters</h5>
 <table class="table table-bordered table-condensed small">
-	<tr>
-      <th>Name</th>
-      <th>Identifier</th>
-      <th>Original Filename</th>
-      <th>Filename</th>
-      <th>Type</th>
-      <th>Date Uploaded</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-	{% for format in submission.format_set.all %}
     <tr>
-      <td>{{ format.name }}</td>
-      <td>{{ format.identifier }}</td>
-      <td>{{ format.file.original_filename }}</td>
-      <td>{{ format.file.uuid_filename }}</td>
-      <td>{{ format.file.mime_type }}</td>
-      <td>{{ format.file.date_uploaded }}</td>
-      <td><a target="_blank" href="{% url 'versions_file' submission.id format.file.id %}" class="btn btn-primary"><i class="fa fa-code-fork"></i></a></td>
-      <td><a href="{% url 'update_format_or_chapter' submission.id 'format' format.id %}" class="btn btn-primary"><i class="fa fa-upload"></i></a></td>
-      <td><a href="{% url 'delete_format_or_chapter' submission.id 'format' format.id %}" class="btn btn-danger"><i class="fa fa-trash"></i></a></td>
+        <th>Name</th>
+        <th>Identifier</th>
+        <th>Original Filename</th>
+        <th>Filename</th>
+        <th>Type</th>
+        <th>Date Uploaded</th>
+        <th></th>
+        <th></th>
+        <th></th>
     </tr>
+    {% for format in submission.format_set.all %}
+        <tr>
+            <td>{{ format.name }}</td>
+            <td>{{ format.identifier }}</td>
+            <td>{{ format.file.original_filename }}</td>
+            <td>{{ format.file.uuid_filename }}</td>
+            <td>{{ format.file.mime_type }}</td>
+            <td>{{ format.file.date_uploaded }}</td>
+            <td><a target="_blank"
+                   href="{% url 'versions_file' submission.id format.file.id %}"
+                   class="btn btn-primary"><i class="fa fa-code-fork"></i></a>
+            </td>
+            <td>
+                <a href="{% url 'update_format_or_chapter' submission.id 'format' format.id %}"
+                   class="btn btn-primary"><i class="fa fa-upload"></i></a></td>
+            <td>
+                <a href="{% url 'delete_format_or_chapter' submission.id 'format' format.id %}"
+                   class="btn btn-danger"><i class="fa fa-trash"></i></a></td>
+        </tr>
     {% endfor %}
 </table>

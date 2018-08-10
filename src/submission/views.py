@@ -421,9 +421,8 @@ class SubmissionCompleteEmail(FormView):
             context=email_context,
         )
         email_subject = (
-            'Submission completed - {title}: {subtitle}'.format(
+            'Submission completed - {title}'.format(
                 title=self.book.title,
-                subtitle=self.book.subtitle,
             )
         )
 

@@ -1776,6 +1776,31 @@ def serve_file(request, submission_id, file_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def serve_email_file(request, file_id):
+    _file = get_object_or_404(models.File, pk=file_id)
+    file_path = os.path.join(
+        settings.EMAIL_DIR,
+        _file.uuid_filename,
+    )
+
+    try:
+        fsock = open(file_path, 'r')
+        mimetype = logic.get_file_mimetype(file_path)
+        response = StreamingHttpResponse(fsock, content_type=mimetype)
+        response['Content-Disposition'] = logic.get_file_content_dispostion(
+            _file.original_filename
+        )
+        return response
+    except IOError:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            'File not found. %s' % file_path
+        )
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+
 def serve_file_one_click(
         request,
         submission_id,
