@@ -397,9 +397,8 @@ class RevisionCompletionEmail(FormView):
             setting_name='author_revisions_completed',
             context=email_context,
         )
-        email_subject = 'Review completed for {title}: {subtitle}'.format(
+        email_subject = 'Review completed for {title}'.format(
             title=self.submission.title,
-            subtitle=self.submission.subtitle,
         )
 
         kwargs['initial'] = {

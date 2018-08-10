@@ -292,13 +292,18 @@ urlpatterns = patterns(
         name='serve_all_files',
     ),
     url(
+        r'^files/user/email/file'
+        r'/(?P<file_id>\d+)/download/$',
+        'core.views.serve_email_file',
+        name='serve_email_file',
+    ),
+    url(
         r'^files/user/submission/(?P<submission_id>\d+)/review-files/'
         r'(?P<review_type>[-\w]+)/download/review/(?P<review_id>\d+)/'
         r'access-key/(?P<access_key>[-\w+]+)/$',
         'core.views.serve_all_review_files_one_click',
         name='serve_all_review_files_one_click',
     ),
-
     url(
         r'^files/user/submission/(?P<submission_id>\d+)/review-files/'
         r'(?P<review_type>[-\w]+)/download/$',
