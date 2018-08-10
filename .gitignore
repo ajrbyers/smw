@@ -69,3 +69,7 @@ src/files/*
 *.DS_Store
 src/core/settings.py
 src/core/common_private_settings.py
+
+# Docker related
+database_dumps
+rua.env
