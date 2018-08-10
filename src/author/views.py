@@ -1,7 +1,5 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
@@ -409,7 +407,12 @@ class RevisionCompletionEmail(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(RevisionCompletionEmail, self).get_context_data(**kwargs)
+        context = super(
+            RevisionCompletionEmail,
+            self
+        ).get_context_data(
+            **kwargs
+        )
         context['submission'] = get_object_or_404(
             models.Book,
             pk=self.kwargs['submission_id']

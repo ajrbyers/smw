@@ -1,8 +1,6 @@
 from django import forms
 from django.forms import ModelForm
 
-from django_summernote.widgets import SummernoteWidget
-
 from core import (
     models as core_models,
     logic as core_logic

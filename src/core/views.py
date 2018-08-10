@@ -1800,7 +1800,6 @@ def serve_email_file(request, file_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-
 def serve_file_one_click(
         request,
         submission_id,
