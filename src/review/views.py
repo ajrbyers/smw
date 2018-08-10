@@ -503,7 +503,7 @@ class ReviewerDecisionEmail(FormView):
             attachments=attachments,
             submission=self.submission,
         )
-        
+
         return super(ReviewerDecisionEmail, self).form_valid(form)
 
     def get_success_url(self):

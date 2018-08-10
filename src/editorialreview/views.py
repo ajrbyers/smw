@@ -613,7 +613,12 @@ class EditorialReviewCompletionEmail(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(EditorialReviewCompletionEmail, self).get_context_data(**kwargs)
+        context = super(
+            EditorialReviewCompletionEmail,
+            self
+        ).get_context_data(
+            **kwargs
+        )
         context['review'] = self.review
         return context
 

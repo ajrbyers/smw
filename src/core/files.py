@@ -248,10 +248,10 @@ def handle_multiple_email_files(request_files, file_owner):
 
     Args:
         request_files (list): in-memory files from a Django http response.
-        file_owner(django.contrib.auth.models.User): the owner of the saved files.
+        file_owner (django.contrib.auth.models.User): owner of the saved files.
 
     Returns:
-        list: file objects that can be sent as email attachemnts
+        list: file objects that can be sent as email attachments.
 
     """
     attachments = []
