@@ -895,7 +895,12 @@ class ProposalSubmissionEmail(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(ProposalSubmissionEmail, self).get_context_data(**kwargs)
+        context = super(
+            ProposalSubmissionEmail,
+            self
+        ).get_context_data(
+            **kwargs
+        )
         context['proposal'] = self.proposal
         return context
 
