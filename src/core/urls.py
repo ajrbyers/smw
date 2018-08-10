@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 
 
@@ -531,6 +532,10 @@ urlpatterns = patterns(
         name='oai',
     ),
 )
+
+# For cases when Gunicorn/uwsgi is used to serve static files
+if settings.TEST_ENVIRONMENT:
+    urlpatterns += staticfiles_urlpatterns()
 
 handler403 = 'core.views.permission_denied'
 
