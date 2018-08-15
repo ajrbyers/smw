@@ -1,0 +1,27 @@
+version: '2'
+services:
+
+  mysql:
+    image: 'mysql:5.5'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=rua
+      - MYSQL_USER=rua
+      - MYSQL_PASSWORD=pass
+    expose:
+      - 3306
+    volumes:
+      - ./database_dumps/rua/:/docker-entrypoint-initdb.d
+
+  rua:
+    env_file:
+      - rua.env
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql

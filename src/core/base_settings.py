@@ -18,6 +18,10 @@ INTERNAL_USER = 'tech'
 
 DEBUG = False  # SECURITY WARNING: don't run with debug turned on in production!
 
+# Used to determine whether Django includes static file urlconfs
+TEST_ENVIRONMENT = bool(os.getenv('TEST_ENVIRONMENT', False))
+
+
 SITE_ID = 1
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -263,3 +267,4 @@ EMAIL_HOST = 'smtp.mailgun.org'
 EMAIL_HOST_USER = 'postmaster@ubiquity.press'
 EMAIL_HOST_PASSWORD = '4910364428769ec9a64fbcee94bd5d17'  # Fake API key.
 EMAIL_PORT = 587
+
