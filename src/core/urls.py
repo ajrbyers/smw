@@ -534,7 +534,7 @@ urlpatterns = patterns(
 )
 
 # For cases when Gunicorn/uwsgi is used to serve static files
-if settings.TEST_ENVIRONMENT:
+if settings.INCLUDE_STATIC_FILE_URLCONFS:
     urlpatterns += staticfiles_urlpatterns()
 
 handler403 = 'core.views.permission_denied'

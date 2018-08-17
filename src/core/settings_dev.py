@@ -19,6 +19,8 @@ INSTALLED_APPS += (
     'debug_toolbar',
 )
 
+# Allow static files to be served by uwsgi/gunicorn?
+INCLUDE_STATIC_FILE_URLCONFS = True
 
 # ## DATABASE ##
 
