@@ -7,10 +7,9 @@ from base_settings import *
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
+    host.strip() for host in
+    os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
 ]
-
-BASE_URL = 'http://localhost:8000/'
 
 SESSION_COOKIE_NAME = 'rua_cookie'
 
