@@ -18,9 +18,8 @@ INTERNAL_USER = 'tech'
 
 DEBUG = False  # SECURITY WARNING: don't run with debug turned on in production!
 
-# Used to determine whether Django includes static file urlconfs
-TEST_ENVIRONMENT = bool(os.getenv('TEST_ENVIRONMENT', False))
-
+# Allow static files to be served by uwsgi/gunicorn?
+INCLUDE_STATIC_FILE_URLCONFS = False
 
 SITE_ID = 1
 
