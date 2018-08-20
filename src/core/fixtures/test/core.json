@@ -1587,7 +1587,7 @@
         "url": "",
         "description": "This is a series.",
         "issn": "1234-123X",
-        "name": "First Time Authors",
+        "title": "First Time Authors",
         "editor": 1
     },
     "model": "core.series",
