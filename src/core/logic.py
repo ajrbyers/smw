@@ -1648,7 +1648,7 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
 
 
 def send_task_decline(assignment, _type, email_text, sender, request):
-    if request and request.user.is_authenticated:
+    if request.user.is_authenticated():
         from_email = request.user.email
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),

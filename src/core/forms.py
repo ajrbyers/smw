@@ -346,9 +346,3 @@ class ChangeReviewDueDateForm(forms.ModelForm):
 class CustomEmailForm(forms.Form):
     email_subject = forms.CharField()
     email_body = forms.CharField(widget=SummernoteWidget())
-    attachments = forms.FileField(
-        required=False,
-        widget=forms.ClearableFileInput(
-            attrs={'multiple': True}
-         )
-    )

@@ -297,7 +297,7 @@ def send_prerendered_email(
             with open(filepath, 'rb') as file:
                 content = file.read()
 
-            filename = attachment.original_filename
+            filename = attachment.original_filename.encode('ascii', 'replace')
             mimetype = mimetypes.guess_type(filepath)[0] or 'unknown'
 
             msg.attach(

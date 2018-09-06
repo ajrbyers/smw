@@ -5,392 +5,493 @@
 {% block title %}Reviewing #{{ submission.id }}{% endblock %}
 {% block css %}
     <style type="text/css">
-    body {
-        overflow:hidden;
-    }
+        body {
+            overflow: hidden;
+        }
     </style>
 {% endblock %}
 {% block body %}
-<div class="row">
-<div class="col-md-12 book-heading container-fluid" style="margin-top:-20px">
-      <h3>{% if submission.prefix %}{{ submission.prefix|title }}: {% endif %}{{ submission.title|title }} {% if review_assignment.reopened %} <span class="pull-right small no-recommendation" style="right:40px;position:relative;">&nbsp; Reopened &nbsp; </span>{% endif %}</h3>
+    <div class="row">
+    <div class="col-md-12 book-heading container-fluid"
+         style="margin-top:-20px">
+        <h3>{% if submission.prefix %}{{ submission.prefix|title }}
+            : {% endif %}{{ submission.title|title }}
+            {% if review_assignment.reopened %}
+                <span class="pull-right small no-recommendation"
+                      style="right:40px;position:relative;">&nbsp; Reopened &nbsp; </span>
+            {% endif %}
+        </h3>
 
-</div>
-	 <div class="col-md-3 dash-left grey-container bottom-space">
+    </div>
+    <div class="col-md-3 dash-left grey-container bottom-space">
 
-        <div class="dash-container" >
-            <h4 class="header-text">  {% if submission.prefix %}{{ submission.prefix }} {% endif %}{{ submission.title }}</h4> 
-            <h5 class="subtitle-text">{{submission.subtitle}}</h5>
+        <div class="dash-container">
+            <h4 class="header-text">{% if submission.prefix %}
+                {{ submission.prefix }} {% endif %}{{ submission.title }}</h4>
+            <h5 class="subtitle-text">{{ submission.subtitle }}</h5>
         </div>
-          <div class="book-info">
-        <table class="table table-bordered table-condensed small">
-            <tr>
-                <th>Series</th>
-                <td>{{ submission.series }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ submission.get_book_type_display }}</td>
-            </tr>
-            <tr>
-                <th>License</th>
-                <td>{{ submission.license.short_name }}</td>
-            </tr>
-            <tr>
-                <th>Review Type</th>
-                <td>{{ submission.get_review_type_display }}</td>
-            </tr>
-               <tr>
-                <th>Expected Completion Date</th>
-                <td>{% if submission.expected_completion_date %}{{ submission.expected_completion_date|date:"Y-m-d" }}{% else %} None {% endif %}</td>
-            </tr>
-        </table>
-      </div>
-             <div class="band {{ submission.stage.current_stage }}">
-                        {{ submission.stage.get_current_stage_display }}
-                    </div>
-             <div class="band" class="task-left-text">
-                      <h4>  My Task </h4>
-                    </div>
-
-   
+        <div class="book-info">
+            <table class="table table-bordered table-condensed small">
+                <tr>
+                    <th>Series</th>
+                    <td>{{ submission.series }}</td>
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    <td>{{ submission.get_book_type_display }}</td>
+                </tr>
+                <tr>
+                    <th>License</th>
+                    <td>{{ submission.license.short_name }}</td>
+                </tr>
+                <tr>
+                    <th>Review Type</th>
+                    <td>{{ submission.get_review_type_display }}</td>
+                </tr>
+                <tr>
+                    <th>Expected Completion Date</th>
+                    <td>{% if submission.expected_completion_date %}
+                        {{ submission.expected_completion_date|date:"Y-m-d" }}{% else %}
+                        None {% endif %}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="band {{ submission.stage.current_stage }}">
+            {{ submission.stage.get_current_stage_display }}
+        </div>
+        <div class="band" class="task-left-text">
+            <h4> My Task </h4>
+        </div>
     </div>
 
     {% if editorial_board %}
-    <div class="col-md-5 dash-center bottom-space" >
-    <div class="dash-container" >
-   
-                       
-        <div class="dash-container">
+        <div class="col-md-5 dash-center bottom-space">
+            <div class="dash-container">
 
-        <h4><b>INSTRUCTIONS FOR {% if editorial_board%} EDITORIAL BOARD {% else %} PUBLICATION COMMITTEE {% endif %}</b></h4>
-        </br>
-        <p class="task-info-text">{{instructions|safe}}</p>
- 
-         <h5> Task Due <span class="subtitle-text">{{ review_assignment.due }}</span></h5>
- <hr>
-<h4>Editorial Board</h4>
-<table  class="table table-bordered">
-   <tr>
-      <th>Name</th>
-    </tr>
-    {% for editor in review_assignment.editorial_board.all %}
-  
-  <tr>
-  <td><small><strong>{{ editor.profile.full_name }}<sup> <a style="height:17px;margin-top:6px" href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editor_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong></small></td>
-    </tr>
-    {% endfor %}
-  </table>
+                <div class="dash-container">
 
-<hr>    
+                    <h4><b>INSTRUCTIONS FOR {% if editorial_board %} EDITORIAL
+                        BOARD {% else %} PUBLICATION COMMITTEE {% endif %}</b>
+                    </h4>
+                    <br>
+                    <p class="task-info-text">{{ instructions|safe }}</p>
 
+                    <h5> Task Due <span
+                            class="subtitle-text">{{ review_assignment.due }}</span>
+                    </h5>
+                    <hr>
+                    <h4>Editorial Board</h4>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                        {% for editor in review_assignment.editorial_board.all %}
 
+                            <tr>
+                                <td>
+                                    <small>
+                                        <strong>{{ editor.profile.full_name }}<sup>
+                                            <a style="height:17px;margin-top:6px"
+                                               href="core/email.html"
+                                               onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editor_{{ editor.pk }}')"
+                                               class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong>
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
 
-        {% include "review/editorial_submission_files.html" %}
-   
-        </div>
-            
-                     </br>
-                      </br>
-                       </br>
-      
-        
-          {% include "review/contact_editors.html"  %}
-</div>
-</div>
+                    <hr>
+                
+                    {% include "review/editorial_submission_files.html" %}
 
-       <div class="col-md-4 dash-right bottom-space">
-           <div class="dash-container" >
-       <div class="dash-container" >
-              {% if resubmit%}
-      <h4><b>COMPLETE REVIEW </b></h4>
-      <p class="subtitle-form-text"><em> {{ form_info.intro_text|safe }} </em></p>
-       <h4>1. Completed the Review Form</h4>
-    <h6>You may <a href="?download=docx">download</a> the review form, but you will need to paste the contents into this form at a later date.</h6>
-    
+                </div>
 
-
-      {% if form.errors %}
-      <div class="alert alert-info">
-          Please correct errors below. Note, you'll have to reselect any files you want uploaded.
-        </div>
-      {% endif %}
-      <div class="row">
-      <form enctype="multipart/form-data" method="post">
-      {% for field in form %}
-            <div class="form-group">
-        <div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
-        {% if field.field.widget.attrs.is_checkbox %}
-          {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
-          {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
-        {% else %}
-             {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
-             {% bootstrap_field field %}
-        {% endif %}
-          </div>
-           </div>
-      {% endfor %}
-      </div>
-  
-      {% csrf_token %}
-
-     <h4>2. Upload Review File</h4>
-      <div class="form-group">
-          <div class="row">
-            <div class="col-md-12">
-               <div class="input-group">
-                  <span class="input-group-btn">
-                      <span class="btn btn-primary btn-file">
-                          Browse&hellip; <input type="file" id="review_file_upload" name="review_file_upload" multiple>
-                      </span>
-                  </span>
-                  <input type="text" class="form-control" readonly>
-              </div>
+                <br>
+                <br>
+                <br>
+                {% include "review/contact_editors.html" %}
             </div>
-          </div>
         </div>
-        <hr />
-        <h4>3. Make a recommendation</h4>
-        {% bootstrap_field recommendation_form.recommendation %}
-        <hr />
-        <h4>4. Competing interests</h4>
-        {% bootstrap_field recommendation_form.competing_interests %}<br>If any member of the editorial or publication committee has any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
-      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
-      <br/><br/>
 
-      </form>
-  {% else %}
-      <div class="well">
-        Cannot edit form. 
+        <div class="col-md-4 dash-right bottom-space">
+            <div class="dash-container">
+                <div class="dash-container">
+                    {% if resubmit %}
+                        <h4><b>COMPLETE REVIEW </b></h4>
+                        <p class="subtitle-form-text">
+                            <em> {{ form_info.intro_text|safe }} </em></p>
+                        <h4>1. Completed the Review Form</h4>
+                        <h6>You may <a href="?download=docx">download</a> the
+                            review form, but you will need to paste the contents
+                            into this form at a later date.</h6>
+                        {% if form.errors %}
+                            <div class="alert alert-info">
+                                Please correct errors below. Note, you'll have
+                                to reselect any files you want uploaded.
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <form enctype="multipart/form-data" method="post">
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        <div class="
+                                                {% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
+                                            {% if field.field.widget.attrs.is_checkbox %}
+                                                {% if field.errors %}
+                                                    <span class="red">{{ field.errors|join:", " }}</span>
+                                                    <br/>{% endif %}
+                                                {{ field }} &nbsp;
+                                                {% if field.field.help_text %}
+                                                    {{ field.field.help_text|safe }}{% endif %}
+                                            {% else %}
+                                                {% if field.errors %}
+                                                    <span class="red">{{ field.errors|join:", " }}</span>
+                                                {% endif %}
+                                                {% bootstrap_field field %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                        </div>
 
-      </div>
-      {% endif %}
-	</div>
-  </div>
-  </div>
-   {% else%}
-    {% if review_assignment.editorial_board_passed %}
-    <div class="col-md-5 dash-center bottom-space" >
-    <div class="dash-container" >
-   
-                       
-        <div class="dash-container">
+                        {% csrf_token %}
 
-        <h4><b>INSTRUCTIONS FOR {% if editorial_board%} EDITORIAL BOARD {% else %} PUBLICATION COMMITTEE {% endif %}</b></h4>
-        </br>
-        <p class="task-info-text">{{instructions|safe}}</p>
- 
-         <h5> Task Due <span class="subtitle-text">{{ review_assignment.due }}</span></h5>
- 
-<hr>    
+                        <h4>2. Upload Review File</h4>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <span class="btn btn-primary btn-file">
+                                                Browse&hellip; <input type="file"
+                                                            id="review_file_upload"
+                                                            name="review_file_upload"
+                                                            multiple>
+                                            </span>
+                                        </span>
+                                        <input type="text" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <h4>3. Make a recommendation</h4>
+                        {% bootstrap_field recommendation_form.recommendation %}
+                        <hr/>
+                        <h4>4. Competing interests</h4>
+                        {% bootstrap_field recommendation_form.competing_interests %}
+                        <br>If any member of the editorial or publication
+                        committee has any competing interests please add them
+                        here. e.g.. 'This study was paid for by corp xyz.'.
+                        <A href='/page/competing_interests/' target="_blank">More
+                            info</A></small><br><br>
+                        <input class="btn btn-success" type="submit"
+                               value="Submit your review" id="poster" required>
+                        <br/><br/>
 
+                        </form>
+                    {% else %}
+                        <div class="well">
+                            Cannot edit form.
 
-        {% include "review/editorial_submission_files.html" %}
-   
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-            
+    {% else %}
+        {% if review_assignment.editorial_board_passed %}
+            <div class="col-md-5 dash-center bottom-space">
+                <div class="dash-container">
+
+
+                    <div class="dash-container">
+
+                        <h4><b>INSTRUCTIONS FOR {% if editorial_board %}
+                            EDITORIAL BOARD {% else %} PUBLICATION
+                            COMMITTEE {% endif %}</b></h4>
+                        <br>
+                        <p class="task-info-text">{{ instructions|safe }}</p>
+
+                        <h5> Task Due <span
+                                class="subtitle-text">{{ review_assignment.due }}</span>
+                        </h5>
+
+                        <hr>
+
+
+                        {% include "review/editorial_submission_files.html" %}
+
+                    </div>
+
                     <hr>
                     <br>
-<h4>Editorial Board</h4>
-<table  class="table table-bordered">
-   <tr>
-      <th>Name</th>
-    </tr>
-    {% for editor in review_assignment.editorial_board.all %}
-  
-  <tr>
-  <td><small>{{ editor.profile.full_name }}  <strong>{{ editor.profile.full_name }}<sup> <a style="height:17px;margin-top:6px" href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editor_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong></small></td>
-    </tr>
-    {% endfor %}
-  </table>
+                    <h4>Editorial Board</h4>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                        {% for editor in review_assignment.editorial_board.all %}
 
-  
-<div class="dash-container">
-       <h3>Editorial Board's Decision</h3>
-       <hr>
-       <div style="clear:both"></div>
-      {% for item in editorial_data_ordered %}
-      <div class="{% cycle 'left-float' 'right-float' %}">
-        
-        <h4> <b>{{ item.0 }}:</b></h4>
-        <h5> {% lookup review_assignment.editorial_board_results.data item.0 %} </h5>
-      </div>
-      <div {% cycle '' 'style="clear:both"' %}></div>
-      {% endfor %}
-</br>
-      <h5><b>Supporting Files:</b></h5>
-      <ul class="media-list manuscript-upload-states">
-  {% for file in review_assignment.editorial_board_files.all %}
-  
-  {% if file.kind == 'reviewer' %}
-  <li class="media grey-container">
-    <div class="media-left">
-       <a href="{% url 'serve_file' submission.id file.id %}" style="left:10px;position:relative;"> <h1>
-        {% if file.mime_type == 'image/jpeg' or file.mime_type == 'image/png' %}
-       <i class="fa fa-file-image-o"></i>
-        {% else %}
-      <i class="fa fa-file-text-o"></i>
-        {% endif %}
-     </h1> </a>
-    </div>
-    <div class="media-body">
-             <div class="col-md-5">
-        <h5><b>{{ file.label }}</b></h5>
-        <h5><b>{{ file.kind|capfirst }}</b></h5>
-        <h5>{{ file.original_filename }}</h5>
-      </div>
-    </div>
-    </li>
-    {% endif %}
-    {% empty %}
-     <li class="grey-container">
-      <h5>&nbsp;&nbsp;&nbsp;No files</h5>
-   </li>
-  {% endfor %}
-</ul>
+                            <tr>
+                                <td>
+                                    <small>{{ editor.profile.full_name }}
+                                        <strong>{{ editor.profile.full_name }}<sup>
+                                            <a style="height:17px;margin-top:6px"
+                                               href="core/email.html"
+                                               onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editor_{{ editor.pk }}')"
+                                               class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong>
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
 
-        <hr />
-        <h5><b> Editorial Board - Recommendation: </b></h5>
-        {% ifequal review_assignment.editorial_board_recommendation 'reject' %}
-        <p class="submission-reject"> <b> {{review_assignment.editorial_board_recommendation|title}} Submission </b></p>
-        {% endifequal %}
-         {% ifequal review_assignment.editorial_board_recommendation 'accept' %}
-        <p class="submission-accept"> <b> {{review_assignment.editorial_board_recommendation|title}} Submission </b></p>
-        {% endifequal %}
-        {% ifequal review_assignment.editorial_board_recommendation 'revisions' %}
-        <p class="submission-revisions"> <b> Revisions Required</b></p>
-        {% endifequal %}
-  <hr />
-        <h5><b>Editorial Board - Competing interests:</b> <br /><br />{{review_assignment.editorial_board_competing_interests|linebreaksbr}}</h5><br><small>If any member of the editorial or publication committee has any competing interests <br>please add them here. e.g. 'This study was paid for by corp xyz.'.<br> <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
-      <br/><br/>
-         </div>
-                       </br>
-      
+
+                    <div class="dash-container">
+                        <h3>Editorial Board's Decision</h3>
+                        <hr>
+                        <div style="clear:both"></div>
+                        {% for item in editorial_data_ordered %}
+                            <div class="{% cycle 'left-float' 'right-float' %}">
+
+                                <h4><b>{{ item.0 }}:</b></h4>
+                                <h5> {% lookup review_assignment.editorial_board_results.data item.0 %} </h5>
+                            </div>
+                            <div {% cycle '' 'style="clear:both"' %}></div>
+                        {% endfor %}
+                        <br>
+                        <h5><b>Supporting Files:</b></h5>
+                        <ul class="media-list manuscript-upload-states">
+                            {% for file in review_assignment.editorial_board_files.all %}
+
+                                {% if file.kind == 'reviewer' %}
+                                    <li class="media grey-container">
+                                        <div class="media-left">
+                                            <a href="{% url 'serve_file' submission.id file.id %}"
+                                               style="left:10px;position:relative;">
+                                                <h1>
+                                                    {% if file.mime_type == 'image/jpeg' or file.mime_type == 'image/png' %}
+                                                        <i class="fa fa-file-image-o"></i>
+                                                    {% else %}
+                                                        <i class="fa fa-file-text-o"></i>
+                                                    {% endif %}
+                                                </h1></a>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="col-md-5">
+                                                <h5><b>{{ file.label }}</b></h5>
+                                                <h5>
+                                                    <b>{{ file.kind|capfirst }}</b>
+                                                </h5>
+                                                <h5>{{ file.original_filename }}</h5>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <li class="grey-container">
+                                    <h5>&nbsp;&nbsp;&nbsp;No files</h5>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <hr/>
+                        <h5><b> Editorial Board - Recommendation: </b></h5>
+                        {% ifequal review_assignment.editorial_board_recommendation 'reject' %}
+                            <p class="submission-reject">
+                                <b> {{ review_assignment.editorial_board_recommendation|title }}
+                                    Submission </b></p>
+                        {% endifequal %}
+                        {% ifequal review_assignment.editorial_board_recommendation 'accept' %}
+                            <p class="submission-accept">
+                                <b> {{ review_assignment.editorial_board_recommendation|title }}
+                                    Submission </b></p>
+                        {% endifequal %}
+                        {% ifequal review_assignment.editorial_board_recommendation 'revisions' %}
+                            <p class="submission-revisions"><b> Revisions
+                                Required</b></p>
+                        {% endifequal %}
+                        <hr/>
+                        <h5><b>Editorial Board - Competing interests:</b>
+                            <br/><br/>{{ review_assignment.editorial_board_competing_interests|linebreaksbr }}
+                        </h5><br>
+                        <small>If any member of the editorial or publication
+                            committee has any competing interests <br>please add
+                            them here. e.g. 'This study was paid for by corp
+                            xyz.'.<br> <A href='/page/competing_interests/'
+                                          target="_blank">More info</A></small>
+                        <br><br>
+                        <br/><br/>
+                    </div>
+                    <br>
+
                     <hr>
-        
-          {% include "review/contact_editors.html"  %}
-</div>
-</div>
 
-       <div class="col-md-4 dash-right bottom-space">
-           <div class="dash-container" >
-       <div class="dash-container" >
+                    {% include "review/contact_editors.html" %}
+                </div>
+            </div>
 
-       {% if resubmit%}
+            <div class="col-md-4 dash-right bottom-space">
+                <div class="dash-container">
+                    <div class="dash-container">
 
-      <h4><b>COMPLETE REVIEW</b></h4>
-      <p class="subtitle-form-text"><em> {{ form_info.intro_text|safe }} </em></p>
-       <h4>1. Completed the Review Form</h4>
-    <h6>You may <a href="?download=docx">download</a> the review form, but you will need to paste the contents into this form at a later date.</h6>
-    
+                        {% if resubmit %}
+
+                            <h4><b>COMPLETE REVIEW</b></h4>
+                            <p class="subtitle-form-text">
+                                <em> {{ form_info.intro_text|safe }} </em></p>
+                            <h4>1. Completed the Review Form</h4>
+                            <h6>You may <a href="?download=docx">download</a>
+                                the review form, but you will need to paste the
+                                contents into this form at a later date.</h6>
 
 
-      {% if form.errors %}
-      <div class="alert alert-info">
-          Please correct errors below. Note, you'll have to reselect any files you want uploaded.
-        </div>
-      {% endif %}
-      <div class="row">
-      <form enctype="multipart/form-data" method="post">
-      {% for field in form %}
-            <div class="form-group">
-        <div class="{% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
-        {% if field.field.widget.attrs.is_checkbox %}
-          {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span><br />{% endif %}
-          {{ field }} &nbsp;{% if field.field.help_text %}{{ field.field.help_text|safe }}{% endif %}
-        {% else %}
-             {% if field.errors %}<span class="red">{{ field.errors|join:", " }}</span>{% endif %}
-             {% bootstrap_field field %}
-        {% endif %}
-          </div>
-           </div>
-      {% endfor %}
-      </div>
-  
-      {% csrf_token %}
 
-     <h4>2. Upload Review File</h4>
-      <div class="form-group">
-          <div class="row">
-            <div class="col-md-12">
-               <div class="input-group">
+                            {% if form.errors %}
+                                <div class="alert alert-info">
+                                    Please correct errors below. Note, you'll
+                                    have to reselect any files you want
+                                    uploaded.
+                                </div>
+                            {% endif %}
+                            <div class="row">
+                                <form enctype="multipart/form-data"
+                                      method="post">
+                                    {% for field in form %}
+                                        <div class="form-group">
+                                            <div class="
+                                                    {% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}{% else %}col-md-12{% endif %}">
+                                                {% if field.field.widget.attrs.is_checkbox %}
+                                                    {% if field.errors %}
+                                                        <span class="red">{{ field.errors|join:", " }}</span>
+                                                        <br/>{% endif %}
+                                                    {{ field }} &nbsp;
+                                                    {% if field.field.help_text %}
+                                                        {{ field.field.help_text|safe }}{% endif %}
+                                                {% else %}
+                                                    {% if field.errors %}
+                                                        <span class="red">{{ field.errors|join:", " }}</span>
+                                                    {% endif %}
+                                                    {% bootstrap_field field %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                            </div>
+
+                            {% csrf_token %}
+
+                            <h4>2. Upload Review File</h4>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="input-group">
                   <span class="input-group-btn">
                       <span class="btn btn-primary btn-file">
-                          Browse&hellip; <input type="file" id="review_file_upload" name="review_file_upload" multiple>
+                          Browse&hellip; <input type="file"
+                                                id="review_file_upload"
+                                                name="review_file_upload"
+                                                multiple>
                       </span>
                   </span>
-                  <input type="text" class="form-control" readonly>
-              </div>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr/>
+                            <h4>3. Make a recommendation</h4>
+                            {% bootstrap_field recommendation_form.recommendation %}
+                            <hr/>
+                            <h4>4. Competing interests</h4>
+                            {% bootstrap_field recommendation_form.competing_interests %}
+                            <br>If any member of the editorial or publication
+                            committee has any competing interests please add
+                            them here. e.g.. 'This study was paid for by corp
+                            xyz.'.<A href='/page/competing_interests/'
+                                     target="_blank">More info</A></small><br>
+                            <br>
+                            <input class="btn btn-success" type="submit"
+                                   value="Submit your review" id="poster"
+                                   required>
+                            <br/><br/>
+
+                            </form>
+                        {% else %}
+                            <div class="well">
+                                Cannot edit form.
+
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-        <hr />
-        <h4>3. Make a recommendation</h4>
-        {% bootstrap_field recommendation_form.recommendation %}
-        <hr />
-        <h4>4. Competing interests</h4>
-        {% bootstrap_field recommendation_form.competing_interests %}<br>If any member of the editorial or publication committee has any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'. <A href='/page/competing_interests/' target="_blank">More info</A></small><br><br>
-      <input class="btn btn-success" type="submit" value="Submit your review" id="poster" required>
-      <br/><br/>
+        {% else %}
+            <div class="col-md-5 dash-center bottom-space">
+                <div class="dash-container">
+                    <div class="dash-container">
+                        <h4><b>INSTRUCTIONS FOR PUBLICATION COMMITTEE</b></h4>
+                        <br>
+                        <p> Management editor has not reviewed the editorial
+                            board's decision yet.</p>
+                        <hr>
+                        <h4>Editorial Board</h4>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                            {% for editor in review_assignment.editorial_board.all %}
 
-      </form>
-      {% else %}
-      <div class="well">
-        Cannot edit form.
+                                <tr>
+                                    <td>
+                                        <small>
+                                            <strong>{{ editor.profile.full_name }}<sup>
+                                                <a style="height:17px;margin-top:6px"
+                                                   href="core/email.html"
+                                                   onclick="return popitup('/email/editors/submission/{{ submission.id }}/user/{{ editor.pk }}/','editor_{{ editor.pk }}')"
+                                                   class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong>
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
 
-      </div>
-      {% endif %}
-  </div>
-  </div>
-  </div>
-    {% else%}
-  <div class="col-md-5 dash-center bottom-space">
-           <div class="dash-container" >
-    <div class="dash-container">
-       <h4><b>INSTRUCTIONS FOR PUBLICATION COMMITTEE</b></h4> <br>
-       <p> Management editor has not reviewed the editorial board's decision yet.</p>
-        <hr>
-<h4>Editorial Board</h4>
-<table  class="table table-bordered">
-   <tr>
-      <th>Name</th>
-    </tr>
-    {% for editor in review_assignment.editorial_board.all %}
-  
-  <tr>
-  <td><small><strong>{{ editor.profile.full_name }}<sup> <a style="height:17px;margin-top:6px" href="core/email.html" onclick="return popitup('/email/editors/submission/{{submission.id}}/user/{{editor.pk}}/','editor_{{editor.pk}}')"class="fa fa-envelope-o btn btn-xs btn-default"></a></sup></strong></small></td>
-    </tr>
-    {% endfor %}
-  </table>
-
-</table>
-<hr>    
-    </div>
-    </div>    
-    </div>
-       <div class="col-md-4 dash-right bottom-space">
-           <div class="dash-container" >
-       <div class="dash-container" >
-       </div>
-       </div>
-       </div>
-    {% endif %}
+                        </table>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 dash-right bottom-space">
+                <div class="dash-container">
+                    <div class="dash-container">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
     {% endif %}
 {% endblock body %}
 
 {% block js %}
-<script language="javascript" type="text/javascript">
-<!--
-function popitup(url,title) {
-    newwindow=window.open(url,title,'height=750,width=600');
-    if (window.focus) {newwindow.focus()}
-    return false;
-}
+    <script language="javascript" type="text/javascript">
+        <!--
+        function popitup(url, title) {
+            newwindow = window.open(url, title, 'height=750,width=600');
+            if (window.focus) {
+                newwindow.focus()
+            }
+            return false;
+        }
 
-// -->
-</script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+        // -->
+    </script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
+    <link rel="stylesheet"
+          href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 {% endblock js %}
