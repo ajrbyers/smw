@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12 bottom-space">
+            <h3>{{ heading }}</h3>
+            <div class="dash-container">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% bootstrap_field form.email_subject %}
+                    {% bootstrap_field form.email_body %}
+                    <div class="form-group">
+                        <label for="attachment-text">Attachments</label>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-primary btn-file">
+                                    Browse&hellip;
+                                    <input type="file"
+                                        id="attachments"
+                                        name="attachments"
+                                        multiple>
+                                </span>
+                            </span>
+                            <input id="attachment-text" type="text" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <hr>
+                    <input class="btn btn-lg btn-accept pull-right" type="submit"
+                           name="send" id="send" value="Send email"
+                           style="width:120px; font-size: 14px;">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+{% block js %}
+    <script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+{% endblock js %}

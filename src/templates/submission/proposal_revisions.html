@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+{% load bootstrap3 %}
+
+{% block title %}Submit Proposal{% endblock %}
+
+{% block body %}
+
+    <div class="col-md-12">
+        <div class="dash-container other-heading container-fluid"
+             style="margin-top:-20px">
+            <h2>
+                {% if incomplete %}
+                    Incomplete Proposal #{{ incomplete_proposal.pk }}
+                    <a href="{% url 'delete_incomplete_proposal' incomplete_proposal.pk %}"
+                       class="btn btn-danger btn-round"
+                       style="margin-left:15px"> &nbsp; Delete &nbsp;</a>
+                {% else %}
+                    {% if revise %}
+                        Revise
+                    {% else %}Submit a {% endif %}Proposal
+                    {% if revise %}
+                        {% if overdue %}
+                            <b style="color:rgb(255,64,64)" class="small">
+                        {% else %}
+                            <b style="color:rgb(237,183,38)" class="small">
+                        {% endif %}
+                    Due: {{ proposal.revision_due_date }}</b>
+                    {% endif %}
+                {% endif %}
+                <a href="{% url 'author_dashboard' %}"
+                   class="btn  btn-transparent-white"
+                   style="position: absolute;right:25px;margin-top:-8px">Go
+                    back</a>
+            </h2>
+        </div>
+        <p id="#top">{{ core_proposal.intro_text|safe }}</p>
+        <hr/>
+        <label id="error_fields" class="red" style="width:100%"></label>
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="dash-container   bottom-space">
+                <div class="well" style="overflow:auto">
+                    <div class="row">
+                        {% for field in default_fields %}
+                            <div id="{{ field.field.label }}"
+                                 class="
+                                         {% if field.field.widget.attrs.div_class %}{{ field.field.widget.attrs.div_class }}
+                             {% else %}col-md-12{% endif %}">
+                                {% if field.field.widget.attrs.is_checkbox %}
+                                    {% if field.errors %}
+                                        <span class="red">{{ field.errors|join:", " }}</span>
+                                        <br/>
+                                    {% endif %}
+                                    {{ field }}&nbsp;
+                                    {% if field.field.help_text %}
+                                        {{ field.field.help_text|safe }}
+                                    {% endif %}
+                                {% else %}
+                                    {% bootstrap_field field %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if proposal_form %}
+                        <div class="row">
+                            {% for field in proposal_form %}
+                                <div id="{{ field.field.label }}"
+                                     class="{% if field.field.widget.attrs.div_class %}
+                                    {{ field.field.widget.attrs.div_class }}
+                                {% else %}
+                                    col-md-12
+                                {% endif %}">
+                                    {% if field.field.widget.attrs.is_checkbox %}
+                                        {% if field.errors %}
+                                            <span class="red">{{ field.errors|join:", " }}</span>
+                                            <br/>
+                                        {% endif %}
+                                        {{ field }}&nbsp;
+                                        {% if field.field.help_text %}
+                                            {{ field.field.help_text|safe }}
+                                        {% endif %}
+                                    {% else %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <br>
+                    <label for="proposal-type">Proposal Type</label>
+                    <select class="form-control" id="proposal-type"
+                            name="proposal-type">
+                        <option value='monograph'>Monograph</option>
+                        <option value='edited_volume'>Edited Volume</option>
+                    </select>
+                    <br>
+                </div>
+                {% buttons %}
+                    <div class="dash-container">
+                        <button name="book_submit" id="book_submit"
+                                type="submit"
+                                formnovalidate class="btn btn-other pull-right"
+                                style="width:120px">
+                            Submit
+                        </button>
+                        <button name="incomplete" name="incomplete"
+                                type="submit"
+                                formnovalidate class="btn btn-default pull-left"
+                                style="width:120px">
+                            Save
+                        </button>
+                    </div>
+                {% endbuttons %}
+        </form>
+        <br>
+        <br>
+        <br>
+        {% if proposal.requestor %}
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Contact Editor</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ proposal.requestor.username }}
+                        <sup>
+                            <a href="core/email.html"
+                               onclick="return popitup('/email/proposal/{{ proposal.id }}/user/{{ proposal.requestor.id }}/','proposal_{{ proposal.requestor.id }}')"
+                               class="fa fa-envelope-o btn btn-xs btn-default">
+                            </a>
+                        </sup>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        {% else %}
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Contact</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Primary contact <sup>
+                        <a href="core/email.html"
+                           onclick="return popitup('/email/primary-contact/','primary')"
+                           class="fa fa-envelope-o btn btn-xs btn-default"></a></sup>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        {% endif %}
+        <br>
+
+        {% if notes %}
+            <div class="dash-container">
+                <div class="dash-container">
+                    <h3> Notes </h3>
+                </div>
+            </div>
+
+            <ul class="chat" id="message-list">
+                {% for note in notes %}
+                    <li class="left clearfix well container-shadow-bottom">
+                  <span class="chat-img pull-left" style="margin-right:10px">
+                        <img src="http://placehold.it/65/D358F7/fff&amp;text=&#9998;"
+                             alt="Pencil Icon" class="img-circle"/>
+                    </span>
+                        <div class="chat-body clearfix" style="margin-top:10px">
+                            <div class="header">
+                                <strong class="primary-font">{{ note.user.profile.full_name }}</strong>
+                                <small class="pull-right text-muted"
+                                       style="margin-top:-12px">
+                                    <span class="glyphicon glyphicon-time"></span>
+                                    {{ note.date_submitted|date:"Y-m-d - H:i" }}
+                                </small>
+                            </div>
+                            {{ note.truncated_content }}
+                        </div>
+                        <div class="pull-right" style="margin-top:-15px">
+                            <a href="{% url 'submission_notes_view' proposal.id note.id %}"
+                               class="btn btn-task btn-sm pull-right">View
+                                Note</a>
+                        </div>
+                    </li>
+                    <input class="last_message" type="hidden"
+                           value="{{ note.pk }}">
+                {% empty %}
+                    <li class="left clearfix well container-shadow-bottom">
+                        No notes
+                        <br><br>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <br>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">$("textarea").jqte();</script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('a[href*="#"]:not([href="#"])').click(function () {
+                if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: target.offset().top
+                        }, 1000);
+                        return false;
+                    }
+                }
+            });
+        });
+
+
+    </script>
+    <script language="javascript" type="text/javascript">
+        <!--
+        function popitup(url, title) {
+            newwindow = window.open(url, title, 'height=750,width=600');
+            if (window.focus) {
+                newwindow.focus()
+            }
+            return false;
+        }
+
+        // -->
+
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var elems = document.getElementsByTagName('*'), i;
+            for (i in elems) {
+                if ((' ' + elems[i].className + ' ').indexOf(' ' + 'datepicker' + ' ')
+                    > -1) {
+                    $(".datepicker").datepicker({dateFormat: 'yy-mm-dd'}).val();
+                }
+            }
+        });
+
+
+    </script>
+
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+            {%for field in default_fields %}
+                {% if field.field.required %}
+                    var required_text = $('label[for="' + "id_{{field.name}}" + '"]').html() + " *";
+                    var current_field = $('label[for="' + "id_{{field.name}}" + '"]');
+                    current_field.text(required_text);
+                {% endif %}
+            {% endfor %}
+
+            {% if proposal_form %}
+
+                {%for field in proposal_form %}
+
+                    {% if field.field.required %}
+                        var required_text = $('label[for="' + "id_{{field.name|safe}}" + '"]').html() + " *";
+                        required_text = required_text.replace('&amp;', '&');
+                        var current_field = $('label[for="' + "id_{{field.name|safe}}" + '"]');
+                        current_field.text(required_text);
+                    {% endif %}
+
+                {% endfor %}
+
+            {% endif %}
+        });
+
+    </script>
+{% endblock %}

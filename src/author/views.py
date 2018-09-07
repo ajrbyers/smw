@@ -348,11 +348,11 @@ def revision(request, revision_id, submission_id):
 
 
 class RevisionCompletionEmail(FormView):
-    """
-    Allows authors who have just submitted revisions to customise
+    """Allows authors who have just submitted revisions to customise
     a notification email to the requester.
     """
-    template_name = 'author/revision_complete_email.html'
+
+    template_name = 'shared/editable_notification_email.html'
     form_class = core_forms.CustomEmailForm
 
     @method_decorator(login_required)
@@ -373,8 +373,7 @@ class RevisionCompletionEmail(FormView):
         )
 
     def get_form_kwargs(self):
-        """Renders the email body and subject for editing using the form
-        """
+        """Renders the email body and subject for editing using the form."""
         kwargs = super(RevisionCompletionEmail, self).get_form_kwargs()
 
         if self.revision.requestor:
@@ -395,7 +394,7 @@ class RevisionCompletionEmail(FormView):
             setting_name='author_revisions_completed',
             context=email_context,
         )
-        email_subject = 'Review completed for {title}'.format(
+        email_subject = u'Review completed for {title}'.format(
             title=self.submission.title,
         )
 
@@ -413,9 +412,10 @@ class RevisionCompletionEmail(FormView):
         ).get_context_data(
             **kwargs
         )
-        context['submission'] = get_object_or_404(
-            models.Book,
-            pk=self.kwargs['submission_id']
+        context['heading'] = (
+            'Please ensure that your are happy with the below email to '
+            'the editor informing them that you have completed the requested '
+            'revisions'
         )
         return context
 
@@ -425,11 +425,11 @@ class RevisionCompletionEmail(FormView):
             file_owner=self.request.user,
         )
 
-        other_editors = []
-        for book_editor in self.submission.book_editors.all():
-            if book_editor != self.revision.requestor:
-                other_editors.append(book_editor)
-
+        other_editors = list(
+            self.submission.book_editors.exclude(
+                pk=self.revision.requestor.pk
+            )
+        )
         series_editor = self.submission.get_series_editor()
         if series_editor and series_editor != self.revision.requestor:
             other_editors.append(series_editor)
@@ -738,12 +738,15 @@ def view_copyedit(request, submission_id, copyedit_id):
                     'you cannot invite the author to review.'
                 ),
             )
-            return redirect(reverse(
-                'view_copyedit',
-                kwargs={
-                    'submission_id': submission_id, 'copyedit_id': copyedit_id
-                }
-            ))
+            return redirect(
+                reverse(
+                    'view_copyedit',
+                    kwargs={
+                        'submission_id': submission_id,
+                        'copyedit_id': copyedit_id
+                    }
+                )
+            )
         else:
             copyedit.editor_review = timezone.now()
             log.add_log_entry(

@@ -4,6 +4,10 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 
+from views import (
+    ProposalReviewCompletionEmail,
+    RequestedReviewerDecisionEmail,
+)
 
 urlpatterns = patterns(
     '',
@@ -133,12 +137,12 @@ urlpatterns = patterns(
         name='view_profile',
     ),
     url(
-        r'^user/view/(?P<user_id>[-\w]+)/$',
+        r'^user/view/(?P<user_id>\d+)/$',
         'core.views.view_profile_readonly',
         name='view_profile_readonly',
     ),
     url(
-        r'^user/review-history/(?P<user_id>[-\w]+)/$',
+        r'^user/review-history/(?P<user_id>\d+)/$',
         'core.views.view_review_history',
         name='view_review_history',
     ),
@@ -451,6 +455,19 @@ urlpatterns = patterns(
     ),
     url(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
+        r'(?P<assignment_id>\d+)/decision_email/(?P<decision>accept|decline)/$',
+        RequestedReviewerDecisionEmail.as_view(),
+        name='proposal_review_decision_email',
+    ),
+    url(
+        r'^proposals/(?P<proposal_id>\d+)/assignment/'
+        r'(?P<assignment_id>\d+)/decision_email/(?P<decision>accept|decline)/'
+        r'access-key/(?P<access_key>[-\w+]+)/$',
+        RequestedReviewerDecisionEmail.as_view(),
+        name='proposal_review_decision_email_access_key',
+    ),
+    url(
+        r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/$',
         'core.views.view_proposal_review',
         name='view_proposal_review_access_key',
@@ -459,6 +476,19 @@ urlpatterns = patterns(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)/$',
         'core.views.view_proposal_review',
         name='view_proposal_review',
+    ),
+    url(
+        r'^proposals/(?P<proposal_id>\d+)/assignment/'
+        r'(?P<assignment_id>\d+)/completion-email/'
+        r'access-key/(?P<access_key>[-\w+]+)/$',
+        ProposalReviewCompletionEmail.as_view(),
+        name='proposal_review_completion_email_access_key',
+    ),
+    url(
+        r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)/'
+        r'completion-email/$',
+        ProposalReviewCompletionEmail.as_view(),
+        name='proposal_review_completion_email',
     ),
     url(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)'

@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 
 {% block body %}
-<h3>Thank you for completing this review.</h3>
-<br>
-<a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}">View your review</a>
-or
-<a href="{% url 'reviewer_dashboard' %}">return to reviewer dashboard.</a>
+    <h3>Thank you for completing this review.</h3>
+    <br>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'view_editorial_review' review.id %}?access_key={{ review.access_key }}">
+            View your review
+        </a>
+        or
+        <a href="{% url 'reviewer_dashboard' %}">
+            return to reviewer dashboard.
+        </a>
+    {% else %}
+        You can <a href="{% url 'login' %}">login</a> if you wish complete any further tasks.
+    {% endif %}
 {% endblock body %}

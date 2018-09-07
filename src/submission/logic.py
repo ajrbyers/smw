@@ -60,67 +60,6 @@ def check_stage(book, check):
         raise PermissionDenied()
 
 
-def send_acknowldgement_email(book, press_editors, sender):
-    from_email = sender.email or get_setting('from_address', 'email')
-    author_text = get_setting('author_submission_ack', 'email')
-    editor_text = get_setting('editor_submission_ack', 'email')
-    press_name = get_setting('press_name', 'general')
-
-    principal_contact_name = get_setting('primary_contact_name', 'general')
-
-    context = {
-        'base_url': get_setting('base_url', 'general'),
-        'submission': book,
-        'press_name': press_name,
-        'principal_contact_name': principal_contact_name,
-    }
-
-    email.send_email(
-        get_setting(
-            'submission_ack_subject',
-            'email_subject',
-            'Submission Acknowledgement'
-        ), context,
-        from_email,
-        book.owner.email,
-        author_text,
-        book=book,
-        kind='submission',
-    )
-
-    if len(press_editors) > 1:
-        editor = press_editors[0]
-        cc_eds = [ed.email for ed in press_editors if ed != press_editors[0]]
-    else:
-        editor = press_editors[0]
-        cc_eds = None
-
-    email.send_email(
-        get_setting(
-            'new_submission_subject',
-            'email_subject',
-            'New Submission'
-        ),
-        context,
-        from_email,
-        editor.email,
-        editor_text,
-        book=book,
-        cc=cc_eds,
-        kind='submission',
-    )
-
-    for editor in press_editors:
-        notification = Task(
-            book=book,
-            assignee=editor,
-            creator=press_editors[0],
-            text='A new submission, {0}, has been made.'.format(book.title),
-            workflow='review'
-        )
-        notification.save()
-
-
 def handle_book_labels(post, book, kind):
     for _file in book.files.all():
         if _file.kind == kind and post.get("%s" % _file.id, None):

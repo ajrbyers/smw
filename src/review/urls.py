@@ -40,14 +40,14 @@ urlpatterns = patterns(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
         r'(?P<review_assignment_id>\d+)/decision-email/'
         r'(?P<decision>accept|decline)/$',
-        views.ReviewerDecisionEmail.as_view(),
+        views.RequestedReviewerDecisionEmail.as_view(),
         name='reviewer_decision_email'
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/assignment/'
-        r'(?P<review_assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/'
-        r'decision-email/(?P<decision>accept|decline)/$',
-        views.ReviewerDecisionEmail.as_view(),
+        r'(?P<review_assignment_id>\d+)/decision-email/'
+        r'(?P<decision>accept|decline)/access_key/(?P<access_key>[-\w+]+)/$',
+        views.RequestedReviewerDecisionEmail.as_view(),
         name='reviewer_decision_email_with_access_key'
     ),
     url(  # Review.
@@ -57,21 +57,23 @@ urlpatterns = patterns(
         name='review_with_access_key'
     ),
     url(
-        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
-        r'(?P<review_round>\d+)/$',
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/'
+        r'/review-round/(?P<review_round>\d+)/$',
         'review.views.review',
         name='review_without_access_key'
     ),
     url(
-        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/'
+        r'review-round/assignment/(?P<review_assignment_id>\d+)/'
         r'(?P<review_round>\d+)/completion-email/$',
         views.ReviewCompletionEmail.as_view(),
         name='review_completion_email'
     ),
     url(
-        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/review-round/'
-        r'(?P<review_round>\d+)/access_key/(?P<access_key>[-\w+]+)/'
-        r'completion-email/$',
+        r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)'
+        r'/review-round/assignment/(?P<review_assignment_id>\d+)/'
+        r'(?P<review_round>\d+)/completion-email/'
+        r'access_key/(?P<access_key>[-\w+]+)/$',
         views.ReviewCompletionEmail.as_view(),
         name='review_completion_email_with_access_key'
     ),
