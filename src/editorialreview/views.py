@@ -253,7 +253,7 @@ def update_editorial_review_due_date(request, review_id):
 
 @is_editor
 def email_editorial_review(request, review_id):
-    """ Preview the content of an editorial review request email then send it
+    """Preview the content of an editorial review request email then send it
      with any necessary attachments.
     """
 
@@ -353,7 +353,7 @@ def email_editorial_review(request, review_id):
 
 @is_editor_or_ed_reviewer
 def view_editorial_review(request, review_id):
-    """ As an editorial reviewer, view a completed editorial review. """
+    """As an editorial reviewer, view a completed editorial review."""
 
     review = get_object_or_404(models.EditorialReview, pk=review_id)
     result = review.results
@@ -378,7 +378,7 @@ def view_editorial_review(request, review_id):
 
 @is_editor_or_ed_reviewer
 def editorial_review(request, review_id):
-    """ Complete an editorial review. """
+    """Complete an editorial review."""
 
     review = get_object_or_404(
         models.EditorialReview,
@@ -391,6 +391,7 @@ def editorial_review(request, review_id):
     submission = review.content_object
     book = isinstance(submission, core_models.Book)
     proposal = isinstance(submission, submission_models.Proposal)
+    access_key = request.GET.get('access_key')
 
     if book:
         peer_reviews = core_models.ReviewAssignment.objects.filter(
@@ -460,83 +461,28 @@ def editorial_review(request, review_id):
                     short_name=short_message,
                 )
 
-            # Handle email notification to editors.
-            subject = get_setting(
-                setting_name='editorialreview_completed_email_subject',
-                setting_group_name='email_subject',
-                default='Editorial review completed',
-            )
-
-            email_text = get_setting(
-                setting_name='editorialreview_completed_email',
-                setting_group_name='email',
-                default='message',
-            )
-            email_text.replace('\n', '<br />')
-
-            from_email = get_setting(
-                setting_name='from_address',
-                setting_group_name='email',
-                default='noreply@rua.re',
-            )
-
-            press_name = get_setting(
-                setting_name='press_name',
-                setting_group_name='general',
-                default='The publishers',
-            )
-
-            try:
-                series_editor_email = [submission.series.editor.email]
-            except AttributeError:
-                series_editor_email = None
-
-            editors_to_notify = User.objects.filter(
-                    profile__roles__slug='press-editor'
+            if access_key:
+                return redirect(
+                    '{url}?access_key={access_key}'.format(
+                        url=reverse(
+                            'editorial_review_completion_email',
+                            kwargs={'review_id': review_id}
+                        ),
+                        access_key=access_key,
+                    )
                 )
-            if submission.book_editors.all():
-                editors_to_notify = submission.book_editors.all()
-
-            for editor in editors_to_notify:
-                salutation = editor.profile.full_name()
-
-                if editor.profile.salutation:
-                    salutation = editor.profile.salutation
-
-                reviewer_full_name = review.user.profile.full_name()
-
-                context = {
-                    'salutation': salutation,
-                    'submission': submission,
-                    'review': review,
-                    'reviewer_full_name': reviewer_full_name,
-                    'base_url': get_setting('base_url', 'general'),
-                    'authors': [submission.author] if proposal
-                    else submission.author.all(),
-                    'press_name': press_name
-                }
-
-                email.send_email(
-                    subject=subject,
-                    context=context,
-                    html_template=email_text,
-                    from_email=from_email,
-                    to=editor.email,
-                    cc=series_editor_email,
-                    book=submission if book else None,
-                    proposal=submission if proposal else None
+            else:
+                return redirect(
+                    reverse(
+                        'editorial_review_completion_email',
+                        kwargs={'review_id': review_id}
+                    )
                 )
-            return redirect(
-                reverse(
-                    'editorial_review_completion_email',
-                    kwargs={'review_id': review_id}
-                )
-            )
 
     template = 'editorialreview/editorial_review.html'
     context = {
         'review': review,
-        'access_key': request.GET.get('access_key'),
+        'access_key': access_key,
         'form': form,
         'recommendation_form': recommendation_form,
         'peer_reviews': peer_reviews,
@@ -547,11 +493,11 @@ def editorial_review(request, review_id):
 
 
 class EditorialReviewCompletionEmail(FormView):
-    """
-    Allows editorial reviewers who have just completed a  review to
+    """Allows editorial reviewers who have just completed a  review to
     customise a notification email before it is sent to the requesting editor.
     """
-    template_name = 'editorialreview/editorial_review_completed_email.html'
+
+    template_name = 'shared/editable_notification_email.html'
     form_class = core_forms.CustomEmailForm
 
     @method_decorator(is_editor_or_ed_reviewer)
@@ -560,10 +506,12 @@ class EditorialReviewCompletionEmail(FormView):
             models.EditorialReview,
             pk=self.kwargs['review_id']
         )
-        self.submission = get_object_or_404(
-            core_models.Book,
-            pk=self.review.object_id,
-        )
+        self.submission = self.review.content_object
+
+        if isinstance(self.submission, core_models.Book):
+            self.submission_type = 'book'
+        else:
+            self.submission_type = 'proposal'
 
         return super(EditorialReviewCompletionEmail, self).dispatch(
             request,
@@ -572,8 +520,7 @@ class EditorialReviewCompletionEmail(FormView):
         )
 
     def get_form_kwargs(self):
-        """Renders the email body and subject for editing using the form
-        """
+        """Renders the email body and subject for editing using the form."""
         kwargs = super(EditorialReviewCompletionEmail, self).get_form_kwargs()
 
         if (
@@ -591,6 +538,7 @@ class EditorialReviewCompletionEmail(FormView):
         email_context = {
             'greeting': recipient_greeting,
             'submission': self.submission,
+            'submission_type': self.submission_type,
             'review': self.review,
             'sender': self.review.user,
         }
@@ -600,7 +548,7 @@ class EditorialReviewCompletionEmail(FormView):
             context=email_context,
         )
         email_subject = (
-            'Review request accepted - {title}'.format(
+            u'Review request accepted - {title}'.format(
                 title=self.submission.title,
             )
         )
@@ -613,33 +561,36 @@ class EditorialReviewCompletionEmail(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(
-            EditorialReviewCompletionEmail,
-            self
-        ).get_context_data(
+        context = super(EditorialReviewCompletionEmail,self).get_context_data(
             **kwargs
         )
-        context['review'] = self.review
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them that you have completed your review'
+        )
         return context
 
     def form_valid(self, form):
         attachments = handle_multiple_email_files(
             request_files=self.request.FILES.getlist('attachments'),
-            file_owner=self.request.user
+            file_owner=self.review.user
         )
-
-        assigning_editor_email = ''
-        if self.review.assigning_editor:
-            assigning_editor_email = (
-                self.review.assigning_editor.email
-            )
-
+        assigning_editor_email = (
+            self.review.assigning_editor.email
+            if self.review.assigning_editor else ''
+        )
         other_editors_emails = [
             editor.email
-            for editor in self.submission.get_all_editors()
-            if editor.email != assigning_editor_email
-            and editor.username is not 'tech'
+            for editor in self.submission.book_editors.exclude(
+                email=assigning_editor_email,
+                username=settings.INTERNAL_USER
+            )
         ]
+        if self.submission_type == 'book':
+            series_editor = self.submission.get_series_editor()
+            if series_editor and series_editor.email != assigning_editor_email:
+                other_editors_emails.append(series_editor.email)
+
         email.send_prerendered_email(
             from_email=self.review.user.email,
             to=assigning_editor_email,
@@ -647,9 +598,11 @@ class EditorialReviewCompletionEmail(FormView):
             subject=form.cleaned_data['email_subject'],
             html_content=form.cleaned_data['email_body'],
             attachments=attachments,
-            book=self.submission,
+            book=self.submission if self.submission_type == 'book' else None,
+            proposal=(
+                self.submission if self.submission_type == 'proposal' else None
+            ),
         )
-
         return super(EditorialReviewCompletionEmail, self).form_valid(form)
 
     def get_success_url(self):
@@ -661,7 +614,7 @@ class EditorialReviewCompletionEmail(FormView):
 
 @is_editor_or_ed_reviewer
 def view_non_editorial_review(request, review_id, non_editorial_review_id):
-    """ As an editorial reviewer, view a completed peer review for the
+    """As an editorial reviewer, view a completed peer review for the
     submission under review.
     """
 
@@ -753,8 +706,7 @@ def view_content_summary(request, review_id):
 
 @is_editor_or_ed_reviewer
 def download_er_file(request, file_id, review_id):
-    """ As an editorial reviewer, download an editorial review file.
-    """
+    """As an editorial reviewer, download an editorial review file."""
     review = get_object_or_404(
         models.EditorialReview,
         pk=review_id,
@@ -825,7 +777,7 @@ def download_editor_er_file(request, file_id, review_id):
 
 
 def editorial_review_thanks(request, review_id):
-    """ 'Thank you' screen after editorial review is completed. """
+    """Thank you' screen after editorial review is completed."""
 
     template = 'editorialreview/editorial_review_thanks.html'
     context = {
@@ -839,7 +791,7 @@ def editorial_review_thanks(request, review_id):
 
 
 def editorial_reviewer_email_editor(request, review_id, user_id=None):
-    """ Email a book or press editor as an editorial reviewer. """
+    """Email a book or press editor as an editorial reviewer. """
 
     editorial_review = get_object_or_404(
         models.EditorialReview.objects,

@@ -97,36 +97,3 @@ def handle_review_file(_file, content_type, review_assignment, kind):
 
     return _path
 
-
-def send_requested_reviewer_decision_notification(
-        from_email,
-        to,
-        cc,
-        subject,
-        email_text,
-        attachments,
-        submission,
-):
-    """Sends a notification to an editor of a requested reviewer's decision.
-
-    Args:
-        from_email (str): the potential reviewer.
-        to (list): the address the email is to be sent to.
-        cc (list): any additional addresses the emails it to be copied to
-        subject (str): the subject of the email.
-        attachments (list): any files attache to the email.
-        email_text (str): the (rendered) HTML body of the email.
-
-    Returns:
-        None
-    """
-    from_email = from_email or get_setting('from_address', 'email')
-    email.send_prerendered_email(
-        html_content=email_text,
-        subject=subject,
-        from_email=from_email,
-        to=to,
-        cc=cc,
-        attachments=attachments,
-        book=submission,
-    )

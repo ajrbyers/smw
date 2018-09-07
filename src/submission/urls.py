@@ -138,4 +138,9 @@ urlpatterns = patterns(
         'submission.views.proposal_revisions',
         name='proposal_revisions',
     ),
+    url(
+        r'^proposal/(?P<proposal_id>\d+)/revision-submission-email/$',
+        views.ProposalRevisionCompleteEmail.as_view(),
+        name='proposal_revisions_submitted',
+    ),
 )

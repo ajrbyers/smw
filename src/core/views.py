@@ -27,8 +27,10 @@ from django.http import (
 )
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
-from django.utils.encoding import smart_text
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import smart_text
+from django.views.generic import FormView
 from django.core.exceptions import ObjectDoesNotExist
 
 from bs4 import BeautifulSoup
@@ -59,6 +61,7 @@ from files import (
     handle_file,
     handle_file_update,
     handle_email_file,
+    handle_multiple_email_files,
     handle_proposal_review_file,
     handle_proposal_file,
     handle_proposal_file_form,
@@ -70,8 +73,8 @@ from review import (
     models as review_models,
     logic as review_logic
 )
+import email
 from setting_util import get_setting
-
 
 def index(request):
     return redirect(reverse('login'))
@@ -3002,8 +3005,21 @@ def view_proposal_review_decision(
                 )
             )
 
-    if request.POST:
+    if request.POST and ('accept' in request.POST or 'decline' in request.POST):
+
+        redirect_kwargs = {
+            'proposal_id': _proposal.id,
+            'assignment_id': assignment_id,
+        }
+        if access_key:
+            redirect_kwargs['access_key'] = access_key
+            viewname = 'proposal_review_decision_email_access_key'
+        else:
+            viewname = 'proposal_review_decision_email'
+
         if 'accept' in request.POST:
+            redirect_kwargs['decision'] = 'accept'
+
             review_assignment.accepted = timezone.now()
             review_assignment.save()
             message = (
@@ -3042,29 +3058,10 @@ def view_proposal_review_decision(
                         workflow='proposal',
                     )
                     notification.save()
-            if access_key:
-                return redirect(
-                    reverse(
-                        'view_proposal_review_access_key',
-                        kwargs={
-                            'proposal_id': _proposal.id,
-                            'assignment_id': assignment_id,
-                            'access_key': access_key
-                        }
-                    )
-                )
-            else:
-                return redirect(
-                    reverse(
-                        'view_proposal_review',
-                        kwargs={
-                            'proposal_id': _proposal.id,
-                            'assignment_id': assignment_id
-                        }
-                    )
-                )
 
         elif 'decline' in request.POST:
+            redirect_kwargs['decision'] = 'decline'
+
             review_assignment.declined = timezone.now()
             review_assignment.save()
             message = (
@@ -3103,10 +3100,7 @@ def view_proposal_review_decision(
                     )
                     notification.save()
 
-            if access_key:
-                return redirect(reverse('proposal_review_declined'))
-            else:
-                return redirect(reverse('reviewer_dashboard'))
+        return redirect(reverse(viewname, kwargs=redirect_kwargs))
 
     template = 'core/proposals/decision_review_assignment.html'
     context = {
@@ -3121,6 +3115,157 @@ def view_proposal_review_decision(
     }
 
     return render(request, template, context)
+
+
+class RequestedReviewerDecisionEmail(FormView):
+    """Allows requested reviewers to send an email to requesting editors
+    after they have responded to a peer review request.
+    """
+
+    template_name = 'shared/editable_notification_email.html'
+    form_class = forms.CustomEmailForm
+
+    @method_decorator(is_reviewer)
+    def dispatch(self, request, *args, **kwargs):
+        self.proposal_id = self.kwargs['proposal_id']
+        self.assignment_id = self.kwargs['assignment_id']
+        self.access_key = self.kwargs.get('access_key')
+        self.decision = self.kwargs.get('decision')
+
+        self.proposal = get_object_or_404(
+            submission_models.Proposal,
+            pk=self.proposal_id
+        )
+
+        if self.access_key:
+            self.proposal_review = get_object_or_404(
+                submission_models.ProposalReview,
+                access_key=self.access_key,
+                pk=self.assignment_id,
+            )
+        else:
+            self.proposal_review = get_object_or_404(
+                submission_models.ProposalReview,
+                pk=self.assignment_id,
+            )
+
+        return super(RequestedReviewerDecisionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(RequestedReviewerDecisionEmail, self).get_context_data(
+            **kwargs
+        )
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them of your decision'
+        )
+        return context
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form."""
+        kwargs = super(RequestedReviewerDecisionEmail, self).get_form_kwargs()
+
+        if (
+                self.proposal_review.requestor and
+                self.proposal_review.requestor.profile.full_name()
+        ):
+            recipient_greeting = u'Dear {assigning_editor_name}'.format(
+                assigning_editor_name=(
+                    self.proposal_review.requestor.profile.full_name()
+                )
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'greeting': recipient_greeting,
+            'proposal': self.proposal,
+            'sender': self.proposal_review.user,
+        }
+
+        if self.decision == 'accept':
+            email_body = email.get_email_content(
+                request=self.request,
+                setting_name='proposal_requested_reviewer_accept',
+                context=email_context,
+            )
+            email_subject = (
+                u'Review request accepted - {title}'.format(
+                    title=self.proposal.title,
+                )
+            )
+        else:
+            email_body = email.get_email_content(
+                request=self.request,
+                setting_name='proposal_requested_reviewer_decline',
+                context=email_context,
+            )
+            email_subject = (
+                u'Review request declined - {title}'.format(
+                    title=self.proposal.title,
+                )
+            )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.proposal_review.user,
+        )
+
+        assigning_editor_email = (
+            self.proposal.requestor.email
+            if self.proposal_review.requestor else ''
+        )
+        book_editors_emails = [
+            editor.email
+            for editor in self.proposal.book_editors.exclude(
+                email=assigning_editor_email,
+                username=settings.INTERNAL_USER
+            )
+        ]
+        from_email = self.proposal_review.user.email or get_setting(
+            'from_address',
+            'email'
+        )
+        email.send_prerendered_email(
+            html_content=form.cleaned_data['email_body'],
+            subject=form.cleaned_data['email_subject'],
+            from_email=from_email,
+            to=assigning_editor_email,
+            cc=book_editors_emails,
+            attachments=attachments,
+            proposal=self.proposal,
+        )
+
+        return super(RequestedReviewerDecisionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.decision == 'accept':
+            kwargs = {
+                'proposal_id': self.proposal_id,
+                'assignment_id': self.assignment_id,
+            }
+
+            if self.access_key:
+                view_name = 'view_proposal_review_access_key'
+                kwargs['access_key'] = self.access_key
+            else:
+                view_name = 'view_proposal_review'
+
+            return reverse(view_name, kwargs=kwargs)
+
+        return reverse('review_request_declined')
 
 
 def proposal_review_submitted(request):
@@ -3486,7 +3631,8 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                             request.FILES[field_name],
                             'proposal',
                             review_assignment,
-                            'reviewer')
+                            'reviewer'
+                        )
                     ]
 
             for field in data_fields:
@@ -3542,10 +3688,17 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             )
             notification.save()
 
+            redirect_kwargs = {
+                'proposal_id': proposal_id,
+                'assignment_id': assignment_id,
+            }
             if access_key:
-                return redirect(reverse('proposal_review_submitted'))
+                redirect_kwargs['access_key'] = access_key
+                redirect_viewname = 'proposal_review_completion_email_access_key'
             else:
-                return redirect(reverse('user_dashboard'))
+                redirect_viewname = 'proposal_review_completion_email'
+
+            return redirect(reverse(redirect_viewname, kwargs=redirect_kwargs))
 
     template = 'core/proposals/review_assignment.html'
     context = {
@@ -3559,12 +3712,139 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
         'recommendation_form': recommendation_form,
         'book_editors': _proposal.book_editors.all(),
         'active': 'proposal_review',
-        'instructions': get_setting('instructions_for_task_proposal',
-                                    'general'),
+        'instructions': get_setting(
+            'instructions_for_task_proposal',
+            'general'
+        ),
         'data': data,
     }
 
     return render(request, template, context)
+
+
+class ProposalReviewCompletionEmail(FormView):
+    """Allows requested reviewers to send an email to requesting editors
+    after they have responded to a peer review request.
+    """
+
+    template_name = 'shared/editable_notification_email.html'
+    form_class = forms.CustomEmailForm
+
+    @method_decorator(is_reviewer)
+    def dispatch(self, request, *args, **kwargs):
+        self.proposal_id = self.kwargs['proposal_id']
+        self.assignment_id = self.kwargs['assignment_id']
+        self.access_key = self.kwargs.get('access_key')
+
+        self.proposal = get_object_or_404(
+            submission_models.Proposal,
+            pk=self.proposal_id
+        )
+
+        if self.access_key:
+            self.proposal_reivew = get_object_or_404(
+                submission_models.ProposalReview,
+                pk=self.assignment_id,
+                access_key=self.access_key,
+            )
+        else:
+            self.proposal_reivew = get_object_or_404(
+                submission_models.ProposalReview,
+                pk=self.assignment_id,
+            )
+
+        return super(ProposalReviewCompletionEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(ProposalReviewCompletionEmail, self).get_context_data(
+            **kwargs
+        )
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them that you have completed your review'
+        )
+        return context
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form."""
+        kwargs = super(ProposalReviewCompletionEmail, self).get_form_kwargs()
+
+        if (
+                self.proposal_reivew.requestor and
+                self.proposal_reivew.requestor.profile.full_name()
+        ):
+            recipient_greeting = u'Dear {assigning_editor_name}'.format(
+                assigning_editor_name=(
+                    self.proposal_reivew.requestor.profile.full_name()
+                )
+            )
+        else:
+            recipient_greeting = 'Dear sir or madam'
+
+        email_context = {
+            'greeting': recipient_greeting,
+            'proposal': self.proposal,
+            'sender': self.proposal_reivew.user,
+        }
+
+        email_body = email.get_email_content(
+            request=self.request,
+            setting_name='proposal_peer_review_completed',
+            context=email_context,
+        )
+        email_subject = (
+            u'Review completed - {title}'.format(
+                title=self.proposal.title,
+            )
+        )
+
+        kwargs['initial'] = {
+            'email_subject': email_subject,
+            'email_body': email_body,
+        }
+
+        return kwargs
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.proposal_reivew.user,
+        )
+        assigning_editor_email = (
+            self.proposal_reivew.requestor.email
+            if self.proposal_reivew.requestor else ''
+        )
+        book_editors_emails = [
+            editor.email
+            for editor in self.proposal.book_editors.exclude(
+                email=assigning_editor_email,
+                username=settings.INTERNAL_USER
+            )
+        ]
+        from_email = self.proposal_reivew.user.email or get_setting(
+            'from_address',
+            'email'
+        )
+        email.send_prerendered_email(
+            html_content=form.cleaned_data['email_body'],
+            subject=form.cleaned_data['email_subject'],
+            from_email=from_email,
+            to=assigning_editor_email,
+            cc=book_editors_emails,
+            attachments=attachments,
+            proposal=self.proposal,
+        )
+
+        return super(ProposalReviewCompletionEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.request.user.is_authenticated():
+            return reverse('user_dashboard')
+        return reverse('proposal_review_submitted')
 
 
 @is_editor

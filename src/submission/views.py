@@ -356,11 +356,6 @@ def submission_five(request, book_id):
         press_editors = core_models.User.objects.filter(  # Send ack email.
             profile__roles__slug='press-editor'
         )
-        logic.send_acknowldgement_email(
-            book,
-            press_editors,
-            sender=request.user
-        )
         return redirect(
             reverse(
                 'submission_complete_email',
@@ -386,11 +381,11 @@ def submission_five(request, book_id):
 
 
 class SubmissionCompleteEmail(FormView):
-    """
-    Allows authors who have just completed a full book submission
+    """Allows authors who have just completed a full book submission
     to customise a notification email before it is sent to the editors.
     """
-    template_name = 'submission/completed_submission_email.html'
+
+    template_name = 'shared/editable_notification_email.html'
     form_class = core_forms.CustomEmailForm
 
     @method_decorator(login_required)
@@ -407,8 +402,7 @@ class SubmissionCompleteEmail(FormView):
         )
 
     def get_form_kwargs(self):
-        """Renders the email body and subject for editing using the form
-        """
+        """Renders the email body and subject for editing using the form."""
         kwargs = super(SubmissionCompleteEmail, self).get_form_kwargs()
 
         email_context = {
@@ -421,7 +415,7 @@ class SubmissionCompleteEmail(FormView):
             context=email_context,
         )
         email_subject = (
-            'Submission completed - {title}'.format(
+            u'Submission completed - {title}'.format(
                 title=self.book.title,
             )
         )
@@ -436,7 +430,10 @@ class SubmissionCompleteEmail(FormView):
         context = super(SubmissionCompleteEmail, self).get_context_data(
             **kwargs
         )
-        context['book'] = self.book
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them that you have completed your submission'
+        )
         return context
 
     def form_valid(self, form):
@@ -848,11 +845,11 @@ def start_proposal(request):
 
 
 class ProposalSubmissionEmail(FormView):
-    """
-    Allows authors who have just submitted a book proposal
+    """Allows authors who have just submitted a book proposal
     to customise a notification email before it is sent to the editors.
     """
-    template_name = 'submission/proposal_submission_email.html'
+
+    template_name = 'shared/editable_notification_email.html'
     form_class = core_forms.CustomEmailForm
 
     @method_decorator(login_required)
@@ -868,40 +865,34 @@ class ProposalSubmissionEmail(FormView):
         )
 
     def get_form_kwargs(self):
-        """Renders the email body and subject for editing using the form
-        """
+        """Renders the email body and subject for editing using the form."""
         kwargs = super(ProposalSubmissionEmail, self).get_form_kwargs()
 
         email_context = {
             'proposal': self.proposal,
             'sender': self.request.user,
         }
-        email_body = email.get_email_content(
-            request=self.request,
-            setting_name='new_proposal_notification',
-            context=email_context,
-        )
-        email_subject = (
-            'Proposal submitted - {proposal_title}'.format(
-                proposal_title=self.proposal.title
-            )
-        )
-
         kwargs['initial'] = {
-            'email_subject': email_subject,
-            'email_body': email_body,
+            'email_subject': u'Proposal submitted - {proposal_title}'.format(
+                proposal_title=self.proposal.title
+            ),
+            'email_body': email.get_email_content(
+                request=self.request,
+                setting_name='new_proposal_notification',
+                context=email_context,
+            ),
         }
 
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(
-            ProposalSubmissionEmail,
-            self
-        ).get_context_data(
+        context = super(ProposalSubmissionEmail, self).get_context_data(
             **kwargs
         )
-        context['proposal'] = self.proposal
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them that you have submitted your proposal'
+        )
         return context
 
     def form_valid(self, form):
@@ -982,18 +973,8 @@ def proposal_revisions(request, proposal_id):
         status='revisions_required'
     )
     notes = submission_models.ProposalNote.objects.filter(proposal=proposal)
-    email_text = get_email_content(
-        request=request,
-        setting_name='proposal_revision_submit_ack',
-        context={
-            'sender': request.user,
-            'receiver': proposal.owner,
-            'proposal': proposal,
-            'press_name': get_setting('press_name', 'general')}
-    )
 
     overdue = False
-
     if proposal.revision_due_date.date() < datetime.today().date():
         overdue = True
 
@@ -1082,7 +1063,6 @@ def proposal_revisions(request, proposal_id):
             )
             notification.save()
 
-            update_email_text = smart_text(request.POST.get('email_text'))
             log.add_proposal_log_entry(
                 proposal=proposal,
                 user=request.user,
@@ -1096,27 +1076,21 @@ def proposal_revisions(request, proposal_id):
                 ),
                 short_name='Proposal Revisions Submitted'
             )
-            core_logic.send_proposal_update(
-                request,
-                proposal,
-                email_text=update_email_text,
-                sender=request.user,
-                receiver=proposal.requestor,
-            )
-            notification.emailed = True
+
             notification.save()
             messages.add_message(
                 request,
                 messages.SUCCESS,
                 'Proposal %s submitted' % proposal.id
             )
-            return redirect(reverse('user_dashboard'))
+            return redirect(
+                reverse('proposal_revisions_submitted', args=[proposal_id])
+            )
 
-    template = "submission/start_proposal.html"
+    template = "submission/proposal_revisions.html"
     context = {
         'proposal_form': proposal_form,
         'proposal': proposal,
-        'email_text': email_text,
         'default_fields': default_fields,
         'data': data,
         'revise': True,
@@ -1126,6 +1100,84 @@ def proposal_revisions(request, proposal_id):
     }
 
     return render(request, template, context)
+
+
+class ProposalRevisionCompleteEmail(FormView):
+    """Allows authors who have just submitted a revised book proposal
+    to customise a notification email before it is sent to the editors.
+    """
+
+    template_name = 'shared/editable_notification_email.html'
+    form_class = core_forms.CustomEmailForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.proposal = get_object_or_404(
+            submission_models.Proposal,
+            pk=self.kwargs['proposal_id']
+        )
+        return super(ProposalRevisionCompleteEmail, self).dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(ProposalRevisionCompleteEmail, self).get_context_data(
+            **kwargs
+        )
+        context['heading'] = (
+            'Please ensure that you are happy with the below email to the '
+            'editor notifying them that you have completed your review'
+        )
+        return context
+
+    def get_form_kwargs(self):
+        """Renders the email body and subject for editing using the form."""
+        kwargs = super(ProposalRevisionCompleteEmail, self).get_form_kwargs()
+
+        email_context = {
+            'greeting': u'Dear {editors_name}'.format(
+                editors_name=self.proposal.owner.profile.full_name()
+            ),
+            'proposal': self.proposal,
+            'sender': self.request.user,
+        }
+        kwargs['initial'] = {
+            'email_subject': u'Proposal submitted - {proposal_title}'.format(
+                proposal_title=self.proposal.title
+            ),
+            'email_body': email.get_email_content(
+                request=self.request,
+                setting_name='revised_proposal_notification',
+                context=email_context,
+            ),
+        }
+        return kwargs
+
+    def form_valid(self, form):
+        attachments = handle_multiple_email_files(
+            request_files=self.request.FILES.getlist('attachments'),
+            file_owner=self.request.user,
+        )
+        other_editor_emails = [
+            _editor.email for _editor in self.proposal.book_editors.exclude(
+                email=self.proposal.owner.email
+            )
+        ]
+        email.send_prerendered_email(
+            from_email=self.request.user.email,
+            to=self.proposal.owner.email,
+            cc=other_editor_emails,
+            subject=form.cleaned_data['email_subject'],
+            html_content=form.cleaned_data['email_body'],
+            attachments=attachments,
+            proposal=self.proposal,
+        )
+        return super(ProposalRevisionCompleteEmail, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('user_dashboard')
 
 
 @login_required
