@@ -30,7 +30,6 @@ from core import (
     models as core_models,
 )
 from core.decorators import is_book_editor_or_author
-from core.email import get_email_content
 from core.files import (
     handle_proposal_file_form,
     handle_multiple_email_files,
@@ -353,9 +352,6 @@ def submission_five(request, book_id):
             'Submission Completed',
         )
 
-        press_editors = core_models.User.objects.filter(  # Send ack email.
-            profile__roles__slug='press-editor'
-        )
         return redirect(
             reverse(
                 'submission_complete_email',
