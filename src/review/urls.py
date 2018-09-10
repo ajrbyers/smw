@@ -58,21 +58,21 @@ urlpatterns = patterns(
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/'
-        r'/review-round/(?P<review_round>\d+)/$',
+        r'review-round/(?P<review_round>\d+)/$',
         'review.views.review',
         name='review_without_access_key'
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)/'
-        r'review-round/assignment/(?P<review_assignment_id>\d+)/'
-        r'(?P<review_round>\d+)/completion-email/$',
+        r'review-round/(?P<review_round>\d+)/assignment/'
+        r'(?P<review_assignment_id>\d+)/completion-email/$',
         views.ReviewCompletionEmail.as_view(),
         name='review_completion_email'
     ),
     url(
         r'^(?P<review_type>[-\w]+)/(?P<submission_id>\d+)'
-        r'/review-round/assignment/(?P<review_assignment_id>\d+)/'
-        r'(?P<review_round>\d+)/completion-email/'
+        r'/review-round/(?P<review_round>\d+)/assignment/'
+        r'(?P<review_assignment_id>\d+)/completion-email/'
         r'access_key/(?P<access_key>[-\w+]+)/$',
         views.ReviewCompletionEmail.as_view(),
         name='review_completion_email_with_access_key'
