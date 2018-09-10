@@ -83,7 +83,7 @@ class EditorialReviewTests(TestCase):
         )
 
     @skip(
-        'Model factories need expanding.'
+        'Model factories need expanding. '
         'editorialreview.content_object.data is None.'
     )
     def test_ed_reviewer_download_proposal(self):
