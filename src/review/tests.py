@@ -302,13 +302,20 @@ class ReviewTests(TestCase):
             self.assignment.accepted
         ).lstrip('0')
         self.assertTrue(message in content)
-        resp = self.client.get(reverse('review_complete', kwargs={
-            'review_type': self.assignment.review_type, 'submission_id': 1,
-            'review_round': 1}))
+
+        resp = self.client.get(
+            reverse(
+                'review_complete',
+                kwargs={
+                    'review_type': self.assignment.review_type,
+                    'submission_id': 1,
+                    'review_round': 1}
+            )
+        )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-             "http://testing/review/external/1/review-round/1/"
+            "http://testing/review/external/1/review-round/1/"
         )
         resp = self.client.post(
             reverse(
@@ -328,7 +335,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-             "http://testing/review/external/1/review-round/1/completion-email/"
+            "http://testing/review/external/1/review-round/1/assignment/1/"
+            "completion-email/"
         )
 
         resp = self.client.get(reverse('review_complete', kwargs={
@@ -429,8 +437,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/{review_type}/{submission_id}/'
-            'assignment/1/access_key/{access_key}/decision-email/accept/'.format(
+            'http://testing/review/{review_type}/{submission_id}/assignment/'
+            '1/decision-email/accept/access_key/{access_key}/'.format(
                 review_type=self.assignment.review_type,
                 submission_id=1,
                 access_key='enter'
@@ -473,8 +481,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/assignment/1/access_key/enter/'
-            'decision-email/decline/'
+            'http://testing/review/external/1/assignment/1/'
+            'decision-email/decline/access_key/enter/'
         )
         self.assignment.declined = None
         self.assignment.accepted = timezone.now()
@@ -499,8 +507,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/review-round/1/access_key/enter/'
-            'completion-email/'
+            'http://testing/review/external/1/review-round/1/'
+            'assignment/1/completion-email/access_key/enter/'
         )
 
         resp = self.client.get(
@@ -561,8 +569,8 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/access_key/"
-            "enter/completion-email/"
+            "http://testing/review/external/1/review-round/1/"
+            "assignment/1/completion-email/access_key/enter/"
         )
 
     def test_editor_download_completed_review_form(self):
