@@ -1,8 +1,6 @@
 from django.core.exceptions import PermissionDenied
 
-from core import email
-from core.models import Author, Editor, Task
-from core.setting_util import get_setting
+from core.models import Author, Editor
 
 
 def copy_author_to_submission(user, book):
