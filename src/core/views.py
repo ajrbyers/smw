@@ -76,6 +76,7 @@ from review import (
 import email
 from setting_util import get_setting
 
+
 def index(request):
     return redirect(reverse('login'))
 
@@ -3694,11 +3695,11 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             }
             if access_key:
                 redirect_kwargs['access_key'] = access_key
-                redirect_viewname = 'proposal_review_completion_email_access_key'
+                viewname = 'proposal_review_completion_email_access_key'
             else:
-                redirect_viewname = 'proposal_review_completion_email'
+                viewname = 'proposal_review_completion_email'
 
-            return redirect(reverse(redirect_viewname, kwargs=redirect_kwargs))
+            return redirect(reverse(viewname, kwargs=redirect_kwargs))
 
     template = 'core/proposals/review_assignment.html'
     context = {

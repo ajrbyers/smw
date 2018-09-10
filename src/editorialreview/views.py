@@ -389,11 +389,10 @@ def editorial_review(request, review_id):
     form = review_forms.GeneratedForm(form=review.review_form)
     recommendation_form = forms.RecommendationForm(instance=review)
     submission = review.content_object
-    book = isinstance(submission, core_models.Book)
-    proposal = isinstance(submission, submission_models.Proposal)
+    is_book = isinstance(submission, core_models.Book)
     access_key = request.GET.get('access_key')
 
-    if book:
+    if is_book:
         peer_reviews = core_models.ReviewAssignment.objects.filter(
             book=submission,
             completed__isnull=False,
@@ -436,7 +435,7 @@ def editorial_review(request, review_id):
             )
             short_message = 'Completed'
 
-            if book:
+            if is_book:
                 log.add_log_entry(
                     book=submission,
                     user=review.user,
@@ -561,7 +560,7 @@ class EditorialReviewCompletionEmail(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(EditorialReviewCompletionEmail,self).get_context_data(
+        context = super(EditorialReviewCompletionEmail, self).get_context_data(
             **kwargs
         )
         context['heading'] = (
