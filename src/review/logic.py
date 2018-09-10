@@ -5,9 +5,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.utils.encoding import smart_text
 
-from core import email
 from core import models as core_models
-from core.setting_util import get_setting
 
 
 def notify_editors(
@@ -96,4 +94,3 @@ def handle_review_file(_file, content_type, review_assignment, kind):
     review_assignment.files.add(new_file)
 
     return _path
-
