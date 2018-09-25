@@ -261,7 +261,7 @@ def email_editorial_review(request, review_id):
     email_setting = 'editorial_review_{0}'.format(review.content_type)
     task_url = logic.get_task_url(review, request)
 
-    email_text = email.get_email_content(
+    email_text = email.get_email_body(
         request,
         email_setting,
         {
@@ -505,13 +505,18 @@ class EditorialReviewCompletionEmail(FormView):
             models.EditorialReview,
             pk=self.kwargs['review_id']
         )
-        self.submission = self.review.content_object
-
-        if isinstance(self.submission, core_models.Book):
-            self.submission_type = 'book'
-        else:
-            self.submission_type = 'proposal'
-
+        self.proposal = (
+            self.review.content_object if isinstance(
+                self.review.content_object,
+                submission_models.Proposal
+            ) else None
+        )
+        self.book = (
+            self.review.content_object if isinstance(
+                self.review.content_object,
+                core_models.Book
+            ) else None
+        )
         return super(EditorialReviewCompletionEmail, self).dispatch(
             request,
             *args,
@@ -536,20 +541,29 @@ class EditorialReviewCompletionEmail(FormView):
 
         email_context = {
             'greeting': recipient_greeting,
-            'submission': self.submission,
-            'submission_type': self.submission_type,
             'review': self.review,
             'sender': self.review.user,
         }
-        email_body = email.get_email_content(
+
+        if self.book:
+            # The above checks whether the review concerns a book or proposal
+            body_setting_name = 'editorial_review_completed'
+            subject_setting_name = 'editorial_review_completed_subject'
+            email_context['submission'] = self.book
+        else:
+            body_setting_name = 'proposal_editorial_review_completed'
+            subject_setting_name = 'proposal_editorial_review_completed_subject'
+            email_context['proposal'] = self.proposal
+
+        email_body = email.get_email_body(
             request=self.request,
-            setting_name='editorial_review_completed',
+            setting_name=body_setting_name,
             context=email_context,
         )
-        email_subject = (
-            u'Review request accepted - {title}'.format(
-                title=self.submission.title,
-            )
+        email_subject = email.get_email_subject(
+            request=self.request,
+            setting_name=subject_setting_name,
+            context=email_context,
         )
 
         kwargs['initial'] = {
@@ -580,13 +594,14 @@ class EditorialReviewCompletionEmail(FormView):
         )
         other_editors_emails = [
             editor.email
-            for editor in self.submission.book_editors.exclude(
+            # self.review.content_object is either a Proposal or a Book
+            for editor in self.review.content_object.book_editors.exclude(
                 email=assigning_editor_email,
                 username=settings.INTERNAL_USER
             )
         ]
-        if self.submission_type == 'book':
-            series_editor = self.submission.get_series_editor()
+        if self.book:
+            series_editor = self.book.get_series_editor()
             if series_editor and series_editor.email != assigning_editor_email:
                 other_editors_emails.append(series_editor.email)
 
@@ -597,10 +612,8 @@ class EditorialReviewCompletionEmail(FormView):
             subject=form.cleaned_data['email_subject'],
             html_content=form.cleaned_data['email_body'],
             attachments=attachments,
-            book=self.submission if self.submission_type == 'book' else None,
-            proposal=(
-                self.submission if self.submission_type == 'proposal' else None
-            ),
+            book=self.book,
+            proposal=self.proposal
         )
         return super(EditorialReviewCompletionEmail, self).form_valid(form)
 

@@ -54,7 +54,7 @@ from email import (
     send_email,
     send_email_multiple,
     send_reset_email,
-    get_email_content,
+    get_email_body,
 )
 from files import (
     handle_attachment,
@@ -2359,7 +2359,7 @@ def proposal_assign_view(request, proposal_id):
     _proposal = submission_models.Proposal.objects.get(pk=proposal_id)
     proposal_form = models.ProposalForm.objects.filter(active=True).first()
     authors = User.objects.filter(profile__roles__slug='author')
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='change_principal_contact_proposal',
         context={
@@ -3189,27 +3189,21 @@ class RequestedReviewerDecisionEmail(FormView):
         }
 
         if self.decision == 'accept':
-            email_body = email.get_email_content(
-                request=self.request,
-                setting_name='proposal_requested_reviewer_accept',
-                context=email_context,
-            )
-            email_subject = (
-                u'Review request accepted - {title}'.format(
-                    title=self.proposal.title,
-                )
-            )
+            email_body_setting_name = 'proposal_requested_reviewer_accept'
         else:
-            email_body = email.get_email_content(
-                request=self.request,
-                setting_name='proposal_requested_reviewer_decline',
-                context=email_context,
-            )
-            email_subject = (
-                u'Review request declined - {title}'.format(
-                    title=self.proposal.title,
-                )
-            )
+            email_body_setting_name = 'proposal_requested_reviewer_decline'
+
+        email_body = email.get_email_body(
+            request=self.request,
+            setting_name=email_body_setting_name,
+            context=email_context,
+        )
+        email_subject_setting_name = email_body_setting_name + '_subject'
+        email_subject = email.get_email_subject(
+            request=self.request,
+            setting_name=email_subject_setting_name,
+            context=email_context,
+        )
 
         kwargs['initial'] = {
             'email_subject': email_subject,
@@ -3448,7 +3442,7 @@ def proposal_add_editors(request, proposal_id):
     _proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
     list_of_editors = get_list_of_editors(_proposal)
 
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='book_editor_proposal_ack',
         context={
@@ -3791,21 +3785,17 @@ class ProposalReviewCompletionEmail(FormView):
             'proposal': self.proposal,
             'sender': self.proposal_reivew.user,
         }
-
-        email_body = email.get_email_content(
-            request=self.request,
-            setting_name='proposal_peer_review_completed',
-            context=email_context,
-        )
-        email_subject = (
-            u'Review completed - {title}'.format(
-                title=self.proposal.title,
-            )
-        )
-
         kwargs['initial'] = {
-            'email_subject': email_subject,
-            'email_body': email_body,
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='proposal_peer_review_completed_subject',
+                context=email_context,
+            ),
+            'email_body': email.get_email_body(
+                request=self.request,
+                setting_name='proposal_peer_review_completed',
+                context=email_context,
+            ),
         }
 
         return kwargs
@@ -4003,7 +3993,7 @@ def add_proposal_reviewers(request, proposal_id):
 @is_editor
 def decline_proposal(request, proposal_id):
     _proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='proposal_decline',
         context={
@@ -4152,7 +4142,7 @@ def contract_manager(request, proposal_id, contract_id=None):
 def accept_proposal(request, proposal_id):
     """Marks a proposal as accepted, creates a submission and emails the user"""
     _proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='proposal_accept',
         context={
@@ -4215,7 +4205,7 @@ def reopen_proposal_review(request, proposal_id, assignment_id):
         submission_models.ProposalReview,
         pk=assignment_id,
     )
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='proposal_review_reopen',
         context={
@@ -4269,7 +4259,7 @@ def reopen_proposal_review(request, proposal_id, assignment_id):
 @is_editor
 def request_proposal_revisions(request, proposal_id):
     _proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='proposal_request_revisions',
         context={
