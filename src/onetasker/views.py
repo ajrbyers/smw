@@ -14,9 +14,9 @@ from jfu.http import upload_receive, UploadResponse, JFUResponse
 
 from core import logic as core_logic, models, log
 from core.decorators import is_onetasker
-from core.email import get_email_content
-from submission.logic import handle_book_labels
+from core.email import get_email_body
 from core.setting_util import get_setting
+from submission.logic import handle_book_labels
 import logic
 
 
@@ -136,7 +136,7 @@ def task_hub(request, assignment_type, assignment_id, about=None):
 def task_hub_decline(request, assignment_type, assignment_id,):
 
     assignment = logic.get_assignment(assignment_type, assignment_id)
-    email_text = get_email_content(
+    email_text = get_email_body(
         request=request,
         setting_name='task_decline',
         context={'sender': request.user, 'receiver': assignment.requestor}

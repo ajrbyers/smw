@@ -1211,28 +1211,6 @@
 },
 {
   "fields": {
-    "value": "<p>Dear {{ salutation }},</p><p>This is an automatic notification to let you know that {{ reviewer_full_name }} has completed their Editorial Review Assignment for the book title '{{ submission.title }}' (RUA ID: {{ submission.id }}; Author(s): {% for author in authors %} {{ author.full_name }}, {% if forloop.last %} {{ author.full_name }}{% endif %}{% endfor %}).</p><p>Please log into the book management system via the link below to assess the Editorial Review comments and resume processing this project:</p><p>{{ base_url }}/editorialreview/editor/view/{{ review.id }}/</p><p>Many thanks,</p><p>{{ press_name }}</p>",
-    "group": 3,
-    "name": "editorialreview_completed_email",
-    "types": "rich_text",
-    "description": "Email sent as part of the Editorial Review process."
-  },
-  "model": "core.setting",
-  "pk": 125
-},
-{
-  "fields": {
-    "value": "Editorial review completed",
-    "group": 6,
-    "name": "editorialreview_completed_email_subject",
-    "types": "rich_text",
-    "description": "Email subject from the Editorial Review process."
-  },
-  "model": "core.setting",
-  "pk": 126
-},
-{
-  "fields": {
     "value": "<p>Dear {{ editor.salutation }},</p><p>This is an automatic notification to let you know that the metadata for '{{ book.title }}' has been updated via the FTP service.</p><p>Its new subjects are:</p><p>{{ new_subjects }}.</p><p>Its new description is:</p><p>{{ book.description }}.</p><br>",
     "group": 3,
     "name": "metadata_update",
@@ -1240,6 +1218,6 @@
     "description": "Email sent after metadata is updated through the FTP site."
   },
   "model": "core.setting",
-  "pk": 127
+  "pk": 125
 }
 ]

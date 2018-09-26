@@ -297,7 +297,16 @@ def send_prerendered_email(
             with open(filepath, 'rb') as file:
                 content = file.read()
 
-            filename = attachment.original_filename.encode('ascii', 'replace')
+            # TODO: drop ascii encoding when Django is upgraded
+            # to support unicode filenames
+            try:
+                filename = attachment.original_filename.encode('ascii')
+            except UnicodeEncodeError:
+                filename = (
+                    'utf-8',
+                    '',
+                    attachment.original_filename.encode('utf-8')
+                )
             mimetype = mimetypes.guess_type(filepath)[0] or 'unknown'
 
             msg.attach(
@@ -309,19 +318,47 @@ def send_prerendered_email(
     msg.send()
 
 
-def get_email_content(request, setting_name, context):
-    try:
-        html_template = get_setting(setting_name, 'email')
-    except models.Setting.DoesNotExist:
-        html_template = ''
+def get_email_body(request, setting_name, context):
+    """Renders an email body based on a template setting and context.
 
+    Args:
+        request(django.http.request.HttpRequest): request from the calling view.
+        setting_name(str): name of the email setting used as a template.
+        context(dict): context data to be substituted into the email body.
+
+    Returns:
+        str: the rendered email body.
+    """
+    html_template = get_setting(setting_name, 'email')
     html_template.replace('\n', '<br />')
-    htmly = Template(html_template)
+
+    template_renderer = Template(html_template)
     con = RequestContext(request)
     con.push(context)
-    html_content = htmly.render(con)
+    html_content = template_renderer.render(con)
 
     return html_content
+
+
+def get_email_subject(request, setting_name, context):
+    """Renders an email subject based on a template setting and context.
+
+    Args:
+        request(django.http.request.HttpRequest): request from the calling view.
+        setting_name(str): name of the email_subject setting used as a template.
+        context(dict): context data to be substituted into the email subject.
+
+    Returns:
+        str: the rendered email subject.
+    """
+    subject_template = get_setting(setting_name, 'email_subject')
+
+    template_renderer = Template(subject_template)
+    con = RequestContext(request)
+    con.push(context)
+    rendered_email_subject = template_renderer.render(con)
+
+    return rendered_email_subject
 
 
 def get_email_greeting(recipients, adjective='Dear'):

@@ -388,19 +388,17 @@ class RevisionCompletionEmail(FormView):
             'submission': self.submission,
             'sender': self.request.user,
         }
-
-        email_body = email.get_email_content(
-            request=self.request,
-            setting_name='author_revisions_completed',
-            context=email_context,
-        )
-        email_subject = u'Review completed for {title}'.format(
-            title=self.submission.title,
-        )
-
         kwargs['initial'] = {
-            'email_subject': email_subject,
-            'email_body': email_body,
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='author_revisions_completed_subject',
+                context=email_context,
+            ),
+            'email_body': email.get_email_body(
+                request=self.request,
+                setting_name='author_revisions_completed',
+                context=email_context,
+            ),
         }
 
         return kwargs

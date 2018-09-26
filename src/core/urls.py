@@ -281,7 +281,7 @@ urlpatterns = patterns(
     url(
         r'^files/user/submission/(?P<submission_id>\d+)/file'
         r'/(?P<file_id>\d+)/download/review/(?P<review_id>\d+)'
-        r'/access-key/(?P<access_key>[-\w+]+)/$',
+        r'/access_key/(?P<access_key>[-\w+]+)/$',
         'core.views.serve_file_one_click',
         name='serve_file_one_click'
     ),
@@ -305,7 +305,7 @@ urlpatterns = patterns(
     url(
         r'^files/user/submission/(?P<submission_id>\d+)/review-files/'
         r'(?P<review_type>[-\w]+)/download/review/(?P<review_id>\d+)/'
-        r'access-key/(?P<access_key>[-\w+]+)/$',
+        r'access_key/(?P<access_key>[-\w+]+)/$',
         'core.views.serve_all_review_files_one_click',
         name='serve_all_review_files_one_click',
     ),
@@ -462,7 +462,7 @@ urlpatterns = patterns(
     url(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/decision_email/(?P<decision>accept|decline)/'
-        r'access-key/(?P<access_key>[-\w+]+)/$',
+        r'access_key/(?P<access_key>[-\w+]+)/$',
         RequestedReviewerDecisionEmail.as_view(),
         name='proposal_review_decision_email_access_key',
     ),
@@ -480,7 +480,7 @@ urlpatterns = patterns(
     url(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/completion-email/'
-        r'access-key/(?P<access_key>[-\w+]+)/$',
+        r'access_key/(?P<access_key>[-\w+]+)/$',
         ProposalReviewCompletionEmail.as_view(),
         name='proposal_review_completion_email_access_key',
     ),
