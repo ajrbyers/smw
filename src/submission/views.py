@@ -402,23 +402,20 @@ class SubmissionCompleteEmail(FormView):
         kwargs = super(SubmissionCompleteEmail, self).get_form_kwargs()
 
         email_context = {
-            'book': self.book,
+            'submission': self.book,
             'sender': self.request.user,
         }
-        email_body = email.get_email_content(
-            request=self.request,
-            setting_name='completed_submission_notification',
-            context=email_context,
-        )
-        email_subject = (
-            u'Submission completed - {title}'.format(
-                title=self.book.title,
-            )
-        )
-
         kwargs['initial'] = {
-            'email_subject': email_subject,
-            'email_body': email_body,
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='completed_submission_notification_subject',
+                context=email_context,
+            ),
+            'email_body': email.get_email_body(
+                request=self.request,
+                setting_name='completed_submission_notification',
+                context=email_context,
+            ),
         }
         return kwargs
 
@@ -869,10 +866,12 @@ class ProposalSubmissionEmail(FormView):
             'sender': self.request.user,
         }
         kwargs['initial'] = {
-            'email_subject': u'Proposal submitted - {proposal_title}'.format(
-                proposal_title=self.proposal.title
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='new_proposal_notification_subject',
+                context=email_context,
             ),
-            'email_body': email.get_email_content(
+            'email_body': email.get_email_body(
                 request=self.request,
                 setting_name='new_proposal_notification',
                 context=email_context,
@@ -1140,10 +1139,12 @@ class ProposalRevisionCompleteEmail(FormView):
             'sender': self.request.user,
         }
         kwargs['initial'] = {
-            'email_subject': u'Proposal submitted - {proposal_title}'.format(
-                proposal_title=self.proposal.title
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='revised_proposal_notification_subject',
+                context=email_context,
             ),
-            'email_body': email.get_email_content(
+            'email_body': email.get_email_body(
                 request=self.request,
                 setting_name='revised_proposal_notification',
                 context=email_context,

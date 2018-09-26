@@ -437,26 +437,26 @@ class RequestedReviewerDecisionEmail(FormView):
         }
 
         if self.decision == 'accept':
-            email_body = email.get_email_content(
+            email_body = email.get_email_body(
                 request=self.request,
                 setting_name='requested_reviewer_accept',
                 context=email_context,
             )
-            email_subject = (
-                u'Review request accepted - {title}'.format(
-                    title=self.submission.title,
-                )
+            email_subject = email.get_email_subject(
+                request=self.request,
+                setting_name='requested_reviewer_accept_subject',
+                context=email_context,
             )
         else:
-            email_body = email.get_email_content(
+            email_body = email.get_email_body(
                 request=self.request,
                 setting_name='requested_reviewer_decline',
                 context=email_context,
             )
-            email_subject = (
-                u'Review request declined - {title}'.format(
-                    title=self.submission.title,
-                )
+            email_subject = email.get_email_subject(
+                request=self.request,
+                setting_name='requested_reviewer_decline_subject',
+                context=email_context,
             )
 
         kwargs['initial'] = {
@@ -609,9 +609,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                 core_models.ReviewAssignment,
                 Q(user=user),
                 Q(book=submission),
-                Q(
-                    review_round__round_number=review_round
-                ),
+                Q(review_round__round_number=review_round),
                 Q(declined__isnull=True),
                 Q(review_type=review_type),
                 Q(withdrawn=False),
@@ -922,10 +920,12 @@ class ReviewCompletionEmail(FormView):
         }
 
         kwargs['initial'] = {
-            'email_subject': u'Review completed for {title}'.format(
-                title=self.submission.title,
+            'email_subject': email.get_email_subject(
+                request=self.request,
+                setting_name='peer_review_completed_subject',
+                context=email_context,
             ),
-            'email_body': email.get_email_content(
+            'email_body': email.get_email_body(
                 request=self.request,
                 setting_name='peer_review_completed',
                 context=email_context,
