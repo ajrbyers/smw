@@ -297,16 +297,15 @@ def send_prerendered_email(
             with open(filepath, 'rb') as file:
                 content = file.read()
 
-            # TODO: drop ascii encoding when Django is upgraded
-            # to support unicode filenames
-            try:
-                filename = attachment.original_filename.encode('ascii')
-            except UnicodeEncodeError:
-                filename = (
-                    'utf-8',
-                    '',
-                    attachment.original_filename.encode('utf-8')
-                )
+            # TODO: drop forced ascii encoding when Django is upgraded
+            # to fully support non-ascii unicode filenames
+            # Appears to relate to this issue:
+            # https://code.djangoproject.com/ticket/26227
+            filename = attachment.original_filename.encode(
+                'ascii',
+                errors='replace'
+            )
+
             mimetype = mimetypes.guess_type(filepath)[0] or 'unknown'
 
             msg.attach(
