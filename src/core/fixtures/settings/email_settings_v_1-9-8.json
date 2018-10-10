@@ -1,0 +1,266 @@
+[
+  {
+    "fields": {
+      "value": "<p>Dear Sir or Madam,</p>\r\n<p>I have just submitted a proposal for the book '{{proposal.title}}'.</p>\r\n<p>Please contact me if you have any questions and I look forward to your feedback.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "new_proposal_notification",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": " <p>{{ greeting }},</p>\r\n<p>I have just submitted a revised proposal for the book '{{ proposal.title }}'.</p>\r\n<p>Please contact me if you have any questions and I look forward to your feedback.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "revised_proposal_notification",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>Dear Sir or Madam,</p>\r\n<p>I have just completed the submission of {{ submission.title }} (ID: {{ submission.id }}).</p>\r\n<p>Please contact me if you have any questions.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "completed_submission_notification",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>I am pleased to inform you that I have accepted your invitation to review {{submission.title}}.</p>\r\n<p>I will submit my review as soon as possible.</p>\r\n<p>Kind regards,</p>\r\n<p>    {% if sender.profile.signature %}        {{ sender.profile.signature }}    {% else %}        {{ sender.profile.full_name }}    {% endif %}</p>",
+      "group": "3",
+      "name": "requested_reviewer_accept",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p><p>I am at present afraid I am unable to complete the review of {{submission.title}} (ID {{ submission.id }}) and will have to decline.</p><p>Best of luck with the project.</p><p>Kind regards,</p><p>{% if sender.profile.signature %} {{ sender.profile.signature }} {% else %} {{ sender.profile.full_name }} {% endif %}<br></p>",
+      "group": "3",
+      "name": "requested_reviewer_decline",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the book title '{{ submission.title }}'.</p>\r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "peer_review_completed",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the full submission title '{{ submission.title }}' (ID: {{ submission.id }}{% if submission.author.all %}; Author(s): {% for author in submission.author.all %} {% if forloop.last %} {{author.full_name }}{% else %}{{ author.full_name }}, {% endif %}{% endfor %}{% endif %}).</p><p>I have recommended that it be {% if review.recommendation == 'reject' %}rejected{% else %}accepted{% if review.recommendation == 'revisions' %} with the revisions I have detailed{% endif %}{% endif %}.<br></p> \r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "editorial_review_completed",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed the outstanding revisions for the book titled '{{ submission.title }}' (id: {{ submission.id }})</p>\r\n<p>If you require further changes or have any questions, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "author_revisions_completed",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>I am pleased to inform you that I have accepted your invitation to review the proposal for {{proposal.title}} (ID: {{ proposal.id }}).</p>\r\n<p>I will submit my review as soon as possible.</p>\r\n<p>Kind regards,</p>\r\n<p> {% if sender.profile.signature %} {{ sender.profile.signature }} {% else %}        \r\n{{ sender.profile.full_name }}    {% endif %}</p>",
+      "group": "3",
+      "name": "proposal_requested_reviewer_accept",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p><p>I am at present afraid I am unable to complete the review of the proposal for {{proposal.title}} (ID: {{ proposal.id }}) and will have to decline.</p><p>Best of luck with the project.</p><p>Kind regards,</p><p>{% if sender.profile.signature %} {{ sender.profile.signature }} {% else %} {{ sender.profile.full_name }} {% endif %}<br></p>",
+      "group": "3",
+      "name": "proposal_requested_reviewer_decline",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of the proposal titled '{{ proposal.title }}'.</p>\r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "1",
+      "name": "proposal_peer_review_completed",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the proposal title '{{ proposal.title }}' (ID: {{ proposal.id }}{% if proposal.author.all %}; Author(s): {% for author in proposal.author.all %} {% if forloop.last %} {{author.full_name }}{% else %}{{ author.full_name }}, {% endif %}{% endfor %}{% endif %}).</p><p>I have recommended that it be {% if review.recommendation == 'reject' %}rejected{% else %}accepted{% if review.recommendation == 'revisions' %} with the revisions I have detailed{% endif %}{% endif %}.<br></p> \r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+      "group": "3",
+      "name": "proposal_editorial_review_completed",
+      "types": "rich_text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+    {
+    "fields": {
+      "value": "Proposal submitted - {{ proposal.title }}",
+      "group": "6",
+      "name": "new_proposal_notification_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Proposal revised - {proposal.title}",
+      "group": "6",
+      "name": "revised_proposal_notification_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Submission completed - {{ submission.title }}",
+      "group": "6",
+      "name": "completed_submission_notification_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review request accepted - {{ submission.title }}",
+      "group": "6",
+      "name": "requested_reviewer_accept_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review request declined - {{ submission.title }}",
+      "group": "6",
+      "name": "requested_reviewer_decline_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review completed - {{ submission.title }}",
+      "group": "6",
+      "name": "peer_review_completed_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Editorial review completed - {{ submission.title }}",
+      "group": "6",
+      "name": "editorial_review_completed_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Revisions completed for {{ submission.title }}",
+      "group": "6",
+      "name": "author_revisions_completed_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review request accepted - {{ proposal.title }}",
+      "group": "6",
+      "name": "proposal_requested_reviewer_accept_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review request declined - {{ proposal.title }}",
+      "group": "6",
+      "name": "proposal_requested_reviewer_decline_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Review completed - {{ proposal.title }}",
+      "group": "6",
+      "name": "proposal_peer_review_completed_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  },
+  {
+    "fields": {
+      "value": "Editorial Review complete - {{ proposal.title }}",
+      "group": "6",
+      "name": "proposal_editorial_review_completed_subject",
+      "types": "text",
+      "description": ""
+    },
+    "model": "core.setting",
+    "pk": null
+  }
+]
