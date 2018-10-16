@@ -112,7 +112,7 @@
   {
     "fields": {
       "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of the proposal titled '{{ proposal.title }}'.</p>\r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
-      "group": "1",
+      "group": "3",
       "name": "proposal_peer_review_completed",
       "types": "rich_text",
       "description": ""
