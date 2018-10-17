@@ -1,1223 +1,1531 @@
 [
-  {
-  "fields": {
-    "value": "Book Contract Uploaded",
-    "group": 6,
-    "name": "book_contract_uploaded_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Submission decision update: %s",
-    "group": 6,
-    "name": "submission_decision_update_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Production Editor for",
-    "group": 6,
-    "name": "production_editor_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Review Request",
-    "group": 6,
-    "name": "review_request_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Declined",
-    "group": 6,
-    "name": "proposal_declined_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Update",
-    "group": 6,
-    "name": "proposal_update_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Submission Acknowledgement",
-    "group": 6,
-    "name": "proposal_submission_ack_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "%s Assignment [id<%s>] Declined",
-    "group": 6,
-    "name": "assignment_declined_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Accepted",
-    "group": 6,
-    "name": "proposal_accepted_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Revisions Required",
-    "group": 6,
-    "name": "proposal_revision_required_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Typesetting",
-    "group": 6,
-    "name": "typesetting_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Registration Confirmation",
-    "group": 6,
-    "name": "registration_confirmation_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Weekly Notification Reminder",
-    "group": 6,
-    "name": "weekly_notification_reminder_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Copyediting Completed",
-    "group": 6,
-    "name": "copyediting_completed_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "New User : Profile Details",
-    "group": 6,
-    "name": "new_user_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Copyedit Assignment",
-    "group": 6,
-    "name": "copyedit_assignment_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Indexing Request",
-    "group": 6,
-    "name": "indexing_request_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Editorial Review Request",
-    "group": 6,
-    "name": "editorial_review_request",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Editorial Review Assignment %s: Due Date Updated",
-    "group": 6,
-    "name": "editorial_review_due_date_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Review Assignment %s: Due Date Updated",
-    "group": 6,
-    "name": "review_due_date_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Book Editors have been updated",
-    "group": 6,
-    "name": "book_editors_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Revisions Requested",
-    "group": 6,
-    "name": "revisions_requested_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Submission Acknowledgement",
-    "group": 6,
-    "name": "submission_ack_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "New Submission",
-    "group": 6,
-    "name": "new_submission_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Reset Code",
-    "group": 6,
-    "name": "reset_code_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Review Request Reminder",
-    "group": 6,
-    "name": "review_request_reminder_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Revision Request Reminder",
-    "group": 6,
-    "name": "revision_request_reminder_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Your review assignment of a book proposal submitted to {{press_name}} has reopened. <span style=\"background-color: yellow;\">[ADD REASON]</span> The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by _due_date_ , therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
-    "group": 3,
-    "name": "proposal_review_reopen",
-    "types": "rich_text",
-    "description": "Sent when review assignment has reopened"
-  },
-  "model": "core.setting",
-  "pk": null
-},
-{
-  "fields": {
-    "value": "Proposal Review Assignment has reopened.",
-    "group": 6,
-    "name": "proposal_review_reopen_subject",
-    "types": "text",
-    "description": "Email subject. Do not remove '%s' or other string format related parts. "
-  },
-  "model": "core.setting",
-  "pk": null
-},
-  {
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "send_new_user_email",
-    "types": "boolean",
-    "description": "If enabled login details will be sent to the user. If disabled an email will not be sent."
-  },
-  "model": "core.setting",
-  "pk": 113
-},
-{
-    "fields": {
-        "value": "Template Press Name",
-        "group": 1,
-        "name": "press_name",
-        "types": "char",
-        "description": "Name of the press, will be displayed throughout the system."
-    },
-    "model": "core.setting",
-    "pk": 1
-},
-{
-    "fields": {
-        "value": "<br>",
-        "group": 1,
-        "name": "footer",
-        "types": "rich_text",
-        "description": "Footer text."
-    },
-    "model": "core.setting",
-    "pk": 2
-},
-{
-    "fields": {
-        "value": "<h4>SUBMISSION GUIDELINES</h4><p>Prior to completing your submission you must have adhered to the submission guidelines. This will ensure that your files are in the correct format and that each necessary element of the submission is available and ready for review as efficiently as possible. Failure to comply with these guidelines may result in revisions being requested prior to the review process beginning. If you have questions about this process then please contact the editorial team.</p><p>The basic book template, detailing each aspect of the book content, can be downloaded <a target=\"_blank\" href=\"https://s3-eu-west-1.amazonaws.com/ubiquity-partner-network/general/Basic-book-template.pdf\">here</a>.</p>",
-        "group": 1,
-        "name": "submission_guidelines",
-        "types": "rich_text",
-        "description": "Set of guidelines that appear on the submission start page."
-    },
-    "model": "core.setting",
-    "pk": 3
-},
-{
-    "fields": {
-        "value": "<p>This is a description block where information about this press can be entered. This text block should be replaced with text pulled from a database setting at some point, though for now I don't really need it to.</p>",
-        "group": 1,
-        "name": "description",
-        "types": "rich_text",
-        "description": "General description of the press. Will be displayed on the Index page."
-    },
-    "model": "core.setting",
-    "pk": 4
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential peer reviewer for a book submitted to {{press_name}}. The book has been provisionally titled {{book.title}}.</p><p>The contents to review has been summarised as below:</p><p>{{book.description|safe}}</p><p>As part of the editorial process with all {{press_name}} publications, books are reviewed according to the following general principles:</p><ul><li>that conclusions are presented in an appropriate fashion and are supported by the data</li><li>that the manuscript is presented in an intelligible fashion</li><li>that the Foreword and Epilogue tie in with the book contents well</li></ul><p>We aim to publish books that are solid works of scholarship, irrespective of potential 'impact'. The text is available now for review / will be available from <span style=\"background-color: yellow;\">[add start date] [DELETE AS APPROPRIATE]</span>. If you would like to accept or decline this invitation simply click the link below and select the appropriate option. If accepting the invitation you will then have full access to the review files and peer review details.</p><p>{{decision_url}}</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "review_request",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 5
-},
-{
-    "fields": {
-        "value": "PRESS",
-        "group": 1,
-        "name": "accronym",
-        "types": "char",
-        "description": "The Press's Acronym. Used to prefix email subjects etc."
-    },
-    "model": "core.setting",
-    "pk": 6
-},
-{
-    "fields": {
-        "value": "template.rua.pm",
-        "group": 1,
-        "name": "base_url",
-        "types": "text",
-        "description": "Base URL of the system. Used in emails and links."
-    },
-    "model": "core.setting",
-    "pk": 7
-},
-{
-    "fields": {
-        "value": "main@localhost.com",
-        "group": 3,
-        "name": "from_address",
-        "types": "rich_text",
-        "description": "Main From Address for the system."
-    },
-    "model": "core.setting",
-    "pk": 8
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential peer reviewer for a book submitted to {{press_name}}. The book has been provisionally titled {{book.title}}.</p><p>The contents to review has been summarised as below:</p><p>{{book.description|safe}}</p><p>As part of the editorial process with all {{press_name}} publications, books are reviewed according to the following general principles:</p><ul><li>that conclusions are presented in an appropriate fashion and are supported by the data</li><li>that the manuscript is presented in an intelligible fashion</li><li>that the Foreword and Epilogue tie in with the book contents well</li></ul><p>We aim to publish books that are solid works of scholarship, irrespective of potential 'impact'. The text is available now for review / will be available from <span style=\"background-color: yellow;\">[add start date] [DELETE AS APPROPRIATE]</span>. If you would like to accept or decline this invitation simply click the link below and select the appropriate option. If accepting the invitation you will then have full access to the review files and peer review details.</p><p>{{decision_url}}</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "external_review_request",
-        "types": "rich_text",
-        "description": "External review request email."
-    },
-    "model": "core.setting",
-    "pk": 9
-},
-{
-    "fields": {
-        "value": "on",
-        "group": 1,
-        "name": "ci_required",
-        "types": "boolean",
-        "description": "Determines whether users are required to enter Competing Interests statements."
-    },
-    "model": "core.setting",
-    "pk": 12
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential reviewer for a book proposal submitted to {{press_name}}. The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
-        "group": 3,
-        "name": "proposal_review_request",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 13
-},
-{
-    "fields": {
-        "value": "<p>Dear {{submission.owner.profile.salutation_name}},</p><p>I have uploaded the most recent version of the contract to our editorial system. Please could you log into your account to review the details and sign off the document.</p><p>If you would like to discuss any of the clauses prior to signing it off then please let me know.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "contract_author_sign_off",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 14
-},
-{
-    "fields": {
-        "value": "14",
-        "group": 5,
-        "name": "remind_unaccepted_reviews",
-        "types": "number",
-        "description": "The number of days since the initial invitation that a reminder will be sent."
-    },
-    "model": "core.setting",
-    "pk": 15
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>This is a gentle reminder of our request for your review of the submission, {{book.title}}, to {{press_name}}. This email has been sent because we have not had a response from our initial invitation, sent on {{ review.assigned }}.</p><p>Please could you use the below link to indicate whether you would are able to accept this invitation, or decline the offer.</p><p>Submission URL: {{base_url}}/review/{{review.review_type}}/{{review.review_round.round_number}}/assignment/{{review.pk}}/decision/</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know and we can happily consider it.<br></p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "unaccepted_reminder",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 16
-},
-{
-    "fields": {
-        "value": "7",
-        "group": 5,
-        "name": "remind_accepted_reviews",
-        "types": "number",
-        "description": "The number of days before the due date to remind a user who has accepted a review."
-    },
-    "model": "core.setting",
-    "pk": 17
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>This is a quick email to see if the review for {{book.title}} is on target to meet the agreed deadline of  {{review.due|date:\"\"c\"\"}}. If getting the review back to us by this date is looking unlikely, please could you get in touch at your earliest convenience? We look forward to your feedback.<br></p><p>Many thanks,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "accepted_reminder",
-        "types": "rich_text",
-        "description": "A reminder email sent to users who have accepted a review but not completed it."
-    },
-    "model": "core.setting",
-    "pk": 18
-},
-{
-    "fields": {
-        "value": "3",
-        "group": 5,
-        "name": "remind_overdue_reviews",
-        "types": "number",
-        "description": "The number of days after a review due date to send another reminder."
-    },
-    "model": "core.setting",
-    "pk": 19
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Would you be able to provide an update of your peer review for the book submission {{book.title}}? The initial deadline of {{review.due}} has now passed. If there will be a delay in submitting this review, or you will not be able to complete the review, please could you contact me so that a new schedule can be confirmed?</p><p>You can access the review files and complete the review using the below link:</p><p>Review URL: {{base_url}}/{{review.review_type}}/{{review.review_round.round_number}}/assignment/{{review.pk}}/decision/</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}<br></p>",
-        "group": 3,
-        "name": "overdue_reminder",
-        "types": "rich_text",
-        "description": "Email sent wheen a peer review is overdue."
-    },
-    "model": "core.setting",
-    "pk": 20
-},
-{
-    "fields": {
-        "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;</span>{{ book.owner.profile.salutation_name }},</p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book, \u2018{{book.title}}\u2019 to {{press_name}}. Our decision is to request some revisions prior to a final editorial decision. A summary of the requested edits from the editorial team can be found below <span style=\"background-color: yellow;\">[OR SEE ATTACHED FILES = PRESS EDITOR TO EDIT AS REQUIRED PRIOR TO SENDING EMAIL]</span>. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the book details and submit your revisions via the book management system: {{revision_url }}</span><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> {{revision.due|date:\"Y-m-d\"}}<span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
-        "group": 3,
-        "name": "request_revisions",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 22
-},
-{
-    "fields": {
-        "value": "",
-        "group": 5,
-        "name": "revisions_reminder",
-        "types": "number",
-        "description": "The number of days before a revision's due date to remind the user."
-    },
-    "model": "core.setting",
-    "pk": 23
-},
-{
-    "fields": {
-        "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Would you be able to provide an update on how the revisions are going for you book submission {{book.title}}? The initial deadline of {{review.due}} has now passed. If there will be a further delay in submitting the revisions, please could you contact me so that a new schedule can be confirmed. This will ensure that processes further down the line do not experience delays.</p><p>You can access the files for revision and resubmit them using the below link:</p><p>Submission URL: {{base_url}}/author/submission/{{book.id}}/revisions/{{review.id}}/.</p><p><span style=\"line-height: 1.42857;\">I look forward to hearing from you.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span></p>",
-        "group": 3,
-        "name": "revisions_reminder_email",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 24
-},
-{
-    "fields": {
-        "value": "<p>Dear {{copyedit.copyeditor.profile.salutation_name}},</p><p>I hope that this finds you well. {{press_name}} have a book project requiring copyediting and we would like to invite you to undertake the project. The book will be available for copyediting around [ADD DATE HERE] and will be roughly [ADD WORD COUNT HERE]. The book will be on the subject of [ADD BOOK DETAILS HERE]. Ideally, we would be looking for the copyedited files to be returned by {{copyedit.due}}.\r\n\r\nPlease could you confirm whether you or not you can accept this invitation by clicking the link below and marking your decision accordingly?\r\n\r\n{{base_url}}/tasks/copyedit/{{copyedit.pk}}/</p><p>If you need more details, would like to discuss the content or the deadline then please let me know. I look forward to hearing from you.<br></p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "copyedit_request",
-        "types": "rich_text",
-        "description": "Email to copyeditor requesting their services."
-    },
-    "model": "core.setting",
-    "pk": 25
-},
-{
-    "fields": {
-        "value": "<p>Dear{{ submission.owner.profile.salutation_name }},</p><p>Your book submission {{book.title}} has now completed our copyediting stage and is available for your final review and sign off prior to typesetting. You should be able to log into the editorial system using the below details to access the file, which will show edits via 'tracked changes' and also any questions that the copyeditor may have directed to you.</p><p>Please can you now review this file and accept all changes or detail your additional edits. When you are happy with the content then please upload the files to the editorial system. \r\n\r\nPlease note that this is the last opportunity to make changes to the content of the book. The proofreading stage that follows the preparation of the galley proofs is restricted to correcting typographical and layout errors only, and not a further round of editorial changes.\r\n\r\n</p><p>If you are unable to undertake this work or have any questions, please contact me. The files and deadline for re-submission should all be available to you when you log into the account.<br></p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "author_copyedit_request",
-        "types": "rich_text",
-        "description": "Copyedit email sent to the user after copyediting is completed."
-    },
-    "model": "core.setting",
-    "pk": 27
-},
-{
-    "fields": {
-        "value": "<p>Your book has now been copy-edited. The files are available to you for checking prior to typesetting. Please examine all of the book files to ensure that the copy-edits are acceptable and to answer any questions that may have arisen during the process. This is your last chance to make edits to the content of your book. When you are happy with the files, please upload any edited files (if needed) and complete the below process.<br></p>",
-        "group": 1,
-        "name": "copyedit_author_instructions",
-        "types": "rich_text",
-        "description": "Instructions for the Author in the Copyediting stage."
-    },
-    "model": "core.setting",
-    "pk": 28
-},
-{
-    "fields": {
-        "value": "<p>Dear {{index.indexer.profile.salutation_name}},</p><p>{{press_name}} have a book project requiring index creation and wondered if you are available to take on the task. The book files will be available around [ADD DATE HERE] and will be roughly [ADD WORD COUNT/PAGE COUNT HERE]. The book will be on the subject of [ADD BOOK DETAILS HERE]. Ideally, we would be looking for an embedded index to be created and returned by {{index.due}}.</p><p>Please could you confirm whether you or not you can accept this invitation by clicking the link below and marking your decision accordingly?</p><p>{{base_url}}/tasks/indexing/{{index.pk}}/ </p><p>If you need more details, or would like to discuss the content or the deadline then please let me know.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "index_request",
-        "types": "rich_text",
-        "description": "Index request email"
-    },
-    "model": "core.setting",
-    "pk": 29
-},
-{
-    "fields": {
-        "value": "<p>Thank you for agreeing to complete this indexing project. You should\r\n have been provided with the appropriate instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the indexing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p>",
-        "group": 1,
-        "name": "index_instructions",
-        "types": "rich_text",
-        "description": "Instructions for the indexer."
-    },
-    "model": "core.setting",
-    "pk": 30
-},
-{
-    "fields": {
-        "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>The proofing comments for book.title {{submission.title}} have now been submitted. These can be accessed via the book management system.</p><p>Please could these edits be made and the files returned to me?</p><p>Please could this be completed by {{typeset.due}}? If this will not be possible please let me know and we can try to re-schedule.</p><p>Submission URL: {{base_url}}/tasks/typesetting/{{typeset.pk}}/</p><p>Thanks,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "typeset_request",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 31
-},
-{
-    "fields": {
-        "value": "<p>Here are some instructions</p>",
-        "group": 1,
-        "name": "typeset_instructions",
-        "types": "rich_text",
-        "description": "Instructions for the typesetter."
-    },
-    "model": "core.setting",
-    "pk": 32
-},
-{
-    "fields": {
-        "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>The typesetting for your book is complete and a PDF proof is now available for to download. Please review this proof to ensure that there are no errors in the layout.</p><p>Kindly note that this is a proofing stage, not copyediting. At this point in the process, we will correct errors that may have been introduced during typesetting. We are also happy to make corrections to small textual errors, such as spelling or grammatical mistakes. However, we cannot make large edits to the text unless absolutely necessary.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "author_typeset_request",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 33
-},
-{
-    "fields": {
-        "value": "<p><br></p><p></p>",
-        "group": 1,
-        "name": "typeset_author_instructions",
-        "types": "rich_text",
-        "description": "Instructions displayed on the Author Typeset screen."
-    },
-    "model": "core.setting",
-    "pk": 34
-},
-{
-    "fields": {
-        "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>Would you be able to provide an update on how the revisions are going for you book submission {{submission.title}}?</p><p>The initial deadline of {{typeset.due}} has now passed. If there will be a further delay in submitting the revisions, please could you contact me so that a new schedule can be confirmed. This will ensure that processes further down the line do not experience delays.</p><p>You can access the files for revision and resubmit them using the below link:</p><p>Submission URL: {{base_url}}/tasks/typesetting/{{typeset.pk}}/</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "typesetter_typeset_request",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 35
-},
-{
-    "fields": {
-        "value": "<p>Dear {{submission.owner.profile.salutation_name}},</p><p>Thank you for submitting your book manuscript, {{submission.title}}, to {{press_name}}.</p><p>You will be able to track its progress through the editorial process by logging in to website.\r\n\r\nYour submission will be considered by our Editorial team prior to having the text reviewed by independent peer-reviewers. Following the completion of the review, you will be contacted with feedback and an editorial decision.</p><p>Our editorial team will be in touch once this process has begun.\r\n\r\nShould you have any questions regarding your book publication then please get in touch.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p>",
-        "group": 3,
-        "name": "author_submission_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 36
-},
-{
-    "fields": {
-        "value": "<p>This is an automated email to alert you that the following book submission has been received: {{submission.title}}, submitted by {{submission.owner.profile.full_name}}.</p><p>Please access the&nbsp;{{press_name}} book management system to review this submission and process accordingly.</p><p>The book details can be accessed at {{base_url}}/editor/submission/{{submission.pk}}/.</p>",
-        "group": 3,
-        "name": "editor_submission_ack",
-        "types": "rich_text",
-        "description": "Email sent automatically to editors."
-    },
-    "model": "core.setting",
-    "pk": 37
-},
-{
-    "fields": {
-        "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to accept the book, {{proposal.title}}, for full submission and peer review. We hope that you are pleased with this news.</p><p>[DETAIL TO BE ADDED BY THE PRESS EDITOR ON HOW/WHEN TO SUBMIT THE FULL BOOK FOR REVIEW]</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "proposal_accept",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 39
-},
-{
-    "fields": {
-        "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to reject the book, {{proposal.title}}, for full submission and peer review. A short summary of the reasons for not accepting this submission from the editorial team can be found below. We hope that you find this useful.</p><p>[ADD COMMENTS ON WHY THE PROPOSAL IS BEING REJECTED]</p><p>We thank you for your submission and hope that you will consider us for a future publication.</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "proposal_decline",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 40
-},
-{
-    "fields": {
-        "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;{{proposal.owner.profile.salutation_name}},</span></p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book proposal, \u2018{{proposal.title}} {{proposal.subtitle}}\u2019 to {{press_name}}. Our decision is to request some revisions of the proposal prior to acceptance for full submission and peer review. A summary of the requested edits from the editorial team can be found below. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the proposal details and submit your revisions via the book management system: {{base_url}}/submission/proposal/{{proposal.pk}}/revisions/</span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> _due_date_ <span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
-        "group": 3,
-        "name": "proposal_request_revisions",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 41
-},
-{
-    "fields": {
-        "value": null,
-        "group": 4,
-        "name": "brand_header",
-        "types": "file",
-        "description": "Press brand image. Should be around 160x40 pixels."
-    },
-    "model": "core.setting",
-    "pk": 42
-},
-{
-    "fields": {
-        "value": "0791a2db-c180-4fe5-a951-dc002ae08fd6..ico",
-        "group": 4,
-        "name": "favicon",
-        "types": "file",
-        "description": "Journal favicon. Can be .ico or .jpg, should be 16x16 or 32x32 pixels."
-    },
-    "model": "core.setting",
-    "pk": 43
-},
-{
-    "fields": {
-        "value": "Falkirk",
-        "group": 1,
-        "name": "city",
-        "types": "text",
-        "description": "City the the publisher is based in. eg. Edinburgh or London"
-    },
-    "model": "core.setting",
-    "pk": 44
-},
-{
-    "fields": {
-        "value": "<p>You must agree to the below terms in order to submit your book to this press.</p>",
-        "group": 1,
-        "name": "submission_checklist_help",
-        "types": "rich_text",
-        "description": "Help text for the submission checklist."
-    },
-    "model": "core.setting",
-    "pk": 45
-},
-{
-    "fields": {
-        "value": "<p></p><p><span style=\"line-height: 1.42857;\">The book editor(s) assigned to submission {{submission.title}}<submission id:{{submission.id}}=\"\"> has been updated.</submission></span></p>\r\n{% if added_editors %}\r\n<p>These book editors have been added: </p>\r\n--------\r\n  {% for editor in added_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n\r\n{% endif %}\r\n{% if removed_editors %}<p></p><p>These book editors have been removed:</p><p>--------\r\n  {% for editor in removed_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n{% endif %}\r\n</p><p> \r\nTo view the submission, use the following link: http://{{base_url}}/editor/submission/{{submission.id}}/\r\n<br></p><p><span style=\"line-height: 1.42857;\">Regards,\r\n<br><br>RUA notification system</span><br></p><p></p>",
-        "group": 3,
-        "name": "book_editor_ack",
-        "types": "rich_text",
-        "description": "Email sent to editors when they are assigned to a book."
-    },
-    "model": "core.setting",
-    "pk": 46
-},
-{
-    "fields": {
-        "value": "<p>Dear {{ author.full_name }},\r\n</p><p>The Editorial team at&nbsp;{{press_name}} have recorded a decision on your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]<br>{{ link_to_page }}<br></p><p>\r\nRegards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
-        "group": 3,
-        "name": "decision_ack",
-        "types": "rich_text",
-        "description": "Email sent when a decision is made on a book."
-    },
-    "model": "core.setting",
-    "pk": 47
-},
-{
-    "fields": {
-        "value": "placeholder",
-        "group": 1,
-        "name": "oai_identifier",
-        "types": "char",
-        "description": "The Press' OAI identifier."
-    },
-    "model": "core.setting",
-    "pk": 48
-},
-{
-    "fields": {
-        "value": "<p>Dear {{ review.user.first_name }} {{ review.user.last_name }},\r\n</p><p>\r\nWe can confirm that the deadline for the book review that you have accepted has changed. Hopefully this fits what has been agreed </p>\r\n<p>\r\nReview id: {{review.id}}</p><p>Due Date: {{review.due}}\r\n</p>\r\n<p>Please let us know if it is not possible to meet this deadline as early as possible.<br></p><p>\r\nSincerely,</p><p>\r\n</p><p>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p><p>\r\n</p>",
-        "group": 3,
-        "name": "review_due_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 49
-},
-{
-    "fields": {
-        "value": "on",
-        "group": 1,
-        "name": "direct_submissions",
-        "types": "boolean",
-        "description": "If enabled, authors/editors can make direct submissions to the press. If disabled, authors/editors must for make a proposal. "
-    },
-    "model": "core.setting",
-    "pk": 50
-},
-{
-    "fields": {
-        "value": "on",
-        "group": 1,
-        "name": "suggested_reviewers",
-        "types": "boolean",
-        "description": "Select to enable the suggest reviewers field during the first stage of a new submission. Deselect to disable the field."
-    },
-    "model": "core.setting",
-    "pk": 51
-},
-{
-    "fields": {
-        "value": "<p>If you have any suggestions about who could review this book, please add them here. Please ensure you include their email address, affiliation details and why they are suitable. Suggested reviewers must be wholly independent of the book project and must be from a separate affiliation than the authors/editors. All reviewers will be asked to declare any competing interests. The publisher does not guarantee to use these suggestions.</p>",
-        "group": 1,
-        "name": "suggested_reviewers_guide",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 52
-},
-{
-    "fields": {
-        "value": "You can supply additional info about your manuscript files to help the editors and reviewers. Your label will be displayed for the editors to see.",
-        "group": 1,
-        "name": "manuscript_guidelines",
-        "types": "rich_text",
-        "description": "Set of guidelines to help the user upload a manuscript."
-    },
-    "model": "core.setting",
-    "pk": 53
-},
-{
-    "fields": {
-        "value": "You can supply additional info about your files to help the editors and reviewers. The label you provide will be displayed for the editors to see.",
-        "group": 1,
-        "name": "additional_files_guidelines",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 54
-},
-{
-    "fields": {
-        "value": "on",
-        "group": 1,
-        "name": "preview_review_files",
-        "types": "boolean",
-        "description": "Select to enable previewing of assignment files before accepting or declining an assignment. Deselect to disable previewing of assignment files."
-    },
-    "model": "core.setting",
-    "pk": 55
-},
-{
-    "fields": {
-        "value": "fake_user@fakeadress.com",
-        "group": 1,
-        "name": "primary_contact_email",
-        "types": "text",
-        "description": "This is the primary email address of the system."
-    },
-    "model": "core.setting",
-    "pk": 56
-},
-{
-    "fields": {
-        "value": "rua_user_first_name rua_user_last_name",
-        "group": 1,
-        "name": "primary_contact_name",
-        "types": "text",
-        "description": "Primary contact, will be used in the footer of some system emails."
-    },
-    "model": "core.setting",
-    "pk": 57
-},
-{
-    "fields": {
-        "value": "Declining task",
-        "group": 3,
-        "name": "task_decline",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 58
-},
-{
-    "fields": {
-        "value": "<p> Dear {{user.profile.full_name}},</p><p>A password reset request has been made for the {{press_name}} book management system.</p><p>Please click this link in order to continue the password reset process: {{reset_url}}</p>",
-        "group": 3,
-        "name": "reset_password",
-        "types": "rich_text",
-        "description": "Email sent to user when they request a password reset token."
-    },
-    "model": "core.setting",
-    "pk": 59
-},
-{
-    "fields": {
-        "value": "<p>Dear {{owner.profile.salutation_name}},</p><p>Thank you for submitting your book proposal, {{proposal.title}} {{proposal.subtitle}}, to {{press_name}}.</p><p>You will be able to track its progress through the proposal review process by logging in to website.\r\n\r\nYour proposal will be considered by our Editorial team, who my also seek external review of the proposal details. Following the completion of the review, you will be contacted with feedback and an editorial decision. Our editorial team will be in touch once this process has begun.</p><p>Should you have any questions regarding your book publication then please get in touch.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p>",
-        "group": 3,
-        "name": "proposal_submission_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 60
-},
-{
-    "fields": {
-        "value": "<p>Dear {{receiver.profile.full_name}},\r\n</p><p>\r\nProposal {{proposal.title}} &lt;{{proposal.id}}&gt; has been updated by {{sender.profile.full_name}}. All updates have been recorded via the book management system.<br></p><p>\r\nRegards,\r\n</p><p>\r\n{{ sender.profile.signature|safe }}</p>",
-        "group": 3,
-        "name": "proposal_update_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 61
-},
-{
-    "fields": {
-        "value": "<p>Dear {{receiver.profile.full_name}},\r\n</p><p>\r\nProposal {{proposal.title}}&lt;{{proposal.id}}&gt; revisions have been submitted by {{sender.profile.full_name}}. Please log into the book management system to assess the revisions and progress the proposal through the next stage of the editorial process.<br></p><p>\r\nRegards,\r\n</p><p>\r\n{{ sender.profile.signature }}</p>",
-        "group": 3,
-        "name": "proposal_revision_submit_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 62
-},
-{
-    "fields": {
-        "value": "<p>Dear {{ editor.profile.full_name }} ,\r\n</p><p>\r\nYou have been assigned as production editor for the submission title '{{submission.title}}'. This book has now been moved into production and can be sent for typesetting. Please let me know if you require any information.<br></p><p>\r\nRegards,\r\n</p><p><br>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-        "group": 3,
-        "name": "production_editor_ack",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 63
-},
-{
-    "fields": {
-        "value": "<p>Dear {{user.profile.full_name}},</p><p>You have been assigned as the corresponding author for submission {{submission.title}} {% if submission.subtitle%}{{submission.subtitle}}{% endif %}, which is being processed by {{press_name}}.<br></p><p>A profile has been created for you with the below details and you will now be the main contact for correspondence and tasks related to the project from now:</p><p>Username is your email account.</p><p>Password : {{code}}</p><p>Please click this link in order to validate or reset your password: {{base_url}}/user/profile/resetpassword/\r\n</p><p>If you are not involved in this book project then please let us know.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p><p><br></p>",
-        "group": 3,
-        "name": "new_user_owner_email",
-        "types": "rich_text",
-        "description": "Email sent when the ownership of a book is changed."
-    },
-    "model": "core.setting",
-    "pk": 64
-},
-{
-    "fields": {
-        "value": "<p><p>Thank you for agreeing to complete the review of this book, we \r\nare very grateful. The book details should be available to you \r\nbelow. Review feedback can either be provided by completing the form on \r\nthe left or uploading a file with your comments. Notes can also be added\r\n to the editors. Once you are happy with your review then please click \r\nthe Complete button in the bottom right of the screen. If you have any \r\nquestions then please get in touch with the assigned Editorial Manager.</p></p>",
-        "group": 1,
-        "name": "instructions_for_task_review",
-        "types": "rich_text",
-        "description": null
-    },
-    "model": "core.setting",
-    "pk": 65
-},
-{
-    "fields": {
-        "value": "Thank you for agreeing to complete the review of this book proposal, we are very grateful. The proposal details should be available to you below. Review feedback can either be provided by completing the form on the left or uploading a file with your comments. Notes can also be added to the editors. Once you are happy with your review then please click the Complete button in the bottom right of the screen. If you have any questions then please get in touch with the assigned Editorial Manager.<br>",
-        "group": 1,
-        "name": "instructions_for_task_proposal",
-        "types": "rich_text",
-        "description": "Set of instructions displayed on the Proposal Review screen."
-    },
-    "model": "core.setting",
-    "pk": 66
-},
-{
-    "fields": {
-        "value": "Thank you for undertaking this typesetting project. You should have been fully briefed on the project requirements. Should you need more information then please contact the assigned Editor. The book files are available to you below.<br>",
-        "group": 1,
-        "name": "instructions_for_task_typeset",
-        "types": "rich_text",
-        "description": "Set of instructions displayed on the Typeset screen."
-    },
-    "model": "core.setting",
-    "pk": 67
-},
-{
-    "fields": {
-        "value": "<p><p>Thank you for agreeing to complete this indexing project. You should\r\n have been provided with the appropriate instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the indexing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p></p>",
-        "group": 1,
-        "name": "instructions_for_task_index",
-        "types": "rich_text",
-        "description": "Set of instructions displayed on the Indexing screen."
-    },
-    "model": "core.setting",
-    "pk": 68
-},
-{
-    "fields": {
-        "value": "<p><p>Thank you for agreeing to complete this copy-editing project. You should\r\n have been provided with the appropriate style-guide and instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the copy-editing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p></p>",
-        "group": 1,
-        "name": "instructions_for_task_copyedit",
-        "types": "rich_text",
-        "description": "Set of instructions displayed on the Copyedit screen,."
-    },
-    "model": "core.setting",
-    "pk": 69
-},
-{
-    "fields": {
-        "value": "<p>Dear {{user.profile.full_name}},</p><p>Thank you for registering an account on our book management system. To validate your account, please click on the link below:</p><p>\r\n\r\nhttp://{{ base_url }}/login/activate/{{ user.profile.activation_code }}</p><p>Once this is complete, you will be able to access the system using the details you entered upon registration./\r\n</p><p>Kind regards,</p><p>\r\n{{press_name}}</p><p><br></p>",
-        "group": 3,
-        "name": "new_user_email",
-        "types": "rich_text",
-        "description": "Email sent to a new user."
-    },
-    "model": "core.setting",
-    "pk": 70
-},
-{
-    "fields": {
-        "value": "<h1>Competing Interests</h1><p>We are committed to transparent and bias-free research. To ensure that all publications are as open as possible all authors, reviewers and editors are required to declare any interests that could appear to compromise, conflict or influence the validity of the publication. This process is designed to reinforce the readers' trust in the research data.</p><p>Please declare any competing interests that you have. A conflict of interest must be declared if there is any reason why the information or the interpretation of information being produced may be influenced by a personal or financial relationship with other organisations or individuals, or if these relationships could be reasonably perceived from other people as having influencing objective data or decision-making. Everyone involved in the submission, editorial processing, peer review and publication should declare any competing interests that they may have as early as possible.</p><p>Competing interests can take the form of both financial and non-financial relationships. The declaration of such relationships helps to ensure that academic rigour is maintained and that publications cannot be accused of undue bias or misinformation.</p><p>Examples of competing interests:</p><ul><li>receipt of payment, in any form, from an organisation or individual related to the subject matter</li><li>ownership of stocks or shares in organisations directly related to the subject matter</li><li>receipt of grants or funding</li><li>membership of relevant boards</li><li>related patents/applied for patents</li><li>gifts</li><li>known relationships that will hinder impartiality (e.g. colleagues, family, mentor, previous supervisor/student).</li><li>political, religious, ideological interests</li><li>commercial</li></ul><p>Competing interests should generally be declared to cover <em>at least</em> the previous 5 years - e.g., if a reviewer supervised the author's PhD then (and if they feel comfortable reviewing the work) their professional relationship should have ended over 5 years ago. This is a minimum requirement, and individuals must declare if they have had a previous relationship with someone/an organisation relevant to the submission that could be deemed to influence decision making.</p><p><span style=\"text-decoration: underline;\"><strong>For authors</strong></span></p><p>Please add a competing interests statement into the appropriate section during the submission process. The authors\u2019 initials should be used to denote differing competing interests. For example:</p><p>\u201cTW completed paid consultancy work from [<em>company name</em>] as part of the data acquisition for this study. BH has minority shares in [<em>company name</em>], which part funded the research grant for this project. SM is a member of the editorial board for [<em>journal name</em>], which is on a voluntary basis. All other authors have no competing interests.\"</p><p>If there are no competing interests, please add the below statement:</p><p><strong>\u201c</strong>The authors declare that they have no competing interests.\u201d</p><p><span style=\"text-decoration: underline;\"><strong>For reviewers</strong></span></p><p>If you have any competing interests, please list them in the text box available on your reviewer page. For example:</p><p>\"I was previously employed by the laboratory that collected this data.\"</p><p>&nbsp;If you do not have competing interests, please add the below statement:</p><p>\"I have no competing interests to declare.\"</p><p>&nbsp;</p><p></p>",
-        "group": 2,
-        "name": "competing_interests",
-        "types": "rich_text",
-        "description": "dfdsf"
-    },
-    "model": "core.setting",
-    "pk": 71
-},
-{
-  "fields": {
-    "value": "7",
-    "group": 5,
-    "name": "notification_reminder",
-    "types": "number",
-    "description": ""
-  },
-  "model": "core.setting",
-  "pk": 72
-},
-{
-  "fields": {
-    "value": "Dear {{user.profile.salutation_name}}, \r\nYou currently have {{notification_count}} unread notifications on {{press_name}}.\r\n\r\n{{notifications}}\r\n\r\nYou can login to view them: {{base_url}}/login/\r\n\r\nRegards,\r\n\r\nRua Bot.",
-    "group": 3,
-    "name": "notification_reminder_email",
-    "types": "rich_text",
-    "description": ""
-  },
-  "model": "core.setting",
-  "pk": 73
-},
-{
-  "fields": {
-    "value": "An email has been sent with a user activation link.",
-    "group": 1,
-    "name": "registration_message",
-    "types": "rich_text",
-    "description": "Message that will be shown to users when they register."
-  },
-  "model": "core.setting",
-  "pk": 74
-},
-{
-  "fields": {
-    "value": "TERMS n CONDITIONS",
-    "group": 2,
-    "name": "terms-conditions",
-    "types": "rich_text",
-    "description": "Users need to agree to this at registration"
-  },
-  "model": "core.setting",
-  "pk": 75
-},
-{
-  "fields": {
-    "value": "tech@ubiquitypress.com;",
-    "group": 1,
-    "name": "publishing_committee",
-    "types": "text",
-    "description": "Publishing committee contacted during an editorial review assignment. Separate email addresses with this character ';'"
-  },
-  "model": "core.setting",
-  "pk": 76
-},
-{
-  "fields": {
-    "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
-    "group": 3,
-    "name": "editorial_decision_ack",
-    "types": "rich_text",
-    "description": "Email sent when a decision is made on an editorial review assignment."
-  },
-  "model": "core.setting",
-  "pk": 77
-},
-{
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "submit_proposals",
-    "types": "boolean",
-    "description": "If enabled, authors/editors can submit proposals to the press. If disabled, authors/editors cannot submit proposals."
-  },
-  "model": "core.setting",
-  "pk": 78
-},
-{
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "review_type_selection",
-    "types": "boolean",
-    "description": "If enabled the review_type selection will appear on the start new submission page. if disabled the default  review type from the 'default_review_type' setting will be assigned to new submissions and review_type list will be hidden"
-  },
-  "model": "core.setting",
-  "pk": 79
-},
-{
-  "fields": {
-    "value": "open-with",
-    "group": 1,
-    "name": "default_review_type",
-    "types": "text",
-    "description": "Default review type used when review type selection is disabled"
-  },
-  "model": "core.setting",
-  "pk": 80
-},
-{
-  "fields": {
-    "value": "'on'",
-    "group": 1,
-    "name": "editorial_assignment_feature",
-    "types": "boolean",
-    "description": "Editorial review assignment feature can be turned on or off."
-  },
-  "model": "core.setting",
-  "pk": 81
-},
-{
-  "fields": {
-    "value": "Dear {{proposal.owner.first_name}} {{proposal.owner.last_name}},\r\n<br><br>A contract has been uploaded by the Editor for you to review. Please login using the link below to review and sign off the contract.\r\n\r\n{{base_url}}/user/proposal/{{proposal.id}}\r\n\r\n<br><br>Regards<br>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br>",
-    "group": 3,
-    "name": "proposal_contract_author_sign_off",
-    "types": "rich_text",
-    "description": ""
-  },
-  "model": "core.setting",
-  "pk": 82
-},
-{
-   "fields": {
-    "value": "<p>Dear {{ review.user.profile.salutation_name }},</p><p>The book proposal \u2018{{ review.content_object.title }}\u2019 has been submitted and requires you to assess the information and provide us with your feedback. By clicking on the below link, you will have access to the relevant proposal data, along with completed peer reviewer information. There will also be a review form available for you to provide to us your comments and overall decision.</p><p>{{ task_url }}?access_key={{ review.access_key }}</p><p>Please could you review the proposal details and complete the review form by {{ review.due }}, or let me know if you require an alternative deadline.</p><p>Kind regards,</p><p>{{sender.first_name}}</p><p>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-    "group": 3,
-    "name": "editorial_review_proposal",
-    "types": "rich_text",
-    "description": "Email sent as part of the Editorial Review request process."
-  },
-  "model": "core.setting",
-  "pk": 122
-},
-{
-    "fields": {
-      "value": "<p>Dear {{ review.user.profile.salutation_name }},<br></p><p>The book title \u2018{{ review.content_object.title }}\u2019 has been submitted and requires you to assess the information and provide us with your feedback. By clicking on the below link, you will have access to the relevant submission data, along with completed peer reviewer information. There will also be a review form available for you to provide to us your comments and overall decision.</p><p>{{ task_url }}?access_key={{ review.access_key }}</p><p>Please could you review the proposal details and complete the review form by {{ review.due }}, or let me know if you require an alternative deadline.</p><p>Kind regards,</p><p>{{sender.first_name}}<br>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
-      "group": 3,
-      "name": "editorial_review_book",
-      "types": "rich_text",
-      "description": "Email sent as part of the Editorial Review process."
-    },
-    "model": "core.setting",
-    "pk": 123
-},
-{
-  "fields": {
-    "value": "on",
-    "group": 1,
-    "name": "one_click_review_url",
-    "types": "boolean",
-    "description": "Allow reviewers to access and complete assignments without registering an account.<br>WARNING: Enabling this option makes data less secure."
-  },
-  "model": "core.setting",
-  "pk": 124
-},
-{
-  "fields": {
-    "value": "<p>Dear {{ editor.salutation }},</p><p>This is an automatic notification to let you know that the metadata for '{{ book.title }}' has been updated via the FTP service.</p><p>Its new subjects are:</p><p>{{ new_subjects }}.</p><p>Its new description is:</p><p>{{ book.description }}.</p><br>",
-    "group": 3,
-    "name": "metadata_update",
-    "types": "rich_text",
-    "description": "Email sent after metadata is updated through the FTP site."
-  },
-  "model": "core.setting",
-  "pk": 125
-}
+    {
+        "fields": {
+            "value": "Dear {{proposal.owner.first_name}} {{proposal.owner.last_name}},\r\n<br><br>A contract has been uploaded by the Editor for you to review. Please login using the link below to review and sign off the contract.\r\n\r\n{{base_url}}/user/proposal/{{proposal.id}}\r\n\r\n<br><br>Regards<br>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br>",
+            "group": "3",
+            "name": "proposal_contract_author_sign_off",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Book Contract Uploaded",
+            "group": "6",
+            "name": "book_contract_uploaded_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Review Request",
+            "group": "6",
+            "name": "proposal_review_request_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Submission decision update: %s",
+            "group": "6",
+            "name": "submission_decision_update_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Production Editor for",
+            "group": "6",
+            "name": "production_editor_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review Request",
+            "group": "6",
+            "name": "review_request_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Declined",
+            "group": "6",
+            "name": "proposal_declined_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Update",
+            "group": "6",
+            "name": "proposal_update_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Submission Acknowledgement",
+            "group": "6",
+            "name": "proposal_submission_ack_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "%s Assignment [id<%s>] Declined",
+            "group": "6",
+            "name": "assignment_declined_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Accepted",
+            "group": "6",
+            "name": "proposal_accepted_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Revisions Required",
+            "group": "6",
+            "name": "proposal_revision_required_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Typesetting",
+            "group": "6",
+            "name": "typesetting_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Registration Confirmation",
+            "group": "6",
+            "name": "registration_confirmation_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Weekly Notification Reminder",
+            "group": "6",
+            "name": "weekly_notification_reminder_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Copyediting Completed",
+            "group": "6",
+            "name": "copyediting_completed_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "New User : Profile Details",
+            "group": "6",
+            "name": "new_user_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Copyedit Assignment",
+            "group": "6",
+            "name": "copyedit_assignment_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Indexing Request",
+            "group": "6",
+            "name": "indexing_request_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Editorial Review Request",
+            "group": "6",
+            "name": "editorial_review_request",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Editorial Review Assignment %s: Due Date Updated",
+            "group": "6",
+            "name": "editorial_review_due_date_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review Assignment %s: Due Date Updated",
+            "group": "6",
+            "name": "review_due_date_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Book Editors have been updated",
+            "group": "6",
+            "name": "book_editors_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Revisions Requested",
+            "group": "6",
+            "name": "revisions_requested_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Submission Acknowledgement",
+            "group": "6",
+            "name": "submission_ack_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "New Submission",
+            "group": "6",
+            "name": "new_submission_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Reset Code",
+            "group": "6",
+            "name": "reset_code_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review Request Reminder",
+            "group": "6",
+            "name": "review_request_reminder_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Revision Request Reminder",
+            "group": "6",
+            "name": "revision_request_reminder_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential reviewer for a book proposal submitted to {{press_name}}. The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by _due_date_, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_review_request",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Your review assignment of a book proposal submitted to {{press_name}} has reopened. <span style=\"background-color: yellow;\">[ADD REASON]</span> The proposal has been provisionally titled {{book.title}}.</p><p>All books proposed to {{press_name}} are reviewed prior to full submission. We are therefore looking for an expert in this field to comment on the content of the proposal and would very much appreciated it if you would consider this invitation to complete the review. In general, we are looking for a brief comment on the following principals: 1) are there any significant weaknesses/errors included in the book details?, 2) is there a need for such a book/would researchers find this useful?, and 3) are there suggestions on how the book content could be improved? We aim to publish books that are solid works of scholarship, irrespective of potential impact.</p><p>The proposal details are available now for review. Please accept or decline this invitation by clicking the link below and select the appropriate option. If accepting the invitation you will then have full access to the proposal details.</p><p>{{review_url}}</p><p>We are aiming to have the proposal review completed by _due_date_ , therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all reviewers are greatly appreciated.</p><p>If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{% if proposal.requestor %}\r\n{{proposal.requestor.first_name}}\r\n{% else %}\r\n{{press_name}}\r\n{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_review_reopen",
+            "types": "rich_text",
+            "description": "Sent when review assignment has reopened"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal Review Assignment has reopened.",
+            "group": "6",
+            "name": "proposal_review_reopen_subject",
+            "types": "text",
+            "description": "Email subject. Do not remove '%s' or other string format related parts. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "send_new_user_email",
+            "types": "boolean",
+            "description": "If enabled login details will be sent to the user. If disabled an email will not be sent."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "tech@ubiquitypress.com;",
+            "group": "1",
+            "name": "publishing_committee",
+            "types": "text",
+            "description": "Publishing committee contacted during an editorial review assignment. Separate email addresses with this character ';'"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ name }},\r\n</p><p>The management editor at&nbsp;{{press_name}} have recorded a decision on an editorial assignment that you are either assigned to or is part of your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]</p><p><span style=\"line-height: 1.42857;\">\r\n{{ link_to_page }} [DO NOT REMOVE link_to_page] </span></p><p>Regards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
+            "group": "3",
+            "name": "editorial_decision_ack",
+            "types": "rich_text",
+            "description": "Email sent when a decision is made on an editorial review assignment."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "submit_proposals",
+            "types": "boolean",
+            "description": "If enabled, authors/editors can submit proposals to the press. If disabled, authors/editors cannot submit proposals."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "",
+            "group": "1",
+            "name": "review_type_selection",
+            "types": "boolean",
+            "description": "If enabled the review_type selection will appear on the start new submission page. if disabled, the default review type from the 'default_review_type' setting will be assigned to new submissions and review_type list will be hidden"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "open-with",
+            "group": "1",
+            "name": "default_review_type",
+            "types": "text",
+            "description": "Default review type used when review type selection is disabled"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "'on'",
+            "group": "1",
+            "name": "editorial_assignment_feature",
+            "types": "boolean",
+            "description": "Editorial review assignment feature can be turned on or off."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Template Press Name",
+            "group": "1",
+            "name": "press_name",
+            "types": "char",
+            "description": "Name of the press, will be displayed throughout the system."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "",
+            "group": "1",
+            "name": "footer",
+            "types": "rich_text",
+            "description": "Footer text."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<h4>SUBMISSION GUIDELINES</h4><p>Prior to completing your submission you must have adhered to the submission guidelines. This will ensure that your files are in the correct format and that each necessary element of the submission is available and ready for review as efficiently as possible. Failure to comply with these guidelines may result in revisions being requested prior to the review process beginning. If you have questions about this process then please contact the editorial team.</p><p>The basic book template, detailing each aspect of the book content, can be downloaded <a target=\"_blank\" href=\"https://s3-eu-west-1.amazonaws.com/ubiquity-partner-network/general/Basic-book-template.pdf\">here</a>.</p>",
+            "group": "1",
+            "name": "submission_guidelines",
+            "types": "rich_text",
+            "description": "Set of guidelines that appear on the submission start page."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>This is a description block where information about this press can be entered. This text block should be replaced with text pulled from a database setting at some point, though for now I don't really need it to.</p>",
+            "group": "1",
+            "name": "description",
+            "types": "rich_text",
+            "description": "General description of the press. Will be displayed on the Index page."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential peer reviewer for a book submitted to {{press_name}}. The book has been provisionally titled {{book.title}}.</p><p>The contents to review has been summarised as below:</p><p>{{book.description|safe}}</p><p>As part of the editorial process with all {{press_name}} publications, books are reviewed according to the following general principles:</p><ul><li>that conclusions are presented in an appropriate fashion and are supported by the data</li><li>that the manuscript is presented in an intelligible fashion</li><li>that the Foreword and Epilogue tie in with the book contents well</li></ul><p>We aim to publish books that are solid works of scholarship, irrespective of potential 'impact'. The text is available now for review / will be available from <span style=\"background-color: yellow;\">[add start date] [DELETE AS APPROPRIATE]</span>. If you would like to accept or decline this invitation simply click the link below and select the appropriate option. If accepting the invitation you will then have full access to the review files and peer review details.</p><p>{{decision_url}}</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "review_request",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "PRESS",
+            "group": "1",
+            "name": "accronym",
+            "types": "char",
+            "description": "The Press's Acronym. Used to prefix email subjects etc."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "template.rua.re",
+            "group": "1",
+            "name": "base_url",
+            "types": "text",
+            "description": "Base URL of the system. Used in emails and links."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "main@localhost.com",
+            "group": "3",
+            "name": "from_address",
+            "types": "rich_text",
+            "description": "Main From Address for the system."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>You have been recommended as a potential peer reviewer for a book submitted to {{press_name}}. The book has been provisionally titled {{book.title}}.</p><p>The contents to review has been summarised as below:</p><p>{{book.description|safe}}</p><p>As part of the editorial process with all {{press_name}} publications, books are reviewed according to the following general principles:</p><ul><li>that conclusions are presented in an appropriate fashion and are supported by the data</li><li>that the manuscript is presented in an intelligible fashion</li><li>that the Foreword and Epilogue tie in with the book contents well</li></ul><p>We aim to publish books that are solid works of scholarship, irrespective of potential 'impact'. The text is available now for review / will be available from <span style=\"background-color: yellow;\">[add start date] [DELETE AS APPROPRIATE]</span>. If you would like to accept or decline this invitation simply click the link below and select the appropriate option. If accepting the invitation you will then have full access to the review files and peer review details.</p><p>{{decision_url}}</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know.</p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "external_review_request",
+            "types": "rich_text",
+            "description": "External review request email."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "ci_required",
+            "types": "boolean",
+            "description": "Determines whether users are required to enter Competing Interests statements."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{submission.owner.profile.salutation_name}},</p><p>I have uploaded the most recent version of the contract to our editorial system. Please could you log into your account to review the details and sign off the document.</p><p>If you would like to discuss any of the clauses prior to signing it off then please let me know.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "contract_author_sign_off",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "14",
+            "group": "5",
+            "name": "remind_unaccepted_reviews",
+            "types": "number",
+            "description": "The number of days since the initial invitation that a reminder will be sent."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>This is a gentle reminder of our request for your review of the submission, {{book.title}}, to {{press_name}}. This email has been sent because we have not had a response from our initial invitation, sent on {{ review.assigned }}.</p><p>Please could you use the below link to indicate whether you would are able to accept this invitation, or decline the offer.</p><p>Submission URL: {{base_url}}/review/{{review.review_type}}/{{review.review_round.round_number}}/assignment/{{review.pk}}/decision/</p><p>We are aiming to have the review completed by {{review.due}}, therefore&nbsp;please&nbsp;consider whether this would be possible if accepting the invitation. If you require a different schedule then please let me know and we can happily consider it.<br></p><p>Thank you for considering this request. As always, the efforts of all peer reviewers are greatly appreciated. If you are unable to undertake this review, we would greatly appreciate any thoughts you might have on others who we might approach.</p><p>Many thanks for your time and consideration of this invitation,</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "unaccepted_reminder",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "7",
+            "group": "5",
+            "name": "remind_accepted_reviews",
+            "types": "number",
+            "description": "The number of days before the due date to remind a user who has accepted a review."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>This is a quick email to see if the review for {{book.title}} is on target to meet the agreed deadline of  {{review.due|date:\"\"c\"\"}}. If getting the review back to us by this date is looking unlikely, please could you get in touch at your earliest convenience? We look forward to your feedback.<br></p><p>Many thanks,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "accepted_reminder",
+            "types": "rich_text",
+            "description": "A reminder email sent to users who have accepted a review but not completed it."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "3",
+            "group": "5",
+            "name": "remind_overdue_reviews",
+            "types": "number",
+            "description": "The number of days after a review due date to send another reminder."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Would you be able to provide an update of your peer review for the book submission {{book.title}}? The initial deadline of {{review.due}} has now passed. If there will be a delay in submitting this review, or you will not be able to complete the review, please could you contact me so that a new schedule can be confirmed?</p><p>You can access the review files and complete the review using the below link:</p><p>Review URL: {{base_url}}/{{review.review_type}}/{{review.review_round.round_number}}/assignment/{{review.pk}}/decision/</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}<br></p>",
+            "group": "3",
+            "name": "overdue_reminder",
+            "types": "rich_text",
+            "description": "Email sent wheen a peer review is overdue."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;</span>{{ book.owner.profile.salutation_name }},</p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book, \u2018{{book.title}}\u2019 to {{press_name}}. Our decision is to request some revisions prior to a final editorial decision. A summary of the requested edits from the editorial team can be found below <span style=\"background-color: yellow;\">[OR SEE ATTACHED FILES = PRESS EDITOR TO EDIT AS REQUIRED PRIOR TO SENDING EMAIL]</span>. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the book details and submit your revisions via the book management system: {{revision_url }}</span><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> {{revision.due|date:\"Y-m-d\"}}<span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
+            "group": "3",
+            "name": "request_revisions",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "",
+            "group": "5",
+            "name": "revisions_reminder",
+            "types": "number",
+            "description": "The number of days before a revision's due date to remind the user."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{review.user.profile.salutation_name}},</p><p>Would you be able to provide an update on how the revisions are going for you book submission {{book.title}}? The initial deadline of {{review.due}} has now passed. If there will be a further delay in submitting the revisions, please could you contact me so that a new schedule can be confirmed. This will ensure that processes further down the line do not experience delays.</p><p>You can access the files for revision and resubmit them using the below link:</p><p>Submission URL: {{base_url}}/author/submission/{{book.id}}/revisions/{{review.id}}/.</p><p><span style=\"line-height: 1.42857;\">I look forward to hearing from you.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span></p>",
+            "group": "3",
+            "name": "revisions_reminder_email",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{copyedit.copyeditor.profile.salutation_name}},</p><p>I hope that this finds you well. {{press_name}} have a book project requiring copyediting and we would like to invite you to undertake the project. The book will be available for copyediting around [ADD DATE HERE] and will be roughly [ADD WORD COUNT HERE]. The book will be on the subject of [ADD BOOK DETAILS HERE]. Ideally, we would be looking for the copyedited files to be returned by {{copyedit.due}}.\r\n\r\nPlease could you confirm whether you or not you can accept this invitation by clicking the link below and marking your decision accordingly?\r\n\r\n{{base_url}}/tasks/copyedit/{{copyedit.pk}}/</p><p>If you need more details, would like to discuss the content or the deadline then please let me know. I look forward to hearing from you.<br></p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "copyedit_request",
+            "types": "rich_text",
+            "description": "Email to copyeditor requesting their services."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear{{ submission.owner.profile.salutation_name }},</p><p>Your book submission {{book.title}} has now completed our copyediting stage and is available for your final review and sign off prior to typesetting. You should be able to log into the editorial system using the below details to access the file, which will show edits via 'tracked changes' and also any questions that the copyeditor may have directed to you.</p><p>Please can you now review this file and accept all changes or detail your additional edits. When you are happy with the content then please upload the files to the editorial system. \r\n\r\nPlease note that this is the last opportunity to make changes to the content of the book. The proofreading stage that follows the preparation of the galley proofs is restricted to correcting typographical and layout errors only, and not a further round of editorial changes.\r\n\r\n</p><p>If you are unable to undertake this work or have any questions, please contact me. The files and deadline for re-submission should all be available to you when you log into the account.<br></p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "author_copyedit_request",
+            "types": "rich_text",
+            "description": "Copyedit email sent to the user after copyediting is completed."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Your book has now been copy-edited. The files are available to you for checking prior to typesetting. Please examine all of the book files to ensure that the copy-edits are acceptable and to answer any questions that may have arisen during the process. This is your last chance to make edits to the content of your book. When you are happy with the files, please upload any edited files (if needed) and complete the below process.<br></p>",
+            "group": "1",
+            "name": "copyedit_author_instructions",
+            "types": "rich_text",
+            "description": "Instructions for the Author in the Copyediting stage."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{index.indexer.profile.salutation_name}},</p><p>{{press_name}} have a book project requiring index creation and wondered if you are available to take on the task. The book files will be available around [ADD DATE HERE] and will be roughly [ADD WORD COUNT/PAGE COUNT HERE]. The book will be on the subject of [ADD BOOK DETAILS HERE]. Ideally, we would be looking for an embedded index to be created and returned by {{index.due}}.</p><p>Please could you confirm whether you or not you can accept this invitation by clicking the link below and marking your decision accordingly?</p><p>{{base_url}}/tasks/indexing/{{index.pk}}/ </p><p>If you need more details, or would like to discuss the content or the deadline then please let me know.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "index_request",
+            "types": "rich_text",
+            "description": "Index request email"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Thank you for agreeing to complete this indexing project. You should\r\n have been provided with the appropriate instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the indexing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p>",
+            "group": "1",
+            "name": "index_instructions",
+            "types": "rich_text",
+            "description": "Instructions for the indexer."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>The proofing comments for book.title {{submission.title}} have now been submitted. These can be accessed via the book management system.</p><p>Please could these edits be made and the files returned to me?</p><p>Please could this be completed by {{typeset.due}}? If this will not be possible please let me know and we can try to re-schedule.</p><p>Submission URL: {{base_url}}/tasks/typesetting/{{typeset.pk}}/</p><p>Thanks,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "typeset_request",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Here are some instructions</p>",
+            "group": "1",
+            "name": "typeset_instructions",
+            "types": "rich_text",
+            "description": "Instructions for the typesetter."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>The typesetting for your book is complete and a PDF proof is now available for to download. Please review this proof to ensure that there are no errors in the layout.</p><p>Kindly note that this is a proofing stage, not copyediting. At this point in the process, we will correct errors that may have been introduced during typesetting. We are also happy to make corrections to small textual errors, such as spelling or grammatical mistakes. However, we cannot make large edits to the text unless absolutely necessary.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "author_typeset_request",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><br></p><p></p>",
+            "group": "1",
+            "name": "typeset_author_instructions",
+            "types": "rich_text",
+            "description": "Instructions displayed on the Author Typeset screen."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>Would you be able to provide an update on how the revisions are going for you book submission {{submission.title}}?</p><p>The initial deadline of {{typeset.due}} has now passed. If there will be a further delay in submitting the revisions, please could you contact me so that a new schedule can be confirmed. This will ensure that processes further down the line do not experience delays.</p><p>You can access the files for revision and resubmit them using the below link:</p><p>Submission URL: {{base_url}}/tasks/typesetting/{{typeset.pk}}/</p><p>I look forward to hearing from you.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "typesetter_typeset_request",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{submission.owner.profile.salutation_name}},</p><p>Thank you for submitting your book manuscript, {{submission.title}}, to {{press_name}}.</p><p>You will be able to track its progress through the editorial process by logging in to website.\r\n\r\nYour submission will be considered by our Editorial team prior to having the text reviewed by independent peer-reviewers. Following the completion of the review, you will be contacted with feedback and an editorial decision.</p><p>Our editorial team will be in touch once this process has begun.\r\n\r\nShould you have any questions regarding your book publication then please get in touch.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p>",
+            "group": "3",
+            "name": "author_submission_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>This is an automated email to alert you that the following book submission has been received: {{submission.title}}, submitted by {{submission.owner.profile.full_name}}.</p><p>Please access the&nbsp;{{press_name}} book management system to review this submission and process accordingly.</p><p>The book details can be accessed at {{base_url}}/editor/submission/{{submission.pk}}/.</p>",
+            "group": "3",
+            "name": "editor_submission_ack",
+            "types": "rich_text",
+            "description": "Email sent automatically to editors."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to accept the book, {{proposal.title}}, for full submission and peer review. We hope that you are pleased with this news.</p><p>[DETAIL TO BE ADDED BY THE PRESS EDITOR ON HOW/WHEN TO SUBMIT THE FULL BOOK FOR REVIEW]</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_accept",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{proposal.owner.profile.salutation_name}},</p><p>After review of your proposal to {{press_name}}, we have reached a decision to reject the book, {{proposal.title}}, for full submission and peer review. A short summary of the reasons for not accepting this submission from the editorial team can be found below. We hope that you find this useful.</p><p>[ADD COMMENTS ON WHY THE PROPOSAL IS BEING REJECTED]</p><p>We thank you for your submission and hope that you will consider us for a future publication.</p><p>Kind regards,</p><p>{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_decline",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><span style=\"line-height: 1.42857;\">Dear &nbsp;{{proposal.owner.profile.salutation_name}},</span></p><p><span style=\"line-height: 1.42857;\">After review, we have reached a decision regarding your book proposal, \u2018{{proposal.title}} {{proposal.subtitle}}\u2019 to {{press_name}}. Our decision is to request some revisions of the proposal prior to acceptance for full submission and peer review. A summary of the requested edits from the editorial team can be found below. Please consider these points and revise the proposal details accordingly:</span></p><p><span style=\"line-height: 1.42857;\">Editorial Revision Requests:</span></p><p><span style=\"line-height: 1.42857;\">Major revisions: [XXXX EDITOR TO INSERT LIST OF MAJOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span><span style=\"line-height: 1.42857;\">Minor revisions: [XXXX EDITOR TO INSERT LIST OF MINOR REVISIONS HERE, IF ANY XXXX]</span></p><p><span style=\"line-height: 1.42857;\"><br></span></p><p><span style=\"line-height: 1.42857;\">You can access the proposal details and submit your revisions via the book management system: {{base_url}}/submission/proposal/{{proposal.pk}}/revisions/</span></p><p><span style=\"line-height: 1.42857;\">Should you disagree with any of these requests, or have any questions, then please get in touch and we can discuss the options available.</span></p><p><span style=\"line-height: 1.42857;\">Please could you have the revisions submitted by</span> _due_date_ <span style=\"line-height: 1.42857;\">. If you cannot make this deadline, please let us know as early as possible.</span></p><p><span style=\"line-height: 1.42857;\">Kind regards,</span></p><p><span style=\"line-height: 1.42857;\">{{sender.first_name}} {% if sender %}{{ sender.profile.signature|safe }}{% endif %}</span><br></p>",
+            "group": "3",
+            "name": "proposal_request_revisions",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": null,
+            "group": "4",
+            "name": "brand_header",
+            "types": "file",
+            "description": "Press brand image. Should be around 160x40 pixels."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "0791a2db-c180-4fe5-a951-dc002ae08fd6..ico",
+            "group": "4",
+            "name": "favicon",
+            "types": "file",
+            "description": "Journal favicon. Can be .ico or .jpg, should be 16x16 or 32x32 pixels."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "London",
+            "group": "1",
+            "name": "city",
+            "types": "text",
+            "description": "City the the publisher is based in. eg. Edinburgh or London"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>You must agree to the below terms in order to submit your book to this press. If you wish to discuss the terms of submission prior to completing the below, please get in touch.</p>",
+            "group": "1",
+            "name": "submission_checklist_help",
+            "types": "rich_text",
+            "description": "Help text for the submission checklist."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p></p><p><span style=\"line-height: 1.42857;\">The book editor(s) assigned to submission {{submission.title}}<submission id:{{submission.id}}=\"\"> has been updated.</submission></span></p>\r\n{% if added_editors %}\r\n<p>These book editors have been added: </p>\r\n--------\r\n  {% for editor in added_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n\r\n{% endif %}\r\n{% if removed_editors %}<p></p><p>These book editors have been removed:</p><p>--------\r\n  {% for editor in removed_editors %}\r\n        {{editor.first_name}} {% if editor.middle_name %}{{editor.middle_name}} {% endif %}{{editor.last_name}}&gt;{% if not forloop.last %}, {% endif %}\r\n\r\n    {% endfor %}\r\n----------\r\n{% endif %}\r\n</p><p> \r\nTo view the submission, use the following link: http://{{base_url}}/editor/submission/{{submission.id}}/\r\n<br></p><p><span style=\"line-height: 1.42857;\">Regards,\r\n<br><br>RUA notification system</span><br></p><p></p>",
+            "group": "3",
+            "name": "book_editor_ack",
+            "types": "rich_text",
+            "description": "Email sent to editors when they are assigned to a book."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ author.full_name }},\r\n</p><p>The Editorial team at&nbsp;{{press_name}} have recorded a decision on your book submission {{submission.title}}.\r\n</p><p>\r\nThe press decision is:</p><p>[PRESS EDITOR TO COMPLETE DECISION AND GIVE MORE DETAIL ON WHY THE DECISION HAS BEEN MADE HERE]<br>{{ link_to_page }}<br></p><p>\r\nRegards,\r\n</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p>",
+            "group": "3",
+            "name": "decision_ack",
+            "types": "rich_text",
+            "description": "Email sent when a decision is made on a book."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "placeholder",
+            "group": "1",
+            "name": "oai_identifier",
+            "types": "char",
+            "description": "The Press' OAI identifier."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ review.user.first_name }} {{ review.user.last_name }},\r\n</p><p>\r\nWe can confirm that the deadline for the book review that you have accepted has changed. Hopefully this fits what has been agreed </p>\r\n<p>\r\nReview id: {{review.id}}</p><p>Due Date: {{review.due}}\r\n</p>\r\n<p>Please let us know if it is not possible to meet this deadline as early as possible.<br></p><p>\r\nSincerely,</p><p>\r\n</p><p>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}<br></p><p>\r\n</p>",
+            "group": "3",
+            "name": "review_due_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "direct_submissions",
+            "types": "boolean",
+            "description": "If enabled, authors/editors can make direct submissions to the press. If disabled, authors/editors must for make a proposal. "
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "suggested_reviewers",
+            "types": "boolean",
+            "description": "Select to enable the suggest reviewers field during the first stage of a new submission. Deselect to disable the field."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>If you have any suggestions about who could review this book, please add them here. Please ensure you include their email address, affiliation details and why they are suitable. Suggested reviewers must be wholly independent of the book project and must be from a separate affiliation than the authors/editors. Individuals with close personal or business relationships with the authors/book project should not be considered as suitable suggestions. All reviewers will be asked to declare any competing interests. The publisher does not guarantee to use suggestions that are provided.</p>",
+            "group": "1",
+            "name": "suggested_reviewers_guide",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "You can supply additional info about your manuscript files to help the editors and reviewers. Your label will be displayed for the editors to see.",
+            "group": "1",
+            "name": "manuscript_guidelines",
+            "types": "rich_text",
+            "description": "Set of guidelines to help the user upload a manuscript."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "You can supply additional info about your files to help the editors and reviewers. The label you provide will be displayed for the editors to see.",
+            "group": "1",
+            "name": "additional_files_guidelines",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "",
+            "group": "1",
+            "name": "preview_review_files",
+            "types": "boolean",
+            "description": "Select to enable previewing of assignment files before accepting or declining an assignment. Deselect to disable previewing of assignment files."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "fake_user@fakeadress.com",
+            "group": "1",
+            "name": "primary_contact_email",
+            "types": "text",
+            "description": "This is the primary email address of the system."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "rua_user_first_name rua_user_last_name",
+            "group": "1",
+            "name": "primary_contact_name",
+            "types": "text",
+            "description": "Primary contact, will be used in the footer of some system emails."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Declining task",
+            "group": "3",
+            "name": "task_decline",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p> Dear {{user.profile.full_name}},</p><p>A password reset request has been made for the {{press_name}} book management system.</p><p>Please click this link in order to continue the password reset process: {{reset_url}}</p>",
+            "group": "3",
+            "name": "reset_password",
+            "types": "rich_text",
+            "description": "Email sent to user when they request a password reset token."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{owner.profile.salutation_name}},</p><p>Thank you for submitting your book proposal, {{proposal.title}} {{proposal.subtitle}}, to {{press_name}}.</p><p>You will be able to track its progress through the proposal review process by logging in to website.\r\n\r\nYour proposal will be considered by our Editorial team, who my also seek external review of the proposal details. Following the completion of the review, you will be contacted with feedback and an editorial decision. Our editorial team will be in touch once this process has begun.</p><p>Should you have any questions regarding your book publication then please get in touch.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p>",
+            "group": "3",
+            "name": "proposal_submission_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{receiver.profile.full_name}},\r\n</p><p>\r\nProposal {{proposal.title}} &lt;{{proposal.id}}&gt; has been updated by {{sender.profile.full_name}}. All updates have been recorded via the book management system.<br></p><p>\r\nRegards,\r\n</p><p>\r\n{{ sender.profile.signature|safe }}</p>",
+            "group": "3",
+            "name": "proposal_update_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{receiver.profile.full_name}},\r\n</p><p>\r\nProposal {{proposal.title}}&lt;{{proposal.id}}&gt; revisions have been submitted by {{sender.profile.full_name}}. Please log into the book management system to assess the revisions and progress the proposal through the next stage of the editorial process.<br></p><p>\r\nRegards,\r\n</p><p>\r\n{{ sender.profile.signature }}</p>",
+            "group": "3",
+            "name": "proposal_revision_submit_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ editor.profile.full_name }} ,\r\n</p><p>\r\nYou have been assigned as production editor for the submission title '{{submission.title}}'. This book has now been moved into production and can be sent for typesetting. Please let me know if you require any information.<br></p><p>\r\nRegards,\r\n</p><p><br>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "production_editor_ack",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{user.profile.full_name}},</p><p>You have been assigned as the corresponding author for submission {{submission.title}} {% if submission.subtitle%}{{submission.subtitle}}{% endif %}, which is being processed by {{press_name}}.<br></p><p>A profile has been created for you with the below details and you will now be the main contact for correspondence and tasks related to the project from now:</p><p>Username is your email account.</p><p>Password : {{code}}</p><p>Please click this link in order to validate or reset your password: {{base_url}}/user/profile/resetpassword/\r\n</p><p>If you are not involved in this book project then please let us know.</p><p>Kind regards,</p><p>{{principal_contact_name}}\r\n{{press_name}}</p><p><br></p>",
+            "group": "3",
+            "name": "new_user_owner_email",
+            "types": "rich_text",
+            "description": "Email sent when the ownership of a book is changed."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><p>Thank you for agreeing to complete the review of this book, we \r\nare very grateful. The book details should be available to you \r\nbelow. Review feedback can either be provided by completing the form on \r\nthe left or uploading a file with your comments. Notes can also be added\r\n to the editors. Once you are happy with your review then please click \r\nthe Complete button in the bottom right of the screen. If you have any \r\nquestions then please get in touch with the assigned Editorial Manager.</p></p>",
+            "group": "1",
+            "name": "instructions_for_task_review",
+            "types": "rich_text",
+            "description": null
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Thank you for agreeing to complete the review of this book proposal, we are very grateful. The proposal details should be available to you below. Review feedback can either be provided by completing the form on the left or uploading a file with your comments. Notes can also be added to the editors. Once you are happy with your review then please click the Complete button in the bottom right of the screen. If you have any questions then please get in touch with the assigned Editorial Manager.<br>",
+            "group": "1",
+            "name": "instructions_for_task_proposal",
+            "types": "rich_text",
+            "description": "Set of instructions displayed on the Proposal Review screen."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Thank you for undertaking this typesetting project. You should have been fully briefed on the project requirements. Should you need more information then please contact the assigned Editor. The book files are available to you below.<br>",
+            "group": "1",
+            "name": "instructions_for_task_typeset",
+            "types": "rich_text",
+            "description": "Set of instructions displayed on the Typeset screen."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><p>Thank you for agreeing to complete this indexing project. You should\r\n have been provided with the appropriate instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the indexing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p></p>",
+            "group": "1",
+            "name": "instructions_for_task_index",
+            "types": "rich_text",
+            "description": "Set of instructions displayed on the Indexing screen."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p><p>Thank you for agreeing to complete this copy-editing project. You should\r\n have been provided with the appropriate style-guide and instructions by\r\n the assigned Editorial Manager for this project and the book files are \r\nprovided below. Once you have completed the copy-editing tasks then the \r\nrevised files can be uploaded using the relevant sections on the right \r\nof the screen, where you can also add notes back to the editor and \r\ncomplete the project. Should you need further assistance or have \r\nquestions, please get in touch.</p></p>",
+            "group": "1",
+            "name": "instructions_for_task_copyedit",
+            "types": "rich_text",
+            "description": "Set of instructions displayed on the Copyedit screen,."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{user.profile.full_name}},</p><p>Thank you for registering an account on our book management system. To validate your account, please click on the link below:</p><p>\r\n\r\nhttp://{{ base_url }}/login/activate/{{ user.profile.activation_code }}</p><p>Once this is complete, you will be able to access the system using the details you entered upon registration./\r\n</p><p>Kind regards,</p><p>\r\n{{press_name}}</p><p><br></p>",
+            "group": "3",
+            "name": "new_user_email",
+            "types": "rich_text",
+            "description": "Email sent to a new user."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<h1>Competing Interests</h1><p>We are committed to transparent and bias-free research. To ensure that all publications are as open as possible all authors, reviewers and editors are required to declare any interests that could appear to compromise, conflict or influence the validity of the publication. This process is designed to reinforce the readers' trust in the research data.</p><p>Please declare any competing interests that you have. A conflict of interest must be declared if there is any reason why the information or the interpretation of information being produced may be influenced by a personal or financial relationship with other organisations or individuals, or if these relationships could be reasonably perceived from other people as having influencing objective data or decision-making. Everyone involved in the submission, editorial processing, peer review and publication should declare any competing interests that they may have as early as possible.</p><p>Competing interests can take the form of both financial and non-financial relationships. The declaration of such relationships helps to ensure that academic rigour is maintained and that publications cannot be accused of undue bias or misinformation.</p><p>Examples of competing interests:</p><ul><li>receipt of payment, in any form, from an organisation or individual related to the subject matter</li><li>ownership of stocks or shares in organisations directly related to the subject matter</li><li>receipt of grants or funding</li><li>membership of relevant boards</li><li>related patents/applied for patents</li><li>gifts</li><li>known relationships that will hinder impartiality (e.g. colleagues, family, mentor, previous supervisor/student).</li><li>political, religious, ideological interests</li><li>commercial</li></ul><p>Competing interests should generally be declared to cover <em>at least</em> the previous 5 years - e.g., if a reviewer supervised the author's PhD then (and if they feel comfortable reviewing the work) their professional relationship should have ended over 5 years ago. This is a minimum requirement, and individuals must declare if they have had a previous relationship with someone/an organisation relevant to the submission that could be deemed to influence decision making.</p><p><span style=\"text-decoration: underline;\"><strong>For authors</strong></span></p><p>Please add a competing interests statement into the appropriate section during the submission process. The authors\u2019 initials should be used to denote differing competing interests. For example:</p><p>\u201cTW completed paid consultancy work from [<em>company name</em>] as part of the data acquisition for this study. BH has minority shares in [<em>company name</em>], which part funded the research grant for this project. SM is a member of the editorial board for [<em>journal name</em>], which is on a voluntary basis. All other authors have no competing interests.\"</p><p>If there are no competing interests, please add the below statement:</p><p><strong>\u201c</strong>The authors declare that they have no competing interests.\u201d</p><p><span style=\"text-decoration: underline;\"><strong>For reviewers</strong></span></p><p>If you have any competing interests, please list them in the text box available on your reviewer page. For example:</p><p>\"I was previously employed by the laboratory that collected this data.\"</p><p>&nbsp;If you do not have competing interests, please add the below statement:</p><p>\"I have no competing interests to declare.\"</p><p>&nbsp;</p><p></p>",
+            "group": "2",
+            "name": "competing_interests",
+            "types": "rich_text",
+            "description": "dfdsf"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "7",
+            "group": "5",
+            "name": "notification_reminder",
+            "types": "number",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Dear {{user.profile.salutation_name}}, \r\nYou currently have {{notification_count}} unread notifications on {{press_name}}.\r\n\r\n{{notifications}}\r\n\r\nYou can login to view them: {{base_url}}/login/\r\n\r\nRegards,\r\n\r\nRua Bot.",
+            "group": "3",
+            "name": "notification_reminder_email",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "An email has been sent with a user activation link. Please check your email inbox and click the link provided to activate your account.",
+            "group": "1",
+            "name": "registration_message",
+            "types": "rich_text",
+            "description": "Message that will be shown to users when they register."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "TERMS n CONDITIONS",
+            "group": "2",
+            "name": "terms-conditions",
+            "types": "rich_text",
+            "description": "Users need to agree to this at registration"
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ review.user.profile.salutation_name }},</p><p>The book proposal \u2018{{ review.content_object.title }}\u2019 has been submitted and requires you to assess the information and provide us with your feedback. By clicking on the below link, you will have access to the relevant proposal data, along with completed peer reviewer information. There will also be a review form available for you to provide to us your comments and overall decision.</p><p>{{ task_url }}?access_key={{ review.access_key }}</p><p>Please could you review the proposal details and complete the review form by {{ review.due }}, or let me know if you require an alternative deadline.</p><p>Kind regards,</p><p>{{sender.first_name}}</p><p>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "editorial_review_proposal",
+            "types": "rich_text",
+            "description": "Email sent as part of the Editorial Review request process."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ review.user.profile.salutation_name }},<br></p><p>The book title \u2018{{ review.content_object.title }}\u2019 has been submitted and requires you to assess the information and provide us with your feedback. By clicking on the below link, you will have access to the relevant submission data, along with completed peer reviewer information. There will also be a review form available for you to provide to us your comments and overall decision.</p><p>{{ task_url }}?access_key={{ review.access_key }}</p><p>Please could you review the proposal details and complete the review form by {{ review.due }}, or let me know if you require an alternative deadline.</p><p>Kind regards,</p><p>{{sender.first_name}}<br>{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+            "group": "3",
+            "name": "editorial_review_book",
+            "types": "rich_text",
+            "description": "Email sent as part of the Editorial Review process."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "on",
+            "group": "1",
+            "name": "one_click_review_url",
+            "types": "boolean",
+            "description": "Allow reviewers to access and complete assignments without registering an account.<br>WARNING: Enabling this option makes data less secure."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ salutation }},</p><p>This is an automatic notification to let you know that {{ reviewer_full_name }} has completed their Editorial Review Assignment for the book title '{{ submission.title }}' (RUA ID: {{ submission.id }}; Author(s): {% for author in authors %} {{ author.full_name }}, {% if forloop.last %} {{ author.full_name }}{% endif %}{% endfor %}).</p><p>Please log into the book management system via the link below to assess the Editorial Review comments and resume processing this project:</p><p>{{ base_url }}/editorialreview/editor/view/{{ review.id }}/</p><p>Many thanks,</p><p>{{ press_name }}</p>",
+            "group": "3",
+            "name": "editorialreview_completed_email",
+            "types": "rich_text",
+            "description": "Email sent as part of the Editorial Review process."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Editorial review completed",
+            "group": "6",
+            "name": "editorialreview_completed_email_subject",
+            "types": "rich_text",
+            "description": "Email subject from the Editorial Review process."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear {{ editor.salutation }},</p><p>This is an automatic notification to let you know that the metadata for '{{ book.title }}' has been updated via the FTP service.</p><p>Its new subjects are:</p><p>{{ new_subjects }}.</p><p>Its new description is:</p><p>{{ book.description }}.</p><br>",
+            "group": "3",
+            "name": "metadata_update",
+            "types": "rich_text",
+            "description": "Email sent after metadata is updated through the FTP site."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Dear _receiver_ ,\r\n<p>You have been assigned as a book editor of this proposal {{proposal.title}} {% if proposal.subtitle %}: {{proposal.subtitle}}{% endif %}<proposal id:{{proposal.id}}=\"\"> has been updated.</proposal></span></p>\r\n<p>These are all the book editors assigned to the proposal: </p>\r\n--------\r\n_proposal_editors_\r\n----------\r\n\r\n</p><p> \r\nTo view the proposal, use the following link: http://{{base_url}}/proposals/{{proposal.id}}/\r\n<br></p><p><span style=\"line-height: 1.42857;\">Regards,\r\n<br><br>RUA notification system</span><br></p><p></p>",
+            "group": "3",
+            "name": "book_editor_proposal_ack",
+            "types": "rich_text",
+            "description": "Email sent to editors when they are assigned to a proposal."
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear Sir or Madam,</p>\r\n<p>I have just submitted a proposal for the book '{{proposal.title}}'.</p>\r\n<p>Please contact me if you have any questions and I look forward to your feedback.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "new_proposal_notification",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": " <p>{{ greeting }},</p>\r\n<p>I have just submitted a revised proposal for the book '{{ proposal.title }}'.</p>\r\n<p>Please contact me if you have any questions and I look forward to your feedback.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "revised_proposal_notification",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>Dear Sir or Madam,</p>\r\n<p>I have just completed the submission of {{ submission.title }} (ID: {{ submission.id }}).</p>\r\n<p>Please contact me if you have any questions.</p>\r\n<p>Regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "completed_submission_notification",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>I am pleased to inform you that I have accepted your invitation to review {{submission.title}}.</p>\r\n<p>I will submit my review as soon as possible.</p>\r\n<p>Kind regards,</p>\r\n<p>    {% if sender.profile.signature %}        {{ sender.profile.signature }}    {% else %}        {{ sender.profile.full_name }}    {% endif %}</p>",
+            "group": "3",
+            "name": "requested_reviewer_accept",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p><p>I am at present afraid I am unable to complete the review of {{submission.title}} (ID {{ submission.id }}) and will have to decline.</p><p>Best of luck with the project.</p><p>Kind regards,</p><p>{% if sender.profile.signature %} {{ sender.profile.signature }} {% else %} {{ sender.profile.full_name }} {% endif %}<br></p>",
+            "group": "3",
+            "name": "requested_reviewer_decline",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the book title '{{ submission.title }}'.</p>\r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "peer_review_completed",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the full submission title '{{ submission.title }}' (ID: {{ submission.id }}{% if submission.author.all %}; Author(s): {% for author in submission.author.all %} {% if forloop.last %} {{author.full_name }}{% else %}{{ author.full_name }}, {% endif %}{% endfor %}{% endif %}).</p><p>I have recommended that it be {% if review.recommendation == 'reject' %}rejected{% else %}accepted{% if review.recommendation == 'revisions' %} with the revisions I have detailed{% endif %}{% endif %}.<br></p> \r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "editorial_review_completed",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed the outstanding revisions for the book titled '{{ submission.title }}' (id: {{ submission.id }})</p>\r\n<p>If you require further changes or have any questions, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "author_revisions_completed",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>I am pleased to inform you that I have accepted your invitation to review the proposal for {{proposal.title}} (ID: {{ proposal.id }}).</p>\r\n<p>I will submit my review as soon as possible.</p>\r\n<p>Kind regards,</p>\r\n<p> {% if sender.profile.signature %} {{ sender.profile.signature }} {% else %}        \r\n{{ sender.profile.full_name }}    {% endif %}</p>",
+            "group": "3",
+            "name": "proposal_requested_reviewer_accept",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p><p>I am at present afraid I am unable to complete the review of the proposal for {{proposal.title}} (ID: {{ proposal.id }}) and will have to decline.</p><p>Best of luck with the project.</p><p>Kind regards,</p><p>{% if sender.profile.signature %} {{ sender.profile.signature }} {% else %} {{ sender.profile.full_name }} {% endif %}<br></p>",
+            "group": "3",
+            "name": "proposal_requested_reviewer_decline",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of the proposal titled '{{ proposal.title }}'.</p>\r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_peer_review_completed",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "<p>{{ greeting }},</p>\r\n<p>This is an notification to inform you that I have completed my review of for the proposal title '{{ proposal.title }}' (ID: {{ proposal.id }}{% if proposal.author.all %}; Author(s): {% for author in proposal.author.all %} {% if forloop.last %} {{author.full_name }}{% else %}{{ author.full_name }}, {% endif %}{% endfor %}{% endif %}).</p><p>I have recommended that it be {% if review.recommendation == 'reject' %}rejected{% else %}accepted{% if review.recommendation == 'revisions' %} with the revisions I have detailed{% endif %}{% endif %}.<br></p> \r\n<p>If you have any queries, please do not hesitate to contact me.</p>\r\n<p>Kind regards,</p>\r\n<p>{% if sender.profile.signature %}{{ sender.profile.signature }}{% else %}{{ sender.profile.full_name }}{% endif %}</p>",
+            "group": "3",
+            "name": "proposal_editorial_review_completed",
+            "types": "rich_text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal submitted - {{ proposal.title }}",
+            "group": "6",
+            "name": "new_proposal_notification_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Proposal revised - {proposal.title}",
+            "group": "6",
+            "name": "revised_proposal_notification_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Submission completed - {{ submission.title }}",
+            "group": "6",
+            "name": "completed_submission_notification_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review request accepted - {{ submission.title }}",
+            "group": "6",
+            "name": "requested_reviewer_accept_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review request declined - {{ submission.title }}",
+            "group": "6",
+            "name": "requested_reviewer_decline_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review completed - {{ submission.title }}",
+            "group": "6",
+            "name": "peer_review_completed_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Editorial review completed - {{ submission.title }}",
+            "group": "6",
+            "name": "editorial_review_completed_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Revisions completed for {{ submission.title }}",
+            "group": "6",
+            "name": "author_revisions_completed_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review request accepted - {{ proposal.title }}",
+            "group": "6",
+            "name": "proposal_requested_reviewer_accept_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review request declined - {{ proposal.title }}",
+            "group": "6",
+            "name": "proposal_requested_reviewer_decline_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Review completed - {{ proposal.title }}",
+            "group": "6",
+            "name": "proposal_peer_review_completed_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    },
+    {
+        "fields": {
+            "value": "Editorial Review complete - {{ proposal.title }}",
+            "group": "6",
+            "name": "proposal_editorial_review_completed_subject",
+            "types": "text",
+            "description": ""
+        },
+        "model": "core.setting",
+        "pk": null
+    }
 ]

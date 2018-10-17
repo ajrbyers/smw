@@ -1,50 +1,50 @@
 [
-{
+  {
     "fields": {
-        "enabled": true,
-        "name": "general"
+      "enabled": true,
+      "name": "general"
     },
     "model": "core.settinggroup",
-    "pk": 1
-},
-{
-    "fields": {
-        "enabled": true,
-        "name": "page"
-    },
-    "model": "core.settinggroup",
-    "pk": 2
-},
-{
-    "fields": {
-        "enabled": true,
-        "name": "email"
-    },
-    "model": "core.settinggroup",
-    "pk": 3
-},
-{
-    "fields": {
-        "enabled": true,
-        "name": "look"
-    },
-    "model": "core.settinggroup",
-    "pk": 4
-},
-{
-    "fields": {
-        "enabled": true,
-        "name": "cron"
-    },
-    "model": "core.settinggroup",
-    "pk": 5
-},
-    {
-  "fields": {
-    "enabled": true,
-    "name": "email_subject"
+    "pk": "1"
   },
-  "model": "core.settinggroup",
-  "pk": 6
-}
+  {
+    "fields": {
+      "enabled": true,
+      "name": "page"
+    },
+    "model": "core.settinggroup",
+    "pk": "2"
+  },
+  {
+    "fields": {
+      "enabled": true,
+      "name": "email"
+    },
+    "model": "core.settinggroup",
+    "pk": "3"
+  },
+  {
+    "fields": {
+      "enabled": true,
+      "name": "look"
+    },
+    "model": "core.settinggroup",
+    "pk": "4"
+  },
+  {
+    "fields": {
+      "enabled": true,
+      "name": "cron"
+    },
+    "model": "core.settinggroup",
+    "pk": "5"
+  },
+  {
+    "fields": {
+      "enabled": true,
+      "name": "email_subject"
+    },
+    "model": "core.settinggroup",
+    "pk": "6"
+  }
 ]

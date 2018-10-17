@@ -1,0 +1,1548 @@
+[
+  {
+    "fields": {
+      "name": "Proposal form",
+      "intro_text": "<p>To submit a book proposal, please complete the below form. Required fields are marked with an asterisk (*).</p>",
+      "in_edit": false,
+      "completion_text": "<p>Many thanks for completing the book proposal form, one of our book editors will contact you once we have examined the information provided.</p> <p>Kind regards</p>",
+      "active": true,
+      "proposal_fields": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "ref": "proposal-form-1"
+    },
+    "model": "core.proposalform",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "name": "Proposal form",
+      "intro_text": "<p>To submit a book proposal, please complete the below form. Required fields are marked with an asterisk (*).</p>",
+      "in_edit": true,
+      "completion_text": "<p>Many thanks for completing the book proposal form, one of our book editors will contact you once we have examined the information provided.</p> <p>Kind regards</p>",
+      "active": false,
+      "proposal_fields": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "ref": "proposal-form-1-2"
+    },
+    "model": "core.proposalform",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "field_type": "email",
+      "required": true,
+      "name": "Email",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": false,
+      "name": "ORCID ID",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Institution",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": false,
+      "name": "Series",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Brief description",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Outline",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Author/editor details",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Intended audience",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Similar books",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Illustrations and tables",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Estimated word count",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Copyediting required?",
+      "choices": "Yes|No"
+    },
+    "model": "core.proposalformelement",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Index creation required?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "core.proposalformelement",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "field_type": "date",
+      "required": true,
+      "name": "Estimated manuscript delivery date",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Additional Information",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 15
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "cc-check",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 16
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "Peer-review",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 17
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "Book Processing Charge (BPC)",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 18
+  },
+  {
+    "fields": {
+      "field_type": "email",
+      "required": true,
+      "name": "Email",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 19
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": false,
+      "name": "ORCID ID",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 20
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Institution",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 21
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": false,
+      "name": "Series",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 22
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Brief description",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 23
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Outline",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 24
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Author/editor details",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 25
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "Intended audience",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 26
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Similar books",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 27
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Illustrations and tables",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 28
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Estimated word count",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 29
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Copyediting required?",
+      "choices": "Yes|No"
+    },
+    "model": "core.proposalformelement",
+    "pk": 30
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Index creation required?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "core.proposalformelement",
+    "pk": 31
+  },
+  {
+    "fields": {
+      "field_type": "date",
+      "required": true,
+      "name": "Estimated manuscript delivery date",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 32
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Additional Information",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 33
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "cc-check",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 34
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "Peer-review",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 35
+  },
+  {
+    "fields": {
+      "field_type": "check",
+      "required": true,
+      "name": "Book Processing Charge (BPC)",
+      "choices": ""
+    },
+    "model": "core.proposalformelement",
+    "pk": 36
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-6",
+      "order": 1,
+      "form": 1,
+      "element": 1
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "help_text": "Details of ORCID and registration can be found at <a href=\"http://orcid.org/\" target=\"_blank\">orcid.org/</a>",
+      "width": "col-md-6",
+      "order": 2,
+      "form": 1,
+      "element": 2
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-6",
+      "order": 3,
+      "form": 1,
+      "element": 3
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "help_text": "<p>If you are submitting a proposal to a specific series, please enter the series title here/</p>",
+      "width": "col-md-6",
+      "order": 4,
+      "form": 1,
+      "element": 4
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "help_text": "Please describe the proposed book in a few paragraphs. Set out the objectives, themes and arguments of the proposed book. Which academic discipline/s would you suggest it falls within? If the book is to be part of a series, please provide the name of the series and give a brief description of the series.",
+      "width": "col-md-12",
+      "order": 5,
+      "form": 1,
+      "element": 5
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "help_text": "Please list the proposed table of contents for the book, with a very short description of each chapter. If you plan to approach others to contribute chapters to the book, please provide the names and affiliations of the lead contributing authors.",
+      "width": "col-md-12",
+      "order": 6,
+      "form": 1,
+      "element": 6
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "help_text": "Please provide a brief biography for each author/editor, including academic/professional experience, example publications and relevant research. For edited books details for the lead author for each chapter is sufficient.",
+      "width": "col-md-12",
+      "order": 7,
+      "form": 1,
+      "element": 7
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "help_text": "Please provide information about the intended readership of the proposed book (scientific disciplines, industries, level of education achieved, for books that can be used in university courses names of typical courses, etc.).",
+      "width": "col-md-12",
+      "order": 8,
+      "form": 1,
+      "element": 8
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "help_text": "Please list other books which are most similar to your proposed book in terms of coverage and/or readership and describe how your book would differentiate to existing similar books.",
+      "width": "col-md-12",
+      "order": 9,
+      "form": 1,
+      "element": 9
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "help_text": "Approximately how many illustrations, photos, graphs tables etc will be included within the book?",
+      "width": "col-md-6",
+      "order": 10,
+      "form": 1,
+      "element": 10
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "help_text": "Please provide an estimate of the total number of words to be included in the book, including all references.",
+      "width": "col-md-6",
+      "order": 11,
+      "form": 1,
+      "element": 11
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "help_text": "Please mark if you would like a language copyediting service to be included in the book services",
+      "width": "col-md-6",
+      "order": 12,
+      "form": 1,
+      "element": 12
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "help_text": "Please mark if you would like an embedded index creation service to be included in the book services.",
+      "width": "col-md-6",
+      "order": 13,
+      "form": 1,
+      "element": 13
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "help_text": "Date the complete manuscript will be finalised and submitted for review.",
+      "width": "col-md-6",
+      "order": 14,
+      "form": 1,
+      "element": 14
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "help_text": "Any additional information you think may support your proposal that is not covered by any of the other questions.",
+      "width": "col-md-12",
+      "order": 15,
+      "form": 1,
+      "element": 15
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 15
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you acknowledge that you are expected to have the authority to publish all submitted content with a Creative Commons CC-BY-license, if accepted for publication. If a different licence is required then this will have to be agreed with the publisher before a proposal can be accepted.",
+      "width": "col-md-12",
+      "order": 16,
+      "form": 1,
+      "element": 16
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 16
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you agree that your submitted work will be peer reviewed prior to an editorial decision being made. The publisher's peer-review policy can be found on the website.",
+      "width": "col-md-12",
+      "order": 17,
+      "form": 1,
+      "element": 17
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 17
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you agree that if your book is accepted for publication, you will be asked to pay a Book Processing Charge (BPC) to cover the processing and production costs. This fee can often be sourced from your funder or institution. Therefore we ask that you contact the relevant body to cover the BPC. For more information on potential sources of funding please visit our <a href=\"http://www.ubiquitypress.com/site/oa-funding\" target=\"_blank\">Funds for Open Access Scholarly Books page</a>. The BPC will be agreed by both parties prior to the book project commencing.",
+      "width": "col-md-12",
+      "order": 18,
+      "form": 1,
+      "element": 18
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 18
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-6",
+      "order": 1,
+      "form": 2,
+      "element": 19
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 19
+  },
+  {
+    "fields": {
+      "help_text": "Details of ORCID and registration can be found at <a href=\"http://orcid.org/\" target=\"_blank\">orcid.org/</a>",
+      "width": "col-md-6",
+      "order": 2,
+      "form": 2,
+      "element": 20
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 20
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-6",
+      "order": 3,
+      "form": 2,
+      "element": 21
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 21
+  },
+  {
+    "fields": {
+      "help_text": "<p>If you are submitting a proposal to a specific series, please enter the series title here/</p>",
+      "width": "col-md-6",
+      "order": 4,
+      "form": 2,
+      "element": 22
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 22
+  },
+  {
+    "fields": {
+      "help_text": "Please describe the proposed book in a few paragraphs. Set out the objectives, themes and arguments of the proposed book. Which academic discipline/s would you suggest it falls within? If the book is to be part of a series, please provide the name of the series and give a brief description of the series.",
+      "width": "col-md-12",
+      "order": 5,
+      "form": 2,
+      "element": 23
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 23
+  },
+  {
+    "fields": {
+      "help_text": "Please list the proposed table of contents for the book, with a very short description of each chapter. If you plan to approach others to contribute chapters to the book, please provide the names and affiliations of the lead contributing authors.",
+      "width": "col-md-12",
+      "order": 6,
+      "form": 2,
+      "element": 24
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 24
+  },
+  {
+    "fields": {
+      "help_text": "Please provide a brief biography for each author/editor, including academic/professional experience, example publications and relevant research. For edited books details for the lead author for each chapter is sufficient.",
+      "width": "col-md-12",
+      "order": 7,
+      "form": 2,
+      "element": 25
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 25
+  },
+  {
+    "fields": {
+      "help_text": "Please provide information about the intended readership of the proposed book (scientific disciplines, industries, level of education achieved, for books that can be used in university courses names of typical courses, etc.).",
+      "width": "col-md-12",
+      "order": 8,
+      "form": 2,
+      "element": 26
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 26
+  },
+  {
+    "fields": {
+      "help_text": "Please list other books which are most similar to your proposed book in terms of coverage and/or readership and describe how your book would differentiate to existing similar books.",
+      "width": "col-md-12",
+      "order": 9,
+      "form": 2,
+      "element": 27
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 27
+  },
+  {
+    "fields": {
+      "help_text": "Approximately how many illustrations, photos, graphs tables etc will be included within the book?",
+      "width": "col-md-6",
+      "order": 10,
+      "form": 2,
+      "element": 28
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 28
+  },
+  {
+    "fields": {
+      "help_text": "Please provide an estimate of the total number of words to be included in the book, including all references.",
+      "width": "col-md-6",
+      "order": 11,
+      "form": 2,
+      "element": 29
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 29
+  },
+  {
+    "fields": {
+      "help_text": "Please mark if you would like a language copyediting service to be included in the book services",
+      "width": "col-md-6",
+      "order": 12,
+      "form": 2,
+      "element": 30
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 30
+  },
+  {
+    "fields": {
+      "help_text": "Please mark if you would like an embedded index creation service to be included in the book services.",
+      "width": "col-md-6",
+      "order": 13,
+      "form": 2,
+      "element": 31
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 31
+  },
+  {
+    "fields": {
+      "help_text": "Date the complete manuscript will be finalised and submitted for review.",
+      "width": "col-md-6",
+      "order": 14,
+      "form": 2,
+      "element": 32
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 32
+  },
+  {
+    "fields": {
+      "help_text": "Any additional information you think may support your proposal that is not covered by any of the other questions.",
+      "width": "col-md-12",
+      "order": 15,
+      "form": 2,
+      "element": 33
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 33
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you acknowledge that you are expected to have the authority to publish all submitted content with a Creative Commons CC-BY-license, if accepted for publication. If a different licence is required then this will have to be agreed with the publisher before a proposal can be accepted.",
+      "width": "col-md-12",
+      "order": 16,
+      "form": 2,
+      "element": 34
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 34
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you agree that your submitted work will be peer reviewed prior to an editorial decision being made. The publisher's peer-review policy can be found on the website.",
+      "width": "col-md-12",
+      "order": 17,
+      "form": 2,
+      "element": 35
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 35
+  },
+  {
+    "fields": {
+      "help_text": "By checking this box you agree that if your book is accepted for publication, you will be asked to pay a Book Processing Charge (BPC) to cover the processing and production costs. This fee can often be sourced from your funder or institution. Therefore we ask that you contact the relevant body to cover the BPC. For more information on potential sources of funding please visit our <a href=\"http://www.ubiquitypress.com/site/oa-funding\" target=\"_blank\">Funds for Open Access Scholarly Books page</a>. The BPC will be agreed by both parties prior to the book project commencing.",
+      "width": "col-md-12",
+      "order": 18,
+      "form": 2,
+      "element": 36
+    },
+    "model": "core.proposalformelementsrelationship",
+    "pk": 36
+  },
+  {
+    "fields": {
+      "text": "The submission has not been previously published, nor is it before another publisher for consideration (or an explanation has been provided in Comments to the Editor).",
+      "required": true,
+      "slug": "previous-publication",
+      "sequence": 1
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "text": "Any third-party-owned materials used have been identified with appropriate credit lines, and permission obtained from the copyright holder for all formats of the book..",
+      "required": true,
+      "slug": "permissions",
+      "sequence": 2
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "text": "All authors have given permission to be listed on the submitted book manuscript and satisfy the authorship guidelines.",
+      "required": true,
+      "slug": "authorship",
+      "sequence": 3
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "text": "Tables and figures are all cited in the text. Tables are included within the text document, whilst figure files are uploaded as separate files.",
+      "required": true,
+      "slug": "table-and-figures",
+      "sequence": 4
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "text": "Figures/images have a resolution of at least 300dpi. Each file is no more than 20MB per file. The files are in one of the following formats: JPG, TIFF, GIF, PNG, EPS, PDF (to maximise quality, the original source file is preferred).",
+      "required": true,
+      "slug": "image-quality",
+      "sequence": 5
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "text": "The text adheres to the stylistic and bibliographic requirements outlined in the Author Guidelines.",
+      "required": true,
+      "slug": "formatting",
+      "sequence": 6
+    },
+    "model": "submission.submissionchecklistitem",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "name": "Proposal review form",
+      "intro_text": "<p>Many thanks for agreeing to review this book proposal, we are very grateful. Please complete each of the sections detailed in the review form. If you have any questions, then please contact us.</p>",
+      "in_edit": false,
+      "form_fields": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "completion_text": "<p>Many thanks for completing the review of this book proposal, your efforts are greatly appreciated. Should you have any questions, please get in touch.</p>",
+      "active": true,
+      "ref": "proposal-review-1"
+    },
+    "model": "review.form",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "name": "Peer Review Form",
+      "intro_text": "<p>Many thanks for agreeing to review this proposed book title, we are very grateful. Please complete each of the sections in the review form in as much detail as possible. You are also able to upload an annotated version of the manuscript, should you wish to have comments directly associated with the text. For edited books, please provide a review for each chapter. If you have any questions, then please contact us.</p>",
+      "in_edit": false,
+      "form_fields": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "completion_text": "<p>Many thanks for completing the review of this book proposal, your efforts are greatly appreciated. Should you have any questions, please get in touch.</p>",
+      "active": true,
+      "ref": "peer-review-form-1"
+    },
+    "model": "review.form",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "name": "Additional Information",
+      "intro_text": "Thank you for providing your review feedback. There is some more information that we would like your opinion on. This has been detailed in our email to you. Please use the text box available in the review page to provide this information. Many thanks.",
+      "in_edit": false,
+      "form_fields": [
+        14
+      ],
+      "completion_text": "Many thanks for completing this task, it is much appreciated. Should the editor require further information then they will be in touch. If you have questions regarding this book then please feel free to get in touch with the editor.",
+      "active": true,
+      "ref": "additional-info"
+    },
+    "model": "review.form",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "name": "Additional Information",
+      "intro_text": "Thank you for providing your review feedback. There is some more information that we would like your opinion on. This has been detailed in our email to you. Please use the text box available in the review page to provide this information. Many thanks.",
+      "in_edit": true,
+      "form_fields": [
+        43
+      ],
+      "completion_text": "Many thanks for completing this task, it is much appreciated. Should the editor require further information then they will be in touch. If you have questions regarding this book then please feel free to get in touch with the editor.",
+      "active": false,
+      "ref": "additional-info-4"
+    },
+    "model": "review.form",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "General feedback to the publisher",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Feedback to the author(s)",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Ethical approval",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Full peer-review?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "review.formelement",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Suggested Reviewers",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Are conclusions presented in an appropriate fashion and supported by the data?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "If present, are experiments, statistics, and other analyses performed to a high standard and are described in sufficient detail?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Are chapters presented in an intelligible fashion and written to a high standard of English? Please indicate if further copyediting is required and if specific chapters require more attention than others",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Do you believe that any chapters have significant errors or weaknesses that should prevent publication? If yes, please state what.",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Does the book read well as a whole? Is the structure of the book easy to follow? Do you suggest editing the structure of the book?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Do the Forward and Epilogue/Introduction and Conclusion introduce and summarise the content of the book and subject matter adequately? If not, please detail what information is missing, what contradictions are present, or where edits should be made to ensure that the introduction and conclusions represent the book content accurately and completely?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "General comments: Please provide a summary of your opinion on this submission and any further detail that is not provided above that you feel would be useful to the editors and authors.",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Public Acknowledgement",
+      "choices": "Yes|No"
+    },
+    "model": "review.formelement",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Additional information",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "General feedback to the publisher",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 15
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Feedback to the author(s)",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 16
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Ethical approval",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 17
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Full peer-review?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "review.formelement",
+    "pk": 18
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Suggested Reviewers",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 19
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "General feedback to the publisher",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 20
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Feedback to the author(s)",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 21
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Ethical approval",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 22
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Full peer-review?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "review.formelement",
+    "pk": 23
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Suggested Reviewers",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 24
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "General feedback to the publisher",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 25
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Feedback to the author(s)",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 26
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Ethical approval",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 27
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Full peer-review?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "review.formelement",
+    "pk": 28
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Suggested Reviewers",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 29
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": true,
+      "name": "General feedback to the publisher",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 30
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Feedback to the author(s)",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 31
+  },
+  {
+    "fields": {
+      "field_type": "text",
+      "required": true,
+      "name": "Ethical approval",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 32
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Full peer-review?",
+      "choices": "Yes|No|Maybe"
+    },
+    "model": "review.formelement",
+    "pk": 33
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Suggested Reviewers",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 34
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Are conclusions presented in an appropriate fashion and supported by the data?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 35
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "If present, are experiments, statistics, and other analyses performed to a high standard and are described in sufficient detail?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 36
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Are chapters presented in an intelligible fashion and written to a high standard of English? Please indicate if further copyediting is required and if specific chapters require more attention than others",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 37
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Do you believe that any chapters have significant errors or weaknesses that should prevent publication? If yes, please state what.",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 38
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Does the book read well as a whole? Is the structure of the book easy to follow? Do you suggest editing the structure of the book?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 39
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Do the Forward and Epilogue/Introduction and Conclusion introduce and summarise the content of the book and subject matter adequately? If not, please detail what information is missing, what contradictions are present, or where edits should be made to ensure that the introduction and conclusions represent the book content accurately and completely?",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 40
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "General comments: Please provide a summary of your opinion on this submission and any further detail that is not provided above that you feel would be useful to the editors and authors.",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 41
+  },
+  {
+    "fields": {
+      "field_type": "select",
+      "required": true,
+      "name": "Public Acknowledgement",
+      "choices": "Yes|No"
+    },
+    "model": "review.formelement",
+    "pk": 42
+  },
+  {
+    "fields": {
+      "field_type": "textarea",
+      "required": false,
+      "name": "Additional information",
+      "choices": ""
+    },
+    "model": "review.formelement",
+    "pk": 43
+  },
+  {
+    "fields": {
+      "help_text": "<p>Please give an overview of the book proposal. Please give your opinion on<br/>1) whether the objectives, themes and arguments of the proposed book would be a welcome addition to the subject;<br/>2) if there are obvious additions to the content of the book that would enhance the use and understanding of the subject area;<br/>3) if the structure of the book has been laid out in a logical manner;<br/>4) if the target audience would benefit from such a publication;<br/>5) if the author(s) are qualified/informed enough to publish content in this subject.</p>",
+      "width": "col-md-12",
+      "order": 1,
+      "form": 1,
+      "element": 1
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "help_text": "If you have specific feedback suggesting ways in which the proposal could be edited to enhance the quality of the book, please add comments here.",
+      "width": "col-md-12",
+      "order": 2,
+      "form": 1,
+      "element": 2
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "help_text": "<p>Do you believe that ethical approval from the author's institution is required for this research to be undertaken?</p>",
+      "width": "col-md-12",
+      "order": 3,
+      "form": 1,
+      "element": 3
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "help_text": "If the book is accepted for full submission and peer-review, would you be interested in reviewing the book? (note: a positive indication here does not commit you to any review task in the future)",
+      "width": "col-md-12",
+      "order": 4,
+      "form": 1,
+      "element": 4
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "help_text": "<p>If possible, please provide names/details of colleagues that you believe would be suitable as peer reviewers for this subject area, should the book go to full submission review.</p>",
+      "width": "col-md-12",
+      "order": 5,
+      "form": 1,
+      "element": 5
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 5
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 1,
+      "form": 2,
+      "element": 6
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 6
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 2,
+      "form": 2,
+      "element": 7
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 7
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 3,
+      "form": 2,
+      "element": 8
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 8
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 4,
+      "form": 2,
+      "element": 9
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 9
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 5,
+      "form": 2,
+      "element": 10
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 10
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 6,
+      "form": 2,
+      "element": 11
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 11
+  },
+  {
+    "fields": {
+      "help_text": "",
+      "width": "col-md-12",
+      "order": 7,
+      "form": 2,
+      "element": 12
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 12
+  },
+  {
+    "fields": {
+      "help_text": "The publisher offers the option for reviewers to be publicly acknowledged for their contribution. Please select whether you would like to have your name listed as a reviewer for this book.",
+      "width": "col-md-4",
+      "order": 8,
+      "form": 2,
+      "element": 13
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 13
+  },
+  {
+    "fields": {
+      "help_text": "Please comment on the questions asked by the press Editor as fully as possible.",
+      "width": "col-md-12",
+      "order": 1,
+      "form": 3,
+      "element": 14
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 14
+  },
+  {
+    "fields": {
+      "help_text": "Please comment on the questions asked by the press Editor as fully as possible.",
+      "width": "col-md-12",
+      "order": 1,
+      "form": 4,
+      "element": 43
+    },
+    "model": "review.formelementsrelationship",
+    "pk": 43
+  }
+]
