@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from core import models
 
+
 class Command(BaseCommand):
     help = "Run settings_import to sync settings and setting groups."
 

@@ -26,6 +26,7 @@ def sync_groups():
             if created:
                 print 'Created setting group {0}'.format(setting_group.name)
 
+
 def sync_settings():
     file = os.path.join(settings.BASE_DIR, 'core/fixtures/settings/master.json')
 
@@ -49,6 +50,7 @@ def sync_settings():
 
             if created:
                 print 'Created setting {0}'.format(setting.name)
+
 
 class Command(BaseCommand):
 
