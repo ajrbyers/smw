@@ -8,10 +8,10 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('review', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('review', '0006_auto_20160120_1640'),
-        ('core', '0143_auto_20160923_1021'),
+        ('core', '0002_auto_20181017_1003'),
     ]
 
     operations = [
@@ -30,6 +30,7 @@ class Migration(migrations.Migration):
                 ('overdue_reminder', models.BooleanField(default=False)),
                 ('reopened', models.BooleanField(default=False)),
                 ('withdrawn', models.BooleanField(default=False)),
+                ('assigning_editor', models.ForeignKey(related_name='editorial_review_assignments', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
                 ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
                 ('files', models.ManyToManyField(to='core.File', null=True, blank=True)),
                 ('results', models.ForeignKey(blank=True, to='review.FormResult', null=True)),

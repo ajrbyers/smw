@@ -15,17 +15,19 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
-                ('ref', models.CharField(help_text=b'for proposals: press_code-proposal eg. sup-proposal', max_length=20)),
+                ('ref', models.CharField(help_text=b'for proposals: press_code-proposal eg. sup-proposal', max_length=50)),
                 ('intro_text', models.TextField(help_text=b'Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.', max_length=1000)),
                 ('completion_text', models.TextField(help_text=b'Accepts HTML. Para elements should be wrapped in paragraph tags or they will not have fonts.', max_length=1000)),
+                ('in_edit', models.BooleanField(default=False, help_text=b'True if form is in edit stage.')),
+                ('active', models.BooleanField(default=True, help_text=b'If set to False, will be hidden from use in proposal workflow.')),
             ],
         ),
         migrations.CreateModel(
             name='FormElement',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100)),
-                ('choices', models.CharField(help_text=b'Seperate choices with the bar | character.', max_length=500, null=True, blank=True)),
+                ('name', models.CharField(max_length=1000)),
+                ('choices', models.CharField(help_text=b'Separate choices with the bar | character.', max_length=500, null=True, blank=True)),
                 ('field_type', models.CharField(max_length=100, choices=[(b'text', b'Text Field'), (b'textarea', b'Text Area'), (b'check', b'Check Box'), (b'select', b'Select'), (b'email', b'Email'), (b'upload', b'Upload'), (b'date', b'Date')])),
                 ('required', models.BooleanField()),
             ],
@@ -34,9 +36,9 @@ class Migration(migrations.Migration):
             name='FormElementsRelationship',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('order', models.IntegerField()),
-                ('element_class', models.CharField(max_length=20, null=True, blank=True)),
+                ('width', models.CharField(max_length=20, choices=[(b'col-md-4', b'third'), (b'col-md-6', b'half'), (b'col-md-12', b'full')])),
                 ('help_text', models.TextField(max_length=1000, null=True, blank=True)),
+                ('order', models.IntegerField()),
                 ('element', models.ForeignKey(to='review.FormElement')),
                 ('form', models.ForeignKey(to='review.Form')),
             ],
@@ -55,7 +57,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='form',
-            name='fields',
-            field=models.ManyToManyField(to='review.FormElement', through='review.FormElementsRelationship'),
+            name='form_fields',
+            field=models.ManyToManyField(related_name='form_fields', to='review.FormElementsRelationship', blank=True),
         ),
     ]
