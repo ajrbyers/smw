@@ -6,7 +6,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import Http404, StreamingHttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
@@ -176,7 +176,7 @@ def reviewer_decision(
                 )
                 user = review_assignment.user
             else:
-                if request.user.is_authenticated():
+                if request.user.is_authenticated:
                     review_assignment = get_object_or_404(
                         core_models.ReviewAssignment,
                         Q(user=request.user),
@@ -202,7 +202,7 @@ def reviewer_decision(
                     withdrawn=False,
                 )
                 user = review_assignment.user
-            elif request.user.is_authenticated():
+            elif request.user.is_authenticated:
                 review_assignment = get_object_or_404(
                     core_models.ReviewAssignment,
                     Q(user=request.user),

@@ -25,6 +25,7 @@ class Proposal(models.Model):
         User,
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
     )
     title = models.CharField(
         max_length=255,
@@ -43,7 +44,8 @@ class Proposal(models.Model):
         auto_now_add=True,
     )
     form = models.ForeignKey(
-        'core.ProposalForm'
+        'core.ProposalForm',
+        on_delete=models.CASCADE,
     )
     data = models.TextField(
         blank=True,
@@ -63,12 +65,14 @@ class Proposal(models.Model):
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     requestor = models.ForeignKey(
         User,
         null=True,
         blank=True,
         related_name="editor_requestor",
+        on_delete=models.CASCADE,
     )
     revision_due_date = models.DateTimeField(
         blank=True,
@@ -98,6 +102,7 @@ class Proposal(models.Model):
         null=True,
         blank=True,
         related_name='contract_of_proposal',
+        on_delete=models.CASCADE,
     )
     current_version = models.IntegerField(
         default=1
@@ -131,19 +136,22 @@ class HistoryProposal(models.Model):
     )
     proposal = models.ForeignKey(
         Proposal,
-        related_name='parent_proposal'
+        related_name='parent_proposal',
+        on_delete=models.CASCADE,
     )
     user_edited = models.ForeignKey(
         User,
         blank=True,
         null=True,
         related_name='edited_by_user',
+        on_delete=models.CASCADE,
     )
     owner = models.ForeignKey(
         User,
         blank=True,
         null=True,
         related_name='parent_proposal_user',
+        on_delete=models.CASCADE,
     )
     title = models.CharField(
         max_length=255,
@@ -164,6 +172,7 @@ class HistoryProposal(models.Model):
     form = models.ForeignKey(
         'core.ProposalForm',
         related_name='parent_proposal_Form',
+        on_delete=models.CASCADE,
     )
     data = models.TextField(
         blank=True,
@@ -177,12 +186,14 @@ class HistoryProposal(models.Model):
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     requestor = models.ForeignKey(
         User,
         null=True,
         blank=True,
         related_name="parent_proposal_Requestor",
+        on_delete=models.CASCADE,
     )
     revision_due_date = models.DateTimeField(
         blank=True,
@@ -219,9 +230,11 @@ class ProposalNote(models.Model):
 
     proposal = models.ForeignKey(
         Proposal,
+        on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
     )
     date_submitted = models.DateTimeField(
         auto_now_add=True,
@@ -246,12 +259,15 @@ class IncompleteProposal(models.Model):
     owner = models.ForeignKey(
         User,
         blank=True,
-        null=True)
+        null=True,
+        on_delete=models.CASCADE,
+    )
     title = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-        verbose_name='Book Title')
+        verbose_name='Book Title',
+    )
     subtitle = models.CharField(
         max_length=255,
         blank=True,
@@ -264,10 +280,13 @@ class IncompleteProposal(models.Model):
     form = models.ForeignKey(
         'core.ProposalForm',
         blank=True,
-        null=True)
+        null=True,
+        on_delete=models.CASCADE,
+    )
     data = models.TextField(
         blank=True,
-        null=True)
+        null=True,
+    )
     book_type = models.CharField(
         max_length=50,
         null=True,
@@ -323,9 +342,11 @@ class ProposalReview(models.Model):
 
     proposal = models.ForeignKey(
         Proposal,
+        on_delete=models.CASCADE,
     )  # TODO: Remove: it is already linked to the book through the review round
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
     )
     assigned = models.DateField(
         auto_now_add=True,
@@ -355,6 +376,7 @@ class ProposalReview(models.Model):
         'review.FormResult',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     recommendation = models.CharField(
         max_length=10,
@@ -379,11 +401,13 @@ class ProposalReview(models.Model):
         null=True,
         blank=True,
         related_name="review_requestor",
+        on_delete=models.CASCADE,
     )
     review_form = models.ForeignKey(
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     access_key = models.CharField(
         max_length=200,

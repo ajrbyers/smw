@@ -45,9 +45,9 @@
                 <div class="row">
                 <div class="col-md-8 pull-right form-group">
                     <select name="order" class="form-control" onchange="this.form.submit()">
-                        <option value="pk" {% if order = 'pk' %}selected="selected"{% endif %}>Book ID</option>
-                        <option value="title" {% if order = 'title' %}selected="selected"{% endif %}>Alpha A-Z</option>
-                        <option value="submission_date" {% if order = 'submission_date' %}selected="selected"{% endif %}>Date Submitted</option>
+                        <option value="pk" {% if order == 'pk' %}selected="selected"{% endif %}>Book ID</option>
+                        <option value="title" {% if order == 'title' %}selected="selected"{% endif %}>Alpha A-Z</option>
+                        <option value="submission_date" {% if order == 'submission_date' %}selected="selected"{% endif %}>Date Submitted</option>
                       </select>
                 </div>
                 <div class="col-md-4 pull-right">
@@ -58,13 +58,13 @@
                 <div class="col-md-8 pull-right form-group">
                     <select name="filter" class="form-control" onchange="this.form.submit()">
                         <option value="">------</option>
-                        <option value="live" {% if filterby = 'live' %}selected="selected"{% endif %}>Live Submissions</option>
-                        <option value="inprogress" {% if filterby = 'inprogress' %}selected="selected"{% endif %}>Submissions In Progress</option>
-                        <option value="revisions" {% if filterby = 'revisions' %}selected="selected"{% endif %}>Revisions</option>
-                        <option value="submission" {% if filterby = 'submission' %}selected="selected"{% endif %}>New Submission</option>
-                        <option value="review" {% if filterby = 'review' %}selected="selected"{% endif %}>Review</option>
-                        <option value="editing" {% if filterby = 'editing' %}selected="selected"{% endif %}>Editing</option>
-                        <option value="production" {% if filterby = 'production' %}selected="selected"{% endif %}>Production</option>
+                        <option value="live" {% if filterby == 'live' %}selected="selected"{% endif %}>Live Submissions</option>
+                        <option value="inprogress" {% if filterby == 'inprogress' %}selected="selected"{% endif %}>Submissions In Progress</option>
+                        <option value="revisions" {% if filterby == 'revisions' %}selected="selected"{% endif %}>Revisions</option>
+                        <option value="submission" {% if filterby == 'submission' %}selected="selected"{% endif %}>New Submission</option>
+                        <option value="review" {% if filterby == 'review' %}selected="selected"{% endif %}>Review</option>
+                        <option value="editing" {% if filterby == 'editing' %}selected="selected"{% endif %}>Editing</option>
+                        <option value="production" {% if filterby == 'production' %}selected="selected"{% endif %}>Production</option>
                     </select>
                 </div>
                 <div class="col-md-4 pull-right">

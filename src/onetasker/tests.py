@@ -5,7 +5,7 @@ from core import models as core_models
 from core import logic as core_logic
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class OnetaskerTests(TestCase):

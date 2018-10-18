@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django_summernote.widgets import SummernoteWidget
 
 from core import models, logic
-from setting_util import get_setting
+from .setting_util import get_setting
 from submission import models as submission_models
 
 

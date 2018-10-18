@@ -4,8 +4,8 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template import Context, Template, RequestContext
 
-from core import log, models
-from setting_util import get_setting
+from core import log
+from .setting_util import get_setting
 
 
 def filepath(book, attachment):

@@ -28,12 +28,14 @@ class EditorialReview(models.Model):
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
     )
     assigning_editor = models.ForeignKey(
         User,
         blank=True,
         null=True,
-        related_name='editorial_review_assignments'
+        related_name='editorial_review_assignments',
+        on_delete=models.CASCADE,
     )
     assigned = models.DateField(
         auto_now_add=True,
@@ -64,6 +66,7 @@ class EditorialReview(models.Model):
         'review.FormResult',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     recommendation = models.CharField(
         max_length=10,
@@ -95,6 +98,7 @@ class EditorialReview(models.Model):
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):

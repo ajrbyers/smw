@@ -1,10 +1,12 @@
-from settings import RUA_VERSION
+from .base_settings import RUA_VERSION
+
+from django.utils.deprecation import MiddlewareMixin
 
 
-class Roles(object):
+class Roles(MiddlewareMixin):
 
     def process_request(self, request):
-        if (request.user.is_authenticated()
+        if (request.user.is_authenticated
                 and hasattr(request.user, 'profile')):
             request.user_roles = [
                 role.slug for role in request.user.profile.roles.all()
@@ -13,7 +15,7 @@ class Roles(object):
             request.user_roles = []
 
 
-class Version(object):
+class Version(MiddlewareMixin):
 
     def process_request(self, request):
         request.rua_version = RUA_VERSION

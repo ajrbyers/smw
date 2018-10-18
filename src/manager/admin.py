@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from models import Group, GroupMembership
+from .models import (
+    Group,
+    GroupMembership,
+)
 
 
 class GroupAdmin(admin.ModelAdmin):

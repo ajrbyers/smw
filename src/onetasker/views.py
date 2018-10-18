@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -17,7 +17,17 @@ from core.decorators import is_onetasker
 from core.email import get_email_body
 from core.setting_util import get_setting
 from submission.logic import handle_book_labels
-import logic
+
+from .logic import (
+    add_file,
+    complete_task,
+    get_assignemnt_form,
+    get_assignment,
+    get_submitted_files,
+    get_unposted_form,
+    notify_editor,
+    right_block,
+)
 
 
 @is_onetasker
@@ -37,14 +47,14 @@ def dashboard(request):
 
 def task_hub(request, assignment_type, assignment_id, about=None):
 
-    assignment = logic.get_assignment(assignment_type, assignment_id)
-    form = logic.get_unposted_form(request, assignment_type, assignment)
+    assignment = get_assignment(assignment_type, assignment_id)
+    form = get_unposted_form(request, assignment_type, assignment)
     center_block = (
         'onetasker/elements/submission_details.html' if about
         else 'onetasker/elements/files.html'
     )
-    right_block = logic.right_block(assignment)
-    submitted_files = logic.get_submitted_files(assignment)
+    block = right_block(assignment)
+    submitted_files = get_submitted_files(assignment)
 
     if assignment_type == 'copyedit':
         instructions = get_setting('instructions_for_task_copyedit', 'general')
@@ -79,18 +89,18 @@ def task_hub(request, assignment_type, assignment_id, about=None):
                 }
             ))
         elif 'task' in request.POST:  # Handle submission.
-            form = logic.get_assignemnt_form(
+            form = get_assignemnt_form(
                 request,
                 assignment_type,
                 assignment,
             )
             if form.is_valid():
                 assignment = form.save(commit=False)
-                logic.notify_editor(
+                notify_editor(
                     assignment,
                     '%s task completed' % (assignment.type())
                 )
-                logic.complete_task(assignment)
+                complete_task(assignment)
                 handle_book_labels(request.POST, assignment.book, kind='misc')
                 assignment.save()
                 messages.add_message(
@@ -105,8 +115,6 @@ def task_hub(request, assignment_type, assignment_id, about=None):
                         'assignment_id': assignment_id
                     }
                 ))
-            else:
-                print form
 
         elif 'label' in request.POST:  # Handle label.
             _file = get_object_or_404(
@@ -122,7 +130,7 @@ def task_hub(request, assignment_type, assignment_id, about=None):
         'assignment': assignment,
         'form': form,
         'center_block': center_block,
-        'right_block': right_block,
+        'right_block': block,
         'files': submitted_files,
         'about': about,
         'editors': core_logic.get_editors(assignment.book),
@@ -135,7 +143,7 @@ def task_hub(request, assignment_type, assignment_id, about=None):
 @is_onetasker
 def task_hub_decline(request, assignment_type, assignment_id,):
 
-    assignment = logic.get_assignment(assignment_type, assignment_id)
+    assignment = get_assignment(assignment_type, assignment_id)
     email_text = get_email_body(
         request=request,
         setting_name='task_decline',
@@ -193,7 +201,7 @@ def upload(
         type_to_handle,
         author=None
 ):
-    assignment = logic.get_assignment(assignment_type, assignment_id)
+    assignment = get_assignment(assignment_type, assignment_id)
     book = assignment.book
     _file = upload_receive(request)
     new_file = handle_file(_file, book, type_to_handle, request.user)
@@ -218,7 +226,7 @@ def upload(
             'ruaId': new_file.pk,
             'original_name': new_file.original_filename,
         }
-        logic.add_file(assignment, new_file, author)
+        add_file(assignment, new_file, author)
 
         return UploadResponse(request, file_dict)
 
@@ -227,7 +235,7 @@ def upload(
 
 @csrf_exempt
 def upload_author(request, assignment_type, assignment_id, type_to_handle):
-    assignment = logic.get_assignment(assignment_type, assignment_id)
+    assignment = get_assignment(assignment_type, assignment_id)
     book = assignment.book
     _file = upload_receive(request)
     new_file = handle_file(_file, book, type_to_handle, request.user)
@@ -252,7 +260,7 @@ def upload_author(request, assignment_type, assignment_id, type_to_handle):
             'ruaId': new_file.pk,
             'original_name': new_file.original_filename,
         }
-        logic.add_file(assignment, new_file, True)
+        add_file(assignment, new_file, True)
 
         return UploadResponse(request, file_dict)
 
@@ -261,7 +269,7 @@ def upload_author(request, assignment_type, assignment_id, type_to_handle):
 
 @csrf_exempt
 def upload_delete(request, assignment_type, assignment_id, file_pk):
-    assignment = logic.get_assignment(assignment_type, assignment_id)
+    assignment = get_assignment(assignment_type, assignment_id)
     book = assignment.book
     success = True
 

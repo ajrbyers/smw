@@ -41,7 +41,10 @@ class Form(models.Model):
 
 class FormResult(models.Model):
 
-    form = models.ForeignKey(Form)
+    form = models.ForeignKey(
+        Form,
+        on_delete=models.CASCADE,
+    )
     data = models.TextField()
     date = models.DateField(auto_now_add=True)
 
@@ -92,9 +95,11 @@ class FormElementsRelationship(models.Model):
     )
     form = models.ForeignKey(
         Form,
+        on_delete=models.CASCADE,
     )
     element = models.ForeignKey(
         FormElement,
+        on_delete=models.CASCADE,
     )
     width = models.CharField(
         max_length=20,

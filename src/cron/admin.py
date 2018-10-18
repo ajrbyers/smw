@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import CronTask
+from .models import CronTask
 
 
 class CronTaskAdmin(admin.ModelAdmin):

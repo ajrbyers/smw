@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from models import Form, FormElement, FormResult, FormElementsRelationship
+from .models import (
+    Form,
+    FormElement,
+    FormResult,
+    FormElementsRelationship
+)
 
 
 class FormAdmin(admin.ModelAdmin):

@@ -12,6 +12,7 @@ def revision_choices():
 class Revision(models.Model):
     book = models.ForeignKey(
         'core.Book',
+        on_delete=models.CASCADE,
     )
     notes_from_editor = models.TextField(
         help_text='These notes should be as clear as possible to instruct the '
@@ -26,7 +27,10 @@ class Revision(models.Model):
         max_length=100,
         choices=revision_choices(),
     )
-    requestor = models.ForeignKey(User)
+    requestor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
     requested = models.DateField(
         auto_now_add=True,
     )

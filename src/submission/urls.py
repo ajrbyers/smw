@@ -1,146 +1,172 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-import views
 
-urlpatterns = patterns(
-    '',
+from .views import (
+    author,
+    delete_incomplete_proposal,
+    editor,
+    file_order,
+    incomplete_proposal,
+    proposal_add_note,
+    proposal_history,
+    proposal_history_view,
+    proposal_notes,
+    proposal_revisions,
+    proposal_update_note,
+    proposal_view,
+    ProposalRevisionCompleteEmail,
+    ProposalSubmissionEmail,
+    start_proposal,
+    start_submission,
+    submission_additional_files,
+    submission_five,
+    submission_four,
+    submission_three,
+    submission_three_additional,
+    submission_two,
+    SubmissionCompleteEmail,
+    upload,
+    upload_delete,
+)
+
+urlpatterns = [
     url(
         r'^book/new/stage/1/$',
-        'submission.views.start_submission',
+        start_submission,
         name='submission_start',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/1/$',
-        'submission.views.start_submission',
+        start_submission,
         name='edit_start',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/2/$',
-        'submission.views.submission_two',
+        submission_two,
         name='submission_two'
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/3/$',
-        'submission.views.submission_three',
+        submission_three,
         name='submission_three',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/4/$',
-        'submission.views.submission_three_additional',
+        submission_three_additional,
         name='submission_three_additional',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/5/$',
-        'submission.views.submission_four',
+        submission_four,
         name='submission_four',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/5/author/new/$',
-        'submission.views.author',
+        author,
         name='author',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/5/author/(?P<author_id>\d+)/$',
-        'submission.views.author',
+        author,
         name='author_edit',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/5/editor/new/$',
-        'submission.views.editor',
+        editor,
         name='editor',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/5/editor/(?P<editor_id>\d+)/$',
-        'submission.views.editor',
+        editor,
         name='editor_edit',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/6/$',
-        'submission.views.submission_five',
+        submission_five,
         name='submission_five'),
     url(
         r'book/(?P<book_id>\d+)/submission-complete-email/$',
-        views.SubmissionCompleteEmail.as_view(),
+        SubmissionCompleteEmail.as_view(),
         name='submission_complete_email',
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/3/(?P<file_type>[-\w./]+)/$',
-        'submission.views.submission_additional_files',
+        submission_additional_files,
         name='submission_additional_files',
     ),
     url(
         r'^book/(?P<book_id>\d+)/order/(?P<type_to_handle>[-\w./]+)/$',
-        'submission.views.file_order',
+        file_order,
         name='file_order',
     ),
     url(
         r'^book/(?P<book_id>\d+)/type/(?P<type_to_handle>[-\w./]+)/upload/',
-        'submission.views.upload',
+        upload,
         name='jfu_upload',
     ),
     url(
         r'^book/(?P<book_id>\d+)/file/(?P<file_pk>\d+)/delete/$',
-        'submission.views.upload_delete',
+        upload_delete,
         name='jfu_delete',
     ),
     url(
         r'^proposal/$',
-        'submission.views.start_proposal',
+        start_proposal,
         name='proposal_start',
     ),
     url(
         r'^incomplete-proposal/(?P<proposal_id>\d+)/$',
-        'submission.views.incomplete_proposal',
+        incomplete_proposal,
         name='incomplete_proposal',
     ),
     url(
         r'^incomplete-proposal/delete/(?P<proposal_id>\d+)/$',
-        'submission.views.delete_incomplete_proposal',
+        delete_incomplete_proposal,
         name='delete_incomplete_proposal',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/view/$',
-        'submission.views.proposal_view',
+        proposal_view,
         name='proposal_view_submitted',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/submission-email/$',
-        views.ProposalSubmissionEmail.as_view(),
+        ProposalSubmissionEmail.as_view(),
         name='proposal_submission_email',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/history/$',
-        'submission.views.proposal_history',
+        proposal_history,
         name='proposal_history_submitted',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/history/(?P<history_id>\d+)/$',
-        'submission.views.proposal_history_view',
+        proposal_history_view,
         name='proposal_history_view_submitted',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/notes/(?P<note_id>\d+)/$',
-        'submission.views.proposal_notes',
+        proposal_notes,
         name='submission_notes_view',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/notes/update/(?P<note_id>\d+)/$',
-        'submission.views.proposal_update_note',
+        proposal_update_note,
         name='submission_notes_update',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/notes/add$',
-        'submission.views.proposal_add_note',
+        proposal_add_note,
         name='submission_notes_add',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/revisions/$',
-        'submission.views.proposal_revisions',
+        proposal_revisions,
         name='proposal_revisions',
     ),
     url(
         r'^proposal/(?P<proposal_id>\d+)/revision-submission-email/$',
-        views.ProposalRevisionCompleteEmail.as_view(),
+        ProposalRevisionCompleteEmail.as_view(),
         name='proposal_revisions_submitted',
     ),
-)
+]

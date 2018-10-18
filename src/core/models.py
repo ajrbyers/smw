@@ -366,7 +366,8 @@ class APIConnector(models.Model):
 class Profile(models.Model):
 
     user = models.OneToOneField(
-        User
+        User,
+        on_delete=models.CASCADE,
     )
     activation_code = models.CharField(
         max_length=100,
@@ -721,6 +722,7 @@ class Book(models.Model):
             "If you are submitting this work to an "
             "existing Series please select it."
         ),
+        on_delete=models.CASCADE,
     )
     author = models.ManyToManyField(
         'Author',
@@ -787,6 +789,7 @@ class Book(models.Model):
         null=True,
         blank=True,
         help_text="The license you recommend for this work.",
+        on_delete=models.CASCADE,
     )
     cover = models.ImageField(
         upload_to=cover_images_upload_path,
@@ -852,6 +855,7 @@ class Book(models.Model):
         User,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     read_only_users = models.ManyToManyField(  # Read only users.
         User,
@@ -876,6 +880,7 @@ class Book(models.Model):
         'Stage',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     submission_stage = models.IntegerField(
         null=True,
@@ -897,6 +902,7 @@ class Book(models.Model):
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     files = models.ManyToManyField(  # Files.
         'File',
@@ -932,11 +938,13 @@ class Book(models.Model):
         null=True,
         blank=True,
         related_name='contract_of_book',
+        on_delete=models.CASCADE,
     )
     proposal = models.ForeignKey(  # Proposal.
         'submission.Proposal',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
 
     peer_review_override = models.BooleanField(
@@ -1134,8 +1142,14 @@ def identifier_choices():
 
 class Note(models.Model):
 
-    book = models.ForeignKey(Book)
-    user = models.ForeignKey(User)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
     date_submitted = models.DateTimeField(
         auto_now_add=True,
     )
@@ -1166,17 +1180,20 @@ class Identifier(models.Model):
         Book,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     digital_format = models.ForeignKey(
         'Format',
         related_name='digital_format',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     physical_format = models.ForeignKey(
         'PhysicalFormat',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     identifier = models.CharField(
         max_length=20,
@@ -1217,7 +1234,8 @@ def physical_book_types():
 class Retailer(models.Model):
 
     book = models.ForeignKey(
-        Book
+        Book,
+        on_delete=models.CASCADE,
     )
     name = models.CharField(
         max_length=300,
@@ -1254,12 +1272,14 @@ class Contract(models.Model):
         related_name='editor_file',
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
     )
     author_file = models.ForeignKey(
         'File',
         related_name='author_file',
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
     )
     editor_signed_off = models.DateField(
         blank=True,
@@ -1302,7 +1322,10 @@ class ReviewRound(models.Model):
     class Meta:
         unique_together = ('book', 'round_number')
 
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+    )
     round_number = models.IntegerField()
     date_started = models.DateTimeField(
         auto_now_add=True,
@@ -1334,11 +1357,13 @@ class ReviewAssignment(models.Model):
 
     book = models.ForeignKey(
         Book,
+        on_delete=models.CASCADE,
     )
     review_round = models.ForeignKey(
         ReviewRound,
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
     )
     review_type = models.CharField(
         max_length=15,
@@ -1346,12 +1371,14 @@ class ReviewAssignment(models.Model):
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
     )
     assigning_editor = models.ForeignKey(
         User,
         blank=True,
         null=True,
-        related_name='review_assignments'
+        related_name='review_assignments',
+        on_delete=models.CASCADE,
     )
     assigned = models.DateField(
         auto_now_add=True,
@@ -1390,6 +1417,7 @@ class ReviewAssignment(models.Model):
         'review.FormResult',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     recommendation = models.CharField(
         max_length=10,
@@ -1428,6 +1456,7 @@ class ReviewAssignment(models.Model):
         'review.Form',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
 
     def __unicode__(self):
@@ -1442,7 +1471,8 @@ class EditorialReviewAssignment(models.Model):
 
     # TODO: Remove this: already linked to the book through the review round.
     book = models.ForeignKey(
-        Book
+        Book,
+        on_delete=models.CASCADE,
     )
     assigned = models.DateField(
         auto_now_add=True,
@@ -1479,6 +1509,7 @@ class EditorialReviewAssignment(models.Model):
     management_editor = models.ForeignKey(
         User,
         related_name='management_editor',
+        on_delete=models.CASCADE,
     )
     editorial_board_access_key = models.CharField(
         max_length=258,
@@ -1501,12 +1532,14 @@ class EditorialReviewAssignment(models.Model):
         null=True,
         blank=True,
         related_name="eb_review_form_results",
+        on_delete=models.CASCADE,
     )
     publication_committee_results = models.ForeignKey(
         'review.FormResult',
         null=True,
         blank=True,
         related_name="pc_review_form_results",
+        on_delete=models.CASCADE,
     )
 
     editorial_board_recommendation = models.CharField(
@@ -1543,13 +1576,15 @@ class EditorialReviewAssignment(models.Model):
         'review.Form',
         null=True,
         blank=True,
-        related_name="eb_review_form"
+        related_name="eb_review_form",
+        on_delete=models.CASCADE,
     )
     publication_committee_review_form = models.ForeignKey(
         'review.Form',
         null=True,
         blank=True,
-        related_name="pc_review_form"
+        related_name="pc_review_form",
+        on_delete=models.CASCADE,
     )
     unaccepted_reminder = models.BooleanField(  # Ensure are sent only once.
         default=False,
@@ -1582,14 +1617,19 @@ class EditorialReviewAssignment(models.Model):
 
 class CopyeditAssignment(models.Model):
 
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+    )
     copyeditor = models.ForeignKey(
         User,
         related_name='copyeditor',
+        on_delete=models.CASCADE,
     )
     requestor = models.ForeignKey(
         User,
         related_name='copyedit_requestor',
+        on_delete=models.CASCADE,
     )
     requested = models.DateField(
         auto_now_add=True,
@@ -1714,14 +1754,19 @@ class CopyeditAssignment(models.Model):
 
 class IndexAssignment(models.Model):
 
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+    )
     indexer = models.ForeignKey(
         User,
-        related_name='indexer'
+        related_name='indexer',
+        on_delete=models.CASCADE,
     )
     requestor = models.ForeignKey(
         User,
-        related_name='index_requestor'
+        related_name='index_requestor',
+        on_delete=models.CASCADE,
     )
     requested = models.DateField(
         auto_now_add=True
@@ -1805,15 +1850,18 @@ class IndexAssignment(models.Model):
 class TypesetAssignment(models.Model):
 
     book = models.ForeignKey(
-        Book
+        Book,
+        on_delete=models.CASCADE,
     )
     typesetter = models.ForeignKey(
         User,
         related_name='typesetter',
+        on_delete=models.CASCADE,
     )
     requestor = models.ForeignKey(
         User,
         related_name='typeset_requestor',
+        on_delete=models.CASCADE,
     )
     requested = models.DateField(
         auto_now_add=True,
@@ -2025,6 +2073,7 @@ class Series(models.Model):
         User,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     issn = models.CharField(
         max_length=15,
@@ -2171,7 +2220,10 @@ class File(models.Model):
     sequence = models.IntegerField(
         default=1,
     )
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
 
     def truncated_filename(self):
         name, extension = os.path.splitext(self.original_filename)
@@ -2213,7 +2265,10 @@ class FileVersion(models.Model):
     class Meta:
         ordering = ('-date_uploaded',)
 
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(
+        File,
+        on_delete=models.CASCADE,
+    )
     original_filename = models.CharField(
         max_length=1000,
     )
@@ -2221,7 +2276,10 @@ class FileVersion(models.Model):
         max_length=100,
     )
     date_uploaded = models.DateTimeField()
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
 
 
 class Subject(models.Model):
@@ -2271,7 +2329,7 @@ stage_choices = (
 class Stage(models.Model):
 
     current_stage = models.CharField(
-        max_length="20",
+        max_length=20,
         choices=stage_choices,
         null=True,
         blank=True,
@@ -2346,14 +2404,17 @@ class Task(models.Model):
         Book,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     creator = models.ForeignKey(
         User,
         related_name='creator',
+        on_delete=models.CASCADE,
     )
     assignee = models.ForeignKey(
         User,
         related_name='assignee',
+        on_delete=models.CASCADE,
     )
     text = models.CharField(
         max_length=200,
@@ -2392,6 +2453,7 @@ class Task(models.Model):
         EditorialReviewAssignment,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
 
     def status_color(self):
@@ -2438,15 +2500,18 @@ class Log(models.Model):
         Book,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     proposal = models.ForeignKey(
         submission_models.Proposal,
         null=True,
         blank=True,
         related_name='proposal_log',
+        on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
     )
     kind = models.CharField(
         max_length=100,
@@ -2504,6 +2569,7 @@ class Setting(models.Model):
     )
     group = models.ForeignKey(
         SettingGroup,
+        on_delete=models.CASCADE,
     )
     types = models.CharField(
         max_length=20,
@@ -2557,9 +2623,11 @@ class Format(models.Model):
 
     book = models.ForeignKey(
         Book,
+        on_delete=models.CASCADE,
     )
     file = models.ForeignKey(
         File,
+        on_delete=models.CASCADE,
     )
     name = models.CharField(
         max_length=200,
@@ -2588,7 +2656,10 @@ class Chapter(models.Model):
     class Meta:
         ordering = ('sequence',)
 
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(
         max_length=300,
         null=True,
@@ -2647,6 +2718,7 @@ class ChapterAuthor(models.Model):
 
     chapter = models.ForeignKey(
         Chapter,
+        on_delete=models.CASCADE,
     )
     sequence = models.IntegerField(
         default=1,
@@ -2755,12 +2827,15 @@ class ChapterFormat(models.Model):
     chapter = models.ForeignKey(
         Chapter,
         related_name='format_chapter',
+        on_delete=models.CASCADE,
     )
     book = models.ForeignKey(
-        Book
+        Book,
+        on_delete=models.CASCADE,
     )
     file = models.ForeignKey(
-        File
+        File,
+        on_delete=models.CASCADE,
     )
     name = models.CharField(
         max_length=200,
@@ -2790,7 +2865,8 @@ class PhysicalFormat(models.Model):
         ordering = ('sequence', 'name')
 
     book = models.ForeignKey(
-        Book
+        Book,
+        on_delete=models.CASCADE,
     )
     name = models.CharField(
         max_length=200,
@@ -2898,9 +2974,11 @@ class ProposalFormElementsRelationship(models.Model):
 
     form = models.ForeignKey(
         ProposalForm,
+        on_delete=models.CASCADE,
     )
     element = models.ForeignKey(
         ProposalFormElement,
+        on_delete=models.CASCADE,
     )
     order = models.IntegerField()
     width = models.CharField(
@@ -2930,8 +3008,14 @@ class Message(models.Model):
     class Meta:
         ordering = ('-date_sent',)
 
-    book = models.ForeignKey(Book)
-    sender = models.ForeignKey(User)
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE
+    )
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
     date_sent = models.DateTimeField(
         auto_now_add=True,
     )
@@ -2965,11 +3049,13 @@ class EmailLog(models.Model):
         Book,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     proposal = models.ForeignKey(
         submission_models.Proposal,
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     to = models.EmailField(
         max_length=1000,

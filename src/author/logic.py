@@ -9,7 +9,7 @@ from core.setting_util import get_setting
 
 def author_tasks(user):
     task_list = []
-    if user.is_authenticated():
+    if user.is_authenticated:
         base_url = get_setting('base_url', 'general')
         revision_tasks = revisions_models.Revision.objects.filter(
             book__owner=user,

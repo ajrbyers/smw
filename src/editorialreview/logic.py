@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.utils.encoding import smart_text
 

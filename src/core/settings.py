@@ -67,18 +67,17 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.twitter',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE= (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'core.middleware.Roles',
     'core.middleware.Version',
 )
-
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
@@ -159,13 +158,13 @@ TEMPLATES = [
             'context_processors': [
                 # Already defined Django-related contexts here
                 "django.contrib.auth.context_processors.auth",
-                "django.core.context_processors.debug",
-                "django.core.context_processors.i18n",
-                "django.core.context_processors.media",
-                "django.core.context_processors.static",
-                "django.core.context_processors.tz",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "django.core.context_processors.request",
                 "core.context_processors.press",
                 "core.context_processors.task_count",
                 "core.context_processors.review_assignment_count",

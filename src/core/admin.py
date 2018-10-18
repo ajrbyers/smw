@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-import models as m
-
+from core import models
 
 class AuthorAdmin(admin.ModelAdmin):
 
@@ -104,42 +103,45 @@ class ProposalFormElementAdmin(admin.ModelAdmin):
 
 
 admin_list = [
-    (m.Author, AuthorAdmin),
-    (m.Note, NoteAdmin),
-    (m.Profile, ProfileAdmin),
-    (m.Book, BookAdmin),
-    (m.License, LicenseAdmin),
-    (m.Task, TaskAdmin),
-    (m.File, FileAdmin),
-    (m.FileVersion,),
-    (m.Stage,),
-    (m.Subject,),
-    (m.Keyword,),
-    (m.Series,),
-    (m.Log, LogAdmin),
-    (m.Setting, SettingAdmin),
-    (m.SettingGroup,),
-    (m.Role, RoleAdmin,),
-    (m.ReviewAssignment, ReviewAssAdmin),
-    (m.EditorialReviewAssignment, EditorialReviewAssAdmin),
-    (m.Format,),
-    (m.Chapter,),
-    (m.ChapterFormat,),
-    (m.ReviewRound, ReviewRoundAdmin),
-    (m.ProposalForm, ProposalFormAdmin),
-    (m.ProposalFormElement, ProposalFormElementAdmin),
-    (m.ProposalFormElementsRelationship, ProposalFormElementRelationshipAdmin),
-    (m.Contract,),
-    (m.Retailer,),
-    (m.Identifier,),
-    (m.Language,),
-    (m.CopyeditAssignment,),
-    (m.TypesetAssignment,),
-    (m.IndexAssignment,),
-    (m.EmailLog,),
-    (m.Message,),
-    (m.APIConnector,),
-    (m.PhysicalFormat,),
+    (models.Author, AuthorAdmin),
+    (models.Note, NoteAdmin),
+    (models.Profile, ProfileAdmin),
+    (models.Book, BookAdmin),
+    (models.License, LicenseAdmin),
+    (models.Task, TaskAdmin),
+    (models.File, FileAdmin),
+    (models.FileVersion,),
+    (models.Stage,),
+    (models.Subject,),
+    (models.Keyword,),
+    (models.Series,),
+    (models.Log, LogAdmin),
+    (models.Setting, SettingAdmin),
+    (models.SettingGroup,),
+    (models.Role, RoleAdmin,),
+    (models.ReviewAssignment, ReviewAssAdmin),
+    (models.EditorialReviewAssignment, EditorialReviewAssAdmin),
+    (models.Format,),
+    (models.Chapter,),
+    (models.ChapterFormat,),
+    (models.ReviewRound, ReviewRoundAdmin),
+    (models.ProposalForm, ProposalFormAdmin),
+    (models.ProposalFormElement, ProposalFormElementAdmin),
+    (
+        models.ProposalFormElementsRelationship,
+        ProposalFormElementRelationshipAdmin
+    ),
+    (models.Contract,),
+    (models.Retailer,),
+    (models.Identifier,),
+    (models.Language,),
+    (models.CopyeditAssignment,),
+    (models.TypesetAssignment,),
+    (models.IndexAssignment,),
+    (models.EmailLog,),
+    (models.Message,),
+    (models.APIConnector,),
+    (models.PhysicalFormat,),
 ]
 
 [admin.site.register(*t) for t in admin_list]

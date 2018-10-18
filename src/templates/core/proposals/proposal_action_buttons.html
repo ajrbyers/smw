@@ -1,5 +1,5 @@
 <div class="btn-group btn-group-justified" role="group">
-{% if proposal.status = 'revisions_submitted' or proposal.status = 'submission'%}
+{% if proposal.status == 'revisions_submitted' or proposal.status == 'submission'%}
 	  <div class="btn-group" role="group">
     <a href="{% url 'accept_proposal' proposal.id %}" type="button" class="btn btn-success btn-browse">Accept Proposal</a>
   </div>

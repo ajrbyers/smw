@@ -1,31 +1,37 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
+from .views import (
+    author,
+    editor,
+    formats,
+    index,
+    stage,
+)
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(
         r'^$',
-        'swiftsubmit.views.index',
+        index,
         name='swiftsubmit_index'
     ),
     url(
         r'^book/(?P<book_id>\d+)/formats/$',
-        'swiftsubmit.views.formats',
+        formats,
         name='swiftsubmit_formats'
     ),
     url(
         r'^book/(?P<book_id>\d+)/authors/$',
-        'swiftsubmit.views.author',
+        author,
         name='swiftsubmit_authors'
     ),
     url(
         r'^book/(?P<book_id>\d+)/editors/$',
-        'swiftsubmit.views.editor',
+        editor,
         name='swiftsubmit_editors'
     ),
     url(
         r'^book/(?P<book_id>\d+)/stage/$',
-        'swiftsubmit.views.stage',
+        stage,
         name='swiftsubmit_stage'
     ),
-)
+]

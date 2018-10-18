@@ -1,21 +1,21 @@
 <div class="btn-group btn-group-justified" role="group">
   <div class="btn-group" role="group">
-    <a href="{% if book %}{% url 'edit_start' book.id %}{% else %}{% url 'submission_start' %}{% endif %}" type="button" class="btn btn-success{% if active = 1 %} active{% endif %}">Stage 1 - Start</a>
+    <a href="{% if book %}{% url 'edit_start' book.id %}{% else %}{% url 'submission_start' %}{% endif %}" type="button" class="btn btn-success{% if active == 1 %} active{% endif %}">Stage 1 - Start</a>
   </div>
   <div class="btn-group" role="group">
-    <a href="{% if book.submission_stage > 1 %}{% url 'submission_two' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 1 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active = 2 %} active{% endif %}">Stage 2 - Metadata</a>
+    <a href="{% if book.submission_stage > 1 %}{% url 'submission_two' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 1 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active == 2 %} active{% endif %}">Stage 2 - Metadata</a>
   </div>
   <div class="btn-group" role="group">
-    <a href="{% if book.submission_stage > 2 %}{% url 'submission_three' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 2 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active = 3 %} active{% endif %}">Stage 3 - Manuscript Files</a>
+    <a href="{% if book.submission_stage > 2 %}{% url 'submission_three' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 2 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active == 3 %} active{% endif %}">Stage 3 - Manuscript Files</a>
   </div>
   <div class="btn-group" role="group">
-    <a href="{% if book.submission_stage > 3 %}{% url 'submission_three_additional' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 3 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active = 4 %} active{% endif %}">Stage 4 - Additional Files</a>
+    <a href="{% if book.submission_stage > 3 %}{% url 'submission_three_additional' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 3 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active == 4 %} active{% endif %}">Stage 4 - Additional Files</a>
   </div>
   <div class="btn-group" role="group">
-    <a href="{% if book.submission_stage > 4 %}{% url 'submission_four' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 4 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active = 5 %} active{% endif %}">Stage 5 - Contributors</a>
+    <a href="{% if book.submission_stage > 4 %}{% url 'submission_four' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 4 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active == 5 %} active{% endif %}">Stage 5 - Contributors</a>
   </div>
   <div class="btn-group" role="group">
-    <a href="{% if book.submission_stage > 5 %}{% url 'submission_five' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 5 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active = 6 %} active{% endif %}">Stage 6 - Review</a>
+    <a href="{% if book.submission_stage > 5 %}{% url 'submission_five' book.id %}{% endif %}" type="button" class="{% if book.submission_stage > 5 %}btn btn-success{% else %}btn btn-default disabled{% endif %}{% if active == 6 %} active{% endif %}">Stage 6 - Review</a>
   </div>
 </div>
 <br />

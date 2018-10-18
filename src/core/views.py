@@ -1,10 +1,10 @@
-from __builtin__ import any as string_any
+from builtins import any as string_any
 from datetime import datetime
 import json
 import mimetypes
 import os
 import string
-import StringIO
+from io import StringIO
 from uuid import uuid4
 
 from django.conf import settings
@@ -16,7 +16,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import (
@@ -50,13 +50,13 @@ from core.decorators import (
 )
 from editor import forms as editor_forms
 from editorialreview import models as er_models
-from email import (
+from .email import (
     send_email,
     send_email_multiple,
     send_reset_email,
     get_email_body,
 )
-from files import (
+from .files import (
     handle_attachment,
     handle_file,
     handle_file_update,
@@ -74,7 +74,7 @@ from review import (
     logic as review_logic
 )
 import email
-from setting_util import get_setting
+from .setting_util import get_setting
 
 
 def index(request):
@@ -89,7 +89,7 @@ def contact(request):
 
 
 def dashboard(request):  # Authentication Views.
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         roles = request.user.profile.roles.all()
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
@@ -104,7 +104,7 @@ def dashboard(request):  # Authentication Views.
 
 
 def login(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
@@ -160,7 +160,7 @@ def login(request):
 
 @is_press_editor
 def switch_account(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return redirect(reverse('login'))
 
     users = models.Profile.objects.all()
@@ -2963,7 +2963,7 @@ def view_proposal_review_decision(
 
     proposal_form.initial = intial_data
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         review_assignment = get_object_or_404(
             submission_models.ProposalReview,
             pk=assignment_id,
@@ -3528,7 +3528,7 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
 
     proposal_form.initial = initial_data
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         review_assignment = get_object_or_404(
             submission_models.ProposalReview,
             pk=assignment_id,
@@ -3833,7 +3833,7 @@ class ProposalReviewCompletionEmail(FormView):
         return super(ProposalReviewCompletionEmail, self).form_valid(form)
 
     def get_success_url(self):
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             return reverse('user_dashboard')
         return reverse('proposal_review_submitted')
 

@@ -1,9 +1,18 @@
+from datetime import datetime
+
 from django.shortcuts import Http404, get_object_or_404
 
-from core import files, models, task
-import forms
+from core import (
+    files,
+    models,
+    task,
+)
 
-from datetime import datetime
+from .forms import (
+    Copyedit,
+    Index,
+    Typeset,
+)
 
 
 def get_assignment(assignment_type, assignment_id):
@@ -29,11 +38,11 @@ def get_assignment(assignment_type, assignment_id):
 
 def get_assignemnt_form(request, assignment_type, assignment):
     if assignment_type == 'copyedit':
-        form = forms.Copyedit(request.POST, instance=assignment)
+        form = Copyedit(request.POST, instance=assignment)
     elif assignment_type == 'typesetting':
-        form = forms.Typeset(request.POST, instance=assignment)
+        form = Typeset(request.POST, instance=assignment)
     elif assignment_type == 'indexing':
-        form = forms.Index(request.POST, instance=assignment)
+        form = Index(request.POST, instance=assignment)
     else:
         raise Http404
 
@@ -42,11 +51,11 @@ def get_assignemnt_form(request, assignment_type, assignment):
 
 def get_unposted_form(request, assignment_type, assignment):
     if assignment_type == 'copyedit':
-        form = forms.Copyedit(instance=assignment)
+        form = Copyedit(instance=assignment)
     elif assignment_type == 'typesetting':
-        form = forms.Typeset(instance=assignment)
+        form = Typeset(instance=assignment)
     elif assignment_type == 'indexing':
-        form = forms.Index(instance=assignment)
+        form = Index(instance=assignment)
     else:
         raise Http404
 

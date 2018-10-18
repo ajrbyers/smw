@@ -2,7 +2,7 @@ import json
 import os
 
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import linebreaksbr
 from django.utils.safestring import mark_safe
 

@@ -5,11 +5,13 @@ from django.db import models
 class CoverImageProof(models.Model):
 
     book = models.ForeignKey(
-        'core.Book'
+        'core.Book',
+        on_delete=models.CASCADE,
     )
     editor = models.ForeignKey(
         User,
         verbose_name='editor',
+        on_delete=models.CASCADE,
     )
     assigned = models.DateField(
         auto_now_add=True

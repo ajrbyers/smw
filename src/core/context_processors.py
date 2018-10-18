@@ -14,7 +14,7 @@ def task_count(request):
 
 
 def switch_account(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if core_models.Profile.objects.filter(user=request.user):
             user_roles = [
                 role.slug for role in request.user.profile.roles.all()
@@ -30,7 +30,7 @@ def review_assignment_count(request):
 
 
 def onetasker_task_count(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         onetasker_tasks = logic.onetasker_tasks(request.user)
         return {'onetasker_task_count': len(onetasker_tasks.get('active')), }
     return {'onetasker_task_count': 0}
@@ -41,7 +41,7 @@ def author_task_count(request):
 
 
 def roles(request):
-    if request.user.is_authenticated() and hasattr(request.user, 'profile'):
+    if request.user.is_authenticated and hasattr(request.user, 'profile'):
         return {
             'roles': [
                 role.slug for role in request.user.profile.roles.all()

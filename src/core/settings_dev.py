@@ -2,7 +2,7 @@
 
 SECRET_KEY = '_%@8*2$*1*i&um4+#a6w(%xqa_19=tfmhu9u-l*7t(a$g(2)wg'
 
-from settings import *
+from .base_settings import *
 
 DEBUG = True
 
@@ -25,12 +25,12 @@ INCLUDE_STATIC_FILE_URLCONFS = True
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.mysql'),
+        'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql_psycopg2'),
         'NAME': os.getenv('DATABASE_NAME', 'rua'),
         'USER': os.getenv('DATABASE_USER', 'root'),
         'PASSWORD': os.getenv('DATABASE_PASS', ''),
         'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DATABASE_PORT', '3306')
+        'PORT': os.getenv('DATABASE_PORT', '5432')
     }
 }
 

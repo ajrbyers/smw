@@ -1,15 +1,19 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import (
+    include,
+    url,
+)
 
 from rest_framework import routers
 
-from api import views
-
+from api.views import (
+    index,
+    JuraBookViewSet,
+)
 
 router = routers.DefaultRouter()
-router.register(r'jura', views.JuraBookViewSet)
+router.register(r'jura', JuraBookViewSet)
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', 'api.views.index', name='index'),
+urlpatterns = [
+    url(r'^$', index, name='index'),
     url(r'^', include(router.urls)),
-)
+]

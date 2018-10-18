@@ -1,4 +1,4 @@
-from __builtin__ import any as string_any
+from builtins import any as string_any
 import datetime
 import json
 import mimetypes
@@ -6,7 +6,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
 from django.template import Context
@@ -21,7 +21,7 @@ from core.cache import cache_result
 from core.files import handle_marc21_file
 from editorialreview import models as editorialreview_models
 from revisions import models as revisions_models
-from setting_util import get_setting
+from .setting_util import get_setting
 from submission import logic as submission_logic, models as submission_models
 
 
@@ -622,7 +622,7 @@ def task_count(request):
     :param request: the request containing the user object used in the query
     :return: the number of incomplete talks assigned to the request's user
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return models.Task.objects.filter(
             assignee=request.user,
             completed__isnull=True,
@@ -637,7 +637,7 @@ def review_assignment_count(request):
     :param request: the request containing the user object used in the query
     :return: the number of active reviews assigned to the request's user
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return models.ReviewAssignment.objects.filter(
             user=request.user,
             completed__isnull=True,
@@ -670,7 +670,7 @@ def author_tasks(user):
     """
     task_list = []
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         base_url = get_setting('base_url', 'general')
         revision_tasks = revisions_models.Revision.objects.filter(
             book__owner=user,
@@ -1648,7 +1648,7 @@ def send_proposal_change_owner_ack(request, proposal, email_text, owner):
 
 
 def send_task_decline(assignment, _type, email_text, sender, request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         from_email = request.user.email
         from_email = "%s <%s>" % (
             request.user.profile.full_name(),

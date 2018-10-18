@@ -1,137 +1,160 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-import views
+from .views import (
+   author_contract_signoff,
+   author_dashboard,
+   author_production,
+   author_submission,
+   author_view_typesetter,
+   copyedit_review,
+   editing,
+   proposal_author_contract_signoff,
+   review,
+   revise_file,
+   revision,
+   RevisionCompletionEmail,
+   revision_new_file,
+   status,
+   tasks,
+   typeset_review,
+   view_chapter,
+   view_chapter_format,
+   view_copyedit,
+   view_index,
+   view_review_assignment,
+   view_review_round,
+   view_revisions,
+)
 
-urlpatterns = patterns(
-   '',
+urlpatterns = [
    url(
       r'dashboard/$',
-      'author.views.author_dashboard',
+      author_dashboard,
       name='author_dashboard'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/$',
-      'author.views.author_submission',
+      author_submission,
       name='author_submission'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/status/$',
-      'author.views.status',
+      status,
       name='status'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/tasks/$',
-      'author.views.tasks',
+      tasks,
       name='tasks'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/review/$',
-      'author.views.review',
+      review,
       name='review'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/revisions/(?P<revision_id>\d+)/$',
-      'author.views.view_revisions',
+      view_revisions,
       name='view_revisions'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/round/(?P<round_id>\d+)/$',
-      'author.views.view_review_round',
+      view_review_round,
       name='view_review_round'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/round/(?P<round_id>\d+)/assignment/(?P<review_id>\d+)/$',
-      'author.views.view_review_assignment',
+      view_review_assignment,
       name='view_review_assignment'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/editing/$',
-      'author.views.editing',
+      editing,
       name='editing'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'view/copyeditor/(?P<copyedit_id>\d+)/$',
-      'author.views.view_copyedit',
+      view_copyedit,
       name='author_view_copyedit'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'view/indexer/(?P<index_id>\d+)/$',
-      'author.views.view_index',
+      view_index,
       name='author_view_index'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'copyedit/(?P<copyedit_id>\d+)/$',
-      'author.views.copyedit_review',
+      copyedit_review,
       name='copyedit_review'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'typeset/(?P<typeset_id>\d+)/$',
-      'author.views.typeset_review',
+      typeset_review,
       name='typeset_review'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/production/$',
-      'author.views.author_production',
+      author_production,
       name='author_production'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'view/typesetter/(?P<typeset_id>\d+)$',
-      'author.views.author_view_typesetter',
+      author_view_typesetter,
       name='author_view_typesetter'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/$',
-      'author.views.revision',
+      revision,
       name='author_revision'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/completion_email/$',
-      views.RevisionCompletionEmail.as_view(),
+      RevisionCompletionEmail.as_view(),
       name='author_revision_completion_email'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/update_file/(?P<file_id>\d+)/$',
-      'author.views.revise_file',
+      revise_file,
       name='revise_file'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/new/(?P<file_type>[-\w]+)/file/$',
-      'author.views.revision_new_file',
+      revision_new_file,
       name='revision_new_file'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/contract/'
       r'(?P<contract_id>\d+)/signoff/$',
-      'author.views.author_contract_signoff',
+      author_contract_signoff,
       name='author_contract_signoff'
    ),
    url(
       r'^proposal/(?P<proposal_id>\d+)/contract/(?P<contract_id>\d+)/signoff/$',
-      'author.views.proposal_author_contract_signoff',
+      proposal_author_contract_signoff,
       name='proposal_author_contract_signoff'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'chapter/(?P<chapter_id>\d+)/view/$',
-      'author.views.view_chapter',
+      view_chapter,
       name='author_view_chapter'
    ),
    url(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'chapter/(?P<chapter_id>\d+)/view/format/(?P<format_id>\d+)/$',
-      'author.views.view_chapter_format',
+      view_chapter_format,
       name='author_view_chapter_format'
    ),
-)
+]

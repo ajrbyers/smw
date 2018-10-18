@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from review import models
 from review import views
