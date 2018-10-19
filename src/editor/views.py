@@ -15,12 +15,33 @@ from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 
-from core import models, log, logic as core_logic, forms as core_forms
-from core.files import handle_file_update, handle_attachment, handle_file
-from core.decorators import is_book_editor, is_editor, is_press_editor
-from editor import logic, forms as editor_forms, forms, models as editor_models
+from core import (
+    models,
+    log,
+    logic as core_logic,
+    forms as core_forms,
+)
+from core.files import (
+    handle_file_update,
+    handle_attachment,
+    handle_file,
+)
+from core.decorators import (
+    is_book_editor,
+    is_editor,
+    is_press_editor
+)
+from editor import (
+    logic,
+    forms as editor_forms,
+    forms,
+    models as editor_models
+)
 from editorialreview import models as editorial_models
-from manager import models as manager_models, logic as manager_logic
+from manager import (
+    models as manager_models,
+    logic as manager_logic,
+)
 from review import models as review_models
 from revisions import models as revision_models
 from submission import forms as submission_forms

@@ -1,9 +1,8 @@
 from __future__ import absolute_import
 import csv
 import ftplib
+from io import StringIO
 import os
-import StringIO
-
 from django.conf import settings
 
 from celery import task
@@ -50,9 +49,9 @@ def add_metadata():
 
         try:
             files = ftp.nlst()
-        except ftplib.error_perm, resp:
+        except ftplib.error_perm as resp:
             if str(resp) == '550 No files found':
-                print 'No files in this directory'
+                print('No files in this directory')
             else:
                 raise
 

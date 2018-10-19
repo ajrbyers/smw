@@ -58,7 +58,7 @@ class ProposalEditorialReviewFactory(factory.django.DjangoModelFactory):
 class EditorialReviewTests(TestCase):
 
     def setUp(self):
-        self.client = Client(HTTP_HOST='testing')
+        # self.client = Client(HTTP_HOST='testing')
         self.editorialreviewer = EditorialReviewerFactory.create()
         self.editorialreviewer.set_password('reviewerpass')
         self.editorialreviewer.save()
@@ -98,5 +98,5 @@ class EditorialReviewTests(TestCase):
                 }
             )
         )
-        print resp.url
+        print(resp.url)
         self.assertEqual(resp.status_code, 200)

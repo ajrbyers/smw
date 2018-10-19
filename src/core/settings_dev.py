@@ -6,15 +6,13 @@ from .base_settings import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    host.strip() for host in
-    os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
-]
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+
 
 SESSION_COOKIE_NAME = 'rua_cookie'
 
 INSTALLED_APPS += (
-    'test_without_migrations',
+    # 'test_without_migrations',
     'debug_toolbar',
 )
 

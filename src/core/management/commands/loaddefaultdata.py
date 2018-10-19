@@ -14,3 +14,4 @@ class Command(BaseCommand):
         call_command('loaddata', 'role.json')
         call_command('loaddata', 'settinggroups.json')
         call_command('loaddata', 'settings/master.json')
+        call_command('loaddata', 'forms/master.json')

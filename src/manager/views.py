@@ -9,18 +9,32 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+    redirect,
+)
 from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
 
 import requests
 
-from core import models as core_models, forms as core_forms
+from core import (
+    models as core_models,
+    forms as core_forms,
+)
 from core.decorators import is_press_editor
-from manager import forms, logic, models
+from manager import (
+    forms,
+    logic,
+    models
+)
 from review import models as review_models
-from submission import forms as submission_forms, models as submission_models
+from submission import (
+    forms as submission_forms,
+    models as submission_models,
+)
 
 
 @is_press_editor

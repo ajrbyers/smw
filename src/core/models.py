@@ -17,6 +17,7 @@ from submission import models as submission_models
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
 SALUTATION_CHOICES = (
+    ('Mx', 'Mx'),
     ('Miss', 'Miss'),
     ('Ms', 'Ms'),
     ('Mrs', 'Mrs'),
@@ -2056,6 +2057,9 @@ class License(models.Model):
     def __unicode__(self):
         return u'%s' % self.short_name
 
+    def __str__(self):
+        return self.short_name
+
     def __repr__(self):
         return u'%s' % self.short_name
 
@@ -2471,6 +2475,9 @@ class Role(models.Model):
     slug = models.CharField(
         max_length=100,
     )
+
+    def __str__(self):
+        return self.name
 
     def __unicode__(self):
         return u'%s' % self.name

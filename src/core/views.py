@@ -3,7 +3,6 @@ from datetime import datetime
 import json
 import mimetypes
 import os
-import string
 from io import StringIO
 from uuid import uuid4
 
@@ -38,7 +37,12 @@ from docx import Document
 import zipfile
 
 from author import orcid
-from core import log, models, forms, logic
+from core import (
+    log,
+    models,
+    forms,
+    logic
+)
 from core.decorators import (
     is_reviewer,
     is_editor,
@@ -714,7 +718,7 @@ def unauth_reset_password(request, uuid):
     return render(request, template, context)
 
 
-def permission_denied(request):
+def permission_denied(request, **kwargs):
     template = 'core/403.html'
     context = {}
 
@@ -2983,6 +2987,8 @@ def view_proposal_review_decision(
     else:
         raise Http404
 
+    # import ipdb; ipdb.set_trace()
+
     if review_assignment.accepted:
         if access_key:
             return redirect(
@@ -3226,7 +3232,7 @@ class RequestedReviewerDecisionEmail(FormView):
             editor.email
             for editor in self.proposal.book_editors.exclude(
                 email=assigning_editor_email,
-                username=settings.INTERNAL_USER
+                username=settings.ADMIN_USERNAME
             )
         ]
         from_email = self.proposal_review.user.email or get_setting(
@@ -3813,7 +3819,7 @@ class ProposalReviewCompletionEmail(FormView):
             editor.email
             for editor in self.proposal.book_editors.exclude(
                 email=assigning_editor_email,
-                username=settings.INTERNAL_USER
+                username=settings.ADMIN_USERNAME
             )
         ]
         from_email = self.proposal_reivew.user.email or get_setting(
@@ -4226,8 +4232,7 @@ def reopen_proposal_review(request, proposal_id, assignment_id):
         due_date = request.POST.get('due_date')
         review_assignment.due = datetime.strptime(due_date, "%Y-%m-%d")
         review_assignment.save()
-        email_updated_text = string.replace(
-            email_updated_text,
+        email_updated_text = email_updated_text.replace(
             '_due_date_',
             due_date,
         )
@@ -4279,8 +4284,7 @@ def request_proposal_revisions(request, proposal_id):
         due_date = request.POST.get('due_date')
         _proposal.revision_due_date = datetime.strptime(due_date, "%Y-%m-%d")
         _proposal.save()
-        email_updated_text = string.replace(
-            email_updated_text,
+        email_updated_text = email_updated_text.replace(
             '_due_date_',
             due_date,
         )

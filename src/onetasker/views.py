@@ -7,7 +7,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
 from django.views.decorators.csrf import csrf_exempt
 
 from jfu.http import upload_receive, UploadResponse, JFUResponse

@@ -11,8 +11,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import (
+    HttpResponse,
+    HttpResponseForbidden,
+)
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -20,7 +27,11 @@ from django.utils.encoding import smart_text
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView
 
-from jfu.http import upload_receive, UploadResponse, JFUResponse
+from jfu.http import (
+    upload_receive,
+    UploadResponse,
+    JFUResponse
+)
 
 from core import (
     email,
@@ -49,6 +60,8 @@ def start_submission(request, book_id=None):
     ci_required = get_setting('ci_required', 'general')
 
     checklist_items = submission_models.SubmissionChecklistItem.objects.all()
+
+    # import ipdb; ipdb.set_trace()
 
     if book_id:
         book = get_object_or_404(
@@ -103,7 +116,7 @@ def start_submission(request, book_id=None):
             if not review_type_selection:
                 book.review_type = default_review_type
 
-            if not book.submission_stage > 2:
+            if not book.submission_stage or not book.submission_stage > 2:
                 book.submission_stage = 2
                 book.save()
                 log.add_log_entry(
@@ -444,7 +457,7 @@ class SubmissionCompleteEmail(FormView):
             from_email=self.request.user.email,
             to=[
                 editor.email for editor in press_editors
-                if editor.username != settings.INTERNAL_USER
+                if editor.username != settings.ADMIN_USERNAME
             ],
             subject=form.cleaned_data['email_subject'],
             html_content=form.cleaned_data['email_body'],
@@ -905,7 +918,7 @@ class ProposalSubmissionEmail(FormView):
             from_email=self.request.user.email,
             to=[
                 editor.email for editor in press_editors
-                if editor.username != settings.INTERNAL_USER
+                if editor.username != settings.ADMIN_USERNAME
             ],
             subject=form.cleaned_data['email_subject'],
             html_content=form.cleaned_data['email_body'],

@@ -8,8 +8,16 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
-from django.http import Http404, StreamingHttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+    StreamingHttpResponse,
+)
+from django.shortcuts import (
+    redirect,
+    render,
+    get_object_or_404
+)
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
@@ -489,7 +497,7 @@ class RequestedReviewerDecisionEmail(FormView):
             editor.email
             for editor in self.submission.book_editors.exclude(
                 email=assigning_editor_email,
-                username=settings.INTERNAL_USER
+                username=settings.ADMIN_USERNAME
             )
         ]
 
@@ -959,7 +967,7 @@ class ReviewCompletionEmail(FormView):
             editor.email
             for editor in self.submission.book_editors.exclude(
                 email=assigning_editor_email,
-                username=settings.INTERNAL_USER
+                username=settings.ADMIN_USERNAME
             )
         ]
         series_editor = self.submission.get_series_editor()

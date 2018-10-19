@@ -15,23 +15,25 @@ def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):
                 return f(*args, **kwargs)
 
             # Generate the key from the function name and given arguments.
-            key = sha1(override_key or u"//".join((
-                str(f),
-                u"//".join(
-                    object_to_string(a) for a in args
-                ),
-                u"//".join(
-                    str(a.updated) for a in args if hasattr(a, "updated")
-                ),
-                u"//".join(
-                    str(k) + object_to_string(v)
-                    for k, v in kwargs.iteritems()
-                ),
-                u"//".join(
-                    str(v.updated)
-                    for k, v in kwargs.iteritems() if hasattr(v, "updated")
-                ),
-            )).encode("utf-8")).hexdigest()
+            key = sha1(override_key or u"//".join(
+                (
+                    str(f),
+                    u"//".join(
+                        object_to_string(a) for a in args
+                    ),
+                    u"//".join(
+                        str(a.updated) for a in args if hasattr(a, "updated")
+                    ),
+                    u"//".join(
+                        str(k) + object_to_string(v)
+                        for k, v in kwargs.items()
+                    ),
+                    u"//".join(
+                        str(v.updated)
+                        for k, v in kwargs.items() if hasattr(v, "updated")
+                    ),
+                )
+            ).encode("utf-8")).hexdigest()
             flag = key + "flag"
 
             # If a cached result exists, return it.
@@ -70,5 +72,5 @@ def cache_result(seconds=3600, expiry_variance=0.2, override_key=None):
                 obj.pk,
             ))
         else:
-            return obj
+            return str(obj)
     return doCache

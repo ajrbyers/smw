@@ -43,8 +43,13 @@ class SubmitBookStageOne(forms.ModelForm):
     class Meta:
         model = core_models.Book
         fields = (
-            'book_type', 'cover_letter', 'series', 'license', 'review_type',
-            'reviewer_suggestions', 'competing_interests'
+            'book_type',
+            'competing_interests',
+            'cover_letter',
+            'license',
+            'review_type',
+            'reviewer_suggestions',
+            'series',
         )
 
     book_type = forms.CharField(
@@ -58,7 +63,9 @@ class SubmitBookStageOne(forms.ModelForm):
         super(SubmitBookStageOne, self).__init__(*args, **kwargs)
         if ci_required == 'on':
             self.fields['competing_interests'] = forms.CharField(
-                widget=forms.Textarea, required=True)
+                widget=forms.Textarea,
+                required=True
+            )
         if not review_type_required == 'on':
             self.fields['review_type'] = forms.CharField(
                 required=False,
@@ -86,12 +93,11 @@ class SubmissionChecklist(forms.Form):
 
         if checklist_items:
             for item in checklist_items:
-                # Ensure ASCII field names.
-                field_name = core_logic.ascii_encode(item.text)
 
-                self.fields[field_name] = forms.BooleanField(
-                    required=item.required)
-                self.fields[field_name].label = item.text
+                self.fields[item.slug] = forms.BooleanField(
+                    required=item.required
+                )
+                self.fields[item.slug].label = item.text
 
 
 class SubmitBookStageTwo(forms.ModelForm):

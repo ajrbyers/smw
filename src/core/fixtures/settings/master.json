@@ -1527,5 +1527,15 @@
         },
         "model": "core.setting",
         "pk": null
+    },
+    {
+        "fields": {
+            "value": "Please undertake this copyedit. You may download the files below and upload the edited versions once completed. If you have feedback for the Editor/Author fill in the notes box and this will be presented to both.<p></p>",
+            "group": 1,
+            "name": "copyedit_instructions",
+            "types": "rich_text"
+        },
+        "model": "core.setting",
+        "pk": null
     }
 ]

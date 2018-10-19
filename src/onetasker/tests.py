@@ -12,7 +12,7 @@ class OnetaskerTests(TestCase):
     # Dummy DBs
     fixtures = [
         'settinggroups',
-        'settings',
+        'settings/master',
         'langs',
         'cc-licenses',
         'role',
@@ -25,7 +25,7 @@ class OnetaskerTests(TestCase):
     ]
 
     def setUp(self):
-        self.client = Client(HTTP_HOST="testing")
+        self.client = Client()
         self.user = User.objects.get(username="rua_onetasker")
         self.user.save()
         self.book = core_models.Book.objects.get(pk=1)
@@ -54,7 +54,7 @@ class OnetaskerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
     def test_not_onetasker_access(self):
         self.client.login(username="rua_reviewer", password="tester")
@@ -62,15 +62,14 @@ class OnetaskerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, True)
+        self.assertEqual(b"403" in content, True)
 
     def test_onetasker_dashboard(self):
         response = self.client.get(reverse('user_dashboard'))
         self.assertRedirects(
-            response, "http://testing/tasks/",
+            response, "/tasks/",
             status_code=302,
              target_status_code=200,
-            host=None,
             msg_prefix='',
             fetch_redirect_response=True
         )
@@ -80,11 +79,11 @@ class OnetaskerTests(TestCase):
         response = self.client.get(reverse('onetasker_dashboard'))
         content = response.content
         self.assertEqual(response.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Copyedit" in content, True)
-        self.assertEqual("Indexing" in content, True)
-        self.assertEqual("Typesetting" in content, True)
-        self.assertEqual("rua_title" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Copyedit" in content, True)
+        self.assertEqual(b"Indexing" in content, True)
+        self.assertEqual(b"Typesetting" in content, True)
+        self.assertEqual(b"rua_title" in content, True)
 
     def test_onetasker_tasks(self):
         onetasker_tasks = core_logic.onetasker_tasks(self.user)
@@ -97,10 +96,10 @@ class OnetaskerTests(TestCase):
                 'assignment_id': task.get('assignment').id}))
             content = response.content
             self.assertEqual(response.status_code, 200)
-            self.assertEqual("403" in content, False)
-            self.assertTrue("You can accept or reject this task" in content)
-            self.assertEqual("I Accept" in content, True)
-            self.assertEqual("I Decline" in content, True)
+            self.assertEqual(b"403" in content, False)
+            self.assertTrue(b"You can accept or reject this task" in content)
+            self.assertEqual(b"I Accept" in content, True)
+            self.assertEqual(b"I Decline" in content, True)
 
             # about/submission details page
             assignment = task.get('assignment')
@@ -115,23 +114,27 @@ class OnetaskerTests(TestCase):
                         )
             )
             content = response.content
-            self.assertEqual("AUTHORS" in content, True)
+            self.assertEqual(b"AUTHORS" in content, True)
             for author in authors:
-                self.assertEqual(author.full_name() in content, True)
-            self.assertEqual("DESCRIPTION" in content, True)
-            self.assertEqual(book.description in content, True)
+                self.assertIn(bytes(author.full_name(), 'utf-8'), content)
+            self.assertIn(b"DESCRIPTION", content)
+            self.assertIn(bytes(book.description, 'utf-8'), content)
 
             ### decision - accept
-            response = self.client.post(reverse(
-                'onetasker_task_hub',
-                kwargs={'assignment_type': task.get('type'),
-                        'assignment_id': assignment.id}),
+            response = self.client.post(
+                reverse(
+                    'onetasker_task_hub',
+                    kwargs={
+                        'assignment_type': task.get('type'),
+                        'assignment_id': assignment.id
+                    }
+                ),
                 {'decision': 'accept'}
             )
             self.assertEqual(response.status_code, 302)
             self.assertEqual(
                 response['Location'],
-                "http://testing/tasks/{task_type}/{assignment_id}".format(
+                "/tasks/{task_type}/{assignment_id}".format(
                     task_type=task.get('type'),
                     assignment_id=assignment.id
                 )
@@ -147,26 +150,30 @@ class OnetaskerTests(TestCase):
             )
             content = response.content
             self.assertEqual(response.status_code, 200)
-            self.assertEqual("403" in content, False)
+            self.assertEqual(b"403" in content, False)
             # Manual formatting to match the date rendered by the template
             message = 'You accepted on ' + '{:%d %b %G}'.format(
                 assignment.accepted
             ).lstrip('0')
-            self.assertTrue(message in content)
+            self.assertIn(bytes(message, 'utf-8'), content)
 
             ### decision - decline
             assignment.accepted = None
             assignment.save()
             response = self.client.post(
-                reverse('onetasker_task_hub',
-                        kwargs={'assignment_type': task.get('type'),
-                                'assignment_id': task.get('assignment').id}),
-                        {'decision': 'decline'}
+                reverse(
+                    'onetasker_task_hub',
+                    kwargs={
+                        'assignment_type': task.get('type'),
+                        'assignment_id': task.get('assignment').id
+                    }
+                ),
+                {'decision': 'decline'}
             )
             self.assertEqual(response.status_code, 302)
             self.assertEqual(
                 response['Location'],
-                "http://testing/tasks/{task_type}/1/decline/".format(
+                "/tasks/{task_type}/1/decline/".format(
                     task_type=task.get('type')
                 )
             )

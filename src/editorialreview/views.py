@@ -597,7 +597,7 @@ class EditorialReviewCompletionEmail(FormView):
             # self.review.content_object is either a Proposal or a Book
             for editor in self.review.content_object.book_editors.exclude(
                 email=assigning_editor_email,
-                username=settings.INTERNAL_USER
+                username=settings.ADMIN_USERNAME
             )
         ]
         if self.book:

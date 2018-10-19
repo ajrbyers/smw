@@ -10,8 +10,7 @@ from core import models as core_models
 import logging
 
 from revisions import models as revision_models
-from django.core import management
-import logic
+from editor import logic
 
 LOG = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class EditorTests(TestCase):
     # Dummy DBs
     fixtures = [
         'settinggroups',
-        'settings',
+        'settings/master',
         'langs',
         'cc-licenses',
         'role',
@@ -42,7 +41,7 @@ class EditorTests(TestCase):
                 return message
 
     def setUp(self):
-        self.client = Client(HTTP_HOST="testing")
+        self.client = Client()
         self.superuser = User.objects.get(username="rua_editor")
         self.editor_user = User.objects.get(username="rua_editor")
         self.book = core_models.Book.objects.get(pk=1)
@@ -61,7 +60,7 @@ class EditorTests(TestCase):
         resp = self.client.get(reverse('editor_dashboard'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse("403" in content)
+        self.assertFalse(b"403" in content)
         self.assertContains(
             resp,
             "Book {book_id} - {book_prefix}"
@@ -111,22 +110,38 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("AUTHORS" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"AUTHORS" in content, True)
         authors = self.book.author.all()
         for author in authors:
-            self.assertEqual(author.full_name() in content, True)
-        self.assertEqual("COVER LETTER" in content, True)
-        self.assertEqual(self.book.cover_letter in content, True)
-        self.assertEqual("REVIEWER SUGGESTIONS" in content, True)
-        self.assertEqual(self.book.reviewer_suggestions in content, True)
-        self.assertEqual("COMPETING INTERESTS" in content, True)
-        self.assertEqual(self.book.competing_interests in content, True)
+            self.assertEqual(
+                bytes(author.full_name(), 'utf-8') in content,
+                True
+            )
+        self.assertEqual(b"COVER LETTER" in content, True)
+        self.assertEqual(
+            bytes(self.book.cover_letter, 'utf-8') in content,
+            True
+        )
+        self.assertEqual(b"REVIEWER SUGGESTIONS" in content, True)
+        self.assertEqual(
+            bytes(self.book.reviewer_suggestions, 'utf-8') in content,
+            True
+        )
+        self.assertEqual(b"COMPETING INTERESTS" in content, True)
+        self.assertEqual(
+            bytes(self.book.competing_interests, 'utf-8') in content,
+            True
+        )
 
         resp = self.client.post(
-            reverse('editor_decision',
-                    kwargs={'submission_id': self.book.id,
-                            'decision': 'review'}),
+            reverse(
+                'editor_decision',
+                kwargs={
+                    'submission_id': self.book.id,
+                    'decision': 'review'
+                }
+            ),
             {'decision': 'review'}
         )
         book = core_models.Book.objects.get(pk=1)
@@ -137,11 +152,11 @@ class EditorTests(TestCase):
             reverse('editor_status', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Current Status" in content, True)
-        self.assertEqual("Submission Progress" in content, True)
-        self.assertEqual("Review" in content, True)
-        self.assertEqual("Submission" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Current Status" in content, True)
+        self.assertEqual(b"Submission Progress" in content, True)
+        self.assertEqual(b"Review" in content, True)
+        self.assertEqual(b"Submission" in content, True)
 
     def test_submission_decline(self):
         resp = self.client.post(reverse('editor_decline_submission',
@@ -149,7 +164,7 @@ class EditorTests(TestCase):
                                 {'decline': ''})
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], "http://testing/editor/dashboard/")
+        self.assertEqual(resp['Location'], "/editor/dashboard/")
         self.assertEqual(book.stage.current_stage, 'declined')
 
     def test_submission_contract(self):
@@ -161,11 +176,11 @@ class EditorTests(TestCase):
         book = core_models.Book.objects.get(pk=1)
         contracts = core_models.Contract.objects.all()
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         self.assertEqual(len(contracts), 1)
         self.assertEqual(book.contract, None)
-        self.assertTrue("Upload  Contract" in content)
-        self.assertFalse("Contract Info" in content)
+        self.assertTrue(b"Upload  Contract" in content)
+        self.assertFalse(b"Contract Info" in content)
 
         self.book.contract = core_models.Contract.objects.get(pk=1)
         self.book.save()
@@ -175,9 +190,9 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Contract Info" in content, True)
-        self.assertEqual("test_contract" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Contract Info" in content, True)
+        self.assertEqual(b"test_contract" in content, True)
 
         resp = self.client.get(
             reverse('contract_manager_edit',
@@ -186,9 +201,9 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Update  Contract" in content, True)
-        self.assertEqual("test_contract" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Update  Contract" in content, True)
+        self.assertEqual(b"test_contract" in content, True)
 
         resp = self.client.post(
             reverse('contract_manager_edit',
@@ -206,9 +221,9 @@ class EditorTests(TestCase):
             reverse('editor_tasks', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("My Tasks" in content, True)
-        self.assertEqual("No outstanding tasks" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"My Tasks" in content, True)
+        self.assertEqual(b"No outstanding tasks" in content, True)
         self.typeset_assignment = core_models.TypesetAssignment.objects.get(
             pk=1)
         self.typeset_assignment.accepted = timezone.now()
@@ -220,10 +235,10 @@ class EditorTests(TestCase):
             reverse('editor_tasks', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("My Tasks" in content, True)
-        self.assertEqual("No outstanding tasks" in content, False)
-        self.assertEqual("Typesetting Review" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"My Tasks" in content, True)
+        self.assertEqual(b"No outstanding tasks" in content, False)
+        self.assertEqual(b"Typesetting Review" in content, True)
 
     def test_editor_review_round_cancel(self):
         book = core_models.Book.objects.get(pk=1)
@@ -254,7 +269,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         resp = self.client.post(
             reverse(
                 'editor_review',
@@ -275,8 +290,8 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("btn-task" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"btn-task" in content, True)
 
         resp = self.client.get(
             reverse(
@@ -289,9 +304,9 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("btn-task" in content, True)
-        self.assertEqual("ROUND 1" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"btn-task" in content, True)
+        self.assertEqual(b"ROUND 1" in content, True)
         review_file = tempfile.NamedTemporaryFile(delete=False)
 
         resp = self.client.get(
@@ -306,7 +321,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         # Delete all review assignments
         # The below request creates a duplicate
@@ -334,7 +349,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
 
         resp = self.client.get(
@@ -349,7 +364,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse(
@@ -372,7 +387,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
 
         assignment = core_models.ReviewAssignment.objects.filter(
@@ -393,7 +408,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         resp = self.client.post(
             reverse(
                 'update_review_due_date',
@@ -419,7 +434,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse(
@@ -434,7 +449,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
 
         resp = self.client.post(
@@ -450,7 +465,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
 
         resp = self.client.post(
@@ -466,7 +481,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
         resp = self.client.post(
             reverse(
@@ -481,7 +496,7 @@ class EditorTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/editor/submission/1/review/round/2/"
+            "/editor/submission/1/review/round/2/"
         )
 
         removed_file = core_models.File.objects.get(pk=2)
@@ -490,25 +505,31 @@ class EditorTests(TestCase):
     def test_published_books(self):
         resp = self.client.get(reverse('editor_published_books'))
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse("403" in resp.content)
-        self.assertTrue("Published Submissions" in resp.content)
+        self.assertFalse(b"403" in resp.content)
+        self.assertTrue(b"Published Submissions" in resp.content)
 
     def test_editor_add_editors(self):
         book = core_models.Book.objects.get(pk=1)
         resp = self.client.get(
             reverse('editor_add_editors', kwargs={'submission_id': 1}))
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
+        self.assertEqual(b"403" in resp.content, False)
         self.assertEqual(len(book.book_editors.all()), 0)
 
         resp = self.client.get(
-            reverse('editor_add_editors', kwargs={'submission_id': 1}),
-            {'add': 1})
+            reverse(
+                'editor_add_editors',
+                kwargs={'submission_id': 1}),
+            {'add': 1}
+        )
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(len(book.book_editors.all()), 1)
         resp = self.client.get(
-            reverse('editor_add_editors', kwargs={'submission_id': 1}),
-            {'remove': 1})
+            reverse(
+                'editor_add_editors',
+                kwargs={'submission_id': 1}),
+            {'remove': 1}
+        )
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(len(book.book_editors.all()), 0)
 
@@ -521,15 +542,18 @@ class EditorTests(TestCase):
         resp = self.client.get(
             reverse('editor_change_owner', kwargs={'submission_id': 1}))
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
+        self.assertEqual(b"403" in resp.content, False)
         resp = self.client.get(
             reverse('editor_change_owner', kwargs={'submission_id': 1}),
             {'user': 2})
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(book.owner, User.objects.get(pk=2))
         resp = self.client.get(
-            reverse('editor_change_owner', kwargs={'submission_id': 1}),
-            {'author': 1})
+            reverse(
+                'editor_change_owner',
+                kwargs={'submission_id': 1}),
+            {'author': 1}
+        )
         book = core_models.Book.objects.get(pk=1)
         author = core_models.Author.objects.get(pk=1)
         self.assertEqual(book.owner.first_name, author.first_name)
@@ -540,7 +564,7 @@ class EditorTests(TestCase):
         resp = self.client.get(
             reverse('editor_notes', kwargs={'submission_id': 1}))
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
+        self.assertEqual(b"403" in resp.content, False)
         notes = core_models.Note.objects.all()
         self.assertEqual(notes.count(), 0)
 
@@ -549,7 +573,7 @@ class EditorTests(TestCase):
                     kwargs={'submission_id': 1})
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in resp.content, False)
+        self.assertEqual(b"403" in resp.content, False)
 
         resp = self.client.post(
             reverse('editor_notes_add',
@@ -559,12 +583,17 @@ class EditorTests(TestCase):
         notes = core_models.Note.objects.all()
         self.assertEqual(notes.count(), 1)
 
-        resp = self.client.get(reverse('editor_notes_view',
-                                       kwargs={"submission_id": 1,
-                                               "note_id": 1}))
+        resp = self.client.get(
+            reverse('editor_notes_view',
+                kwargs={
+                    "submission_id": 1,
+                    "note_id": 1
+                }
+            )
+        )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.get(
             reverse('editor_notes_update',
@@ -573,7 +602,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse('editor_notes_update',
@@ -582,7 +611,7 @@ class EditorTests(TestCase):
             {"text": "note_test"}
         )
         content = resp.content
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
     def test_editor_editing(self):
         resp = self.client.post(
@@ -598,10 +627,10 @@ class EditorTests(TestCase):
             reverse('editor_editing', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("COPYEDITING" in content, True)
-        self.assertEqual("INDEXING" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"COPYEDITING" in content, True)
+        self.assertEqual(b"INDEXING" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, True)
         self.book.stage.copyediting = timezone.now()
         self.book.stage.indexing = timezone.now()
         self.book.stage.save()
@@ -613,16 +642,16 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("COPYEDITING" in content, True)
-        self.assertEqual("INDEXING" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, False)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"COPYEDITING" in content, True)
+        self.assertEqual(b"INDEXING" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, False)
 
         resp = self.client.get(
             reverse('assign_indexer', kwargs={'submission_id': book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse('assign_indexer',
@@ -645,7 +674,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         self.assertEqual(core_models.CopyeditAssignment.objects.count(), 0)
 
         resp = self.client.post(
@@ -674,15 +703,15 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("COPYEDITING" in content, True)
-        self.assertEqual("INDEXING" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, False)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"COPYEDITING" in content, True)
+        self.assertEqual(b"INDEXING" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, False)
         title = "COPYEDITING: {first_name} {last_name}".format(
             first_name=onetasker.first_name.upper(),
             last_name=onetasker.last_name.upper()
         )
-        self.assertEqual(title in content, True)
+        self.assertEqual(bytes(title, encoding='utf-8') in content, True)
 
         resp = self.client.get(
             reverse('view_index',
@@ -693,13 +722,13 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("COPYEDITING" in content, True)
-        self.assertEqual("INDEXING" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, False)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"COPYEDITING" in content, True)
+        self.assertEqual(b"INDEXING" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, False)
         title = "INDEXING: %s %s" % (
             onetasker.first_name.upper(), onetasker.last_name.upper())
-        self.assertEqual(title in content, True)
+        self.assertEqual(bytes(title, 'utf-8') in content, True)
 
     def test_editor_production(self):
         self.book.stage.current_stage = 'production'
@@ -710,9 +739,9 @@ class EditorTests(TestCase):
                                        kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Typesetting" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Typesetting" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, True)
         self.book.stage.typesetting = timezone.now()
         self.book.stage.save()
         self.book.save()
@@ -720,22 +749,22 @@ class EditorTests(TestCase):
                                        kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Typesetting" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, False)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Typesetting" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, False)
 
         resp = self.client.get(reverse('view_typesetter',
                                        kwargs={'typeset_id': 1,
                                                'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Typesetting" in content, True)
-        self.assertEqual("Stage has not been initialised." in content, False)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Typesetting" in content, True)
+        self.assertEqual(b"Stage has not been initialised." in content, False)
         onetasker = User.objects.get(username="rua_onetasker")
         title = "TYPESETTING: %s %s" % (
             onetasker.first_name.upper(), onetasker.last_name.upper())
-        self.assertEqual(title in content, True)
+        self.assertEqual(bytes(title, 'utf-8') in content, True)
 
     def test_editor_publish(self):
         resp = self.client.post(
@@ -748,8 +777,10 @@ class EditorTests(TestCase):
         resp = self.client.post(
             reverse('editor_publish', kwargs={'submission_id': self.book.id}))
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         "http://testing/editor/submission/1/")
+        self.assertEqual(
+            resp['Location'],
+            "/editor/submission/1/"
+        )
 
         book = core_models.Book.objects.get(pk=1)
         self.assertEqual(book.stage.current_stage == 'published', True)
@@ -760,7 +791,7 @@ class EditorTests(TestCase):
                                                'returner': 'review'}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         resp = self.client.post(reverse('request_revisions',
                                         kwargs={'submission_id': self.book.id,
                                                 'returner': 'review'}),
@@ -769,7 +800,7 @@ class EditorTests(TestCase):
                                  'id_email_text': 'Hi User'})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'],
-                         "http://testing/editor/submission/1/review/")
+                         "/editor/submission/1/review/")
         self.client.login(username="rua_author", password="tester")
         revision = revision_models.Revision.objects.get(book=self.book)
         resp = self.client.post(reverse('author_revision',
@@ -780,44 +811,50 @@ class EditorTests(TestCase):
         resp = self.client.get(reverse('editor_dashboard'))
         content = resp.content
         self.assertTrue(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         notification = "Revisions submitted for %s" % self.book.title
-        self.assertEqual(notification in content, True)
-        resp = self.client.get(reverse('editor_view_revisions',
-                                       kwargs={'submission_id': self.book.id,
-                                               'revision_id': revision.id}))
+        self.assertEqual(bytes(notification, 'utf-8') in content, True)
+        resp = self.client.get(
+            reverse(
+                'editor_view_revisions',
+                kwargs={
+                    'submission_id': self.book.id,
+                    'revision_id': revision.id
+                }
+            )
+        )
         content = resp.content
         self.assertTrue(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
     def test_catalog(self):
         resp = self.client.get(
             reverse('catalog', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Prefix" in content, True)
-        self.assertEqual("Title" in content, True)
-        self.assertEqual("Subtitle" in content, True)
-        self.assertEqual("Series" in content, True)
-        self.assertEqual("License" in content, True)
-        self.assertEqual("Pages" in content, True)
-        self.assertEqual("Slug" in content, True)
-        self.assertEqual("Review type" in content, True)
-        self.assertEqual("Publication date" in content, True)
-        self.assertEqual("Languages" in content, True)
-        self.assertEqual("Abstract" in content, True)
-        self.assertEqual("Keywords" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Prefix" in content, True)
+        self.assertEqual(b"Title" in content, True)
+        self.assertEqual(b"Subtitle" in content, True)
+        self.assertEqual(b"Series" in content, True)
+        self.assertEqual(b"License" in content, True)
+        self.assertEqual(b"Pages" in content, True)
+        self.assertEqual(b"Slug" in content, True)
+        self.assertEqual(b"Review type" in content, True)
+        self.assertEqual(b"Publication date" in content, True)
+        self.assertEqual(b"Languages" in content, True)
+        self.assertEqual(b"Abstract" in content, True)
+        self.assertEqual(b"Keywords" in content, True)
         resp = self.client.get(
             reverse('identifiers', kwargs={'submission_id': self.book.id}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Identifier" in content, True)
-        self.assertEqual("Digital format" in content, True)
-        self.assertEqual("Physical format" in content, True)
-        self.assertEqual("Value" in content, True)
-        self.assertEqual("Use the form to add a new identifier." in content,
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Identifier" in content, True)
+        self.assertEqual(b"Digital format" in content, True)
+        self.assertEqual(b"Physical format" in content, True)
+        self.assertEqual(b"Value" in content, True)
+        self.assertEqual(b"Use the form to add a new identifier." in content,
                          True)
         resp = self.client.post(
             reverse('identifiers', kwargs={'submission_id': self.book.id}),
@@ -829,13 +866,13 @@ class EditorTests(TestCase):
             reverse('identifiers', kwargs={'submission_id': self.book.id}))
         content = resp_get.content
         self.assertEqual(resp_get.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Use the form to add a new identifier." in content,
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Use the form to add a new identifier." in content,
                          False)
         self.assertEqual(
-            "/editor/submission/1/catalog/identifiers/1/" in content, True)
+            b"/editor/submission/1/catalog/identifiers/1/" in content, True)
         self.assertEqual(
-            "/editor/submission/1/catalog/identifiers/1/?delete=true" in content,
+            b"/editor/submission/1/catalog/identifiers/1/?delete=true" in content,
             True)
         identifier = core_models.Identifier.objects.get(pk=1)
         self.assertEqual(int(identifier.value), 1)
@@ -844,7 +881,7 @@ class EditorTests(TestCase):
                                                'identifier_id': 1}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         resp = self.client.post(reverse('identifiers_with_id',
                                         kwargs={'submission_id': self.book.id,
                                                 'identifier_id': 1}),
@@ -859,8 +896,8 @@ class EditorTests(TestCase):
                                                'contributor_id': 1}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("rua_author_first_name" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"rua_author_first_name" in content, True)
         resp = self.client.post(reverse('update_contributor',
                                         kwargs={'submission_id': self.book.id,
                                                 'contributor_type': 'author',
@@ -928,12 +965,12 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Name" in content, True)
-        self.assertEqual("Link" in content, True)
-        self.assertEqual("Price" in content, True)
-        self.assertEqual("Enabled" in content, True)
-        self.assertEqual("Use the form to add a new retailer." in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Name" in content, True)
+        self.assertEqual(b"Link" in content, True)
+        self.assertEqual(b"Price" in content, True)
+        self.assertEqual(b"Enabled" in content, True)
+        self.assertEqual(b"Use the form to add a new retailer." in content, True)
         resp = self.client.post(
             reverse('retailers',
                     kwargs={'submission_id': self.book.id}),
@@ -950,17 +987,17 @@ class EditorTests(TestCase):
         )
         content = resp_get.content
         self.assertEqual(resp_get.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         self.assertEqual(
-            "Use the form to add a new retailer." in content,
+            b"Use the form to add a new retailer." in content,
              False
         )
         self.assertEqual(
-            "/editor/submission/1/catalog/retailers/1/" in content,
+            b"/editor/submission/1/catalog/retailers/1/" in content,
             True
         )
         self.assertEqual(
-            "/editor/submission/1/catalog/retailers/1/?delete=true" in content,
+            b"/editor/submission/1/catalog/retailers/1/?delete=true" in content,
             True)
         retailer = core_models.Retailer.objects.get(pk=1)
         self.assertEqual(int(retailer.price), int(9.99))
@@ -971,7 +1008,7 @@ class EditorTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         resp = self.client.post(
             reverse('retailer_with_id',
                     kwargs={'submission_id': self.book.id,
@@ -1006,7 +1043,7 @@ class EditorTests(TestCase):
         }))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("Chapter Authors" in content, True)
+        self.assertEqual(b"Chapter Authors" in content, True)
 
     def test_handle_copyeditor_assignment(self):
         #  clear data

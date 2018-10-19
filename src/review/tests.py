@@ -26,7 +26,7 @@ class ReviewTests(TestCase):
     ]
 
     def setUp(self):
-        self.client = Client(HTTP_HOST="testing")
+        self.client = Client()
         self.user = User.objects.get(username="rua_reviewer")
         self.user.save()
         self.book = core_models.Book.objects.get(pk=1)
@@ -55,7 +55,7 @@ class ReviewTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertNotIn(b"403", content)
 
     def test_not_reviewer_access(self):
         self.client.login(username="rua_author", password="tester")
@@ -63,7 +63,7 @@ class ReviewTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, True)
+        self.assertIn(b"403", content)
 
     def test_reviewer_dashboard(self):
         pending_task_count = core_models.ReviewAssignment.objects.filter(
@@ -75,12 +75,12 @@ class ReviewTests(TestCase):
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertNotIn(b"403", content)
         self.assertEqual(pending_task_count, 1)
-        self.assertEqual("Review requested for" in content, True)
-        self.assertEqual("rua_title" in content, True)
-        self.assertEqual("View Task" in content, True)
-        self.assertEqual("You can accept or reject this task" in content, True)
+        self.assertIn(b"Review requested for", content)
+        self.assertIn(b"rua_title", content)
+        self.assertIn(b"View Task", content)
+        self.assertIn(b"You can accept or reject this task", content)
 
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
         self.assignment.accepted = timezone.now()
@@ -95,17 +95,17 @@ class ReviewTests(TestCase):
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse("403" in content, False)
+        self.assertNotIn(b"403", content)
         self.assertEqual(pending_task_count, 1)
-        self.assertEqual("Review requested for" in content, True)
-        self.assertEqual("rua_title" in content, True)
-        self.assertEqual("View Task" in content, True)
+        self.assertIn(b"Review requested for", content)
+        self.assertIn(b"rua_title", content)
+        self.assertIn(b"View Task", content)
         # Manual formatting to match the date rendered by the template
         formatted_accepted_date = '{:%d %b %G}'.format(
             self.assignment.accepted
         ).lstrip('0')
         message = 'You accepted on {}'.format(formatted_accepted_date)
-        self.assertEqual(message in content, True)
+        self.assertIn(bytes(message, 'utf-8'), content)
         self.assignment.completed = timezone.now()
         self.assignment.save()
         completed_task_count = core_models.ReviewAssignment.objects.filter(
@@ -123,20 +123,20 @@ class ReviewTests(TestCase):
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Review requested for" in content, False)
-        self.assertTrue("2 COMPLETED" in content)
+        self.assertNotIn(b"403", content)
+        self.assertNotIn(b"Review requested for", content)
+        self.assertIn(b"2 COMPLETED", content)
         message = "Accepted on <b>{date}</b>".format(
             date=formatted_accepted_date
         )
-        self.assertEqual(message in content, True)
+        self.assertIn(bytes(message, 'utf-8'), content)
 
         formatted_completion_date = '{:%d %b %G}'.format(
             self.assignment.completed).strip('0')
         message = 'Completed on <b>{date}</b>'.format(
             date=formatted_completion_date
         )
-        self.assertEqual(message in content, True)
+        self.assertIn(bytes(message, 'utf-8'), content)
 
         # Change an assignment so as to be uncompleted
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
@@ -158,8 +158,8 @@ class ReviewTests(TestCase):
         resp = self.client.get(reverse('reviewer_dashboard'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("1 COMPLETED" in content, True)
+        self.assertNotIn(b"403", content)
+        self.assertIn(b"1 COMPLETED", content)
 
     def test_reviewer_decision(self):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
@@ -176,10 +176,10 @@ class ReviewTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("You can accept or reject this task" in content, True)
-        self.assertEqual("I Accept" in content, True)
-        self.assertEqual("I Decline" in content, True)
+        self.assertNotIn(b"403", content)
+        self.assertIn(b"You can accept or reject this task", content)
+        self.assertIn(b"I Accept", content)
+        self.assertIn(b"I Decline", content)
 
         resp = self.client.get(
             reverse(
@@ -195,8 +195,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/assignment/1/decision-email/'
-            'decline/'
+            '/review/external/1/assignment/1/decision-email/decline/'
         )
         self.assignment.declined = None
         self.assignment.save()
@@ -215,7 +214,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/assignment/1/decision-email/"
+            "/review/external/1/assignment/1/decision-email/"
             "accept/"
         )
 
@@ -235,7 +234,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/{review_type}/{submission_id}/assignment/"
+            "/review/{review_type}/{submission_id}/assignment/"
             "{review_assignment_id}/decision-email/accept/".format(
                 review_type=self.assignment.review_type,
                 submission_id=self.assignment.book.id,
@@ -259,7 +258,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/assignment/1/decision-email/'
+            '/review/external/1/assignment/1/decision-email/'
             'decline/'
         )
 
@@ -279,7 +278,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/assignment/1/decision/"
+            "/review/external/1/assignment/1/decision/"
         )
         self.assignment.accepted = timezone.now()
         self.assignment.save()
@@ -296,12 +295,12 @@ class ReviewTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertNotIn(b"403", content)
         # Manual formatting to match the date rendered by the template
         message = 'You accepted on ' + '{:%d %b %G}'.format(
             self.assignment.accepted
         ).lstrip('0')
-        self.assertTrue(message in content)
+        self.assertIn(bytes(message, 'utf-8'), content)
 
         resp = self.client.get(
             reverse(
@@ -315,7 +314,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/"
+            "/review/external/1/review-round/1/"
         )
         resp = self.client.post(
             reverse(
@@ -335,7 +334,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/assignment/1/"
+            "/review/external/1/review-round/1/assignment/1/"
             "completion-email/"
         )
 
@@ -344,7 +343,7 @@ class ReviewTests(TestCase):
             'review_round': 1}))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertNotIn(b"403", content)
         self.assignment.reopened = True
         self.assignment.save()
         form_results = models.FormResult(form=self.book.review_form, data="")
@@ -415,10 +414,10 @@ class ReviewTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("You can accept or reject this task" in content, True)
-        self.assertEqual("I Accept" in content, True)
-        self.assertEqual("I Decline" in content, True)
+        self.assertNotIn(b"403", content)
+        self.assertIn(b"You can accept or reject this task", content)
+        self.assertIn(b"I Accept", content)
+        self.assertIn(b"I Decline", content)
 
         resp = self.client.post(
             reverse(
@@ -437,7 +436,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/{review_type}/{submission_id}/assignment/'
+            '/review/{review_type}/{submission_id}/assignment/'
             '1/decision-email/accept/access_key/{access_key}/'.format(
                 review_type=self.assignment.review_type,
                 submission_id=1,
@@ -459,7 +458,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/access_key/enter/"
+            "/review/external/1/review-round/1/access_key/enter/"
         )
         self.assignment.accepted = None
         self.assignment.save()
@@ -481,7 +480,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/assignment/1/'
+            '/review/external/1/assignment/1/'
             'decision-email/decline/access_key/enter/'
         )
         self.assignment.declined = None
@@ -507,7 +506,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            'http://testing/review/external/1/review-round/1/'
+            '/review/external/1/review-round/1/'
             'assignment/1/completion-email/access_key/enter/'
         )
 
@@ -525,7 +524,7 @@ class ReviewTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertNotIn(b"403", content)
 
     def test_files_reviewer(self):
         self.assignment = core_models.ReviewAssignment.objects.get(pk=1)
@@ -569,7 +568,7 @@ class ReviewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'],
-            "http://testing/review/external/1/review-round/1/"
+            "/review/external/1/review-round/1/"
             "assignment/1/completion-email/access_key/enter/"
         )
 

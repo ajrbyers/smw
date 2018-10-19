@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'django_summernote',
     'rest_framework',
     'pymarc',
+    'storages',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

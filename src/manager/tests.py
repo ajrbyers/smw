@@ -14,7 +14,7 @@ class ManagerTests(TestCase):
     # Dummy DBs
     fixtures = [
         'settinggroups',
-        'settings',
+        'settings/master',
         'langs',
         'cc-licenses',
         'role',
@@ -37,7 +37,7 @@ class ManagerTests(TestCase):
                 return message
 
     def setUp(self):
-        self.client = Client(HTTP_HOST="testing")
+        self.client = Client()
         self.user = User.objects.get(username="rua_user")
         self.user.save()
         self.book = core_models.Book.objects.get(pk=1)
@@ -63,25 +63,25 @@ class ManagerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
     def test_manager_about(self):
         resp = self.client.get(reverse('manager_about'))
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
     def test_manager_access_not_staff(self):
         self.client.login(username="rua_reviewer", password="tester")
         resp = self.client.get(reverse('manager_index'))
-        self.assertEqual("403 - Permission Denied" in resp.content, True)
+        self.assertEqual(b"403 - Permission Denied" in resp.content, True)
         self.assertEqual(resp.status_code, 200)
 
     def test_clear_cache(self):
         resp = self.client.get(reverse('manager_flush_cache'))
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], "http://testing/manager/")
+        self.assertEqual(resp['Location'], "/manager/")
         resp = self.client.get(reverse('manager_index'))
         message = self.getmessage(resp)
         self.assertEqual(message.message, "Memcached has been flushed.")
@@ -92,10 +92,10 @@ class ManagerTests(TestCase):
         resp = self.client.get(reverse('manager_users'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         self.assertEqual(len(users), 5)
         for user in users:
-            self.assertEqual(user.username in content, True)
+            self.assertEqual(bytes(user.username, 'utf-8') in content, True)
         # add user
         resp = self.client.post(reverse('add_user'),
                                 {'username': 'rua_new_user',
@@ -110,7 +110,7 @@ class ManagerTests(TestCase):
                                  'biography': 'bio'})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'],
-                         "http://testing/manager/user/?username=%s&password=%s" % (
+                         "/manager/user/?username=%s&password=%s" % (
                          "rua_new_user", "None"))
 
         try:
@@ -155,16 +155,16 @@ class ManagerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         for role in roles:
             if not role.slug == 'press-editor':
-                self.assertEqual(role.name in content, True)
+                self.assertEqual(bytes(role.name, 'utf-8') in content, True)
                 role_resp = self.client.get(reverse('manager_role', kwargs={
                     'slug': role.slug}))  # load role page
                 role_content = role_resp.content
                 self.assertEqual(role_resp.status_code, 200)
-                self.assertEqual("403" in role_content, False)
+                self.assertNotIn(b"403", role_content)
                 have_role = []
                 dont_have_role = []
                 users = User.objects.all()
@@ -182,36 +182,50 @@ class ManagerTests(TestCase):
                         role_slug=role.slug,
                         user_id=user.id
                     ))
-                    self.assertEqual(remove_button in role_content, True)
+                    self.assertIn(bytes(remove_button, 'utf-8'), role_content)
                 # check for the users that don't have the role that a button
                 # exists for adding the role
                 for user in dont_have_role:
-                    add_button = ('/manager/roles/{role_slug}/user/'
-                                  '{user_id}/add/'.format (
-                        role_slug=role.slug,
-                        user_id=user.id
-                    ))
-                    self.assertEqual(add_button in role_content, True)
+                    add_button = (
+                        f'/manager/roles/{role.slug}/user/{user.id}/add/'
+                    )
+                    self.assertIn(bytes(add_button, 'utf-8'), role_content)
 
                 # either remove all users from a role or add them all
                 expected_size = len(have_role) + len(dont_have_role)
 
                 if len(have_role) > 0:
                     for user in have_role:
-                        self.client.post(reverse('manager_role_action',
-                                                 kwargs={'slug': role.slug,
-                                                         'user_id': user.id,
-                                                         'action': 'remove'}))
+                        self.client.post(
+                            reverse(
+                                'manager_role_action',
+                                kwargs={
+                                    'slug': role.slug,
+                                    'user_id': user.id,
+                                    'action': 'remove'
+                                }
+                            )
+                        )
 
                 elif len(dont_have_role) > 0:
                     for user in dont_have_role:
-                        self.client.post(reverse('manager_role_action',
-                                                 kwargs={'slug': role.slug,
-                                                         'user_id': user.id,
-                                                         'action': 'add'}))
+                        self.client.post(
+                            reverse(
+                                'manager_role_action',
+                                kwargs={
+                                    'slug': role.slug,
+                                    'user_id': user.id,
+                                    'action': 'add'
+                                }
+                            )
+                        )
 
                 role_resp = self.client.get(
-                    reverse('manager_role', kwargs={'slug': role.slug}))
+                    reverse(
+                        'manager_role',
+                        kwargs={'slug': role.slug}
+                    )
+                )
                 role_content = role_resp.content
                 self.assertEqual(role_resp.status_code, 200)
                 have_role = []
@@ -226,25 +240,24 @@ class ManagerTests(TestCase):
                         dont_have_role.append(user)
 
                 # check which list has all the users and check that the buttons
-                #  exist for removing or adding the roles
+                # exist for removing or adding the roles
                 if len(dont_have_role) > 0:
                     self.assertEqual(len(dont_have_role), expected_size)
                     for user in dont_have_role:
-                        add_button = ('/manager/roles/{role_slug}/user/'
-                                      '{user_id}/add/'.format (
-                            role_slug=role.slug,
-                            user_id=user.id
-                        ))
-                        self.assertEqual(add_button in role_content, True)
+                        add_button = (
+                            f'/manager/roles/{role.slug}/user/{user.id}/add/'
+                        )
+                        self.assertIn(bytes(add_button, 'utf-8'), role_content)
                 else:
                     self.assertEqual(len(have_role), expected_size)
                     for user in have_role:
-                        remove_button = ('/manager/roles/{role_slug}/user/'
-                                         '{user_id}/remove/'.format (
-                            role_slug=role.slug,
-                            user_id=user.id
-                        ))
-                        self.assertTrue(remove_button in role_content)
+                        remove_button = (
+                            f'/manager/roles/{role.slug}/user/{user.id}/remove/'
+                        )
+                        self.assertIn(
+                            bytes(remove_button, 'utf-8'),
+                            role_content
+                        )
 
     def test_manager_groups(self):
         resp = self.client.get(reverse('manager_groups'))
@@ -252,9 +265,9 @@ class ManagerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         for group in groups:
-            self.assertEqual(group.name in content, True)
+            self.assertEqual(bytes(group.name, 'utf-8') in content, True)
 
         resp = self.client.post(
             reverse('manager_group_add'),
@@ -296,18 +309,22 @@ class ManagerTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         for member in editorial_group_members:
-            self.assertEqual(member.user.first_name in content, True)
-            self.assertEqual(member.user.last_name in content, True)
+            self.assertIn(bytes(member.user.first_name, 'utf-8'), content)
+            self.assertIn(bytes(member.user.last_name, 'utf-8'), content)
             remove_button = "/manager/groups/%s/members/%s/delete" % (
             editorial_group.id, member.id)
-            self.assertEqual(remove_button in content, True)
+            self.assertIn(bytes(remove_button, 'utf-8'), content)
 
         resp = self.client.post(
-            reverse('manager_membership_delete',
-                    kwargs={'group_id': editorial_group.id,
-                            'member_id': 1})
+            reverse(
+                'manager_membership_delete',
+                kwargs={
+                    'group_id': editorial_group.id,
+                    'member_id': 1
+                }
+            )
         )
         editorial_group_members = models.GroupMembership.objects.filter(
             group=editorial_group)
@@ -315,9 +332,13 @@ class ManagerTests(TestCase):
         new_user = User.objects.get(username="rua_reviewer")
 
         resp = self.client.post(
-            reverse('group_members_assign',
-                    kwargs={'group_id': editorial_group.id,
-                            'user_id': new_user.id})
+            reverse(
+                'group_members_assign',
+                kwargs={
+                    'group_id': editorial_group.id,
+                    'user_id': new_user.id
+                }
+            )
         )
         editorial_group_members = models.GroupMembership.objects.filter(
             group=editorial_group)
@@ -328,25 +349,28 @@ class ManagerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse("403" in content)
+        self.assertFalse(b"403" in content)
         groups = core_models.SettingGroup.objects.all()
 
         for group in groups:
-            self.assertTrue(group.name.title() in content)
+            self.assertTrue(bytes(group.name.title(), 'utf-8') in content)
             settings = core_models.Setting.objects.filter(group=group)
             for setting in settings:
-                self.assertTrue(setting.name in content)
+                self.assertIn(bytes(setting.name, 'utf-8'), content)
                 setting_resp = self.client.get(
-                    reverse('edit_setting',
-                            kwargs={'setting_group': group.name,
-                                    'setting_name': setting.name})
+                    reverse(
+                        'edit_setting',
+                        kwargs={
+                            'setting_group': group.name,
+                            'setting_name': setting.name
+                        }
+                    )
                 )
                 self.assertEqual(setting_resp.status_code, 200)
                 setting_content = setting_resp.content
-                self.assertFalse("403" in setting_content)
-                self.assertTrue("Submit" in setting_content)
-                self.assertTrue('name="value"' in setting_content)
-                self.assertTrue("Delete" in setting_content)
+                self.assertIn(b"Submit", setting_content)
+                self.assertIn(b'name="value"', setting_content)
+                self.assertIn(b"Delete", setting_content)
 
         setting = core_models.Setting.objects.get(
             name="remind_accepted_reviews"
@@ -380,32 +404,43 @@ class ManagerTests(TestCase):
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
-        self.assertEqual("Current Checklist Items" in content, True)
-        self.assertEqual("Add new item" in content, True)
+        self.assertEqual(b"403" in content, False)
+        self.assertEqual(b"Current Checklist Items" in content, True)
+        self.assertEqual(b"Add new item" in content, True)
         items = submission_models.SubmissionChecklistItem.objects.all()
         self.assertEqual(len(items), 2)
         for item in items:
             list_item = "%s - %s" % (item.text, item.required)
-            self.assertEqual(list_item in content, True)
-        self.client.post(reverse('submission_checklist'),
-                         {'slug': 'new_item', 'text': 'item 3',
-                          'required': True, 'sequence': 10})
+            self.assertIn(bytes(list_item, 'utf-8'), content)
+
+        self.client.post(
+            reverse('submission_checklist'),
+            {
+                'slug': 'new_item',
+                'text': 'item 3',
+                'required': True,
+                'sequence': 10
+            }
+        )
         items = submission_models.SubmissionChecklistItem.objects.all()
         self.assertEqual(len(items), 3)
         resp = self.client.get(reverse('submission_checklist'))
         content = resp.content
         for item in items:
             list_item = "%s - %s" % (item.text, item.required)
-            self.assertEqual(list_item in content, True)
+            self.assertIn(bytes(list_item, 'utf-8'), content)
 
         for item in items:
-            resp = self.client.get(reverse('edit_submission_checklist',
-                                           kwargs={'item_id': item.id}))
+            resp = self.client.get(
+                reverse(
+                    'edit_submission_checklist',
+                    kwargs={'item_id': item.id}
+                )
+            )
             content = resp.content
 
             self.assertEqual(resp.status_code, 200)
-            self.assertEqual("403" in content, False)
+            self.assertEqual(b"403" in content, False)
 
         self.client.post(
             reverse('edit_submission_checklist', kwargs={'item_id': 3}),
@@ -422,14 +457,14 @@ class ManagerTests(TestCase):
         resp = self.client.get(reverse('series'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
         series = core_models.Series.objects.all()
         self.assertEqual(series.count(), 0)
 
         resp = self.client.get(reverse('series_add'))
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse('series_add'),
@@ -442,8 +477,8 @@ class ManagerTests(TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in resp.content, False)
-        self.assertEqual(resp['Location'], 'http://testing/manager/series/')
+        self.assertEqual(b"403" in resp.content, False)
+        self.assertEqual(resp['Location'], '/manager/series/')
 
         all_series = core_models.Series.objects.all()
         self.assertEqual(all_series.count(), 1)
@@ -454,7 +489,7 @@ class ManagerTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         resp = self.client.post(
             reverse('series_edit',
@@ -469,8 +504,8 @@ class ManagerTests(TestCase):
             }
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in resp.content, False)
-        self.assertEqual(resp['Location'], 'http://testing/manager/series/')
+        self.assertNotIn(b"403", resp.content)
+        self.assertEqual(resp['Location'], '/manager/series/')
         series = core_models.Series.objects.first()
         self.assertEqual(series.description, 'test description updated')
 
@@ -480,7 +515,7 @@ class ManagerTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         book = core_models.Book.objects.first()
 
@@ -491,7 +526,7 @@ class ManagerTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         book.refresh_from_db()
         self.assertEqual(book.series, series)
@@ -502,7 +537,7 @@ class ManagerTests(TestCase):
         )
         content = resp.content
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         book.refresh_from_db()
         self.assertEqual(book.series, None)
@@ -527,12 +562,12 @@ class ManagerTests(TestCase):
         proposal_forms = core_models.ProposalForm.objects.all()
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual("403" in content, False)
+        self.assertEqual(b"403" in content, False)
 
         for form in proposal_forms:
-            self.assertEqual(form.name in content, True)
+            self.assertEqual(bytes(form.name, 'utf-8') in content, True)
             view_button = "/manager/forms/proposal/{}/".format(form.id)
-            self.assertEqual(view_button in content, True)
+            self.assertIn(bytes(view_button, 'utf-8'), content)
 
             form_resp = self.client.get(
                 reverse(
@@ -544,15 +579,16 @@ class ManagerTests(TestCase):
                 )
             )
             form_content = form_resp.content
-            # Mirroring the logic in the view whereby a trying to edit a form
+            # Mirroring the logic in thFe view whereby a trying to edit a form
             # with in_edit set to false results in a redirect to 'manager_forms'
             if form.in_edit:
                 self.assertEqual(form_resp.status_code, 200)
                 self.assertTrue("Fields" in form_content)
-                form_element_relationships = \
+                form_element_relationships = (
                     core_models.ProposalFormElementsRelationship.objects.filter(
                         form=form
                     )
+                )
                 self.assertEqual(len(form_element_relationships), 2)
 
                 for field in form_element_relationships:
@@ -569,7 +605,7 @@ class ManagerTests(TestCase):
             else:
                 self.assertEqual(form_resp.status_code, 302)
 
-            self.assertFalse("403" in form_content)
+            self.assertNotIn(b"403", form_content)
 
             self.client.get(
                 reverse(
@@ -611,7 +647,7 @@ class ManagerTests(TestCase):
             found = False
         self.assertEqual(found, True)
         self.assertEqual(new_form_resp.status_code, 302)
-        create_elements_url = 'http://testing/manager/forms/proposal/'
+        create_elements_url = '/manager/forms/proposal/'
         self.assertEqual(new_form_resp['Location'], create_elements_url)
 
     def test_form_elements(self):
@@ -695,12 +731,12 @@ class ManagerTests(TestCase):
         review_forms = review_models.Form.objects.all()
 
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual('403' in content, False)
+        self.assertEqual(b'403' in content, False)
 
         for form in review_forms:
-            self.assertEqual(form.name in content, True)
+            self.assertIn(bytes(form.name, 'utf-8'), content)
             view_button = '/manager/forms/review/{}/'.format(form.id)
-            self.assertEqual(view_button in content, True)
+            self.assertIn(bytes(view_button, 'utf-8'), content)
             form_resp = self.client.get(
                 reverse(
                     'manager_edit_form',
@@ -716,7 +752,7 @@ class ManagerTests(TestCase):
             # when 'in_edit' is not true for a given form
             if form.in_edit:
                 self.assertEqual(form_resp.status_code, 200)
-                self.assertTrue("Fields" in form_content)
+                self.assertIn(b"Fields", form_content)
 
                 form_element_relationships = review_models.FormElementsRelationship.objects.filter(
                     form=form
@@ -724,18 +760,21 @@ class ManagerTests(TestCase):
                 self.assertEqual(len(form_element_relationships), 1)
                 t = 0
                 for field in form_element_relationships:
-                    self.assertTrue(
-                        '<td>{}</td>'.format(
-                            field.element.name) in form_content,
+                    self.assertIn(
+                        bytes(f'<td>{field.element.name}</td>', 'utf-8'),
+                        form_content
                     )
-
-                    self.assertEqual(field.element.field_type in form_content,
-                                     True)
-                    delete_button = ('/manager/forms/review/{form_id}/element/'
-                                     '{field_id}/delete/'.format(
-                        form_id=form.pk,
-                        field_id=field.id
-                    ))
+                    self.assertIn(
+                        bytes(field.element.field_type, 'utf-8'),
+                        form_content
+                    )
+                    delete_button = (
+                        '/manager/forms/review/{form_id}/element/'
+                        '{field_id}/delete/'.format(
+                            form_id=form.pk,
+                            field_id=field.id
+                        )
+                    )
                     self.assertTrue(delete_button in form_content)
                     t += 1
                 self.client.get(
@@ -758,7 +797,7 @@ class ManagerTests(TestCase):
 
             else:
                 self.assertEqual(form_resp.status_code, 302)
-            self.assertFalse("403" in form_content)
+            self.assertNotIn(b"403", form_content)
 
     def test_add_new_form(self):
         new_form_resp = self.client.post(
@@ -785,7 +824,7 @@ class ManagerTests(TestCase):
 
         self.assertEqual(found, True)
         self.assertEqual(new_form_resp.status_code, 302)
-        create_elements_url = "http://testing/manager/forms/review/"
+        create_elements_url = "/manager/forms/review/"
         self.assertEqual(new_form_resp['Location'], create_elements_url)
 
         # Ensure that there are no form elements in the db
