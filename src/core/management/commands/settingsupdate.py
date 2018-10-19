@@ -36,9 +36,9 @@ class Command(BaseCommand):
                     )
 
                     if created:
-                        print 'Created setting {}'.format(s.name)
+                        print('Created setting {}'.format(s.name))
                     else:
-                        print 'Updated setting {}'.format(s.name)
+                        print('Updated setting {}'.format(s.name))
 
                 elif not any(setting['fields']['name'] == options['setting_name'] for setting in default_data):
-                    print 'Setting {0} not found.'.format(options['setting_name'])
+                    print('Setting {0} not found.'.format(options['setting_name']))

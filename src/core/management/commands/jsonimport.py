@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if file is None:
-            print 'Please supply a file path'
+            print('Please supply a file path')
         else:
             with open('/user/home/tech/rua_data/%s.json' % file) as data_file:
                 book_list = json.load(data_file)
@@ -65,4 +65,4 @@ class Command(BaseCommand):
                     new_book.stage = stage
                     new_book.save()
 
-                    print new_book.title
+                    print(new_book.title)

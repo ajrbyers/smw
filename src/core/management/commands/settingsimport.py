@@ -24,7 +24,7 @@ def sync_groups():
             )
 
             if created:
-                print 'Created setting group {0}'.format(setting_group.name)
+                print('Created setting group {0}'.format(setting_group.name))
 
 
 def sync_settings():
@@ -49,7 +49,7 @@ def sync_settings():
             )
 
             if created:
-                print 'Created setting {0}'.format(setting.name)
+                print('Created setting {0}'.format(setting.name))
 
 
 class Command(BaseCommand):

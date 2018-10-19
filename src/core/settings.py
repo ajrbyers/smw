@@ -2,17 +2,15 @@ import os
 
 from django.contrib import messages
 
+import raven
+
 
 # ## GENERIC CONFIG ##
 
-TECH_EMAIL = os.getenv('TECH_EMAIL', 'tech@ubiquitypress.com')
-
-ADMINS = (
-    ('UP Tech', TECH_EMAIL)
-)
-
-# Username of upadmin
-INTERNAL_USER = 'tech'
+# Details of internal admin user
+ADMIN_USERNAME = os.getenv('DJANGO_ADMIN_USERNAME', 'tech')
+ADMIN_PASSWORD = os.getenv('DJANGO_ADMIN_PASSWORD')
+ADMIN_EMAIL = os.getenv('DJANGO_ADMIN_EMAIL')
 
 DEBUG = False  # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -114,13 +112,10 @@ SUMMERNOTE_CONFIG = {
 
 # ## CACHE ##
 
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = int(os.getenv('REDIS_PORT'), 6379)
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '{host}:{port}'.format(host=REDIS_HOST, port=REDIS_PORT)
+        'LOCATION': '127.0.0.1:11211',
     }
 }
 
@@ -233,39 +228,36 @@ LOGGING = {
     },
 }
 
-SENTRY_RELEASE = 'please_use_different_django_settings_file'
-SENTRY_DSN = os.getenv('SENTRY_DSN')
+SENTRY_RELEASE = (
+    '{main}-{sha}'.format(
+        main=RUA_VERSION,
+        sha=raven.fetch_git_sha(
+            os.path.join(
+                '/',
+                *os.path.dirname(os.path.realpath(__file__)).split('/')[:-2]
+            )
+        )
+    )
+)
+
+RAVEN_CONFIG = {  # Sentry.
+    'dsn': 'https://6f4e629b9384499ea7d6aaa72c820839:'
+           '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press/5',
+    'release': SENTRY_RELEASE
+}
 
 
 # ## EXTERNAL SERVICES ##
 
-ORCID_API_URL = os.getenv('ORCID_API_URL', 'http://pub.orcid.org/v1.2_rc7/')
-ORCID_REDIRECT_URI = os.getenv(
-    'ORCID_REDIRECT_URI',
-    'http://localhost:8002/login/orcid/'
-)
-ORCID_TOKEN_URL = os.getenv(
-    'ORCID_TOKEN_URL',
-    'https://pub.orcid.org/oauth/token'
-)
-ORCID_CLIENT_SECRET = os.getenv(
-    'ORCID_CLIENT_SECRET',
-    '6d1677b8-25c6-4d42-8a8d-e77a0ced56c6'
-)
-ORCID_CLIENT_ID = os.getenv(
-    'ORCID_CLIENT_ID',
-    'APP-VXH2IGZ6ZH7Q71L9'
-)
+ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
+ORCID_REDIRECT_URI = 'http://localhost:8002/login/orcid/'
+ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
+ORCID_CLIENT_SECRET = '6d1677b8-25c6-4d42-8a8d-e77a0ced56c6'
+ORCID_CLIENT_ID = 'APP-VXH2IGZ6ZH7Q71L9'
 
-EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.smtp.EmailBackend'
-)
-EMAIL_USE_TLS = bool(os.getenv('EMAIL_USE_TLS', True))
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'postmaster@ubiquity.press')
-EMAIL_HOST_PASSWORD = os.getenv(
-    'EMAIL_HOST_PASSWORD',
-    '4910364428769ec9a64fbcee94bd5d17'  # Fake API key.
-)
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = 'postmaster@ubiquity.press'
+EMAIL_HOST_PASSWORD = '4910364428769ec9a64fbcee94bd5d17'  # Fake API key.
+EMAIL_PORT = 587
