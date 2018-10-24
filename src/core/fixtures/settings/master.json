@@ -639,7 +639,7 @@
 },
 {
     "fields": {
-        "value": "<p>Dear {{typeset.typesetter.profile.salutation_name}},</p><p>The typesetting for your book is complete and a PDF proof is now available for to download. Please review this proof to ensure that there are no errors in the layout.</p><p>Kindly note that this is a proofing stage, not copyediting. At this point in the process, we will correct errors that may have been introduced during typesetting. We are also happy to make corrections to small textual errors, such as spelling or grammatical mistakes. However, we cannot make large edits to the text unless absolutely necessary.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
+        "value": "<p>Dear {{typeset.book.author.last_name}},</p><p>The  d a nload. Please review this proof to ensure that there are no errors in the layout.</p><p>Kindly note that this is a proofing stage, not copyediting. At this point in the process, we will correct errors that may have been introduced during typesetting. We are also happy to make corrections to small textual errors, such as spelling or grammatical mistakes. However, we cannot make large edits to the text unless absolutely necessary.</p><p>Kind regards,</p><p>{{sender.first_name}}\r\n{% if sender %}{{ sender.profile.signature|safe }}{% endif %}</p>",
         "group": 3,
         "name": "author_typeset_request",
         "types": "rich_text",

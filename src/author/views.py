@@ -604,6 +604,7 @@ def author_view_typesetter(request, submission_id, typeset_id):
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
     email_text = get_setting('author_typeset_request', 'email')
     author_form = core_forms.TypesetAuthorInvite(instance=typeset)
+
     if typeset.editor_second_review:
         author_form = core_forms.TypesetTypesetterInvite(instance=typeset)
         email_text = get_setting('typesetter_typeset_request', 'email')
