@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
 from .views import (
-    generate_review_form,
     RequestedReviewerDecisionEmail,
     review,
     review_complete,
@@ -11,6 +10,7 @@ from .views import (
     reviewer_dashboard,
     reviewer_decision,
 )
+from review.logic import generate_review_form
 
 urlpatterns = [
     url(

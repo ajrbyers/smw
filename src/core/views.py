@@ -15,6 +15,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
@@ -59,6 +60,8 @@ from .email import (
     send_email_multiple,
     send_reset_email,
     get_email_body,
+    get_email_subject,
+    send_prerendered_email,
 )
 from .files import (
     handle_attachment,
@@ -1543,7 +1546,7 @@ def serve_marc21_file(request, submission_id, type):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (
@@ -1618,13 +1621,13 @@ def serve_all_files(request, submission_id):
         zf.write(fpath, zip_path)
 
     zf.close()
-    fd = open(
+    fd = default_storage.open(
         os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
         'wb'
     )
     fd.write(s.getvalue())
     fd.close()
-    fsock = open(
+    fsock = default_storage.open(
         os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
         'r'
     )
@@ -1672,14 +1675,18 @@ def serve_all_review_files(request, submission_id, review_type):
             zf.write(fpath, zip_path)
 
     zf.close()
-    fd = open(os.path.join(
+    fd = default_storage.open(os.path.join(
         settings.BOOK_DIR, submission_id, zip_filename),
         'wb'
     )
     fd.write(s.getvalue())
     fd.close()
-    fsock = open(os.path.join(
-        settings.BOOK_DIR, submission_id, zip_filename),
+    fsock = default_storage.open(
+        os.path.join(
+            settings.BOOK_DIR,
+            submission_id,
+            zip_filename
+        ),
         'r'
     )
     resp = StreamingHttpResponse(
@@ -1737,13 +1744,13 @@ def serve_all_review_files_one_click(
             zf.write(fpath, zip_path)
 
     zf.close()
-    fd = open(
+    fd = default_storage.open(
         os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
         'wb'
     )
     fd.write(s.getvalue())
     fd.close()
-    fsock = open(
+    fsock = default_storage.open(
         os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
         'r'
     )
@@ -1768,7 +1775,7 @@ def serve_file(request, submission_id, file_id):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = logic.get_file_content_dispostion(
@@ -1792,9 +1799,9 @@ def serve_email_file(request, file_id):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        file_stream = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
-        response = StreamingHttpResponse(fsock, content_type=mimetype)
+        response = StreamingHttpResponse(file_stream, content_type=mimetype)
         response['Content-Disposition'] = logic.get_file_content_dispostion(
             _file.original_filename
         )
@@ -1829,7 +1836,7 @@ def serve_file_one_click(
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = logic.get_file_content_dispostion(
@@ -1849,17 +1856,17 @@ def serve_file_one_click(
 def serve_proposal_file_id(request, proposal_id, file_id):
     get_object_or_404(submission_models.Proposal, pk=proposal_id)
     _file = get_object_or_404(models.File, pk=file_id)
+
     file_path = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'proposals',
-        str(proposal_id), _file.uuid_filename
+        settings.PROPOSAL_DIR,
+        str(proposal_id),
+        _file.uuid_filename,
     )
 
     try:
-        fsock = open(file_path, 'r')
+        file_stream = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
-        response = StreamingHttpResponse(fsock, content_type=mimetype)
+        response = StreamingHttpResponse(file_stream, content_type=mimetype)
         response['Content-Disposition'] = logic.get_file_content_dispostion(
             _file.original_filename
         )
@@ -1884,7 +1891,7 @@ def serve_versioned_file(request, submission_id, revision_id):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = logic.get_file_content_dispostion(
@@ -2723,14 +2730,12 @@ def create_proposal_form(proposal):
 
     document.add_page_break()
 
-    if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'forms')):
-        os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'forms'))
-    path = os.path.join(
-        settings.BASE_DIR, 'files', 'forms', '%s.docx' % str(uuid4())
-    )
-    document.save(path)
+    form_file_path = os.path.join(settings.FORM_DIR, f'{uuid4()}.docx')
 
-    return path
+    with default_storage.open(form_file_path, 'wb') as file_stream:
+        document.save(file_stream)
+
+    return form_file_path
 
 
 @is_editor
@@ -3199,13 +3204,13 @@ class RequestedReviewerDecisionEmail(FormView):
         else:
             email_body_setting_name = 'proposal_requested_reviewer_decline'
 
-        email_body = email.get_email_body(
+        email_body = get_email_body(
             request=self.request,
             setting_name=email_body_setting_name,
             context=email_context,
         )
         email_subject_setting_name = email_body_setting_name + '_subject'
-        email_subject = email.get_email_subject(
+        email_subject = get_email_subject(
             request=self.request,
             setting_name=email_subject_setting_name,
             context=email_context,
@@ -3239,7 +3244,7 @@ class RequestedReviewerDecisionEmail(FormView):
             'from_address',
             'email'
         )
-        email.send_prerendered_email(
+        send_prerendered_email(
             html_content=form.cleaned_data['email_body'],
             subject=form.cleaned_data['email_subject'],
             from_email=from_email,
@@ -3792,12 +3797,12 @@ class ProposalReviewCompletionEmail(FormView):
             'sender': self.proposal_reivew.user,
         }
         kwargs['initial'] = {
-            'email_subject': email.get_email_subject(
+            'email_subject': get_email_subject(
                 request=self.request,
                 setting_name='proposal_peer_review_completed_subject',
                 context=email_context,
             ),
-            'email_body': email.get_email_body(
+            'email_body': get_email_body(
                 request=self.request,
                 setting_name='proposal_peer_review_completed',
                 context=email_context,
@@ -3826,7 +3831,7 @@ class ProposalReviewCompletionEmail(FormView):
             'from_address',
             'email'
         )
-        email.send_prerendered_email(
+        send_prerendered_email(
             html_content=form.cleaned_data['email_body'],
             subject=form.cleaned_data['email_subject'],
             from_email=from_email,
@@ -3865,9 +3870,8 @@ def add_proposal_reviewers(request, proposal_id):
         if start_form.is_valid():
             updated_proposal = start_form.save(commit=False)
         if request.FILES.get('attachment'):
-            attachment = handle_proposal_file(
+            attachment = handle_email_file(
                 request.FILES.get('attachment'),
-                _proposal,
                 'misc',
                 request.user,
             )
@@ -3883,7 +3887,7 @@ def add_proposal_reviewers(request, proposal_id):
         email_text = request.POST.get('email_text')
         generate = True if 'access_key' in request.POST else False
 
-        for reviewer in reviewers:  # Handle reviewers.
+        for reviewer in reviewers:
             if generate:
                 access_key = uuid4()
                 new_review_assignment = submission_models.ProposalReview(
@@ -3944,7 +3948,7 @@ def add_proposal_reviewers(request, proposal_id):
                         )
                     )
 
-        for committee in committees:  # Handle committees.
+        for committee in committees:
             members = manager_models.GroupMembership.objects.filter(
                 group=committee
             )
@@ -4486,7 +4490,7 @@ def create_completed_proposal_review_form(proposal, review_id):
 @is_reviewer
 def serve_proposal_file(request, file_path):
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = (

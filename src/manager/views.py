@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponse
@@ -639,7 +640,7 @@ def activate_user(request, user_id):
 
 @is_press_editor
 def key_help(request):
-    with open(
+    with default_storage.open(
         '%s%s' % (settings.BASE_DIR, '/core/fixtures/key_help.json')
     ) as data_file:
         data = json.load(data_file)
@@ -1037,21 +1038,15 @@ def handle_file(request, file):
     ).replace(
         ';', '_'
     )
-    filename = str(uuid4()) + '.' + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(settings.BASE_DIR, 'media', 'settings')
+    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
+    directory_path = os.path.join('media', 'settings')
+    file_path = os.path.join(directory_path, str(filename))
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
+    with default_storage.open(file_path, 'wb') as file_stream:
+        for chunk in file.chunks():
+            file_stream.write(chunk)
 
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-
-    return filename
+    return file_path
 
 
 # AJAX Handler

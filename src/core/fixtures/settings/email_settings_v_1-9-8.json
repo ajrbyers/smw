@@ -144,7 +144,7 @@
   },
   {
     "fields": {
-      "value": "Proposal revised - {proposal.title}",
+      "value": "Proposal revised - {{ proposal.title }}",
       "group": "6",
       "name": "revised_proposal_notification_subject",
       "types": "text",

@@ -18,7 +18,10 @@ from pymarc import Record, Field, record_to_xml
 
 from core import email, models, log
 from core.cache import cache_result
-from core.files import handle_marc21_file
+from core.files import (
+    handle_email_file,
+    handle_marc21_file,
+)
 from editorialreview import models as editorialreview_models
 from revisions import models as revisions_models
 from .setting_util import get_setting
@@ -850,7 +853,9 @@ def create_new_review_round(book):
     )
     next_round = (
         latest_round.get('max') + 1 if
-        latest_round.get('max') > 0 else 1
+        latest_round.get('max') and
+        latest_round.get('max') > 0
+        else 1
     )
 
     return models.ReviewRound.objects.create(book=book, round_number=next_round)
@@ -1088,22 +1093,28 @@ def send_proposal_review_request(
     press_name = get_setting('press_name', 'general')
 
     if access_key:
-        review_url = "http://{0}{1}".format(base_url, reverse(
-            'view_proposal_review_decision_access_key',
-            kwargs={
-                'proposal_id': proposal.id,
-                'assignment_id': review_assignment.id,
-                'access_key': access_key,
-            }
-        ))
+        review_url = "http://{0}{1}".format(
+            base_url,
+            reverse(
+                'view_proposal_review_decision_access_key',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': review_assignment.id,
+                    'access_key': access_key,
+                }
+            )
+        )
     else:
-        review_url = "http://{0}{1}".format(base_url, reverse(
-            'view_proposal_review_decision',
-            kwargs={
-                'proposal_id': proposal.id,
-                'assignment_id': review_assignment.id,
-            }
-        ))
+        review_url = "http://{0}{1}".format(
+            base_url,
+            reverse(
+                'view_proposal_review_decision',
+                kwargs={
+                    'proposal_id': proposal.id,
+                    'assignment_id': review_assignment.id,
+                }
+            )
+        )
 
     if request:
         from_email = "%s <%s>" % (
@@ -1306,6 +1317,7 @@ def send_decision_ack(
         )
 
         if attachment:
+
             email.send_email(
                 subject,
                 context,
@@ -1870,9 +1882,10 @@ def get_file_content_dispostion(original_filename):
     # to avoid a bug where an unusable ZIP file is served
     return (
         "attachment; filename={file_name}".format(
-            file_name=original_filename.encode(
-                'ascii',
-                errors='ignore'
-            )
+            file_name=original_filename
         )
+        #     .encode(
+        #     'ascii',
+        #     errors='ignore'
+        # )
     )

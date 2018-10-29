@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect, StreamingHttpResponse
@@ -22,9 +23,10 @@ from core import (
     forms as core_forms,
 )
 from core.files import (
-    handle_file_update,
     handle_attachment,
+    handle_email_file,
     handle_file,
+    handle_file_update,
 )
 from core.decorators import (
     is_book_editor,
@@ -917,11 +919,10 @@ def editor_decision(request, submission_id, decision):
     if request.POST:
 
         if request.FILES.get('attachment'):
-            attachment = handle_file(
-                request.FILES.get('attachment'),
-                book,
-                'misc',
-                request.user,
+            attachment = handle_email_file(
+                _file=request.FILES.get('attachment'),
+                kind='misc',
+                owner=request.user,
             )
         else:
             attachment = None
@@ -1124,9 +1125,8 @@ def request_revisions(request, submission_id, returner):
 
             if attachment_files:
                 for attachment in attachment_files:
-                    attachment = handle_file(
+                    attachment = handle_email_file(
                         attachment,
-                        book,
                         'other',
                         request.user,
                         "Attachment: Uploaded by %s" % request.user.username
@@ -1256,9 +1256,8 @@ def editor_add_reviewers(request, submission_id, review_type, round_number):
         email_text = request.POST.get('message')
 
         if request.FILES.get('attachment'):
-            attachment = handle_file(
+            attachment = handle_email_file(
                 request.FILES.get('attachment'),
-                submission,
                 'misc',
                 request.user,
             )
@@ -1679,7 +1678,7 @@ def catalog_marc21(request, submission_id, type=None):
             )
 
             try:
-                fsock = open(file_path, 'r')
+                fsock = default_storage.open(file_path, 'r')
                 mimetype = mimetypes.guess_type(file_path)
                 response = StreamingHttpResponse(fsock, content_type=mimetype)
                 response['Content-Disposition'] = "attachment; filename=%s" % (
@@ -2452,11 +2451,11 @@ def update_format_or_chapter(request, submission_id, format_or_chapter, id):
                     )
                 else:
                     handle_file_update(
-                        request.FILES.get('chapter_file'),
-                        file_update,
-                        book,
-                        item.file.kind,
-                        request.user
+                        new_file=request.FILES.get('chapter_file'),
+                        old_file=file_update,
+                        book=book,
+                        owner=request.user,
+                        label=item.file.kind,
                     )
             return redirect(reverse(
                 'editor_production', kwargs={'submission_id': book.id}

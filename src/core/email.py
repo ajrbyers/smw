@@ -1,6 +1,8 @@
 import mimetypes
+import os
 
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
 from django.template import Context, Template, RequestContext
 
@@ -8,26 +10,26 @@ from core import log
 from .setting_util import get_setting
 
 
-def filepath(book, attachment):
-    return '{dir}/{id}/{uuid}'.format(
-        dir=settings.BOOK_DIR,
-        id=book.id,
-        uuid=attachment.uuid_filename,
+def file_path_book(book, attachment):
+    return os.path.join(
+        settings.BOOK_DIR,
+        str(book.id),
+        attachment.uuid_filename,
     )
 
 
-def filepath_proposal(proposal, attachment):
-    return '{proposal}/{id}/{uuid}'.format(
-        proposal=settings.PROPOSAL_DIR,
-        id=proposal.id,
-        uuid=attachment.uuid_filename,
+def file_path_proposal(proposal, attachment):
+    return os.path.join(
+        settings.PROPOSAL_DIR,
+        str(proposal.id),
+        attachment.uuid_filename,
     )
 
 
-def filepath_general(attachment):
-    return '{dir}/{uuid}'.format(
-        dir=settings.EMAIL_DIR,
-        uuid=attachment.uuid_filename,
+def file_path_general(attachment):
+    return os.path.join(
+        settings.EMAIL_DIR,
+        attachment.uuid_filename,
     )
 
 
@@ -128,12 +130,19 @@ def send_email(
     msg.content_subtype = "html"
 
     if attachment:
-        if book:
-            msg.attach_file(filepath(book, attachment))
-        elif proposal:
-            msg.attach_file(filepath_proposal(proposal, attachment))
-        else:
-            msg.attach_file(filepath_general(attachment))
+
+        file_path = file_path_general(attachment)
+
+        with default_storage.open(file_path, 'rb') as file_stream:
+            content = file_stream.read()
+
+        mimetype = mimetypes.guess_type(file_path)[0] or 'unknown/unknown'
+
+        msg.attach(
+            filename=attachment.original_filename,
+            content=content,
+            mimetype=mimetype,
+        )
 
     msg.send()
 
@@ -204,12 +213,18 @@ def send_email_multiple(
 
     if attachments:
         for attachment in attachments:
-            if book:
-                msg.attach_file(filepath(book, attachment))
-            elif proposal:
-                msg.attach_file(filepath_proposal(proposal, attachment))
-            else:
-                msg.attach_file(filepath_general(attachment))
+            file_path = file_path_general(attachment)
+
+            with default_storage.open(file_path, 'rb') as file_stream:
+                content = file_stream.read()
+
+            mimetype = mimetypes.guess_type(file_path)[0] or 'unknown/unknown'
+
+            msg.attach(
+                filename=attachment.original_filename,
+                content=content,
+                mimetype=mimetype,
+            )
 
     msg.send()
 
@@ -293,23 +308,14 @@ def send_prerendered_email(
 
     if attachments:
         for attachment in attachments:
-            filepath = filepath_general(attachment)
-            with open(filepath, 'rb') as file:
+            filepath = file_path_general(attachment)
+            with default_storage.open(filepath, 'rb') as file:
                 content = file.read()
 
-            # TODO: drop forced ascii encoding when Django is upgraded
-            # to fully support non-ascii unicode filenames
-            # Appears to relate to this issue:
-            # https://code.djangoproject.com/ticket/26227
-            filename = attachment.original_filename.encode(
-                'ascii',
-                errors='replace'
-            )
-
-            mimetype = mimetypes.guess_type(filepath)[0] or 'unknown'
+            mimetype = mimetypes.guess_type(filepath)[0] or 'unknown/unknown'
 
             msg.attach(
-                filename=filename,
+                filename=attachment.original_filename,
                 content=content,
                 mimetype=mimetype,
             )

@@ -2,17 +2,18 @@
 
 SECRET_KEY = '_%@8*2$*1*i&um4+#a6w(%xqa_19=tfmhu9u-l*7t(a$g(2)wg'
 
-from .base_settings import *
+from .settings import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
-
+ALLOWED_HOSTS = [
+    host.strip() for host in
+    os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+]
 
 SESSION_COOKIE_NAME = 'rua_cookie'
 
 INSTALLED_APPS += (
-    # 'test_without_migrations',
     'debug_toolbar',
 )
 

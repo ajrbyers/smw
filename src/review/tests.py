@@ -7,8 +7,8 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+import review.logic
 from review import models
-from review import views
 from core import models as core_models
 
 
@@ -544,10 +544,10 @@ class ReviewTests(TestCase):
                 'accept': 'I Accept'
             }
         )
-        path = views.create_review_form(self.book, self.book.review_form)
+        path = review.logic.create_review_form(self.book, self.book.review_form)
         self.assertEqual("/files/forms/" in path, True)
         self.assertEqual(".docx" in path, True)
-        review_file = tempfile.NamedTemporaryFile(delete=False)
+        review_file = tempfile.mktemp()
         resp = self.client.post(
             reverse(
                 'review_with_access_key',

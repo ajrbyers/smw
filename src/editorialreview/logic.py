@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.db.models import Q
 from django.utils.encoding import smart_text
@@ -128,29 +129,16 @@ def handle_review_file(_file, review_assignment, kind, return_file=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder = "{0}s".format(review_assignment.content_type)
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
         'files',
-        folder,
-        str(review_assignment.content_object.id)
+        f'{review_assignment.content_type}s',
+        str(review_assignment.content_object.id),
+        filename,
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    _path = os.path.join(folder_structure, str(filename))
-    fd = open(_path, 'wb')
-    [fd.write(chunk) for chunk in _file.chunks()]
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = core_models.File(
         mime_type=file_mime,
@@ -166,4 +154,4 @@ def handle_review_file(_file, review_assignment, kind, return_file=None):
     if return_file:
         return new_file
 
-    return _path
+    return file_path

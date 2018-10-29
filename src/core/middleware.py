@@ -1,5 +1,4 @@
-from .base_settings import RUA_VERSION
-
+from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -18,4 +17,4 @@ class Roles(MiddlewareMixin):
 class Version(MiddlewareMixin):
 
     def process_request(self, request):
-        request.rua_version = RUA_VERSION
+        request.rua_version = settings.RUA_VERSION

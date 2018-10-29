@@ -3,7 +3,9 @@ import csv
 import ftplib
 from io import StringIO
 import os
+
 from django.conf import settings
+from django.core.files.storage import default_storage
 
 from celery import task
 
@@ -15,7 +17,7 @@ from core.setting_util import get_setting
 def _read_csv(path):
     """Read a CSV and return its rows, cleaning NUL bytes."""
 
-    with open(path, 'rb') as raw_csv:
+    with default_storage.open(path, 'rb') as raw_csv:
         data = raw_csv.read().replace('\00', '')
     if path != 'bisac.csv':
         os.remove(path)

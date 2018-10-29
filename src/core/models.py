@@ -339,7 +339,7 @@ class Language(models.Model):
         max_length=300,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.display
 
     def __repr__(self):
@@ -679,7 +679,7 @@ class Author(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
 
     def __repr__(self):
@@ -852,19 +852,19 @@ class Book(models.Model):
             'to individual chapter pages.'
         ),
     )
-    owner = models.ForeignKey(  # Book Owner.
+    owner = models.ForeignKey(
         User,
         null=True,
         blank=True,
         on_delete=models.CASCADE,
     )
-    read_only_users = models.ManyToManyField(  # Read only users.
+    read_only_users = models.ManyToManyField(
         User,
         null=True,
         blank=True,
         related_name='read_only_users',
     )
-    submission_date = models.DateField(  # Dates.
+    submission_date = models.DateField(
         auto_now_add=True,
         null=True,
         blank=True,
@@ -877,7 +877,7 @@ class Book(models.Model):
         null=True,
         blank=True,
     )
-    stage = models.ForeignKey(  # Stage.
+    stage = models.ForeignKey(
         'Stage',
         null=True,
         blank=True,
@@ -887,7 +887,7 @@ class Book(models.Model):
         null=True,
         blank=True,
     )
-    review_assignments = models.ManyToManyField(  # Review.
+    review_assignments = models.ManyToManyField(
         'ReviewAssignment',
         related_name='review',
         null=True,
@@ -905,7 +905,7 @@ class Book(models.Model):
         blank=True,
         on_delete=models.CASCADE,
     )
-    files = models.ManyToManyField(  # Files.
+    files = models.ManyToManyField(
         'File',
         null=True,
         blank=True,
@@ -934,14 +934,14 @@ class Book(models.Model):
         blank=True,
         related_name='misc_files',
     )
-    contract = models.ForeignKey(  # Contract.
+    contract = models.ForeignKey(
         'Contract',
         null=True,
         blank=True,
         related_name='contract_of_book',
         on_delete=models.CASCADE,
     )
-    proposal = models.ForeignKey(  # Proposal.
+    proposal = models.ForeignKey(
         'submission.Proposal',
         null=True,
         blank=True,
@@ -955,11 +955,11 @@ class Book(models.Model):
             "are no reviews in the Rua database.",
         ),
     )
-    first_run = models.BooleanField(  # First Run.
+    first_run = models.BooleanField(
         default=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.title
 
     def __repr__(self):
@@ -1296,7 +1296,7 @@ class Contract(models.Model):
         default=Decimal('0.00'),
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.title
 
     def __repr__(self):
@@ -1332,7 +1332,7 @@ class ReviewRound(models.Model):
         auto_now_add=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s round_number: %s' % (
             self.pk,
             self.book.title,
@@ -1460,7 +1460,7 @@ class ReviewAssignment(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.book.title, self.user.username)
 
     def __repr__(self):
@@ -1601,7 +1601,7 @@ class EditorialReviewAssignment(models.Model):
     withdrawn = models.BooleanField(
         default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (
             self.pk,
             self.book.title,
@@ -1698,7 +1698,7 @@ class CopyeditAssignment(models.Model):
         related_name='author_copyedit_files'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (
             self.pk,
             self.book.title,
@@ -1812,7 +1812,7 @@ class IndexAssignment(models.Model):
         related_name='index_files'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.book.title, self.indexer.username)
 
     def __repr__(self):
@@ -1955,7 +1955,7 @@ class TypesetAssignment(models.Model):
         related_name='typesetter_files',
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (
             self.pk,
             self.book.title,
@@ -2054,7 +2054,7 @@ class License(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.short_name
 
     def __str__(self):
@@ -2091,7 +2091,7 @@ class Series(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.title
 
     def __repr__(self):
@@ -2170,7 +2170,7 @@ class Editor(models.Model):
         blank=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
 
     def __repr__(self):
@@ -2257,7 +2257,7 @@ class File(models.Model):
 
         return name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.original_filename
 
     def __repr__(self):
@@ -2290,7 +2290,7 @@ class Subject(models.Model):
 
     name = models.CharField(max_length=250)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2301,7 +2301,7 @@ class Interest(models.Model):
 
     name = models.CharField(max_length=250)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2312,7 +2312,7 @@ class Keyword(models.Model):
 
     name = models.CharField(max_length=250)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2391,7 +2391,7 @@ class Stage(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         try:
             book = self.book_set.all()[0]
             return u'%s - %s' % (book.title, self.current_stage)
@@ -2479,7 +2479,7 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2558,7 +2558,7 @@ class SettingGroup(models.Model):
         default=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2591,7 +2591,7 @@ class Setting(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2651,7 +2651,7 @@ class Format(models.Model):
         choices=digital_file_type(),
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s' % (self.book, self.identifier)
 
     def __repr__(self):
@@ -2708,7 +2708,7 @@ class Chapter(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s' % (self.book, self.sequence)
 
     def __repr__(self):
@@ -2809,7 +2809,7 @@ class ChapterAuthor(models.Model):
         verbose_name="Facebook Profile",
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.first_name, self.last_name)
 
     def __repr__(self):
@@ -2859,7 +2859,7 @@ class ChapterFormat(models.Model):
         choices=digital_file_type(),
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s' % (self.book, self.identifier)
 
     def __repr__(self):
@@ -2886,7 +2886,7 @@ class PhysicalFormat(models.Model):
         choices=pysical_file_type(),
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s' % (self.book, self.name)
 
     def __repr__(self):
@@ -2927,7 +2927,7 @@ class ProposalForm(models.Model):
                   ' from use in proposal workflow.'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     def __repr__(self):
@@ -2961,7 +2961,7 @@ class ProposalFormElement(models.Model):
     )
     required = models.BooleanField()
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.name
 
     def __repr__(self):
@@ -3000,7 +3000,7 @@ class ProposalFormElementsRelationship(models.Model):
         blank=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s: %s' % (self.form.name, self.element.name)
 
     def __repr__(self):
@@ -3028,7 +3028,7 @@ class Message(models.Model):
     )
     message = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.message
 
 
@@ -3099,7 +3099,7 @@ class EmailLog(models.Model):
         default='general',
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u"From: %s To: %s, CC: %s BCC: %s : Subject: %s" % (
             self.from_address,
             self.to,

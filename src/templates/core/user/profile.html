@@ -1,83 +1,130 @@
 {% extends "base.html" %}
 {% load bootstrap3 %}
+{% load static from staticfiles %}
 
 {% block title %}
-{% if readonly %}
-  {% if user_exists%}
-    Profile:&nbsp;{{user_profile.full_name}}
-  {% else %}
-    Unknown Profile
-  {%endif%} 
-{% else %} 
-  My Profile 
-{% endif %}
+    {% if readonly %}
+        {% if user_exists %}
+            Profile:&nbsp;{{ user_profile.full_name }}
+        {% else %}
+            Unknown Profile
+        {% endif %}
+    {% else %}
+        My Profile
+    {% endif %}
 
 {% endblock %}
 
 {% block body %}
-  <div class="col-md-12 profile-heading container-fluid" style="margin-top:-2">
-      <h1>{% if readonly %}
-            {% if user_exists%}
-              Profile of {{user_profile.full_name}}
+    <div class="col-md-12 profile-heading container-fluid" style="margin-top:-2">
+        <h1>{% if readonly %}
+            {% if user_exists %}
+                Profile of {{ user_profile.full_name }}
             {% else %}
-              Unknown Profile 
-            {%endif%} 
-          {% else %}
-            My Profile <div class="btn-group pull-right">
-                  <a class="btn dropdown-toggle btn-transparent-white" style="width:95px" data-toggle="dropdown" href="#">
-                      Action
-                      <span class="icon-cog icon-white"></span><span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    {% include "core/user/action_bar.html" %}
-                  </ul>
-              </div> 
-          {% endif %}</h1>
-    </div>
-<div class="col-md-12">
-  <div class="container-fluid well span6">
-	<div class="row-fluid container-fluid">
-    {% if user_exists %}
-        <div class="col-md-3 container-fluid" >
-                <div class="bs-callout bs-callout-profile" align="middle"id="callout-helper-bg-specificity">
-    		      <img src="{% if user_profile.profile_image %}{{ MEDIA_URL }}{{ user_profile.profile_image }}{% else %}holder.js/150x150{% endif %}" class="img-circle img-responsive" style="max-width: 150px;">
-              <div class=" profile-heading container-fluid" style="height:25px;margin-top:10px;left:30px;width:{{name_width}}px;">
-                    <h5 style="margin-top:4px ;" >{{ user_profile.user.profile.full_name }}</h5></div>
-                    
-                    <div style="text-align:left;">
-                    <h6><strong>Email:</strong>&nbsp; {{ user_profile.user.email }}</h6>
-                    <h6><strong>Institution:</strong>&nbsp; {{ user_profile.institution }}</h6>
-                  {% if user_profile.department %}
-                    <h6><strong>Department:</strong>&nbsp; {{ user_profile.department }}</h6>
-                  {% endif %}
-                    <h6><strong>Country:</strong>&nbsp; {{ user_profile.get_country_display }}</h6>
-                </div>
-                 </div>
-        </div>
-
-        <div class="col-md-9">
-            <div class="bs-callout bs-callout-profile" id="callout-helper-bg-specificity">
-                <h4>Biography</h4>
-                {{ user_profile.biography|safe }}
-            </div>
-            {% if user_profile.website %}
-              <div class="bs-callout bs-callout-website" id="callout-helper-bg-specificity">
-                <h4>Website: <small>
-                <a href="{{ user_profile.website }}">{{ user_profile.website }}</a></small></h4>
-              </div>
+                Unknown Profile
             {% endif %}
-      			{% if user_profile.orcid %}<a target="_blank" class="btn btn-social btn-orcid" href="http://orcid.org/{{ user_profile.orcid }}/"><i class="fa">iD</i>&nbsp;ORCiD</a>{% endif %}
-      			{% if user_profile.facebook %}<a target="_blank" class="btn btn-social btn-facebook" href="http://facebook.com/{{ user_profile.facebook}}"><i class="fa fa-facebook-official"></i>&nbsp;Facebook</a>{% endif %}
-      			{% if user_profile.twitter %}<a target="_blank" class="btn btn-social btn-twitter" href="http://twitter.com/{{ user_profile.twitter }}"><i class="fa fa-twitter"></i>&nbsp;Twitter</a>{% endif %}
-      			{% if user_profile.linkedin %}<a target="_blank" class="btn btn-social btn-linkedin" href="https://www.linkedin.com/in/{{ user_profile.linkedin }}"><i class="fa fa-linkedin"></i>&nbsp;LinkedIn</a>{% endif %}
-      			{% if user_profile.impactstory %}<a target="_blank" class="btn btn-social btn-impact" href="https://impactstory.org/{{ user_profile.impactstory }}"><i class="fa fa-info-circle"></i>&nbsp;Impact Story</a>{% endif %}
-      			{% if user_profile.github %}<a target="_blank" class="btn btn-social btn-github" href="https://github.com/{{ user_profile.github }}"><i class="fa fa-github"></i>&nbsp;Github</a>{% endif %}
-        </div>
         {% else %}
-      <h3><i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;User or Profile does not exist. </h3>
-        {% endif %}
-	</div>
-</div>
-</div>
+            My Profile
+            <div class="btn-group pull-right">
+                <a class="btn dropdown-toggle btn-transparent-white"
+                   style="width:95px" data-toggle="dropdown" href="#">
+                    Action
+                    <span class="icon-cog icon-white"></span><span
+                        class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% include "core/user/action_bar.html" %}
+                </ul>
+            </div>
+        {% endif %}</h1>
+    </div>
+    <div class="col-md-12">
+        <div class="container-fluid well span6">
+            <div class="row-fluid container-fluid">
+                {% if user_exists %}
+                    <div class="col-md-3 container-fluid">
+                        <div class="bs-callout bs-callout-profile"
+                             align="middle" id="callout-helper-bg-specificity">
+                            <img src="
+                                {% if user_profile.profile_image %}
+                                   {% static user_profile.profile_image %}
+                                {% else %}
+                                    holder.js/150x150
+                                {% endif %}"
+                                 class="img-circle img-responsive"
+                                 style="max-width: 150px;">
+                            <div class=" profile-heading container-fluid"
+                                 style="height:25px;margin-top:10px;left:30px;width:{{ name_width }}px;">
+                                <h5 style="margin-top:4px ;">{{ user_profile.user.profile.full_name }}</h5>
+                            </div>
+
+                            <div style="text-align:left;">
+                                <h6>
+                                    <strong>Email:</strong>&nbsp; {{ user_profile.user.email }}
+                                </h6>
+                                <h6>
+                                    <strong>Institution:</strong>&nbsp; {{ user_profile.institution }}
+                                </h6>
+                                {% if user_profile.department %}
+                                    <h6>
+                                        <strong>Department:</strong>&nbsp; {{ user_profile.department }}
+                                    </h6>
+                                {% endif %}
+                                <h6>
+                                    <strong>Country:</strong>&nbsp; {{ user_profile.get_country_display }}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="bs-callout bs-callout-profile"
+                             id="callout-helper-bg-specificity">
+                            <h4>Biography</h4>
+                            {{ user_profile.biography|safe }}
+                        </div>
+                        {% if user_profile.website %}
+                            <div class="bs-callout bs-callout-website"
+                                 id="callout-helper-bg-specificity">
+                                <h4>Website:
+                                    <small>
+                                        <a href="{{ user_profile.website }}">{{ user_profile.website }}</a>
+                                    </small>
+                                </h4>
+                            </div>
+                        {% endif %}
+                        {% if user_profile.orcid %}
+                            <a target="_blank" class="btn btn-social btn-orcid"
+                               href="http://orcid.org/{{ user_profile.orcid }}/"><i
+                                    class="fa">iD</i>&nbsp;ORCiD</a>{% endif %}
+                        {% if user_profile.facebook %}<a target="_blank"
+                                                         class="btn btn-social btn-facebook"
+                                                         href="http://facebook.com/{{ user_profile.facebook }}"><i
+                                class="fa fa-facebook-official"></i>&nbsp;Facebook</a>{% endif %}
+                        {% if user_profile.twitter %}<a target="_blank"
+                                                        class="btn btn-social btn-twitter"
+                                                        href="http://twitter.com/{{ user_profile.twitter }}"><i
+                                class="fa fa-twitter"></i>&nbsp;Twitter</a>{% endif %}
+                        {% if user_profile.linkedin %}<a target="_blank"
+                                                         class="btn btn-social btn-linkedin"
+                                                         href="https://www.linkedin.com/in/{{ user_profile.linkedin }}"><i
+                                class="fa fa-linkedin"></i>&nbsp;LinkedIn</a>{% endif %}
+                        {% if user_profile.impactstory %}
+                            <a target="_blank" class="btn btn-social btn-impact"
+                               href="https://impactstory.org/{{ user_profile.impactstory }}"><i
+                                    class="fa fa-info-circle"></i>&nbsp;Impact
+                                Story</a>{% endif %}
+                        {% if user_profile.github %}
+                            <a target="_blank" class="btn btn-social btn-github"
+                               href="https://github.com/{{ user_profile.github }}"><i
+                                    class="fa fa-github"></i>&nbsp;Github</a>{% endif %}
+                    </div>
+                {% else %}
+                    <h3><i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;User
+                        or Profile does not exist. </h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

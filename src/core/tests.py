@@ -261,15 +261,19 @@ class CoreTests(TestCase):
         unicode_text = u'%s - %s %s' % (
         str(1), "rua_author_first_name", "rua_author_last_name")
         self.assertEqual(self.author.__repr__() == unicode_text, True)
-        self.assertEqual(self.author.__unicode__() == unicode_text, True)
+        self.assertEqual(self.author.__str__() == unicode_text, True)
         self.assertEqual(self.author.full_name() == fullname, True)
-        self.assertEqual(self.author.first_name == "rua_author_first_name",
-                         True)
+        self.assertEqual(
+            self.author.first_name == "rua_author_first_name",
+            True
+        )
         self.assertEqual(self.author.last_name == "rua_author_last_name", True)
         self.assertEqual(self.author.institution == "rua_testing", True)
         self.assertEqual(self.author.country == "GB", True)
-        self.assertEqual(self.author.author_email == "fake@fakeaddress.com",
-                         True)
+        self.assertEqual(
+            self.author.author_email == "fake@fakeaddress.com",
+            True
+        )
         self.assertEqual(self.author.full_name() == fullname, True)
 
         # alter field
@@ -648,7 +652,6 @@ class CoreTests(TestCase):
             )
         )
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
 
@@ -660,21 +663,37 @@ class CoreTests(TestCase):
         proposal_reviews = submission_models.ProposalReview.objects.all()
         self.assertEqual(0, len(proposal_reviews))
         resp = self.client.get(
-            reverse('view_proposal', kwargs={'proposal_id': proposal.id}),
-            {'download': 'docx'})
-
+            reverse(
+                'view_proposal',
+                kwargs={'proposal_id': proposal.id}
+            ),
+            {'download': 'docx'}
+        )
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(reverse('start_proposal_review',
-                                       kwargs={'proposal_id': proposal.id}))
-        content = resp.content
 
+        resp = self.client.get(
+            reverse(
+                'start_proposal_review',
+                kwargs={'proposal_id': proposal.id}
+            )
+        )
+        content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
-        resp = self.client.post(reverse('start_proposal_review',
-                                        kwargs={'proposal_id': proposal.id}),
-                                {'due_date': '2015-11-11', 'review_form': 1,
-                                 'committee': 2, 'reviewer': 1,
-                                 'email_text': 'hi'})
+
+        resp = self.client.post(
+            reverse(
+                'start_proposal_review',
+                kwargs={'proposal_id': proposal.id}
+            ),
+            {
+                'due_date': '2015-11-11',
+                'review_form': 1,
+                'committee': 2,
+                'reviewer': 1,
+                'email_text': 'hi'
+            }
+        )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'], "/proposals/1/")
         proposal_reviews = submission_models.ProposalReview.objects.all()
@@ -684,31 +703,27 @@ class CoreTests(TestCase):
                                        kwargs={'proposal_id': proposal.id,
                                                'review_id': 1}))
         content = resp.content
-
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(b"403" in content, False)
         proposal_review = submission_models.ProposalReview.objects.get(pk=1)
-
         self.assertEqual(proposal_review.withdrawn, True)
 
         resp = self.client.get(reverse('withdraw_proposal_review',
                                        kwargs={'proposal_id': proposal.id,
                                                'review_id': 1}))
         content = resp.content
-
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(b"403" in content, False)
         proposal_review = submission_models.ProposalReview.objects.get(pk=1)
-
         self.assertEqual(proposal_review.withdrawn, False)
 
         resp = self.client.get(
             reverse('accept_proposal', kwargs={'proposal_id': proposal.id}))
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
         proposal_file = tempfile.NamedTemporaryFile(delete=False)
+
         resp = self.client.post(
             reverse('accept_proposal', kwargs={'proposal_id': proposal.id}),
             {'proposal-type': 'monograph', 'accept-email': 'Dear user',
@@ -719,12 +734,13 @@ class CoreTests(TestCase):
         self.assertEqual(proposal.status, 'accepted')
         proposal.status = 'submission'
         proposal.save()
+
         resp = self.client.get(
             reverse('decline_proposal', kwargs={'proposal_id': proposal.id}))
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
+
         resp = self.client.post(
             reverse('decline_proposal', kwargs={'proposal_id': proposal.id}),
             {'decline-email': 'Dear user'})
@@ -734,6 +750,7 @@ class CoreTests(TestCase):
         self.assertEqual(proposal.status, 'declined')
         proposal.status = 'submission'
         proposal.save()
+
         resp = self.client.get(
             reverse(
                 'request_proposal_revisions',
@@ -743,9 +760,9 @@ class CoreTests(TestCase):
             )
         )
         content = resp.content
-
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
+
         resp = self.client.post(
             reverse(
                 'request_proposal_revisions',
@@ -763,12 +780,17 @@ class CoreTests(TestCase):
         self.assertEqual(proposal.status, 'revisions_required')
         proposal.status = 'submission'
         proposal.save()
-        resp = self.client.get(reverse('add_proposal_reviewers',
-                                       kwargs={'proposal_id': proposal.id}))
-        content = resp.content
 
+        resp = self.client.get(
+            reverse(
+                'add_proposal_reviewers',
+                kwargs={'proposal_id': proposal.id}
+            )
+        )
+        content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
+
         resp = self.client.post(
             reverse(
                 'add_proposal_reviewers',
@@ -921,11 +943,13 @@ class CoreTests(TestCase):
         self.assertEqual(proposals.count(), 0)
         resp = self.client.post(
             reverse('proposal_assign'),
-            {"book_submit": "True",
-             "title": "rua_proposal_title",
-             "subtitle": "rua_proposal_subtitle",
-             "author": "rua_user", "rua_element": "example",
-             "rua_element_2": "example"}
+            {
+                "book_submit": "True",
+                 "title": "rua_proposal_title",
+                 "subtitle": "rua_proposal_subtitle",
+                 "author": "rua_user", "rua_element": "example",
+                 "rua_element_2": "example"
+            }
         )
         proposals = submission_models.Proposal.objects.filter(
             owner__isnull=True)
@@ -940,12 +964,15 @@ class CoreTests(TestCase):
         resp = self.client.post(
             reverse('proposal_assign_edit',
                     kwargs={'proposal_id': proposal.pk}),
-            {"book_submit": "True",
-             "title": "rua_proposal_title updated",
-             "subtitle": "rua_proposal_subtitle",
-             "author": "rua_user",
-             "rua_element": "example",
-             "rua_element_2": "example"})
+            {
+                "book_submit": "True",
+                 "title": "rua_proposal_title updated",
+                 "subtitle": "rua_proposal_subtitle",
+                 "author": "rua_user",
+                 "rua_element": "example",
+                 "rua_element_2": "example"
+            }
+        )
         content = resp.content
         self.assertEqual(b"403" in content, False)
         proposals = submission_models.Proposal.objects.filter(
@@ -986,13 +1013,15 @@ class CoreTests(TestCase):
         resp = self.client.post(
             reverse('start_proposal_review',
                     kwargs={'proposal_id': proposal.id}),
-            {'due_date': '2016-04-29',
-             'review_form': '1',
-             'indv-reviewer_length': '5',
-             'comm-reviewer_length': '5',
-             'email_text': 'Test',
-             'reviewer': ['4', '1'],
-             'committee': ['2']}
+            {
+                'due_date': '2016-04-29',
+                 'review_form': '1',
+                 'indv-reviewer_length': '5',
+                 'comm-reviewer_length': '5',
+                 'email_text': 'Test',
+                 'reviewer': ['4', '1'],
+                 'committee': ['2']
+            }
         )
         self.assertEqual(resp.status_code, 302)
 
@@ -1091,13 +1120,15 @@ class CoreTests(TestCase):
         self.client.post(
             reverse('start_proposal_review',
                     kwargs={'proposal_id': proposal.id}),
-            {'due_date': '2016-04-29',
-             'review_form': '1',
-             'indv-reviewer_length': '5',
-             'comm-reviewer_length': '5',
-             'email_text': 'Test',
-             'reviewer': ['4', '1'],
-             'committee': ['2']}
+            {
+                'due_date': '2016-04-29',
+                 'review_form': '1',
+                 'indv-reviewer_length': '5',
+                 'comm-reviewer_length': '5',
+                 'email_text': 'Test',
+                 'reviewer': ['4', '1'],
+                 'committee': ['2']
+            }
         )
         proposal_review_assignments = proposal.review_assignments.all()
 
@@ -1176,7 +1207,11 @@ class CoreTests(TestCase):
 
     def test_readonly_profile(self):
         resp = self.client.get(
-            reverse('view_profile_readonly', kwargs={'user_id': 1}))
+            reverse(
+                'view_profile_readonly',
+                kwargs={'user_id': 1}
+            )
+        )
         content = resp.content
 
         self.assertEqual(resp.status_code, 200)

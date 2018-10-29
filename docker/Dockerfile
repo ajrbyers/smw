@@ -53,23 +53,24 @@ ENV DATABASE_PASS=pass
 ENV REDIS_HOST=127.0.0.1
 ENV REDIS_PORT=6379
 
-ENV SENTRY_DSN=https://foo:bar@sentry.ubiquity.press/5
+ENV SENTRY_DSN='https://fake:dsn@sentry.ubiquity.press/5'
 
 ENV ORCID_API_URL='http://pub.orcid.org/v1.2_rc7/'
 ENV ORCID_REDIRECT_URI='http://localhost:8002/login/orcid/'
 ENV ORCID_TOKEN_URL='https://pub.orcid.org/oauth/token'
-ENV ORCID_CLIENT_SECRET='6d1677b8-25c6-4d42-8a8d-e77a0ced56c6'
-ENV ORCID_CLIENT_ID='APP-VXH2IGZ6ZH7Q71L9'
+ENV ORCID_CLIENT_SECRET='fake-orcid-client-secret'
+ENV ORCID_CLIENT_ID='fake-orcid-client-id'
+
+ENV AWS_ACCESS_KEY_ID='fake-access-key-id'
+ENV AWS_SECRET_ACCESS_KEY='fake-secret-access-key'
+ENV AWS_STORAGE_BUCKET_NAME='service-rua'
 
 ENV EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 ENV EMAIL_USE_TLS="True"
 ENV EMAIL_HOST='smtp.mailgun.org'
-ENV EMAIL_HOST_USER='postmaster@ubiquity.press'
-ENV EMAIL_HOST_PASSWORD='4910364428769ec9a64fbcee94bd5d17'
+ENV EMAIL_HOST_USER='fake@email-host.user'
+ENV EMAIL_HOST_PASSWORD='fake-email-host-password'
 ENV EMAIL_PORT="587"
 
-ENV TEST_ENVIRONMENT=True
-
-#RUN python /app/manage.py collectstatic --noinput
 
 ENTRYPOINT ["supervisord", "-c", "/etc/supervisord/supervisord.conf"]

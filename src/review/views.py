@@ -1,7 +1,4 @@
 import json
-import mimetypes as mime
-import os
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,8 +7,6 @@ from django.urls import reverse
 from django.db.models import Q
 from django.http import (
     Http404,
-    HttpResponseRedirect,
-    StreamingHttpResponse,
 )
 from django.shortcuts import (
     redirect,
@@ -23,23 +18,32 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.views.generic import FormView
 
-from bs4 import BeautifulSoup
-from docx import Document
-
 from core import (
-    email,
     forms as core_forms,
     log,
     logic as core_logic,
     models as core_models,
 )
 from core.decorators import is_reviewer, has_reviewer_role
-from editorialreview import models as editorialreview_models
+from core.email import (
+    get_email_body,
+    get_email_subject,
+    send_prerendered_email,
+)
 from core.files import handle_multiple_email_files
+from editorialreview import models as editorialreview_models
 from review import (
     forms,
-    logic,
     models,
+)
+from review.logic import create_completed_review_form
+from .logic import (
+    create_review_form,
+    serve_file,
+    handle_editorial_review_file,
+    has_additional_files,
+    handle_review_file,
+    notify_editors,
 )
 from submission import models as submission_models
 from core.setting_util import get_setting
@@ -314,7 +318,7 @@ def reviewer_decision(
         log.add_log_entry(**decision_log_kwargs)
 
         editor_notification_kwargs['message'] = message
-        logic.notify_editors(**editor_notification_kwargs)
+        notify_editors(**editor_notification_kwargs)
 
     elif decision == 'decline':
         review_assignment.declined = timezone.now()
@@ -332,7 +336,7 @@ def reviewer_decision(
         log.add_log_entry(**decision_log_kwargs)
 
         editor_notification_kwargs['message'] = message
-        logic.notify_editors(**editor_notification_kwargs)
+        notify_editors(**editor_notification_kwargs)
 
     if decision:
         review_assignment.save()
@@ -367,7 +371,7 @@ def reviewer_decision(
     context = {
         'submission': submission,
         'review_assignment': review_assignment,
-        'has_additional_files': logic.has_additional_files(submission),
+        'has_additional_files': has_additional_files(submission),
         'book_editors': book_editors,
         'series_editor': series_editor,
         'access_key': access_key,
@@ -445,23 +449,23 @@ class RequestedReviewerDecisionEmail(FormView):
         }
 
         if self.decision == 'accept':
-            email_body = email.get_email_body(
+            email_body = get_email_body(
                 request=self.request,
                 setting_name='requested_reviewer_accept',
                 context=email_context,
             )
-            email_subject = email.get_email_subject(
+            email_subject = get_email_subject(
                 request=self.request,
                 setting_name='requested_reviewer_accept_subject',
                 context=email_context,
             )
         else:
-            email_body = email.get_email_body(
+            email_body = get_email_body(
                 request=self.request,
                 setting_name='requested_reviewer_decline',
                 context=email_context,
             )
-            email_subject = email.get_email_subject(
+            email_subject = get_email_subject(
                 request=self.request,
                 setting_name='requested_reviewer_decline_subject',
                 context=email_context,
@@ -509,7 +513,7 @@ class RequestedReviewerDecisionEmail(FormView):
             'from_address',
             'email'
         )
-        email.send_prerendered_email(
+        send_prerendered_email(
             html_content=form.cleaned_data['email_body'],
             subject=form.cleaned_data['email_subject'],
             from_email=from_email,
@@ -717,7 +721,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                 field_name = core_logic.ascii_encode(field.element.name)
                 if field_name in request.FILES:
                     save_dict[field_name] = [
-                        logic.handle_review_file(
+                        handle_review_file(
                             request.FILES[field_name],
                             'book',
                             review_assignment,
@@ -760,7 +764,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                 review_assignment.save()
 
             if request.FILES.get('review_file_upload'):
-                logic.handle_review_file(
+                handle_review_file(
                     request.FILES.get('review_file_upload'),
                     'book',
                     review_assignment,
@@ -816,7 +820,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                     review_assignment.user.first_name,
                     review_assignment.user.last_name,
                 )
-                logic.notify_editors(
+                notify_editors(
                     book=submission,
                     message=message,
                     book_editors=book_editors,
@@ -862,7 +866,7 @@ def review(request, review_type, submission_id, review_round, access_key=None):
         'series_editor': series_editor,
         'access_key': access_key,
         'one_click': one_click,
-        'has_additional_files': logic.has_additional_files(submission),
+        'has_additional_files': has_additional_files(submission),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
@@ -928,12 +932,12 @@ class ReviewCompletionEmail(FormView):
         }
 
         kwargs['initial'] = {
-            'email_subject': email.get_email_subject(
+            'email_subject': get_email_subject(
                 request=self.request,
                 setting_name='peer_review_completed_subject',
                 context=email_context,
             ),
-            'email_body': email.get_email_body(
+            'email_body': get_email_body(
                 request=self.request,
                 setting_name='peer_review_completed',
                 context=email_context,
@@ -978,7 +982,7 @@ class ReviewCompletionEmail(FormView):
             'from_address',
             'email'
         )
-        email.send_prerendered_email(
+        send_prerendered_email(
             html_content=form.cleaned_data['email_body'],
             subject=form.cleaned_data['email_subject'],
             from_email=from_email,
@@ -1136,7 +1140,7 @@ def review_complete(
         'form_info': review_assignment.review_form,
         'data_ordered': data_ordered,
         'result': result,
-        'additional_files': logic.has_additional_files(submission),
+        'additional_files': has_additional_files(submission),
         'book_editors': review_assignment.book.book_editors.all(),
         'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
@@ -1212,7 +1216,7 @@ def review_complete_no_redirect(
         'form_info': review_assignment.review_form,
         'data_ordered': data_ordered,
         'result': result,
-        'additional_files': logic.has_additional_files(submission),
+        'additional_files': has_additional_files(submission),
         'book_editors': review_assignment.book.book_editors.all(),
         'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
@@ -1540,7 +1544,7 @@ def editorial_review(request, submission_id, access_key):
         'resubmit': resubmit,
         'editorial_data_ordered': editorial_data_ordered,
         'editorial_result': editorial_result,
-        'has_additional_files': logic.has_additional_files(submission),
+        'has_additional_files': has_additional_files(submission),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
@@ -1614,270 +1618,10 @@ def editorial_review_complete(request, submission_id, access_key):
         'data_ordered': data_ordered,
         'result': result,
         'editorial_board': editorial_board,
-        'additional_files': logic.has_additional_files(submission),
+        'additional_files': has_additional_files(submission),
         'book_editors': review_assignment.book.book_editors.all(),
         'series_editor': review_assignment.book.get_series_editor(),
         'instructions': get_setting('instructions_for_task_review', 'general')
     }
 
     return render(request, template, context)
-
-
-def render_choices(choices):
-    c_split = choices.split('|')
-    return [(choice.capitalize(), choice) for choice in c_split]
-
-
-def create_completed_review_form(submission, review_id):
-    document = Document()
-    document.add_heading(submission.title, 0)
-    review_assignment = get_object_or_404(
-        core_models.ReviewAssignment,
-        pk=review_id,
-    )
-    if review_assignment.review_form:
-        relations = models.FormElementsRelationship.objects.filter(
-            form=review_assignment.review_form,
-        ).order_by('order')
-    else:
-        review_assignment.review_form = submission.review_form
-        review_assignment.save()
-        relations = models.FormElementsRelationship.objects.filter(
-            form=submission.review_form,
-        ).order_by('order')
-
-    if review_assignment.results:
-        data = json.loads(review_assignment.results.data)
-
-        for relation in relations:
-            field_name = core_logic.ascii_encode(relation.element.name)
-            v = data[field_name]
-            document.add_heading(relation.element.name, level=1)
-            text = BeautifulSoup(
-                (v[0]).encode('utf-8'),
-                'html.parser'
-            ).get_text()
-            document.add_paragraph(text).bold = True
-            recommendations = {
-                'accept': 'Accept',
-                'reject': 'Reject',
-                'revisions': 'Revisions Required',
-            }
-
-        document.add_heading("Recommendation", level=1)
-        if recommendations.get(review_assignment.recommendation):
-            document.add_paragraph(
-                recommendations[review_assignment.recommendation]
-            ).italic = True
-        document.add_heading("Competing Interests", level=1)
-        document.add_paragraph(
-            review_assignment.competing_interests
-        ).italic = True
-
-    else:
-        p = document.add_paragraph(
-            'You should complete this form and then use the review assignment '
-            'page to upload it.'
-        )
-
-        for relation in relations:
-
-            if (
-                relation.element.field_type
-                in ['text', 'textarea', 'date', 'email']
-            ):
-                document.add_heading(
-                    relation.element.name + ": _______________________________",
-                    level=1
-                )
-                document.add_paragraph(relation.help_text).italic = True
-
-            if relation.element.field_type in ['select', 'check']:
-                document.add_heading(relation.element.name, level=1)
-
-                if relation.element.field_type == 'select':
-                    choices = render_choices(relation.element.choices)
-                else:
-                    choices = ['Y', 'N']
-
-                p = document.add_paragraph(relation.help_text)
-                p.add_run(
-                    ' Mark your choice however you like, '
-                    'as long as it is clear.'
-                ).italic = True
-                table = document.add_table(rows=2, cols=len(choices))
-                hdr_cells = table.rows[0].cells
-
-                for i, choice in enumerate(choices):
-                    hdr_cells[i].text = choice[0]
-
-                table.style = 'TableGrid'
-
-    document.add_page_break()
-
-    if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'forms')):
-        os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'forms'))
-
-    path = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'forms',
-        '%s.docx' % str(uuid4())
-    )
-    document.save(path)
-
-    return path
-
-
-def generate_review_form(
-        request,
-        review_type,
-        submission_id,
-        review_id,
-        access_key=None,
-):
-    submission = get_object_or_404(core_models.Book, pk=submission_id)
-
-    if access_key:
-        review_assignment = get_object_or_404(
-            core_models.ReviewAssignment,
-            pk=review_id,
-            access_key=access_key,
-            review_type=review_type,
-            withdrawn=False,
-        )
-    else:
-        review_assignment = get_object_or_404(
-            core_models.ReviewAssignment,
-            pk=review_id,
-            review_type=review_type,
-            withdrawn=False,
-        )
-
-    path = create_completed_review_form(submission, review_assignment.pk)
-
-    return serve_file(request, path)
-
-
-def create_review_form(submission, review_form):
-    document = Document()
-    document.add_heading(submission.title, 0)
-    p = document.add_paragraph(
-        'You should complete this form and then use the review '
-        'page to upload it.'
-    )
-    relations = models.FormElementsRelationship.objects.filter(
-        form=review_form
-    ).order_by('order')
-
-    for relation in relations:
-        if relation.element.field_type in ['text', 'textarea', 'date', 'email']:
-            document.add_heading(
-                relation.element.name + ": _______________________________",
-                level=1,
-            )
-            document.add_paragraph(relation.help_text).italic = True
-
-        if relation.element.field_type in ['select', 'check']:
-            document.add_heading(relation.element.name, level=1)
-
-            if relation.element.field_type == 'select':
-                choices = render_choices(relation.element.choices)
-            else:
-                choices = ['Y', 'N']
-
-            p = document.add_paragraph(relation.help_text)
-            p.add_run(
-                ' Mark your choice however you like, as long as it is clear.'
-            ).italic = True
-            table = document.add_table(rows=2, cols=len(choices))
-            hdr_cells = table.rows[0].cells
-
-            for i, choice in enumerate(choices):
-                hdr_cells[i].text = choice[0]
-
-            table.style = 'TableGrid'
-
-    document.add_page_break()
-
-    if not os.path.exists(os.path.join(settings.BASE_DIR, 'files', 'forms')):
-        os.makedirs(os.path.join(settings.BASE_DIR, 'files', 'forms'))
-
-    path = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'forms',
-        '%s.docx' % str(uuid4())
-    )
-
-    document.save(path)
-
-    return path
-
-
-@is_reviewer
-def serve_file(request, file_path):
-    try:
-        fsock = open(file_path, 'r')
-        mimetype = mime.guess_type(file_path)
-        response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-            "attachment; filename=review_form.docx"
-        )
-        return response
-    except IOError:
-        messages.add_message(request, messages.ERROR, 'File not found.')
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def handle_editorial_review_file(
-        file,
-        proposal,
-        review_assignment,
-        kind,
-        editorial
-):
-    original_filename = smart_text(file._get_name())
-    filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
-        str(review_assignment.book.id)
-    )
-
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
-
-    new_file = core_models.File(
-        mime_type=file_mime,
-        original_filename=original_filename,
-        uuid_filename=filename,
-        stage_uploaded=1,
-        kind=kind,
-        owner=review_assignment.management_editor,
-    )
-    new_file.save()
-
-    if editorial:
-        review_assignment.editorial_board_files.add(new_file)
-    else:
-        review_assignment.publication_committee_files.add(new_file)
-
-    return path

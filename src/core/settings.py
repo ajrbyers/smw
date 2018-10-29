@@ -1,28 +1,22 @@
+from configparser import ConfigParser
 import os
 
 from django.contrib import messages
 
-import raven
-
 
 # ## GENERIC CONFIG ##
 
-# Details of internal admin user
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+
 ADMIN_USERNAME = os.getenv('DJANGO_ADMIN_USERNAME', 'tech')
 ADMIN_PASSWORD = os.getenv('DJANGO_ADMIN_PASSWORD')
 ADMIN_EMAIL = os.getenv('DJANGO_ADMIN_EMAIL')
-
-DEBUG = False  # SECURITY WARNING: don't run with debug turned on in production!
 
 # Allow static files to be served by uwsgi/gunicorn?
 INCLUDE_STATIC_FILE_URLCONFS = False
 
 SITE_ID = 1
-
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-BOOK_DIR = os.path.join(BASE_DIR, 'files', 'books')
-PROPOSAL_DIR = os.path.join(BASE_DIR, 'files', 'proposals')
-EMAIL_DIR = os.path.join(BASE_DIR, 'files', 'email', 'general')
 
 ROOT_URLCONF = 'core.urls'
 
@@ -64,19 +58,20 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.orcid',
     'allauth.socialaccount.providers.twitter',
+    'raven.contrib.django.raven_compat',
 )
 
-MIDDLEWARE= (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'core.middleware.Roles',
     'core.middleware.Version',
 )
+
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
@@ -113,10 +108,13 @@ SUMMERNOTE_CONFIG = {
 
 # ## CACHE ##
 
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': '{host}:{port}'.format(host=REDIS_HOST, port=REDIS_PORT)
     }
 }
 
@@ -133,14 +131,18 @@ DATETIME_FORMAT = '%d %b, %Y %H:%M'
 
 
 # ## STATIC FILES ##
-
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static-assets'),
 )
-STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+BOOK_DIR = os.path.join('files', 'books')
+PROPOSAL_DIR = os.path.join('files', 'proposals')
+EMAIL_DIR = os.path.join('files', 'email', 'general')
+
 MEDIA_URL = '/media/'
 
 TEMPLATES = [
@@ -229,36 +231,72 @@ LOGGING = {
     },
 }
 
-SENTRY_RELEASE = (
-    '{main}-{sha}'.format(
-        main=RUA_VERSION,
-        sha=raven.fetch_git_sha(
-            os.path.join(
-                '/',
-                *os.path.dirname(os.path.realpath(__file__)).split('/')[:-2]
-            )
-        )
-    )
-)
 
-RAVEN_CONFIG = {  # Sentry.
-    'dsn': 'https://6f4e629b9384499ea7d6aaa72c820839:'
-           '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press/5',
-    'release': SENTRY_RELEASE
+# ## DATABASE ##
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv(
+            'DATABASE_ENGINE',
+            'django.db.backends.postgresql_psycopg2'
+        ),
+        'NAME': os.getenv('DATABASE_NAME', 'rua'),
+        'USER': os.getenv('DATABASE_USER', 'root'),
+        'PASSWORD': os.getenv('DATABASE_PASS', ''),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_PORT', '5432')
+    }
 }
-
 
 # ## EXTERNAL SERVICES ##
 
-ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
-ORCID_REDIRECT_URI = 'http://localhost:8002/login/orcid/'
-ORCID_TOKEN_URL = 'https://pub.orcid.org/oauth/token'
-ORCID_CLIENT_SECRET = '6d1677b8-25c6-4d42-8a8d-e77a0ced56c6'
-ORCID_CLIENT_ID = 'APP-VXH2IGZ6ZH7Q71L9'
+ORCID_API_URL = os.getenv('ORCID_API_URL', 'http://pub.orcid.org/v1.2_rc7/')
+ORCID_REDIRECT_URI = os.getenv(
+    'ORCID_REDIRECT_URI',
+    'http://localhost:8002/login/orcid/'
+)
+ORCID_TOKEN_URL = os.getenv(
+    'ORCID_TOKEN_URL',
+    'https://pub.orcid.org/oauth/token'
+)
+ORCID_CLIENT_SECRET = os.getenv('ORCID_CLIENT_SECRET')
+ORCID_CLIENT_ID = os.getenv('ORCID_CLIENT_ID')
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_HOST_USER = 'postmaster@ubiquity.press'
-EMAIL_HOST_PASSWORD = '4910364428769ec9a64fbcee94bd5d17'  # Fake API key.
-EMAIL_PORT = 587
+AWS_ACCESS_KEY_ID = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+AWS_STORAGE_BUCKET_NAME = os.getenv(
+    'AWS_STORAGE_BUCKET_NAME',
+    'service-rua'
+)
+AWS_S3_CUSTOM_DOMAIN = os.getenv(
+    'AWS_S3_CUSTOM_DOMAIN',
+    f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com',
+)
+AWS_LOCATION = os.getenv('AWS_LOCATION', '')
+
+if AWS_LOCATION:
+    AWS_STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+else:
+    AWS_STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+)
+EMAIL_USE_TLS = bool(os.getenv('EMAIL_USE_TLS', True))
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'postmaster@ubiquity.press')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+
+SENTRY_DSN = os.getenv('SENTRY_DSN')
+config_file = ConfigParser()
+config_file.read('sentry_version.ini')
+SENTRY_RELEASE = config_file.get('sentry', 'version', fallback='ERROR')
+
+RAVEN_CONFIG = {
+    'dsn': SENTRY_DSN,
+    'release': SENTRY_RELEASE,
+    'environment': 'prod'
+}

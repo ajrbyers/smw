@@ -1,10 +1,11 @@
 from datetime import datetime
 import mimetypes as mime
-from os import path, makedirs, unlink
+import os
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import (
@@ -14,7 +15,11 @@ from django.shortcuts import (
 )
 from django.views.decorators.csrf import csrf_exempt
 
-from jfu.http import upload_receive, UploadResponse, JFUResponse
+from jfu.http import (
+    JFUResponse,
+    upload_receive,
+    UploadResponse,
+)
 
 from core import logic as core_logic, models, log
 from core.decorators import is_onetasker
@@ -273,14 +278,19 @@ def upload_author(request, assignment_type, assignment_id, type_to_handle):
 
 @csrf_exempt
 def upload_delete(request, assignment_type, assignment_id, file_pk):
+    # TODO: refactor duplicate logic
     assignment = get_assignment(assignment_type, assignment_id)
     book = assignment.book
     success = True
 
     try:
         instance = models.File.objects.get(pk=file_pk)
-        unlink(
-            '%s/%s/%s' % (settings.BOOK_DIR, book.id, instance.uuid_filename)
+        default_storage.delete(
+            os.path.join(
+                settings.BOOK_DIR,
+                book.id,
+                instance.uuid_filename
+            )
         )
         instance.delete()
     except models.File.DoesNotExist:
@@ -289,8 +299,8 @@ def upload_delete(request, assignment_type, assignment_id, file_pk):
     return JFUResponse(request, success)
 
 
-def handle_file(file, book, kind, user):  # File helpers.
-
+def handle_file(file, book, kind, user):
+    # TODO: refactor duplicate logic
     if file:
         original_filename = str(
             file._get_name()
@@ -299,30 +309,16 @@ def handle_file(file, book, kind, user):  # File helpers.
         ).replace(
             ';', '_'
         )
-        filename = str(uuid4()) + str(path.splitext(file._get_name())[1])
-        folder_structure = path.join(
-            settings.BASE_DIR,
-            'files',
-            'books',
+        filename = str(uuid4()) + str(os.path.splitext(file._get_name())[1])
+        file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+        file_path = os.path.join(
+            settings.BOOK_DIR,
             str(book.id),
+            filename,
         )
 
-        if not path.exists(folder_structure):
-            makedirs(folder_structure)
-
-        _path = path.join(folder_structure, str(filename))
-        fd = open(_path, 'wb')
-        [fd.write(chunk) for chunk in file.chunks()]
-        fd.close()
-        file_mime = mime.guess_type(filename)
-
-        try:
-            file_mime = file_mime[0]
-        except IndexError:
-            file_mime = 'unknown'
-
-        if not file_mime:
-            file_mime = 'unknown'
+        with default_storage.open(file_path, 'wb') as file_stream:
+            file_stream.write(file.read())
 
         new_file = models.File(
             mime_type=file_mime,

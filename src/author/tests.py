@@ -1,10 +1,13 @@
 import tempfile
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 from django.utils import timezone
 
 from core import models as core_models
@@ -419,8 +422,8 @@ class AuthorTests(TestCase):
             ),
             {
                 'task': '',
-                 'note_from_typesetter': 'notes',
-                 'file_upload': file_test
+                'note_from_typesetter': 'notes',
+                'file_upload': file_test
              }
         )
         self.client.login(username="rua_author", password="tester")
@@ -490,7 +493,7 @@ class AuthorTests(TestCase):
         content = resp.content
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"403" in content, False)
-        contract_file = tempfile.NamedTemporaryFile(delete=False)
+
         self.client.post(
             reverse(
                 'author_contract_signoff',
@@ -501,8 +504,7 @@ class AuthorTests(TestCase):
             ),
             {
                 'next_stage': '',
-                'author_file': contract_file
             }
         )
         contract = core_models.Contract.objects.get(pk=1)
-        self.assertEqual(contract.author_signed_off is None, False)
+        self.assertIsNotNone(contract.author_signed_off)

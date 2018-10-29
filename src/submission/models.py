@@ -428,7 +428,7 @@ class ProposalReview(models.Model):
         default=False
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s %s' % (self.pk, self.proposal.title,
                                 self.user.username)
 

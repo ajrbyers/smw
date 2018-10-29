@@ -3,8 +3,11 @@
 <html>
 	<head>
 	<title>{% block title %}{{ press.general.press_name }}{% endblock title %}</title>
-	{% if press.look.favicon %}<link rel="shortcut icon" href="{{ MEDIA_URL }}settings/{{ press.look.favicon }}" type="image/vnd.microsoft.icon" />{% endif %}
-	{% block head %}{% endblock head %}
+	{% if press.look.favicon %}
+        <link rel="shortcut icon" href="{% static press.look.favicon %}" type="image/vnd.microsoft.icon" />
+    {% endif %}
+	{% block head %}
+	{% endblock head %}
 	<link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
 	<link href="{% static "css/font-awesome.min.css" %}" rel="stylesheet">
 	<link href="{% static "css/jquery-te-1.4.0.css" %}" rel="stylesheet">

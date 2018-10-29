@@ -826,7 +826,7 @@
     },
     {
         "fields": {
-            "value": "0791a2db-c180-4fe5-a951-dc002ae08fd6..ico",
+            "value": "",
             "group": "4",
             "name": "favicon",
             "types": "file",
@@ -1409,7 +1409,7 @@
     },
     {
         "fields": {
-            "value": "Proposal revised - {proposal.title}",
+            "value": "Proposal revised - {{ proposal.title }}",
             "group": "6",
             "name": "revised_proposal_notification_subject",
             "types": "text",

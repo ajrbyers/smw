@@ -2,6 +2,7 @@ import mimetypes as mime
 import os
 from uuid import uuid4
 
+from django.core.files.storage import default_storage
 from django.conf import settings
 from django.shortcuts import Http404
 from django.utils import timezone
@@ -13,29 +14,16 @@ from core import models
 def handle_marc21_file(content, name, book, owner):
     original_filename = name
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-    fd.write(content)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(content)
 
     new_file = models.File(
         mime_type=file_mime,
@@ -53,31 +41,15 @@ def handle_marc21_file(content, name, book, owner):
 def handle_onetasker_file(_file, book, assignment, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     owner = get_owner(assignment)
     new_file = models.File(
@@ -102,29 +74,15 @@ def handle_file_update(new_file, old_file, book, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
-        str(book.id)
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
+        str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in new_file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(new_file.read)
 
     new_version = models.FileVersion(
         file=old_file,
@@ -133,8 +91,8 @@ def handle_file_update(new_file, old_file, book, owner, label=None):
         date_uploaded=old_file.date_uploaded,
         owner=old_file.owner,
     )
-
     new_version.save()
+
     old_file.mime_type = file_mime
     old_file.original_filename = original_filename
     old_file.uuid_filename = filename
@@ -146,7 +104,7 @@ def handle_file_update(new_file, old_file, book, owner, label=None):
 
     old_file.save()
 
-    return path
+    return file_path
 
 
 def handle_file(_file, book, kind, owner, label=None):
@@ -158,32 +116,14 @@ def handle_file(_file, book, kind, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
-
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
-
-    if not file_mime:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -202,32 +142,15 @@ def handle_file(_file, book, kind, owner, label=None):
 def handle_email_file(_file, kind, owner, label=None):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'email',
-        'general',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.EMAIL_DIR,
+        str(filename),
     )
+    file_path = os.path.join(file_path, )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
-
-    if not file_mime:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -284,32 +207,15 @@ def handle_proposal_review_file(
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'proposals',
-        str(proposal_review.proposal.id)
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.PROPOSAL_DIR,
+        str(proposal_review.proposal.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
-
-    if not file_mime:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -334,32 +240,15 @@ def handle_proposal_file(_file, proposal, kind, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'proposals',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.PROPOSAL_DIR,
         str(proposal.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
-
-    if not file_mime:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -378,32 +267,15 @@ def handle_proposal_file(_file, proposal, kind, owner, label=None):
 def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'proposals',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.PROPOSAL_DIR,
         str(proposal.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-    except IndexError:
-        file_mime = 'unknown'
-
-    if not file_mime:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -420,40 +292,24 @@ def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
 
 
 def handle_attachment(request, submission):
-    if request.FILES.get('attachment_file'):
-        attachment_file = request.FILES.get('attachment_file')
-        return handle_file(attachment_file, submission, 'misc', request.user)
+    attachment_file = request.FILES.get('attachment_file')
+    if attachment_file:
+        return handle_email_file(attachment_file, 'misc', request.user)
     return None
 
 
 def handle_copyedit_file(_file, book, copyedit, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -471,31 +327,15 @@ def handle_copyedit_file(_file, book, copyedit, kind):
 def handle_index_file(_file, book, index, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,
@@ -519,31 +359,15 @@ def handle_typeset_file(_file, book, typeset, kind):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
+    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
         str(book.id),
+        str(filename),
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
-
-    path = os.path.join(folder_structure, str(filename))
-    fd = open(path, 'wb')
-
-    for chunk in _file.chunks():
-        fd.write(chunk)
-    fd.close()
-
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(_file.read())
 
     new_file = models.File(
         mime_type=file_mime,

@@ -307,7 +307,7 @@ class EditorTests(TestCase):
         self.assertEqual(b"403" in content, False)
         self.assertEqual(b"btn-task" in content, True)
         self.assertEqual(b"ROUND 1" in content, True)
-        review_file = tempfile.NamedTemporaryFile(delete=False)
+        review_file = tempfile.NamedTemporaryFile(delete=False, suffix='.docx')
 
         resp = self.client.get(
             reverse(

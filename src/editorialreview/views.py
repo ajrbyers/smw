@@ -12,6 +12,7 @@ from django.http import (
     StreamingHttpResponse,
 )
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView
@@ -19,14 +20,18 @@ from django.views.generic import FormView
 from core import (
     setting_util,
     log,
-    email,
     forms as core_forms,
     models as core_models,
     logic as core_logic,
     views as core_views
 )
 from core.decorators import is_editor, is_editor_or_ed_reviewer
-from core.email import send_email_multiple
+from core.email import (
+    get_email_subject,
+    get_email_body,
+    send_email_multiple,
+    send_prerendered_email,
+)
 from core.files import (
     handle_email_file,
     handle_multiple_email_files,
@@ -261,7 +266,7 @@ def email_editorial_review(request, review_id):
     email_setting = 'editorial_review_{0}'.format(review.content_type)
     task_url = logic.get_task_url(review, request)
 
-    email_text = email.get_email_body(
+    email_text = get_email_body(
         request,
         email_setting,
         {
@@ -295,7 +300,7 @@ def email_editorial_review(request, review_id):
                 attachments.append(attachment)
 
         if review.content_type.model == 'proposal':
-            email.send_prerendered_email(
+            send_prerendered_email(
                 from_email=custom_from_email,
                 html_content=email_text,
                 subject=subject,
@@ -318,7 +323,7 @@ def email_editorial_review(request, review_id):
                 )
             )
         else:
-            email.send_prerendered_email(
+            send_prerendered_email(
                 from_email=custom_from_email,
                 html_content=email_text,
                 subject=subject,
@@ -555,12 +560,12 @@ class EditorialReviewCompletionEmail(FormView):
             subject_setting_name = 'proposal_editorial_review_completed_subject'
             email_context['proposal'] = self.proposal
 
-        email_body = email.get_email_body(
+        email_body = get_email_body(
             request=self.request,
             setting_name=body_setting_name,
             context=email_context,
         )
-        email_subject = email.get_email_subject(
+        email_subject = get_email_subject(
             request=self.request,
             setting_name=subject_setting_name,
             context=email_context,
@@ -605,7 +610,7 @@ class EditorialReviewCompletionEmail(FormView):
             if series_editor and series_editor.email != assigning_editor_email:
                 other_editors_emails.append(series_editor.email)
 
-        email.send_prerendered_email(
+        send_prerendered_email(
             from_email=self.review.user.email,
             to=assigning_editor_email,
             cc=other_editors_emails,
@@ -737,7 +742,7 @@ def download_er_file(request, file_id, review_id):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -772,7 +777,7 @@ def download_editor_er_file(request, file_id, review_id):
     )
 
     try:
-        fsock = open(file_path, 'r')
+        fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
         response['Content-Disposition'] = "attachment; filename={}".format(
@@ -851,7 +856,7 @@ def editorial_reviewer_email_editor(request, review_id, user_id=None):
         if attachment_files:
             for attachment in attachment_files:
                 attachment = logic.handle_review_file(
-                    file=attachment,
+                    _file=attachment,
                     review_assignment=editorial_review,
                     kind='email-attachment',
                     return_file=True

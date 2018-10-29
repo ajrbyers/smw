@@ -5,65 +5,70 @@
 {% load ascii_encode %}
 
 {% block css %}
-	<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+    <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
-<div class="col-md-12 file-heading  container-fluid"
-     style="margin-top:-20px">
-	<h3>Editorial Review for {{ review.content_object.title }} ({{ review.content_type|capfirst }})</h3>
-	Viewing review by {{ review.user.profile.full_name }} - {{ review.id }}
-    <br /><br />
-    <a class="btn btn-transparent-white"
-        style="margin-bottom: 10px; margin-top: -10px;"
-        href="#review-files">
-        <i class="fa fa-arrow-down"></i>
+    <div class="col-md-12 file-heading  container-fluid"
+         style="margin-top:-20px">
+        <h3>Editorial Review for {{ review.content_object.title }}
+            ({{ review.content_type|capfirst }})</h3>
+        Viewing review by {{ review.user.profile.full_name }} - {{ review.id }}
+        <br/><br/>
+        <a class="btn btn-transparent-white"
+           style="margin-bottom: 10px; margin-top: -10px;"
+           href="#review-files">
+            <i class="fa fa-arrow-down"></i>
             Jump to review files
-    </a>
-</div>
+        </a>
+    </div>
     <br>
-	<h4>Review: </h4>
-	<div style="clear:both"></div>
-	{% for item in data_ordered %}
-	<div>
-	  <label>{{ item.0 }}</label>
-	  <p>{% lookup result.data item.0|ascii_encode %}</p>
-	</div>
-	{% endfor %}
-	<br /><br />
-	<hr />
-	<h4>Recommendation: </h4>
-	{{ review.get_recommendation_display }}
-	<hr />
-	<h4>Competing Interests: </h4>
-	{{ review.competing_interests|safe }}
-	<br>
-	If any of the authors or editors have any competing interests please add them here. e.g.. 'This study was paid for by corp xyz.'.
-	<A href='/page/competing_interests/' target="_blank">More info</A>
-	<br>
-	<br>
-	<hr />
-	<a name="review-files"></a>
+    <h4>Review: </h4>
+    <div style="clear:both"></div>
+    {% for item in data_ordered %}
+        <div>
+            <label>{{ item.0 }}</label>
+            <p>{% lookup result.data item.0|ascii_encode %}</p>
+        </div>
+    {% endfor %}
+    <br/><br/>
+    <hr/>
+    <h4>Recommendation: </h4>
+    {{ review.get_recommendation_display }}
+    <hr/>
+    <h4>Competing Interests: </h4>
+    {{ review.competing_interests|safe }}
+    <br>
+    If any of the authors or editors have any competing interests please add
+    them here. e.g.. 'This study was paid for by corp xyz.'.
+    <A href='/page/competing_interests/' target="_blank">More info</A>
+    <br>
+    <br>
+    <hr/>
+    <a name="review-files"></a>
     <h4>Review Files</h4>
-	<ul>
-	{% for file in review.files.all %}
-		<li><a href="{% url 'download_editor_er_file' file.id review.id %}?access_key={{ review.access_key }}">
-				{{ file.original_filename }}
-			</a>
-		</li>
-	{% empty %}
-	</ul>
-		None
-	{% endfor %}
-	</ul>
-<br>
-<br>
-<hr>
+    <ul>
+        {% for file in review.files.all %}
+            <li>
+                <a href="{% url 'download_editor_er_file' file.id review.id %}?access_key={{ review.access_key }}">
+                    {{ file.original_filename }}
+                </a>
+            </li>
+        {% empty %}
+            </ul>
+            None
+        {% endfor %}
+    </ul>
+    <br>
+    <br>
+    <hr>
 
 {% endblock body %}
 
 {% block js %}
-<script type="text/javascript">$("textarea").jqte();</script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">$("textarea").jqte();</script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
 {% endblock js %}

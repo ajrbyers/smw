@@ -1,13 +1,15 @@
 <!-- Static navbar -->
+{% load static from staticfiles %}
+
 <nav class="navbar navbar-inverse navbar-static-top">
     <div class="container">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">
                 {% if press.look.brand_header %}
-                    <img class="img-responsive" alt="Brand"
-                         src="{{ MEDIA_URL }}settings/{{ press.look.brand_header }}">{% else %}
-                    <img class="img-responsive" alt="Brand"
-                         src="{{ MEDIA_URL }}img/default_brand.png">{% endif %}
+                    <img class="img-responsive" alt="Brand" src="{% static  press.look.brand_header %}">
+                {% else %}
+                    <img class="img-responsive" alt="Brand" src="{% static 'media/img/default_brand.png' %}"">
+                {% endif %}
             </a>
             <button type="button" class="navbar-toggle collapsed"
                     data-toggle="collapse" data-target="#navbar"
