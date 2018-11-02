@@ -1,6 +1,6 @@
-from django.conf.urls import (
+from django.urls import (
     include,
-    url,
+    re_path,
 )
 
 from rest_framework import routers
@@ -14,6 +14,6 @@ router = routers.DefaultRouter()
 router.register(r'jura', JuraBookViewSet)
 
 urlpatterns = [
-    url(r'^$', index, name='index'),
-    url(r'^', include(router.urls)),
+    re_path(r'^$', index, name='index'),
+    re_path(r'^', include(router.urls)),
 ]

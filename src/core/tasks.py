@@ -7,9 +7,9 @@ import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 
-from celery import task
-
-from core import models, email
+from core import email
+from core.celery import app
+from core.models import Identifier, Subject
 from services import ServiceHandler, JuraUpdateService
 from core.setting_util import get_setting
 
@@ -26,10 +26,11 @@ def _read_csv(path):
     reader = csv.reader(
         _buffer.read().splitlines()
     )
+
     return reader
 
 
-@task(name='add-metadata')
+@app.task(name='add-metadata')
 def add_metadata():
     """Adds book metadata from CSVs on an FTP site.
 
@@ -87,9 +88,7 @@ def add_metadata():
                         )
                     bisacs = row[bisac_index]
                     description = row[description_index]
-                    identifier = models.Identifier.objects.filter(
-                        value=isbn
-                    ).first()
+                    identifier = Identifier.objects.filter(value=isbn).first()
 
                     if identifier and isbn not in isbns_processed:
                         book = identifier.book
@@ -103,7 +102,7 @@ def add_metadata():
                                 in _read_csv('bisac.csv') if bisac in row
                             ]
                             new_subject, _ = (
-                                models.Subject.objects.get_or_create(
+                                Subject.objects.get_or_create(
                                     name=bisac_lookup[0][1]
                                 )
                             )

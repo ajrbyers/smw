@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import (
     dashboard,
@@ -11,40 +11,40 @@ from .views import (
 
 urlpatterns = [
     # Review
-    url(
+    re_path(
         r'^$',
         dashboard,
         name='onetasker_dashboard'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)$',
         task_hub,
         name='onetasker_task_hub'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)/decline/$',
         task_hub_decline,
         name='onetasker_task_hub_decline'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)/'
         r'(?P<about>[-\w]+)$',
         task_hub,
         name='onetasker_task_about'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)/'
         r'type/(?P<type_to_handle>[-\w./]+)/upload/',
         upload,
         name='assignment_jfu_upload'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)/'
         r'type/(?P<type_to_handle>[-\w./]+)/upload-author/',
         upload_author,
         name='assignment_jfu_upload_author'
     ),
-    url(
+    re_path(
         r'^(?P<assignment_type>[-\w]+)/(?P<assignment_id>\d+)/'
         r'file/(?P<file_pk>\d+)/delete/$',
         upload_delete,

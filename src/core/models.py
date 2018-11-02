@@ -11,8 +11,8 @@ from django.utils.encoding import smart_text
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
-from revisions import models as revision_models
-from submission import models as submission_models
+from revisions.models import Revision
+from submission.models import Proposal, ProposalReview
 
 fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
@@ -527,7 +527,7 @@ class Profile(models.Model):
         return 0
 
     def number_proposals_assigned_to(self):
-        proposals = submission_models.Proposal.objects.filter(
+        proposals = Proposal.objects.filter(
             book_editors__id=self.user.pk,
         )
         if proposals:
@@ -554,9 +554,7 @@ class Profile(models.Model):
         return "No reviews found"
 
     def proposal_review_history(self):
-        reviews = submission_models.ProposalReview.objects.filter(
-            user=self.user.pk,
-        )
+        reviews = ProposalReview.objects.filter(user=self.user.pk)
 
         if reviews:
             return reviews
@@ -569,7 +567,7 @@ class Profile(models.Model):
             declined__isnull=True,
             completed__isnull=True,
         )
-        proposal_reviews = submission_models.ProposalReview.objects.filter(
+        proposal_reviews = ProposalReview.objects.filter(
             user=self.user.pk,
             accepted__isnull=False,
             declined__isnull=True,
@@ -583,7 +581,7 @@ class Profile(models.Model):
             user=self.user.pk,
             completed__isnull=False,
         )
-        proposal_reviews = submission_models.ProposalReview.objects.filter(
+        proposal_reviews = ProposalReview.objects.filter(
             user=self.user.pk,
             completed__isnull=False,
         )
@@ -595,7 +593,7 @@ class Profile(models.Model):
             user=self.user.pk,
             declined__isnull=False,
         )
-        proposal_reviews = submission_models.ProposalReview.objects.filter(
+        proposal_reviews = ProposalReview.objects.filter(
             user=self.user.pk,
             declined__isnull=False,
         )
@@ -980,10 +978,7 @@ class Book(models.Model):
         return Note.objects.filter(book=self).count()
 
     def revisions_requested(self):
-        if revision_models.Revision.objects.filter(
-                book=self,
-                completed__isnull=True,
-        ):
+        if Revision.objects.filter(book=self, completed__isnull=True):
             return True
         return False
 

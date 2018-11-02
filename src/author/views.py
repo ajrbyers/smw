@@ -1011,7 +1011,7 @@ def author_contract_signoff(request, submission_id, contract_id):
             request.POST,
             request.FILES,
         )
-        # import ipdb; ipdb.set_trace()
+
         if author_signoff_form.is_valid():
             if request.FILES.get('author_file'):
                 author_file = request.FILES.get('author_file')

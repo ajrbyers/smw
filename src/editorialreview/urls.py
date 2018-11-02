@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import (
     add_editorial_review,
@@ -18,78 +18,78 @@ from .views import (
 )
 
 urlpatterns = [
-   url(
+   re_path(
         r'(?P<submission_type>[-\w]+)/(?P<submission_id>\d+)/add/$',
         add_editorial_review,
         name='add_editorial_review'
    ),
-   url(
+   re_path(
         r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/editor/$',
         download_editor_er_file,
         name='download_editor_er_file'
    ),
-   url(
+   re_path(
         r'download/(?P<file_id>\d+)/review/(?P<review_id>\d+)/$',
         download_er_file,
         name='download_er_file'
    ),
-   url(
+   re_path(
         r'editor/view/(?P<review_id>\d+)/$',
         view_editorial_review,
         name='view_editorial_review'
    ),
-   url(
+   re_path(
         r'remove/(?P<review_id>\d+)/$',
         remove_editorial_review,
         name='remove_editorial_review'
    ),
-   url(
+   re_path(
         r'withdraw/(?P<review_id>\d+)/$',
         withdraw_editorial_review,
         name='withdraw_editorial_review'
    ),
-   url(
+   re_path(
         r'update_due_date/(?P<review_id>\d+)/$',
         update_editorial_review_due_date,
         name='update_editorial_review_due_date'
    ),
-   url(
+   re_path(
         r'review/(?P<review_id>\d+)/view_review/'
         r'(?P<non_editorial_review_id>\d+)/$',
         view_non_editorial_review,
         name='view_non_editorial_review'
    ),
-   url(
+   re_path(
         r'review/(?P<review_id>\d+)/summary/$',
         view_content_summary,
         name='view_content_summary'
    ),
-   url(
+   re_path(
         r'review/(?P<review_id>\d+)/thanks/$',
         editorial_review_thanks,
         name='editorial_review_thanks'
    ),
-   url(
+   re_path(
         r'review/(?P<review_id>\d+)/completion_email/$',
         EditorialReviewCompletionEmail.as_view(),
         name='editorial_review_completion_email'
    ),
-   url(
+   re_path(
         r'review/(?P<review_id>\d+)/$',
         editorial_review,
         name='editorial_review'
    ),
-   url(
+   re_path(
         r'(?P<review_id>\d+)/email/$',
         email_editorial_review,
         name='email_editorial_review'
    ),
-   url(
+   re_path(
         r'(?P<review_id>\d+)/email/editor/$',
         editorial_reviewer_email_editor,
         name='editorial_reviewer_email_editor_not_logged_in'
    ),
-   url(
+   re_path(
         r'(?P<review_id>\d+)/email/editor/(?P<user_id>\d+)/$',
         editorial_reviewer_email_editor,
         name='editorial_reviewer_email_editor_logged_in'

@@ -1,16 +1,17 @@
 import json
 import mimetypes as mime
 import os
-from os import path, makedirs
+from os import path
 from uuid import uuid4
 
-from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.http import StreamingHttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_text
+
+from bs4 import BeautifulSoup
 from docx import Document
 
 from core import models as core_models, logic as core_logic
@@ -60,7 +61,7 @@ def handle_review_file(_file, content_type, review_assignment, kind):
         _file._get_name().replace(',', '_').replace(';', '_')
     )
     filename = str(uuid4()) + str(path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
 
     if content_type == 'book':
         file_path = path.join(
@@ -78,7 +79,7 @@ def handle_review_file(_file, content_type, review_assignment, kind):
     with default_storage.open(file_path, 'wb') as file_stream:
         file_stream.write(_file.read())
 
-    new_file = core_models.File(
+    new_file = core_models.File.objects.create(
         mime_type=file_mime,
         original_filename=original_filename,
         uuid_filename=filename,
@@ -86,7 +87,6 @@ def handle_review_file(_file, content_type, review_assignment, kind):
         kind=kind,
         owner=review_assignment.user,
     )
-    new_file.save()
     review_assignment.files.add(new_file)
 
     return file_path
@@ -172,33 +172,17 @@ def handle_editorial_review_file(
 ):
     original_filename = smart_text(file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    folder_structure = os.path.join(
-        settings.BASE_DIR,
-        'files',
-        'books',
-        str(review_assignment.book.id)
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
+    file_path = os.path.join(
+        settings.BOOK_DIR,
+        str(review_assignment.book.id),
+        filename
     )
 
-    if not os.path.exists(folder_structure):
-        os.makedirs(folder_structure)
+    with default_storage.open(file_path, 'wb') as file_stream:
+        file_stream.write(file.read())
 
-    path = os.path.join(folder_structure, str(filename))
-    fd = default_storage.open(path, 'wb')
-
-    for chunk in file.chunks():
-        fd.write(chunk)
-
-    fd.close()
-    file_mime = mime.guess_type(filename)
-
-    try:
-        file_mime = file_mime[0]
-        if not file_mime:
-            file_mime = 'unknown'
-    except IndexError:
-        file_mime = 'unknown'
-
-    new_file = core_models.File(
+    new_file = core_models.File.objects.create(
         mime_type=file_mime,
         original_filename=original_filename,
         uuid_filename=filename,
@@ -206,7 +190,6 @@ def handle_editorial_review_file(
         kind=kind,
         owner=review_assignment.management_editor,
     )
-    new_file.save()
 
     if editorial:
         review_assignment.editorial_board_files.add(new_file)
@@ -276,8 +259,8 @@ def create_completed_review_form(submission, review_id):
         for relation in relations:
 
             if (
-                relation.element.field_type
-                in ['text', 'textarea', 'date', 'email']
+                    relation.element.field_type in
+                    ['text', 'textarea', 'date', 'email']
             ):
                 document.add_heading(
                     relation.element.name + ": _______________________________",
@@ -285,7 +268,7 @@ def create_completed_review_form(submission, review_id):
                 )
                 document.add_paragraph(relation.help_text).italic = True
 
-            if relation.element.field_type in ['select', 'check']:
+            elif relation.element.field_type in ['select', 'check']:
                 document.add_heading(relation.element.name, level=1)
 
                 if relation.element.field_type == 'select':

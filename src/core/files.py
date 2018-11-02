@@ -14,7 +14,7 @@ from core import models
 def handle_marc21_file(content, name, book, owner):
     original_filename = name
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
 
     file_path = os.path.join(
         settings.BOOK_DIR,
@@ -41,7 +41,7 @@ def handle_marc21_file(content, name, book, owner):
 def handle_onetasker_file(_file, book, assignment, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),
@@ -74,7 +74,7 @@ def handle_file_update(new_file, old_file, book, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),
@@ -116,7 +116,7 @@ def handle_file(_file, book, kind, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),
@@ -142,7 +142,7 @@ def handle_file(_file, book, kind, owner, label=None):
 def handle_email_file(_file, kind, owner, label=None):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.EMAIL_DIR,
         str(filename),
@@ -207,7 +207,7 @@ def handle_proposal_review_file(
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.PROPOSAL_DIR,
         str(proposal_review.proposal.id),
@@ -240,7 +240,7 @@ def handle_proposal_file(_file, proposal, kind, owner, label=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.PROPOSAL_DIR,
         str(proposal.id),
@@ -267,7 +267,7 @@ def handle_proposal_file(_file, proposal, kind, owner, label=None):
 def handle_proposal_file_form(_file, proposal, kind, owner, label=None):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.PROPOSAL_DIR,
         str(proposal.id),
@@ -301,7 +301,7 @@ def handle_attachment(request, submission):
 def handle_copyedit_file(_file, book, copyedit, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),
@@ -327,7 +327,7 @@ def handle_copyedit_file(_file, book, copyedit, kind):
 def handle_index_file(_file, book, index, kind):
     original_filename = smart_text(_file._get_name())
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),
@@ -359,7 +359,7 @@ def handle_typeset_file(_file, book, typeset, kind):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         settings.BOOK_DIR,
         str(book.id),

@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.conf.urls import (
+from django.urls import (
     include,
-    url,
+    re_path,
 )
 import django.views.static
 from django.contrib import admin
@@ -110,552 +110,552 @@ from .views import (
 )
 
 urlpatterns = [
-    url(  # Core Site.
+    re_path(  # Core Site.
         r'^admin/',
         admin.site.urls
     ),
-    url(
+    re_path(
         r'^submission/',
         include(submission_urls)
     ),
-    url(
+    re_path(
         r'^manager/',
         include(manager_urls)
     ),
-    url(
+    re_path(
         r'^review/',
         include(review_urls)
     ),
-    url(
+    re_path(
         r'^api/',
         include(api_urls)
     ),
-    url(
+    re_path(
         r'^author/',
         include(author_urls)
     ),
-    url(
+    re_path(
         r'^editor/',
         include(editor_urls)
     ),
-    url(
+    re_path(
         r'^tasks/',
         include(onetasker_urls)
     ),
-    url(
+    re_path(
         r'^swiftsubmit/',
         include(swiftsubmit_urls)
     ),
-    url(
+    re_path(
         r'^editorialreview/',
         include(editorialreview_urls)
     ),
-    url(  # 3rd Party Apps.
+    re_path(  # 3rd Party Apps.
         r'^summernote/',
         include(django_summernote_urls)
     ),
-    url(
+    re_path(
         r'^accounts/',
         include(allauth_urls)
     ),
-    url(
+    re_path(
         r'^api-auth/',
         include(rest_framework_urls, namespace='rest_framework')
     ),
-    url(  # Public pages.
+    re_path(  # Public pages.
         r'^$',
         index,
         name='index'
     ),
-    url(
+    re_path(
         r'^contact/$',
         contact,
         name='contact',
     ),
-    url(
+    re_path(
         r'^page/(?P<page_name>[-\w]+)/$',
         page,
         name='page',
     ),
 
     # Login/Register
-    url(
+    re_path(
         r'^login/$',
         login,
         name='login',
     ),
-    url(
+    re_path(
         r'^login/orcid/$',
         login_orcid,
         name='orcid-login',
     ),
-    url(
+    re_path(
         r'^logout/$',
         logout,
         name='logout',
     ),
-    url(
+    re_path(
          r'^switch/account/$',
          switch_account,
          name='switch-account',
     ),
 
-    url(
+    re_path(
         r'^switch/account/(?P<account_id>\d+)/$',
         switch_account_user,
         name='switch-account-user',
     ),
-    url(
+    re_path(
         r'^register/$',
         register,
         name='register',
     ),
-    url(
+    re_path(
         r'^login/activate/(?P<code>[-\w./]+)/$',
         activate,
         name='activate',
     ),
-    url(  # Unauthenticated password reset.
+    re_path(  # Unauthenticated password reset.
         r'^login/reset/$',
         unauth_reset,
         name='unauth_reset',
     ),
-    url(
+    re_path(
         r'^login/reset/code/(?P<uuid>[\w-]+)/$',
         unauth_reset_code,
         name='unauth_reset_code',
     ),
-    url(
+    re_path(
         r'^login/reset/password/(?P<uuid>[\w-]+)/$',
         unauth_reset_password,
         name='unauth_reset_password',
     ),
-    url(  # User profile.
+    re_path(  # User profile.
         r'^user/profile/$',
         view_profile,
         name='view_profile',
     ),
-    url(
+    re_path(
         r'^user/view/(?P<user_id>\d+)/$',
         view_profile_readonly,
         name='view_profile_readonly',
     ),
-    url(
+    re_path(
         r'^user/review-history/(?P<user_id>\d+)/$',
         view_review_history,
         name='view_review_history',
     ),
-    url(
+    re_path(
         r'^user/profile/update/$',
         update_profile,
         name='update_profile',
     ),
-    url(
+    re_path(
         r'^user/profile/resetpassword/$',
         reset_password,
         name='reset_password',
     ),
-    url(
+    re_path(
         r'^user/task/new/$',
         task_new,
         name='task_new',
     ),
-    url(
+    re_path(
         r'^user/task/(?P<task_id>[-\w./]+)/complete/$',
         task_complete,
         name='task_complete',
     ),
 
-    url(  # Message AJAX.
+    re_path(  # Message AJAX.
         r'^book/(?P<submission_id>\d+)/message/new/$',
         new_message,
         name='new_message',
     ),
-    url(
+    re_path(
         r'^book/(?P<submission_id>\d+)/messages/$',
         get_messages,
         name='get_messages',
     ),
-    url(  # User submission.
+    re_path(  # User submission.
         r'^user/submission/(?P<submission_id>\d+)/$',
         user_submission,
         name='user_submission',
     ),
-    url(
+    re_path(
         r'^user/proposal/(?P<proposal_id>\d+)/$',
         user_proposal,
         name='user_proposal',
     ),
-    url(
+    re_path(
         r'overview/$',
         overview,
         name='overview',
     ),
-    url(
+    re_path(
         r'overview/inprogress/$',
         overview_inprogress,
         name='overview_inprogress'
     ),
-    url(
+    re_path(
         r'overview/proposals/$',
         proposal_overview,
         name='proposal_overview',
     ),
 
-    url(  # Email.
+    re_path(  # Email.
         r'^email/(?P<group>[-\w]+)/submission/(?P<submission_id>\d+)/$',
         email_users,
         name='email_users',
     ),
-    url(
+    re_path(
         r'^email/(?P<group>[-\w]+)/submission/(?P<submission_id>\d+)/'
         r'user/(?P<user_id>\d+)/$',
         email_users,
         name='email_user',
     ),
-    url(
+    re_path(
         r'^email/proposal/(?P<proposal_id>\d+)/user/(?P<user_id>\d+)/$',
         email_users_proposal,
         name='email_user_proposal',
     ),
-    url(
+    re_path(
         r'^email/primary-contact/$',
         email_primary_contact,
         name='email_primary_contact',
     ),
 
-    url(
+    re_path(
         r'^email/get/user/proposal/(?P<proposal_id>\d+)/$',
         get_proposal_users,
         name='get_proposal_users',
     ),
-    url(
+    re_path(
         r'^email/get/authors/submission/(?P<submission_id>\d+)/$',
         get_authors,
         name='get_authors',
     ),
-    url(
+    re_path(
         r'^email/get/editors/submission/(?P<submission_id>\d+)/$',
         get_editors,
         name='get_editors',
     ),
-    url(
+    re_path(
         r'^email/get/users/$',
         get_all_users,
         name='get_all_users',
     ),
-    url(
+    re_path(
         r'^email/get/onetaskers/submission/(?P<submission_id>\d+)/$',
         get_onetaskers,
         name='get_onetaskers',
     ),
-    url(
+    re_path(
         r'^email/get/all/submission/(?P<submission_id>\d+)/$',
         get_all,
         name='get_all',
     ),
-    url(
+    re_path(
         r'^email/general/$',
         email_general,
         name='email_general',
     ),
-    url(
+    re_path(
         r'^email/general/user/(?P<user_id>\d+)/$',
         email_general,
         name='email_general_user_id',
     ),
-    url(  # Files.
+    re_path(  # Files.
         r'^files/submission/(?P<submission_id>\d+)/get/'
         r'marc21/(?P<type>[-\w]+)/$',
         serve_marc21_file,
         name='serve_marc21_file',
     ),
-    url(
+    re_path(
         r'^files/proposal/(?P<proposal_id>\d+)/file'
         r'/(?P<file_id>\d+)/download/$',
         serve_proposal_file_id,
         name='serve_proposal_file_id',
     ),
 
-    url(
+    re_path(
         r'^files/user/submission/(?P<submission_id>\d+)/file'
         r'/(?P<file_id>\d+)/download/review/(?P<review_id>\d+)'
         r'/access_key/(?P<access_key>[-\w+]+)/$',
         serve_file_one_click,
         name='serve_file_one_click'
     ),
-    url(
+    re_path(
         r'^files/user/submission/(?P<submission_id>\d+)/file'
         r'/(?P<file_id>\d+)/download/$',
         serve_file,
         name='serve_file',
     ),
-    url(
+    re_path(
         r'^files/user/submission/(?P<submission_id>\d+)/files/download/$',
         serve_all_files,
         name='serve_all_files',
     ),
-    url(
+    re_path(
         r'^files/user/email/file'
         r'/(?P<file_id>\d+)/download/$',
         serve_email_file,
         name='serve_email_file',
     ),
-    url(
+    re_path(
         r'^files/user/submission/(?P<submission_id>\d+)/review-files/'
         r'(?P<review_type>[-\w]+)/download/review/(?P<review_id>\d+)/'
         r'access_key/(?P<access_key>[-\w+]+)/$',
         serve_all_review_files_one_click,
         name='serve_all_review_files_one_click',
     ),
-    url(
+    re_path(
         r'^files/user/submission/(?P<submission_id>\d+)/review-files/'
         r'(?P<review_type>[-\w]+)/download/$',
         serve_all_review_files,
         name='serve_all_review_files',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/upload/additional/$',
         upload_additional,
         name='upload_additional',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/upload/manuscript/$',
         upload_manuscript,
         name='upload_manuscript',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/upload/manuscript/'
         r'(?P<editorial_review>[-\w]+)$',
         upload_manuscript,
         name='upload_manuscript_ed_review_redirect',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/(?P<revision_id>\d+)'
         r'/download_versioned_file/$',
         serve_versioned_file,
         name='serve_versioned_file',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/(?P<file_id>\d+)/'
         r'delete/returner/(?P<returner>[-\w]+)/$',
         delete_file,
         name='delete_file',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/'
         r'(?P<file_id>\d+)/view/$',
         view_file,
         name='view_file',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/file/(?P<file_id>\d+)/'
         r'update/returner/(?P<returner>[-\w]+)/$',
         update_file,
         name='update_file',
     ),
-    url(
+    re_path(
         r'^files/submission/(?P<submission_id>\d+)/'
         r'file/(?P<file_id>\d+)/versions/$',
         versions_file,
         name='versions_file',
     ),
-    url(  # Log.
+    re_path(  # Log.
         r'^log/submission/(?P<submission_id>\d+)/',
         view_log,
         name='view_log',
     ),
-    url(
+    re_path(
         r'^log/proposal/(?P<proposal_id>\d+)/',
         view_proposal_log,
         name='view_proposal_log',
     ),
-    url(  # Redirect to correct dashboard.
+    re_path(  # Redirect to correct dashboard.
         r'^dashboard/$',
         dashboard,
         name='user_dashboard',
     ),
-    url(
+    re_path(
         r'^misc_files/(?P<submission_id>\d+)/upload/$',
         upload_misc_file,
         name='upload_misc_file',
     ),
-    url(  # Proposals.
+    re_path(  # Proposals.
         r'^proposals/$',
         proposal,
         name='proposals',
     ),
-    url(
+    re_path(
         r'^proposals/filter/(?P<user_id>\d+)/$',
         proposal,
         name='proposals_filtered',
     ),
-    url(
+    re_path(
         r'^proposals/unassigned/$',
         assign_proposal,
         name='proposal_assign',
     ),
-    url(
+    re_path(
         r'^proposals/unassigned/(?P<proposal_id>\d+)/edit/$',
         proposal_assign_edit,
         name='proposal_assign_edit'
     ),
-    url(
+    re_path(
         r'^proposals/assign/(?P<proposal_id>\d+)/$',
         proposal_assign_view,
         name='proposal_assign_view_submitted',
     ),
-    url(
+    re_path(
         r'^proposals/assign/(?P<proposal_id>\d+)/(?P<user_id>\d+)/$',
         proposal_assign_user,
         name='proposal_assign_user',
     ),
-    url(
+    re_path(
         r'^proposals/history/$',
         proposal_history,
         name='proposals_history',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/$',
         view_proposal,
         name='view_proposal',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/add/editor/$',
         proposal_add_editors,
         name='proposal_add_editors',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/update/editor/$',
         proposal_add_editors,
         name='proposal_update_editors',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/review/start/$',
         start_proposal_review,
         name='start_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/review/add/$',
         add_proposal_reviewers,
         name='add_proposal_reviewers',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/decision/'
         r'(?P<assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/$',
         view_proposal_review_decision,
         name='view_proposal_review_decision_access_key',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'decision/(?P<assignment_id>\d+)/$',
         view_proposal_review_decision,
         name='view_proposal_review_decision',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/decision_email/(?P<decision>accept|decline)/$',
         RequestedReviewerDecisionEmail.as_view(),
         name='proposal_review_decision_email',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/decision_email/(?P<decision>accept|decline)/'
         r'access_key/(?P<access_key>[-\w+]+)/$',
         RequestedReviewerDecisionEmail.as_view(),
         name='proposal_review_decision_email_access_key',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/access_key/(?P<access_key>[-\w+]+)/$',
         view_proposal_review,
         name='view_proposal_review_access_key',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)/$',
         view_proposal_review,
         name='view_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/completion-email/'
         r'access_key/(?P<access_key>[-\w+]+)/$',
         ProposalReviewCompletionEmail.as_view(),
         name='proposal_review_completion_email_access_key',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)/'
         r'completion-email/$',
         ProposalReviewCompletionEmail.as_view(),
         name='proposal_review_completion_email',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/(?P<assignment_id>\d+)'
         r'/completed/$',
         view_completed_proposal_review,
         name='view_completed_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/remove/assignment/'
         r'(?P<review_id>\d+)/$',
         remove_proposal_review,
         name='remove_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/withdraw/assignment'
         r'/(?P<review_id>\d+)/$',
         withdraw_proposal_review,
         name='withdraw_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/reopen/$',
         reopen_proposal_review,
         name='reopen_proposal_review',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/assignment/'
         r'(?P<assignment_id>\d+)/due/$',
         change_review_due_date,
         name='change_review_due_date',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/accept/$',
         accept_proposal,
         name='accept_proposal',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/revisions/$',
         request_proposal_revisions,
         name='request_proposal_revisions',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/decline/$',
         decline_proposal,
         name='decline_proposal',
     ),
-    url(
+    re_path(
         r'^proposals/review-submitted/$',
         proposal_review_submitted,
         name='proposal_review_submitted',
     ),
-    url(
+    re_path(
         r'^proposals/review-declined/$',
         proposal_review_declined,
         name='proposal_review_declined',
     ),
-    url(  # Contract.
+    re_path(  # Contract.
         r'^proposals/(?P<proposal_id>\d+)/manage/contract/$',
         contract_manager,
         name='proposal_contract_manager',
     ),
-    url(
+    re_path(
         r'^proposals/(?P<proposal_id>\d+)/manage/'
         r'contract/(?P<contract_id>\d+)/$',
         contract_manager,
         name='proposal_contract_manager_edit',
     ),
-    url(  # OAI - /oai?verb=ListRecords&metadataPrefix=oai_dc
+    re_path(  # OAI - /oai?verb=ListRecords&metadataPrefix=oai_dc
         r'^oai/$',
         oai,
         name='oai',
@@ -671,16 +671,16 @@ handler403 = permission_denied
 # Allow Django to serve static content only in debug/dev mode.
 if settings.DEBUG:
     urlpatterns += [
-        url(
+        re_path(
             r'^media/(?P<path>.*)$',
             django.views.static.serve,
             {'document_root': settings.MEDIA_ROOT}
         ),
-        url(
+        re_path(
             r'^404/$',
             TemplateView.as_view(template_name='404.html')
         ),
-        url(
+        re_path(
             r'^500/$',
             TemplateView.as_view(template_name='500.html')
         ),

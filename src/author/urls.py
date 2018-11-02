@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import (
    author_contract_signoff,
@@ -27,131 +27,131 @@ from .views import (
 )
 
 urlpatterns = [
-   url(
+   re_path(
       r'dashboard/$',
       author_dashboard,
       name='author_dashboard'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/$',
       author_submission,
       name='author_submission'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/status/$',
       status,
       name='status'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/tasks/$',
       tasks,
       name='tasks'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/review/$',
       review,
       name='review'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/revisions/(?P<revision_id>\d+)/$',
       view_revisions,
       name='view_revisions'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/round/(?P<round_id>\d+)/$',
       view_review_round,
       name='view_review_round'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/'
       r'review/round/(?P<round_id>\d+)/assignment/(?P<review_id>\d+)/$',
       view_review_assignment,
       name='view_review_assignment'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/editing/$',
       editing,
       name='editing'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'view/copyeditor/(?P<copyedit_id>\d+)/$',
       view_copyedit,
       name='author_view_copyedit'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'view/indexer/(?P<index_id>\d+)/$',
       view_index,
       name='author_view_index'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'copyedit/(?P<copyedit_id>\d+)/$',
       copyedit_review,
       name='copyedit_review'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/editing/'
       r'typeset/(?P<typeset_id>\d+)/$',
       typeset_review,
       name='typeset_review'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/production/$',
       author_production,
       name='author_production'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'view/typesetter/(?P<typeset_id>\d+)$',
       author_view_typesetter,
       name='author_view_typesetter'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/$',
       revision,
       name='author_revision'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/completion_email/$',
       RevisionCompletionEmail.as_view(),
       name='author_revision_completion_email'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/update_file/(?P<file_id>\d+)/$',
       revise_file,
       name='revise_file'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/revisions/'
       r'(?P<revision_id>\d+)/new/(?P<file_type>[-\w]+)/file/$',
       revision_new_file,
       name='revision_new_file'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/contract/'
       r'(?P<contract_id>\d+)/signoff/$',
       author_contract_signoff,
       name='author_contract_signoff'
    ),
-   url(
+   re_path(
       r'^proposal/(?P<proposal_id>\d+)/contract/(?P<contract_id>\d+)/signoff/$',
       proposal_author_contract_signoff,
       name='proposal_author_contract_signoff'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'chapter/(?P<chapter_id>\d+)/view/$',
       view_chapter,
       name='author_view_chapter'
    ),
-   url(
+   re_path(
       r'^submission/(?P<submission_id>\d+)/production/'
       r'chapter/(?P<chapter_id>\d+)/view/format/(?P<format_id>\d+)/$',
       view_chapter_format,

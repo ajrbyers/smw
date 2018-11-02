@@ -136,7 +136,7 @@ def send_email(
         with default_storage.open(file_path, 'rb') as file_stream:
             content = file_stream.read()
 
-        mimetype = mimetypes.guess_type(file_path)[0] or 'unknown/unknown'
+        mimetype = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
 
         msg.attach(
             filename=attachment.original_filename,
@@ -218,7 +218,7 @@ def send_email_multiple(
             with default_storage.open(file_path, 'rb') as file_stream:
                 content = file_stream.read()
 
-            mimetype = mimetypes.guess_type(file_path)[0] or 'unknown/unknown'
+            mimetype = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
 
             msg.attach(
                 filename=attachment.original_filename,
@@ -312,7 +312,7 @@ def send_prerendered_email(
             with default_storage.open(filepath, 'rb') as file:
                 content = file.read()
 
-            mimetype = mimetypes.guess_type(filepath)[0] or 'unknown/unknown'
+            mimetype = mimetypes.guess_type(filepath)[0] or 'application/octet-stream'
 
             msg.attach(
                 filename=attachment.original_filename,

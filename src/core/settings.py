@@ -89,6 +89,9 @@ SILENCED_SYSTEM_CHECKS = (
     'fields.W340',
 )
 
+
+# ## SUMMERNOTE ##
+
 SUMMERNOTE_CONFIG = {
     # Using SummernoteWidget - iframe mode.
     'iframe': False,  # If False: use SummernoteInplaceWidget - no iframe mode.
@@ -131,6 +134,7 @@ DATETIME_FORMAT = '%d %b, %Y %H:%M'
 
 
 # ## STATIC FILES ##
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected-static')
 STATICFILES_DIRS = (
@@ -211,8 +215,16 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
     },
     'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -226,6 +238,10 @@ LOGGING = {
         'sentry.errors': {
             'level': 'DEBUG',
             'handlers': ['console'],
+            'propagate': False,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
             'propagate': False,
         },
     },
@@ -248,7 +264,10 @@ DATABASES = {
     }
 }
 
+
 # ## EXTERNAL SERVICES ##
+
+# ORCID
 
 ORCID_API_URL = os.getenv('ORCID_API_URL', 'http://pub.orcid.org/v1.2_rc7/')
 ORCID_REDIRECT_URI = os.getenv(
@@ -261,6 +280,8 @@ ORCID_TOKEN_URL = os.getenv(
 )
 ORCID_CLIENT_SECRET = os.getenv('ORCID_CLIENT_SECRET')
 ORCID_CLIENT_ID = os.getenv('ORCID_CLIENT_ID')
+
+# AMAZON S3
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -280,6 +301,8 @@ if AWS_LOCATION:
 else:
     AWS_STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 
+# EMAIL
+
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
     'django.core.mail.backends.smtp.EmailBackend'
@@ -290,7 +313,13 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'postmaster@ubiquity.press')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 
-SENTRY_DSN = os.getenv('SENTRY_DSN')
+# SENTRY
+
+SENTRY_DSN = os.getenv(
+    'SENTRY_DSN',
+    'https://6f4e629b9384499ea7d6aaa72c820839:'
+    '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press/5'
+)
 config_file = ConfigParser()
 config_file.read('sentry_version.ini')
 SENTRY_RELEASE = config_file.get('sentry', 'version', fallback='ERROR')
@@ -298,5 +327,5 @@ SENTRY_RELEASE = config_file.get('sentry', 'version', fallback='ERROR')
 RAVEN_CONFIG = {
     'dsn': SENTRY_DSN,
     'release': SENTRY_RELEASE,
-    'environment': 'prod'
+    'environment': 'production'
 }

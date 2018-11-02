@@ -5,9 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
-from django.http import (
-    Http404,
-)
+from django.http import Http404
 from django.shortcuts import (
     redirect,
     render,

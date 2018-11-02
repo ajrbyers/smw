@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 
 from api import serializers
-from core import models
+from core.models import Book
 
 
 class JSONResponse(HttpResponse):
@@ -38,5 +38,5 @@ def index(request):
 class JuraBookViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
-    queryset = models.Book.objects.all().order_by('id')
+    queryset = Book.objects.all().order_by('id')
     serializer_class = serializers.JuraBookSerializer

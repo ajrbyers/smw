@@ -129,7 +129,7 @@ def handle_review_file(_file, review_assignment, kind, return_file=None):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+    file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
     file_path = os.path.join(
         'files',
         f'{review_assignment.content_type}s',

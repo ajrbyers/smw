@@ -310,7 +310,7 @@ def handle_file(file, book, kind, user):
             ';', '_'
         )
         filename = str(uuid4()) + str(os.path.splitext(file._get_name())[1])
-        file_mime = mime.guess_type(filename)[0] or 'unknown/unknown'
+        file_mime = mime.guess_type(filename)[0] or 'application/octet-stream'
         file_path = os.path.join(
             settings.BOOK_DIR,
             str(book.id),

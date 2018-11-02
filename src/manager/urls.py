@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import (
     about,
@@ -48,232 +48,232 @@ from .views import (
 
 
 urlpatterns = [
-    url(  # New Submissions.
+    re_path(  # New Submissions.
         r'^$',
         index,
         name='manager_index'
     ),
-    url(
+    re_path(
         r'^about/$',
         about,
         name='manager_about'
     ),
-    url(  # Group Management.
+    re_path(  # Group Management.
         r'^groups/$',
         groups,
         name='manager_groups'
     ),
-    url(
+    re_path(
         r'^groups/order/$',
         groups_order,
         name='manager_groups_order'
     ),
-    url(
+    re_path(
         r'^groups/add/$',
         group,
         name='manager_group_add'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/edit/$',
         group,
         name='manager_group_edit'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/delete/$',
         group_delete,
         name='manager_group_delete'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/members/$',
         group_members,
         name='manager_group_members'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/members/user/(?P<user_id>\d+)/assign/$',
         group_members_assign,
         name='group_members_assign'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/members/order$',
         group_members_order,
         name='group_members_order'
     ),
-    url(
+    re_path(
         r'^groups/(?P<group_id>\d+)/members/(?P<member_id>\d+)/delete$',
         manager_membership_delete,
         name='manager_membership_delete'
     ),
-    url(  # Role Management.
+    re_path(  # Role Management.
         r'^roles/$',
         roles,
         name='manager_roles'
     ),
-    url(
+    re_path(
         r'^roles/(?P<slug>[-\w.]+)/$',
         role,
         name='manager_role'
     ),
-    url(
+    re_path(
         r'^roles/(?P<slug>[-\w.]+)/user/(?P<user_id>\d+)/(?P<action>[-\w.]+)/$',
         role_action,
         name='manager_role_action'
     ),
-    url(  # Settings Management.
+    re_path(  # Settings Management.
         r'^settings/$',
         settings_index,
         name='settings_index'
     ),
-    url(
+    re_path(
         r'^settings/group/(?P<setting_group>[-\w.]+)/setting/'
         r'(?P<setting_name>[-\w.]+)/$',
         edit_setting,
         name='edit_setting'
     ),
-    url(  # Submission checklist.
+    re_path(  # Submission checklist.
         r'^submission/checklist/$',
         submission_checklist,
         name='submission_checklist'
     ),
-    url(
+    re_path(
         r'^submission/checklist/edit/(?P<item_id>\d+)/$',
         edit_submission_checklist,
         name='edit_submission_checklist'
     ),
-    url(
+    re_path(
         r'^submission/checklist/delete/(?P<item_id>\d+)/$',
         delete_submission_checklist,
         name='delete_submission_checklist'
     ),
-    url(
+    re_path(
         r'^submission/checklist/order/$',
         checklist_order,
         name='checklist_order'
     ),
-    url(  # Series Management.
+    re_path(  # Series Management.
         r'^series/$',
         series,
         name='series'
     ),
-    url(
+    re_path(
         r'^series/add/$',
         series_add,
         name='series_add'
     ),
-    url(
+    re_path(
         r'^series/delete/(?P<series_id>\d+)/$',
         series_delete,
         name='series_delete'
     ),
-    url(
+    re_path(
         r'^series/(?P<series_id>\d+)/send/$',
         send_series,
         name='series_send_series'
     ),
-    url(
+    re_path(
         r'^series/(?P<series_id>\d+)/edit/$',
         series_edit,
         name='series_edit'
     ),
-    url(
+    re_path(
         r'^series/submission/(?P<submission_id>\d+)/series/add/'
         r'(?P<series_id>\d+)/$',
         series_submission_add,
         name='series_submission_add'
     ),
-    url(
+    re_path(
         r'^series/submission/(?P<submission_id>\d+)/series/remove/$',
         series_submission_remove,
         name='series_submission_remove'
     ),
-    url(  # Cache.
+    re_path(  # Cache.
         r'^cache/flush/$',
         flush_cache,
         name='manager_flush_cache'
     ),
-    url(  # Users.
+    re_path(  # Users.
         r'^user/$',
         users,
         name='manager_users'
     ),
-    url(
+    re_path(
         r'^user/inactive/$',
         inactive_users,
         name='manager_inactive_users'
     ),
-    url(
+    re_path(
         r'^user/inactive/(?P<user_id>\d+)/activate/$',
         activate_user,
         name='manager_activate_user'
     ),
-    url(
+    re_path(
         r'^user/add/$',
         add_user,
         name='add_user'
     ),
-    url(
+    re_path(
         r'^user/(?P<user_id>\d+)/edit/$',
         user_edit,
         name='user_edit'
     ),
-    url(
+    re_path(
         r'^user/(?P<user_id>\d+)/edit/select_merge/$',
         select_merge,
         name='select_merge'
     ),
-    url(
+    re_path(
         r'^user/(?P<user_id>\d+)/edit/merge_users/(?P<secondary_user_id>\d+)/$',
         merge_users,
         name='merge_users'
     ),
-    url(  # Key help.
+    re_path(  # Key help.
         r'^key_help/$',
         key_help,
         name='manager_key_help'
     ),
-    url(  # Forms.
+    re_path(  # Forms.
         r'^forms/add/(?P<form_type>[-\w.]+)/$',
         add_new_form,
         name='manager_add_new_form'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
         edit_form,
         name='manager_edit_form'
     ),
-    url(
+    re_path(
         r'^forms/active/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
         form_active,
         name='manager_form_active'
     ),
-    url(
+    re_path(
         r'^forms/prepare/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/$',
         edit_form_preparation,
         name='manager_edit_form_preparation'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/switch/'
         r'(?P<field_1_id>\d+)/(?P<field_2_id>\d+)$',
         reorder_form,
         name='manager_reorder_form'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/'
         r'(?P<relation_id>\d+)/$',
         edit_form,
         name='manager_edit_form_element'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/element/'
         r'(?P<relation_id>\d+)/delete/$',
         delete_form_element,
         name='manager_delete_form_element'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/(?P<form_id>\d+)/preview/$',
         preview_form,
         name='manager_preview_form'
     ),
-    url(
+    re_path(
         r'^forms/(?P<form_type>[-\w.]+)/$',
         list_forms,
         name='manager_forms'

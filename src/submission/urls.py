@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 
 from .views import (
@@ -30,141 +30,141 @@ from .views import (
 )
 
 urlpatterns = [
-    url(
+    re_path(
         r'^book/new/stage/1/$',
         start_submission,
         name='submission_start',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/1/$',
         start_submission,
         name='edit_start',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/2/$',
         submission_two,
         name='submission_two'
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/3/$',
         submission_three,
         name='submission_three',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/4/$',
         submission_three_additional,
         name='submission_three_additional',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/5/$',
         submission_four,
         name='submission_four',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/5/author/new/$',
         author,
         name='author',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/5/author/(?P<author_id>\d+)/$',
         author,
         name='author_edit',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/5/editor/new/$',
         editor,
         name='editor',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/5/editor/(?P<editor_id>\d+)/$',
         editor,
         name='editor_edit',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/6/$',
         submission_five,
         name='submission_five'),
-    url(
+    re_path(
         r'book/(?P<book_id>\d+)/submission-complete-email/$',
         SubmissionCompleteEmail.as_view(),
         name='submission_complete_email',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/stage/3/(?P<file_type>[-\w./]+)/$',
         submission_additional_files,
         name='submission_additional_files',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/order/(?P<type_to_handle>[-\w./]+)/$',
         file_order,
         name='file_order',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/type/(?P<type_to_handle>[-\w./]+)/upload/',
         upload,
         name='jfu_upload',
     ),
-    url(
+    re_path(
         r'^book/(?P<book_id>\d+)/file/(?P<file_pk>\d+)/delete/$',
         upload_delete,
         name='jfu_delete',
     ),
-    url(
+    re_path(
         r'^proposal/$',
         start_proposal,
         name='proposal_start',
     ),
-    url(
+    re_path(
         r'^incomplete-proposal/(?P<proposal_id>\d+)/$',
         incomplete_proposal,
         name='incomplete_proposal',
     ),
-    url(
+    re_path(
         r'^incomplete-proposal/delete/(?P<proposal_id>\d+)/$',
         delete_incomplete_proposal,
         name='delete_incomplete_proposal',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/view/$',
         proposal_view,
         name='proposal_view_submitted',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/submission-email/$',
         ProposalSubmissionEmail.as_view(),
         name='proposal_submission_email',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/history/$',
         proposal_history,
         name='proposal_history_submitted',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/history/(?P<history_id>\d+)/$',
         proposal_history_view,
         name='proposal_history_view_submitted',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/notes/(?P<note_id>\d+)/$',
         proposal_notes,
         name='submission_notes_view',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/notes/update/(?P<note_id>\d+)/$',
         proposal_update_note,
         name='submission_notes_update',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/notes/add$',
         proposal_add_note,
         name='submission_notes_add',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/revisions/$',
         proposal_revisions,
         name='proposal_revisions',
     ),
-    url(
+    re_path(
         r'^proposal/(?P<proposal_id>\d+)/revision-submission-email/$',
         ProposalRevisionCompleteEmail.as_view(),
         name='proposal_revisions_submitted',
