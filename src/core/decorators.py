@@ -632,7 +632,7 @@ def is_onetasker(_function):
         elif submission_id:
             book = get_object_or_404(models.Book, pk=submission_id)
             if (
-                request.user in book.onetaskers() or
+                request.user in book.get_onetaskers() or
                 request.user in book.get_all_editors() or
                 book.owner == request.user
             ):

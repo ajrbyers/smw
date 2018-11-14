@@ -478,7 +478,7 @@ def get_all_user_emails(term):
 
 def get_onetasker_emails(submission_id, term):
     submission = get_object_or_404(models.Book, pk=submission_id)
-    onetaskers = submission.onetaskers()
+    onetaskers = submission.get_onetaskers()
 
     results = []
     for user in onetaskers:

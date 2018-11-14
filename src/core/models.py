@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from itertools import chain
 import os
 import uuid
 
@@ -11,6 +12,7 @@ from django.utils.encoding import smart_text
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
+from editorialreview import models as er_models
 from revisions import models as revision_models
 from submission import models as submission_models
 
@@ -1030,30 +1032,20 @@ class Book(models.Model):
     def chapters(self):
         return self.chapter_set.all()
 
-    def onetaskers(self):
-        copyedit_assignments = CopyeditAssignment.objects.filter(book=self)
-        index_assignments = IndexAssignment.objects.filter(book=self)
-        typeset_assignments = TypesetAssignment.objects.filter(book=self)
-        review_assignments = ReviewAssignment.objects.filter(book=self)
-        users = []
+    def get_onetaskers(self):
+        return list(
+            chain(
+                User.objects.filter(reviewassignment__book=self),
+                User.objects.filter(
+                    editorialreview__object_id=self.id,
+                    editorialreview__content_type__model='book'
+                ),
+                User.objects.filter(copyeditor__book=self),
+                User.objects.filter(indexer__book=self),
+                User.objects.filter(typesetter__book=self)
+            )
+        )
 
-        for assignment in copyedit_assignments:
-            user = assignment.copyeditor
-            if user not in users:
-                users.append(user)
-        for assignment in index_assignments:
-            user = assignment.indexer
-            if user not in users:
-                users.append(user)
-        for assignment in typeset_assignments:
-            user = assignment.typesetter
-            if user not in users:
-                users.append(user)
-        for assignment in review_assignments:
-            user = assignment.user
-            if user not in users:
-                users.append(user)
-        return users
 
     def get_series_editor(self):
         """Gets the editor of this book's series, if it is part of one.

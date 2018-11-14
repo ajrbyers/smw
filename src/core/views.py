@@ -984,7 +984,7 @@ def get_proposal_users(request, proposal_id):
 def email_users(request, group, submission_id=None, user_id=None):
     submission = get_object_or_404(models.Book, pk=submission_id)
     editors = logic.get_editors(submission)
-    onetaskers = submission.onetaskers()
+    onetaskers = submission.get_onetaskers()
     to_value = ""
     sent = False
 
@@ -1079,9 +1079,9 @@ def email_users(request, group, submission_id=None, user_id=None):
                 )
 
         elif group == "onetaskers":
-            user = get_object_or_404(models.User, pk=user_id)
-            if user in onetaskers:
-                to_value = "%s;" % user.email
+            recipient = get_object_or_404(models.User, pk=user_id)
+            if recipient in onetaskers:
+                to_value = "%s;" % recipient.email
             else:
                 messages.add_message(
                     request,
@@ -1100,12 +1100,7 @@ def email_users(request, group, submission_id=None, user_id=None):
 
     group_name = group
 
-    if (
-            not group_name == "editors" and
-            not group_name == "all" and
-            not group_name == "authors" and
-            not group_name == "onetaskers"
-    ):
+    if group_name not in ("editors", "all", "authors", "onetaskers"):
         messages.add_message(
             request,
             messages.ERROR,
@@ -1215,14 +1210,15 @@ def email_general(request, user_id=None):
 @login_required
 def email_users_proposal(request, proposal_id, user_id):
     proposal = get_object_or_404(submission_models.Proposal, pk=proposal_id)
-    proposal_reviews = submission_models.ProposalReview.objects.filter(
-        proposal=proposal,
-    )
-    user = User.objects.get(pk=user_id)
-    list_of_reviewers = []
 
-    for review in proposal_reviews:
-        list_of_reviewers.append(review.user)
+    recipient = User.objects.get(pk=user_id)
+
+    peer_reviewers = User.objects.filter(proposalreview__proposal=proposal)
+    editorial_reviewers = User.objects.filter(
+        editorialreview__object_id=proposal.id,
+        editorialreview__content_type__model='proposal',
+    )
+    reviewers = peer_reviewers | editorial_reviewers
 
     to_value = ""
     sent = False
@@ -1287,21 +1283,17 @@ def email_users_proposal(request, proposal_id, user_id):
                 'window.close()</script>'
             )
 
-    if (
-            not proposal.owner == user and
-            not proposal.requestor == user and
-            user not in list_of_reviewers
-    ):
+    if recipient in set(reviewers).union({proposal.owner, proposal.requestor}):
+        to_value = "%s;" % recipient.email
+    else:
         messages.add_message(
             request,
             messages.ERROR,
             "This user is not associated with this proposal"
         )
-    else:
-        to_value = "%s;" % user.email
 
-    if user.profile.is_editor():
-        to_value = "%s;" % user.email
+    if recipient.profile.is_editor():
+        to_value = "%s;" % recipient.email
 
     source = "/email/user/proposal/%s/" % proposal_id
     template = 'core/email.html'
