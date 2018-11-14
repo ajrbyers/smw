@@ -1469,7 +1469,7 @@ class CoreTests(TestCase):
         self.author = models.Author.objects.get(pk=1)
         self.book = models.Book.objects.get(pk=1)
         self.book.save()
-        onetaskers = self.book.onetaskers()
+        onetaskers = self.book.get_onetaskers()
 
         # check that it exists in the database
         self.assertEqual(len(models.Book.objects.all()) == 1, True)
