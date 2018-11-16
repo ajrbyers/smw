@@ -2259,11 +2259,10 @@ def assign_proposal(request):
             )
 
             for field in file_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.FILES:
-                    save_dict[field_name] = [
+                if field.element.name in request.FILES:
+                    save_dict[field.element.name] = [
                         handle_proposal_file_form(
-                            request.FILES[field_name],
+                            request.FILES[field.element.name],
                             _proposal,
                             'other',
                             request.user,
@@ -2272,10 +2271,9 @@ def assign_proposal(request):
                     ]
 
             for field in data_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.POST:
-                    save_dict[field_name] = [
-                        request.POST.get(field_name),
+                if field.element.name in request.POST:
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name),
                         'text'
                     ]
 
@@ -2539,11 +2537,10 @@ def proposal_assign_edit(request, proposal_id):
             )
 
             for field in file_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.FILES:
-                    save_dict[field_name] = [
+                if field.element.name in request.FILES:
+                    save_dict[field.element.name] = [
                         handle_proposal_file_form(
-                            request.FILES[field_name],
+                            request.FILES[field.element.name],
                             _proposal,
                             'other',
                             request.user,
@@ -2552,10 +2549,9 @@ def proposal_assign_edit(request, proposal_id):
                     ]
 
             for field in data_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.POST:
-                    save_dict[field_name] = [
-                        request.POST.get(field_name),
+                if field.element.name in request.POST:
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name),
                         'text'
                     ]
 
@@ -2722,7 +2718,7 @@ def create_proposal_form(proposal):
     data = json.loads(proposal.data)
 
     for relation in relations:
-        v = data.get(logic.ascii_encode(relation.element.name))
+        v = data.get(relation.element.name)
         if v:
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
@@ -3361,11 +3357,10 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
             )
 
             for field in file_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.FILES:
-                    save_dict[field_name] = [
+                if field.element.name in request.FILES:
+                    save_dict[field.element.name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field_name],
+                            request.FILES[field.element.name],
                             'proposal',
                             review_assignment,
                             'reviewer'
@@ -3373,10 +3368,9 @@ def view_completed_proposal_review(request, proposal_id, assignment_id):
                     ]
 
             for field in data_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.POST:
-                    save_dict[field_name] = [
-                        request.POST.get(field_name),
+                if field.element.name in request.POST:
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name),
                         'text'
                     ]
 
@@ -3630,11 +3624,10 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
             )
 
             for field in file_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.FILES:
-                    save_dict[field_name] = [
+                if field.element.name in request.FILES:
+                    save_dict[field.element.name] = [
                         review_logic.handle_review_file(
-                            request.FILES[field_name],
+                            request.FILES[field.element.name],
                             'proposal',
                             review_assignment,
                             'reviewer'
@@ -3642,10 +3635,9 @@ def view_proposal_review(request, proposal_id, assignment_id, access_key=None):
                     ]
 
             for field in data_fields:
-                field_name = logic.ascii_encode(field.element.name)
-                if field_name in request.POST:
-                    save_dict[field_name] = [
-                        request.POST.get(field_name),
+                if field.element.name in request.POST:
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name),
                         'text'
                     ]
             json_data = smart_text(json.dumps(save_dict))
@@ -4415,7 +4407,7 @@ def create_completed_proposal_review_form(proposal, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            v = data.get(logic.ascii_encode(relation.element.name))
+            v = data.get(relation.element.name)
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(smart_text(v[0]), "html.parser").get_text()
             document.add_paragraph(text).bold = True

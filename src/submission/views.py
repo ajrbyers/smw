@@ -954,11 +954,10 @@ def proposal_data_processing(request, proposal, proposal_form_id):
     )
 
     for field in file_fields:
-        field_name = core_logic.ascii_encode(field.element.name)
-        if field_name in request.FILES:
-            save_dict[field_name] = [
+        if field.element.name in request.FILES:
+            save_dict[field.element.name] = [
                 handle_proposal_file_form(
-                    request.FILES[field_name],
+                    request.FILES[field.element.name],
                     proposal,
                     'other',
                     request.user,
@@ -968,10 +967,9 @@ def proposal_data_processing(request, proposal, proposal_form_id):
 
     for field in data_fields:
         # Ensure ASCII field names.
-        field_name = core_logic.ascii_encode(field.element.name)
-        if field_name in request.POST:
-            save_dict[field_name] = [
-                request.POST.get(field_name), 'text']
+        if field.element.name in request.POST:
+            save_dict[field.element.name] = [
+                request.POST.get(field.element.name), 'text']
 
     json_data = smart_text(json.dumps(save_dict))
     proposal.data = json_data

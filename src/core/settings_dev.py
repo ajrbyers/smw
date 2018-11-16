@@ -1,8 +1,8 @@
 # ## GENERIC CONFIG ##
 
-SECRET_KEY = '_%@8*2$*1*i&um4+#a6w(%xqa_19=tfmhu9u-l*7t(a$g(2)wg'
-
 from .settings import *
+
+SECRET_KEY = '_%@8*2$*1*i&um4+#a6w(%xqa_19=tfmhu9u-l*7t(a$g(2)wg'
 
 DEBUG = True
 
@@ -12,6 +12,8 @@ ALLOWED_HOSTS = [
 ]
 
 SESSION_COOKIE_NAME = 'rua_cookie'
+
+STATIC_URL = '/static/'
 
 MIDDLEWARE += 'debug_toolbar.middleware.DebugToolbarMiddleware',
 INSTALLED_APPS += 'debug_toolbar',
@@ -32,6 +34,10 @@ DATABASES = {
 
 
 # ## EXTERNAL SERVICES ##
+
+RAVEN_CONFIG = None
+SENTRY_RELEASE = None
+SENTRY_DSN = None
 
 ORCID_API_URL = 'http://pub.orcid.org/v1.2_rc7/'
 ORCID_REDIRECT_URI = 'http://localhost:8002/login/orcid/'

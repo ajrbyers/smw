@@ -172,7 +172,7 @@ def published_books(request):
 @is_book_editor
 def editor_notes(request, submission_id, note_id=None):
     book = get_object_or_404(models.Book, pk=submission_id)
-    notes = models.Note.objects.filter(book=book)
+    notes = models.Note.objects.filter(book=book).order_by('-date_submitted')
     updated = False
 
     if note_id:
@@ -621,6 +621,8 @@ def editor_review_round(request, submission_id, round_number):
         review_round__round_number=round_number
     ).select_related(
         'user', 'review_round'
+    ).order_by(
+        '-assigned'
     )
 
     editorial_review_assignments = (

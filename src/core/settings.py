@@ -145,8 +145,9 @@ STATICFILES_DIRS = (
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-BOOK_DIR = os.path.join('files', 'books')
+FORM_DIR = os.path.join('files', 'forms')
 PROPOSAL_DIR = os.path.join('files', 'proposals')
+BOOK_DIR = os.path.join('files', 'books')
 EMAIL_DIR = os.path.join('files', 'email', 'general')
 
 MEDIA_URL = '/media/'

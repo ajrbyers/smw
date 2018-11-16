@@ -5,228 +5,248 @@
 {% block title %}Submission{% endblock %}
 
 {% block css %}
-<style type="text/css">
-    body {
-        overflow:hidden;
-    }
-    .navbar {
-        margin-bottom: 0px !important;
-    }
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
 
-    .timeline > li > .timeline-badge{
-        left: 92% !important;
-    }
+        .navbar {
+            margin-bottom: 0px !important;
+        }
 
-    .timeline > li > .timeline-panel {
-        width: 80% !important;
-        float: none;
-    }
+        .timeline > li > .timeline-badge {
+            left: 92% !important;
+        }
 
-    .timeline:before {
-        left: 92% !important;
-    }
-</style>
-<link href="{% static "css/timeline.css" %}" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+        .timeline > li > .timeline-panel {
+            width: 80% !important;
+            float: none;
+        }
+
+        .timeline:before {
+            left: 92% !important;
+        }
+    </style>
+    <link href="{% static "css/timeline.css" %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+          href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {% endblock %}
 
 {% block body %}
 
-<div class="row ">
-    <div class="col-md-12 book-heading container-fluid ">
-        <h3>Book {{ submission.id }}: {{ submission.title }}</h3>
-    </div>
-    <div class="col-md-3 dash-left bottom-space" style="background-color: #EBEBEB;">
-         <div class="dash-container" >
-            <h4 class="header-text">  {% if submission.prefix %}{{ submission.prefix }} {% endif %}{{ submission.title }}</h4> 
-            <h5 class="subtitle-text">{{submission.subtitle}}</h5>
+    <div class="row ">
+        <div class="col-md-12 book-heading container-fluid ">
+            <h3>Book {{ submission.id }}: {{ submission.title }}</h3>
         </div>
-          <div class="book-info">
-        <table class="table table-bordered table-condensed small">
-            <tr>
-                <th>Series</th>
-                <td>{{ submission.series }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ submission.get_book_type_display }}</td>
-            </tr>
-            <tr>
-                <th>License</th>
-                <td>{{ submission.license.short_name }}</td>
-            </tr>
-            <tr>
-                <th>Review Type</th>
-                <td>{{ submission.get_review_type_display }}</td>
-            </tr>
-               <tr>
-                <th>Expected Completion Date</th>
-                <td>{% if submission.expected_completion_date %}{{ submission.expected_completion_date|date:"Y-m-d" }}{% else %} None {% endif %}</td>
-            </tr>
-        </table>
-      </div>
-        <a href="{% url 'editor_tasks' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'my_tasks' %}current{% endifequal %}">
-            <h5>My Tasks <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
+        <div class="col-md-3 dash-left bottom-space"
+             style="background-color: #EBEBEB;">
+            <div class="dash-container">
+                <h4 class="header-text">{% if submission.prefix %}
+                    {{ submission.prefix }} {% endif %}{{ submission.title }}</h4>
+                <h5 class="subtitle-text">{{ submission.subtitle }}</h5>
+            </div>
+            <div class="book-info">
+                <table class="table table-bordered table-condensed small">
+                    <tr>
+                        <th>Series</th>
+                        <td>{{ submission.series }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ submission.get_book_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>License</th>
+                        <td>{{ submission.license.short_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Review Type</th>
+                        <td>{{ submission.get_review_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Expected Completion Date</th>
+                        <td>{% if submission.expected_completion_date %}
+                            {{ submission.expected_completion_date|date:"Y-m-d" }}{% else %}
+                            None {% endif %}</td>
+                    </tr>
+                </table>
+            </div>
+            <a href="{% url 'editor_tasks' submission.pk %}">
+                <div class="dash-menu {% ifequal active_page 'my_tasks' %}current{% endifequal %}">
+                    <h5>My Tasks <i class="fa fa-chevron-right pull-right"></i>
+                    </h5>
+                </div>
+            </a>
 
-        <a href="{% url 'editor_status' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'status' %}current{% endifequal %}">
-            <h5>Current Status <i class="fa fa-chevron-right pull-right"></i></h5>
+            <a href="{% url 'editor_status' submission.pk %}">
+                <div class="dash-menu {% ifequal active_page 'status' %}current{% endifequal %}">
+                    <h5>Current Status <i
+                            class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            <a href="{% url 'editor_submission' submission.pk %}">
+                <div class="dash-menu {% ifequal active_page 'editor_submission' %}current{% endifequal %}">
+                    <h5>Submission Details <i
+                            class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            <a href="{% url 'editor_notes' submission.pk %}">
+                <div class="dash-menu {% ifequal active_page 'notes' %}current{% endifequal %}">
+                    <h5>Notes &nbsp; <span class="badge circle"
+                                           style="background-color:#5bc0de"> {{ submission.number_of_notes }} </span>
+                        <i class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            {% if submission.stage.review %}
+                <a href="{% url 'editor_review' submission.pk %}">
+                    <div class="dash-menu {% ifequal active_page 'editor_review' %}current{% endifequal %}">
+                        <h5>Review <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
+            {% endif %}
+            {% if submission.stage.editing %}
+                <a href="{% url 'editor_editing' submission.pk %}">
+                    <div class="dash-menu {% ifequal active_page 'editing' %}current{% endifequal %}">
+                        <h5>Editing <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
+            {% endif %}
+            {% if submission.stage.production %}
+                <a href="{% url 'editor_production' submission.id %}">
+                    <div class="dash-menu {% ifequal active_page 'production' %}current{% endifequal %}">
+                        <h5>Production <i
+                                class="fa fa-chevron-right pull-right"></i></h5>
+                    </div>
+                </a>
+            {% endif %}
+            <a href="{% url 'catalog' submission.id %}">
+                <div class="dash-menu {% ifequal active_page 'catalog_view' %}current{% endifequal %}">
+                    <h5>Catalog <i class="fa fa-chevron-right pull-right"></i>
+                    </h5>
+                </div>
+            </a>
+            <a href="{% url 'view_log' submission.id %}">
+                <div class="dash-menu">
+                    <h5>Logs <i class="fa fa-chevron-right pull-right"></i></h5>
+                </div>
+            </a>
+            {% include "editor/snippets/available_actions.html" %}
         </div>
-        </a>
-        <a href="{% url 'editor_submission' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'editor_submission' %}current{% endifequal %}">
-            <h5>Submission Details <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-         <a href="{% url 'editor_notes' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'notes' %}current{% endifequal %}">
-            <h5>Notes   &nbsp; <span class="badge circle" style="background-color:#5bc0de"> {{submission.number_of_notes}} </span> <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% if submission.stage.review %}
-        <a href="{% url 'editor_review' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'editor_review' %}current{% endifequal %}">
-            <h5>Review <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-        {% if submission.stage.editing %}
-        <a href="{% url 'editor_editing' submission.pk %}">
-        <div class="dash-menu {%ifequal active_page 'editing' %}current{% endifequal %}">
-            <h5>Editing <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-        {% if submission.stage.production %}
-        <a href="{% url 'editor_production' submission.id %}">
-        <div class="dash-menu {%ifequal active_page 'production' %}current{% endifequal %}">
-            <h5>Production <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% endif %}
-        <a href="{% url 'catalog' submission.id %}">
-        <div class="dash-menu {%ifequal active_page 'catalog_view' %}current{% endifequal %}">
-            <h5>Catalog <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-         <a href="{% url 'view_log' submission.id %}">
-        <div class="dash-menu">
-            <h5>Logs <i class="fa fa-chevron-right pull-right"></i></h5>
-        </div>
-        </a>
-        {% include "editor/snippets/available_actions.html" %}
-    </div>
 
-    <div class="col-md-5 dash-center bottom-space">
-        <div class="dash-container">
-        {% if author_include %}
-            {% include author_include %}
-        {% endif %}
+        <div class="col-md-5 dash-center bottom-space">
+            <div class="dash-container">
+                {% if author_include %}
+                    {% include author_include %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4 dash-right bottom-space">
+            <div class="dash-container">
+                {% if submission_files %}
+                    {% include submission_files %}
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="col-md-4 dash-right bottom-space">
-        <div class="dash-container">
-        {% if submission_files %}
-            {% include submission_files %}
-        {% endif %}
-        </div>
-    </div>
-</div>
 
 {% endblock %}
 
 
 {% block js %}
-<script language="javascript" type="text/javascript">
-<!--
-function popitup(url,title) {
-    newwindow=window.open(url,title,'height=750,width=600');
-    if (window.focus) {newwindow.focus()}
-    return false;
-}
+    <script language="javascript" type="text/javascript">
+        <!--
+        function popitup(url, title) {
+            newwindow = window.open(url, title, 'height=750,width=600');
+            if (window.focus) {
+                newwindow.focus()
+            }
+            return false;
+        }
 
-// -->
-</script>
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script>
-  $(document).ready(function() {
-      $('#bookeditors').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-       $('#allauthors').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-        $('#bookauthors').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-         $('#book_editors').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-      $('#indv-reviewer').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-      $('#assignment-files').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-       $('#typeset-assignments').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-       $('#copyedit-assignments').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-       $('#index-assignments').DataTable({
-        "lengthMenu": [[5,10,25], [5, 10, 25, 50, "All"]]
-      });
-  } );
+        // -->
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#bookeditors').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#allauthors').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#bookauthors').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#book_editors').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#indv-reviewer').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#assignment-files').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#typeset-assignments').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#copyedit-assignments').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+            $('#index-assignments').DataTable({
+                "lengthMenu": [[5, 10, 25], [5, 10, 25, 50, "All"]]
+            });
+        });
 
-</script>
-<script type="text/javascript" src="{% static "js/messages.js" %}"></script>
-<script type="text/javascript" src="{% static "js/fancyfile.js" %}"></script>
-<script type="text/javascript">$("textarea").jqte();</script>
-<script type="text/javascript">
-$(document).ready(function() {
-      $('#due_date').datepicker({ dateFormat: 'yy-mm-dd' }).val();
-  });
-</script>
-<script type="text/javascript">
-$(document).ready(function() {
-      $('#id_due').datepicker({ dateFormat: 'yy-mm-dd' }).val();
-  });
-</script>
-<script type="text/javascript">
-$(document).ready(function() {
-      $('#id_author_due').datepicker({ dateFormat: 'yy-mm-dd' }).val();
-  });
-</script>
+    </script>
+    <script type="text/javascript" src="{% static "js/messages.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "js/fancyfile.js" %}"></script>
+    <script type="text/javascript">$("textarea").jqte();</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#due_date').datepicker({dateFormat: 'yy-mm-dd'}).val();
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#id_due').datepicker({dateFormat: 'yy-mm-dd'}).val();
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#id_author_due').datepicker({dateFormat: 'yy-mm-dd'}).val();
+        });
+    </script>
 
-<script src="{% static "js/tag-it.min.js" %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#tags").tagit(
-        {allowSpaces: true});
-  });
-</script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#stags").tagit(
-        {allowSpaces: true});
-  });
-</script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#disabled-tags").tagit(
-        {readOnly: true});
-  });
-</script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $("#disabled-stags").tagit(
-        {readOnly: true});
-  });
-</script>
+    <script src="{% static "js/tag-it.min.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#tags").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#stags").tagit(
+                {allowSpaces: true});
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#disabled-tags").tagit(
+                {readOnly: true});
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#disabled-stags").tagit(
+                {readOnly: true});
+        });
+    </script>
 
 {% endblock js %}

@@ -1,9 +1,13 @@
 {% load dict_lookup %}
-{% load ascii_encode %}
+
 
 <h6>You may <a href="
-        {% if review.access_key %}{% url 'generate_review_form_access_key' review.review_type review.book.id review.id review.access_key %}{% else %}{% url 'generate_review_form' review.review_type review.book.id  review.id %}{% endif %}">download</a>
-    the completed review form if you want.</h6>
+    {% if review.access_key %}
+        {% url 'generate_review_form_access_key' review.review_type review.book.id review.id review.access_key %}
+    {% else %}
+        {% url 'generate_review_form' review.review_type review.book.id  review.id %}
+    {% endif %}">
+    download</a> the completed review form if you want.</h6>
 <br>
 <h4>{% if book.review_type == 'open-with' or active == 'review' %}Review by
     {{ review.user.profile.full_name }}{% else %}This review is
@@ -24,10 +28,10 @@
 {% endif %}
 <hr/>
 <h4>Review: </h4>
-<div style="clear:both"></div>
+<div class="clear"></div>
 {% for item in data_ordered %}
     <div>
         <label>{{ item.0 }}</label>
-        <p>{% lookup result.data item.0|ascii_encode %} </p>
+        <p>{% lookup result.data item.0 %} </p>
     </div>
 {% endfor %}

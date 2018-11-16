@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load bootstrap3 %}
-{% load ascii_encode %}
+
 
 {% block title %}{% endblock %}
 
@@ -38,7 +38,7 @@
             <div class="panel-heading"><span class="panel-heading"><b>{{ field.element.name }} </b></span></div>
             <div class="panel-body">
                 {% for k,v in data.items %}
-                    {% if k == field.element.name|ascii_encode %}
+                    {% if k == field.element.name %}
                         {% ifequal field.element.field_type 'upload' %}
                             <a href="{% url 'serve_proposal_file_id' proposal.id  v.0 %}">Download</a>
                         {% else %}

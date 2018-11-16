@@ -104,7 +104,6 @@ urlpatterns = [
         editor_decision,
         name='editor_decision'
     ),
-
     re_path(
         r'^submission/(?P<submission_id>\d+)/notes/$',
         editor_notes,

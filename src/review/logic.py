@@ -226,8 +226,7 @@ def create_completed_review_form(submission, review_id):
         data = json.loads(review_assignment.results.data)
 
         for relation in relations:
-            field_name = core_logic.ascii_encode(relation.element.name)
-            v = data[field_name]
+            v = data[relation.element.name]
             document.add_heading(relation.element.name, level=1)
             text = BeautifulSoup(
                 (v[0]).encode('utf-8'),

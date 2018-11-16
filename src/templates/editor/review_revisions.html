@@ -1,91 +1,115 @@
-<h2>Review Rounds <form method="post" action="{% url 'editor_review' submission.id %}">{% csrf_token %}<button type="submit" name="new_round" class="btn btn-sm btn-accept pull-right" style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>Start New Round</button></h2>
+<h2>Review Rounds
+    <form method="post" action="{% url 'editor_review' submission.id %}">
+        {% csrf_token %}
+        <button type="submit" name="new_round"
+                class="btn btn-sm btn-accept pull-right"
+                style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>
+            Start New Round
+        </button>
+    </form>
+</h2>
 <table class="table table-bordered table-condensed">
-	<tr>
-		<th>Round</th>
-		<th>Started on</th>
-		<th></th>
-	</tr>
-	{% for round in review_rounds %}
-  {% ifequal review_round round %}
-  <tr class="selected-row-table">
-  {% else %}
-	<tr>
+    <tr>
+        <th>Round</th>
+        <th>Started on</th>
+        <th></th>
+    </tr>
+    {% for round in review_rounds %}
+        {% ifequal review_round round %}
+            <tr class="selected-row-table">
+        {% else %}
+            <tr>
+        {% endifequal %}
+    <td>{{ round.round_number }}</td>
+    <td>{{ round.date_started }}</td>
+    {% ifequal review_round round %}
+        <td class="selected-row-table-arrow">
+    {% else %}
+        <td>
     {% endifequal %}
-		<td>{{ round.round_number }}</td>
-		<td>{{ round.date_started }}</td>
-		{% ifequal review_round round %}
-      <td class="selected-row-table-arrow">
-      {% else %}
-      <td>
-      {% endifequal %} <a href="{% url 'editor_review_round' submission.id round.round_number %}" class="btn btn-task">View</a></td>
-	</tr>
-  {% empty %}
-  <tr>
-    <td colspan="3"> No review rounds found. </td>
-  </tr>
-	{% endfor %}
+        <a href="{% url 'editor_review_round' submission.id round.round_number %}"
+            class="btn btn-task">View</a>
+        </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="3"> No review rounds found.</td>
+        </tr>
+    {% endfor %}
 </table>
 
 {% if revision_requests %}
-  <hr />
-  <h2>Revisions Requests <a href="{% url 'request_revisions' submission.id 'review' %}"
-                            class="btn btn-xs btn-task pull-right"><i class="fa fa-plus">&nbsp;</i>Request Revisions</a></h2>
-  <table class="table table-bordered">
-    <tr>
-      <th>Revision</th>
-      <th>Requested</th>
-      <th>Due</th>
-    </tr>
-    {% for revision in revision_requests %}
-    {% ifequal revision.id revision_id %}
-  <tr class="selected-row-table">
-  {% else %}
-  <tr>
-    {% endifequal %}
-    	<td>Revision {{ forloop.counter }} </td>
-    	<td>{{ revision.requested }}</td>
-    	   {% ifequal revision.id revision_id %}
-      <td class="selected-row-table-arrow"
-      {% else %}
-      <td
-      {% endifequal %} width="25%">{% if revision.completed %}
-          <a class="btn btn-task" href="{% url 'editor_view_revisions' submission.id revision.id %}">View</a>
-          {% else %}<small>{{ revision.due }} <a href="{% url 'editor_change_revision_due_date' submission.id revision.id %}"><i class="fa fa-edit">&nbsp;</i></a></small>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
+    <hr/>
+    <h2>Revisions Requests <a
+            href="{% url 'request_revisions' submission.id 'review' %}"
+            class="btn btn-xs btn-task pull-right"><i
+            class="fa fa-plus">&nbsp;</i>Request Revisions</a></h2>
+    <table class="table table-bordered">
+        <tr>
+            <th>Revision</th>
+            <th>Requested</th>
+            <th>Due</th>
+        </tr>
+        {% for revision in revision_requests %}
+            {% ifequal revision.id revision_id %}
+                <tr class="selected-row-table">
+            {% else %}
+                <tr>
+            {% endifequal %}
+        <td>Revision {{ forloop.counter }} </td>
+        <td>{{ revision.requested }}</td>
+        {% ifequal revision.id revision_id %}
+            <td class="selected-row-table-arrow"
+        {% else %}
+            <td
+        {% endifequal %} width="25%">{% if revision.completed %}
+            <a class="btn btn-task"
+               href="{% url 'editor_view_revisions' submission.id revision.id %}">View</a>
+        {% else %}
+            <small>{{ revision.due }} <a
+                    href="{% url 'editor_change_revision_due_date' submission.id revision.id %}"><i
+                    class="fa fa-edit">&nbsp;</i></a></small>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endif %}
 {% if press.general.editorial_assignment_feature %}
     <hr>
     <h2>Editorial Review Assignments</h2>
-    <a href="{% url 'add_editorial_review' 'submission' submission.id %}" class="btn btn-sm btn-accept pull-right"
+    <a href="{% url 'add_editorial_review' 'submission' submission.id %}"
+       class="btn btn-sm btn-accept pull-right"
        style="margin-bottom:5px"><i class="fa fa-plus">&nbsp;</i>Create
     </a>
 
     <table class="table table-bordered">
         <tr>
-          <th>Editorial Reviewer</th>
-          <th>Info</th>
-          <th style="border-right-width: 1"></th>
+            <th>Editorial Reviewer</th>
+            <th>Info</th>
+            <th style="border-right-width: 1"></th>
         </tr>
-    {% for review in editorial_review_assignments %}
-        <tr>
-        <td>{{ review.user.profile.full_name }}</td>
-        <td>
-            {% if review.completed %}
-            <font color="green">Completed: {{ review.completed }}</font>
-            {% else %}
-                {% if review.is_overdue %}
-                    <font color="red">Overdue: {{ review.due }}</font>
-                {% else %}
-                    Due: {{ review.due }}
-                {% endif %}
-            {% endif %}
-        </td>
-        <td width="25%"><a class="btn btn-task" href="{% url 'editor_view_editorial_review' submission.id review.id %}">View</a></td>
-        </tr>
+        {% for review in editorial_review_assignments %}
+            <tr>
+                <td>{{ review.user.profile.full_name }}</td>
+                <td>
+                    {% if review.completed %}
+                        <span style="color: green">Completed: {{ review.completed }}</span>
+                    {% else %}
+                        {% if review.is_overdue %}
+                            <span style="color: green" >Overdue: {{ review.due }}</span>
+                        {% else %}
+                            Due: {{ review.due }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td width="25%">
+                    <a class="btn btn-task"
+                       href="{% url 'editor_view_editorial_review' submission.id review.id %}">
+                        View
+                    </a>
+                </td>
+            </tr>
         {% empty %}
-        <td colspan="4"> No assignments found.</td>
-    {% endfor %}
+            <td colspan="4"> No assignments found.</td>
+        {% endfor %}
     </table>
 {% endif %}

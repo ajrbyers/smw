@@ -716,11 +716,10 @@ def review(request, review_type, submission_id, review_round, access_key=None):
             )
 
             for field in file_fields:
-                field_name = core_logic.ascii_encode(field.element.name)
-                if field_name in request.FILES:
-                    save_dict[field_name] = [
+                if field.element.name in request.FILES:
+                    save_dict[field.element.name] = [
                         handle_review_file(
-                            request.FILES[field_name],
+                            request.FILES[field.element.name],
                             'book',
                             review_assignment,
                             'reviewer'
@@ -728,10 +727,9 @@ def review(request, review_type, submission_id, review_round, access_key=None):
                     ]
 
             for field in data_fields:
-                field_name = core_logic.ascii_encode(field.element.name)
-                if field_name in request.POST:
-                    save_dict[field_name] = [
-                        request.POST.get(field_name),
+                if field.element.name in request.POST:
+                    save_dict[field.element.name] = [
+                        request.POST.get(field.element.name),
                         'text',
                     ]
 

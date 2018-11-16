@@ -357,7 +357,7 @@
                             <div class="col-md-6">
                                 <label>Current Cover</label>
                                 {% if submission.cover %}
-                                    <img src="{% static submission.cover %}"
+                                    <img src="{% static submission.cover.name %}"
                                          class="img-responsive"
                                          style="max-height: 500px;"/>
                                 {% else %}

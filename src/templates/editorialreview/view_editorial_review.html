@@ -2,7 +2,7 @@
 {% load static from staticfiles %}
 {% load bootstrap3 %}
 {% load dict_lookup %}
-{% load ascii_encode %}
+
 
 {% block css %}
     <link href="{% static "css/timeline.css" %}" rel="stylesheet">
@@ -30,7 +30,7 @@
     {% for item in data_ordered %}
         <div>
             <label>{{ item.0 }}</label>
-            <p>{% lookup result.data item.0|ascii_encode %}</p>
+            <p>{% lookup result.data item.0 %}</p>
         </div>
     {% endfor %}
     <br/><br/>
