@@ -1039,8 +1039,7 @@ def handle_file(request, file):
         ';', '_'
     )
     filename = str(uuid4()) + str(os.path.splitext(original_filename)[1])
-    directory_path = os.path.join('media', 'settings')
-    file_path = os.path.join(directory_path, str(filename))
+    file_path = os.path.join(settings.SETTINGS_MEDIA_DIR, filename)
 
     with default_storage.open(file_path, 'wb') as file_stream:
         for chunk in file.chunks():
