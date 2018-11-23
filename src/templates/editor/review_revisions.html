@@ -85,7 +85,7 @@
         <tr>
             <th>Editorial Reviewer</th>
             <th>Info</th>
-            <th style="border-right-width: 1"></th>
+            <th style="border-right-width: 1px"></th>
         </tr>
         {% for review in editorial_review_assignments %}
             <tr>
@@ -95,7 +95,7 @@
                         <span style="color: green">Completed: {{ review.completed }}</span>
                     {% else %}
                         {% if review.is_overdue %}
-                            <span style="color: green" >Overdue: {{ review.due }}</span>
+                            <span style="color: red" >Overdue: {{ review.due }}</span>
                         {% else %}
                             Due: {{ review.due }}
                         {% endif %}

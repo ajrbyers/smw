@@ -62,7 +62,7 @@
 	  "hideEasing": "linear",
 	  "showMethod": "fadeIn",
 	  "hideMethod": "fadeOut"
-	}
+	};
 		{% for message in messages %}
 		{% ifequal message.tags "warning" %}
 				toastr.warning("{{ message }}");
