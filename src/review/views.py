@@ -895,7 +895,8 @@ class ReviewCompletionEmail(FormView):
         )
         self.review_assignment = get_object_or_404(
             core_models.ReviewAssignment,
-            pk=self.kwargs.get('review_assignment_id')
+            pk=self.kwargs.get('review_assignment_id'),
+            access_key=self.access_key,
         )
 
         self.recipient_editors = []

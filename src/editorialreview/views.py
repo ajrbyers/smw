@@ -506,10 +506,20 @@ class EditorialReviewCompletionEmail(FormView):
 
     @method_decorator(is_editor_or_ed_reviewer)
     def dispatch(self, request, *args, **kwargs):
-        self.review = get_object_or_404(
-            models.EditorialReview,
-            pk=self.kwargs['review_id']
-        )
+        access_key = self.request.GET.get('access_key')
+
+        if access_key:
+            self.review = get_object_or_404(
+                models.EditorialReview,
+                pk=self.kwargs['review_id'],
+                access_key=access_key,
+            )
+        else:
+            self.review = get_object_or_404(
+                models.EditorialReview,
+                pk=self.kwargs['review_id'],
+            )
+
         self.proposal = (
             self.review.content_object if isinstance(
                 self.review.content_object,

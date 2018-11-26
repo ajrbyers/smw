@@ -229,7 +229,7 @@ def copy_table_rows(
         postgres_session,
         table_name,
 ):
-    print('copy', table_name)
+    print('copying', table_name)
     dest_table = Table(
         table_name,
         MetaData(bind=postgres_engine),
@@ -252,6 +252,50 @@ def copy_table_rows(
             data[str(column)] = value
         postgres_session.merge(NewRecord(**data))
     postgres_session.commit()
+
+
+def restart_id_sequence_auto_increment(
+        postgres_engine,
+        table_name,
+):
+    with postgres_engine.connect() as connection:
+
+        id_column_exists = bool(
+            next(
+                connection.execute(
+                    'SELECT COUNT(*) FROM information_schema.columns '
+                    'WHERE table_schema=\'public\' '
+                    f'AND table_name=\'{table_name}\''
+                    'AND column_name=\'id\';'
+                )
+            )[0]
+        )
+
+        if id_column_exists:
+
+            max_id = next(
+                connection.execute(f'SELECT MAX(id) from {table_name}')
+            )[0]
+            # Set the sequence to 1 in cases of no
+            max_id = max_id if max_id else 1
+
+            sequence_exists = bool(
+                next(
+                    connection.execute(
+                        'SELECT COUNT(*) FROM information_schema.sequences '
+                        'WHERE sequence_schema=\'public\' '
+                        f'AND sequence_name=\'{table_name}_id_seq\';'
+                    )
+                )[0]
+            )
+
+    if id_column_exists and sequence_exists:
+        execure_custom_sql(
+            database_engine=postgres_engine,
+            query=(
+                f'ALTER SEQUENCE {table_name}_id_seq RESTART WITH {max_id +1};'
+            )
+        )
 
 
 def copy_table_data_to_postgresdb(
@@ -290,6 +334,10 @@ def copy_table_data_to_postgresdb(
             postgres_session=postgres_session,
             table_name=table_name
         )
+        restart_id_sequence_auto_increment(
+            postgres_engine=postgres_engine,
+            table_name=table_name,
+        )
 
     for klass in mysql_metadata.tables.values():
         if (
@@ -302,6 +350,10 @@ def copy_table_data_to_postgresdb(
                 postgres_engine=postgres_engine,
                 postgres_session=postgres_session,
                 table_name=klass.name
+            )
+            restart_id_sequence_auto_increment(
+                postgres_engine=postgres_engine,
+                table_name=klass.name,
             )
 
     for table_name in DISABLE_TRIGGERS_TABLES:
