@@ -54,11 +54,6 @@ def send_email(
     if not type(to) in [list, tuple]:
         to = [to]
 
-    if request:
-        reply_to = request.user.email
-    else:
-        reply_to = get_setting('from_address', 'email')
-
     msg = EmailMessage(
         subject,
         html_content,
@@ -66,7 +61,7 @@ def send_email(
         to,
         bcc=bcc,
         cc=cc,
-        headers={'Reply-To': reply_to}
+        headers={'Reply-To': from_email}
     )
 
     if access_key:
@@ -160,10 +155,6 @@ def send_email_multiple(
     if not type(to) in [list, tuple]:
         to = [to]
 
-    if request:
-        reply_to = request.user.email
-    else:
-        reply_to = get_setting('from_address', 'email')
 
     msg = EmailMessage(
         subject,
@@ -172,7 +163,7 @@ def send_email_multiple(
         to,
         bcc=bcc,
         cc=cc,
-        headers={'Reply-To': reply_to}
+        headers={'Reply-To': from_email}
     )
 
     if book:
@@ -262,7 +253,7 @@ def send_prerendered_email(
         to,
         bcc=bcc,
         cc=cc,
-        reply_to=[from_email],
+        reply_to=from_email,
     )
 
     if book:
