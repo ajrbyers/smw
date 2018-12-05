@@ -1873,12 +1873,10 @@ def get_file_content_dispostion(original_filename):
 
     # Strip non-ascii characters from filename
     # to avoid a bug where an unusable ZIP file is served
+
     return (
-        "attachment; filename={file_name}".format(
-            file_name=original_filename
+        f"attachment; filename={original_filename}".encode(
+            'ascii',
+            errors='replace'
         )
-        #     .encode(
-        #     'ascii',
-        #     errors='ignore'
-        # )
     )
