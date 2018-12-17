@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Quick'n'dirty script for copying MySQL database for Rua instances.
 'ssh' bash workaround used due to difficulties with ssh tunneling.
@@ -14,18 +15,18 @@ from mysql_to_postgresql import (
     create_postgres_database,
 )
 
+DATABASE_DUMP_DIRECTORY = os.getenv('DATABASE_DUMP_DIRECTORY')
+USER_SSH_KEY_PATH = os.getenv('USER_SSH_KEY_PATH')
+FROM_DATABASE_SSH_USER = os.getenv('FROM_DATABASE_SSH_USER')
 FROM_DATABASE_USER = os.getenv('FROM_DATABASE_USER')
 FROM_DATABASE_PASS = os.getenv('FROM_DATABASE_PASS')
 FROM_DATABASE_HOST = os.getenv('FROM_DATABASE_HOST')
+LOCAL_DATABASE_USER = os.getenv('LOCAL_DATABASE_USER')
+LOCAL_DATABASE_PASS = os.getenv('LOCAL_DATABASE_PASS')
+LOCAL_DATABASE_HOST = os.getenv('LOCAL_DATABASE_HOST')
 TO_DATABASE_USER = os.getenv('TO_DATABASE_USER')
 TO_DATABASE_PASS = os.getenv('TO_DATABASE_PASS')
 TO_DATABASE_HOST = os.getenv('TO_DATABASE_HOST')
-REMOTE_DATABASE_USER = os.getenv('REMOTE_DATABASE_USER')
-REMOTE_DATABASE_PASS = os.getenv('REMOTE_DATABASE_PASS')
-REMOTE_DATABASE_HOST = os.getenv('REMOTE_DATABASE_HOST')
-REMOTE_DATABASE_SSH_USER = os.getenv('REMOTE_DATABASE_SSH_USER')
-USER_SSH_KEY_PATH = os.getenv('USER_SSH_KEY_PATH')
-DATABASE_DUMP_DIRECTORY = os.getenv('DATABASE_DUMP_DIRECTORY')
 
 
 def dump_remote_mysql_production_database(press_code):
@@ -36,15 +37,15 @@ def dump_remote_mysql_production_database(press_code):
         'ssh',
         '-i',
         USER_SSH_KEY_PATH,
-        f'{REMOTE_DATABASE_SSH_USER}@{REMOTE_DATABASE_HOST}',
+        f'{FROM_DATABASE_SSH_USER}@{FROM_DATABASE_HOST}',
         'mysqldump',
         f'rua_{press_code}',
         '>',
         database_dump_filename,
         '--single-transaction',
         '-u',
-        REMOTE_DATABASE_USER,
-        f'-p{REMOTE_DATABASE_PASS}'
+        FROM_DATABASE_USER,
+        f'-p{FROM_DATABASE_PASS}'
     ]
     execute_bash_command(dump_command_args)
 
@@ -57,7 +58,7 @@ def dump_remote_mysql_production_database(press_code):
         'scp',
         '-i',
         USER_SSH_KEY_PATH,
-        f'{REMOTE_DATABASE_SSH_USER}@{REMOTE_DATABASE_HOST}:'
+        f'{FROM_DATABASE_SSH_USER}@{FROM_DATABASE_HOST}:'
         f'~/{database_dump_filename}',
         database_dump_file_path,
     ]
@@ -69,9 +70,9 @@ def dump_remote_mysql_production_database(press_code):
 def create_local_mysql_database(press_code):
     create_mysql_database(
         database_name=press_code,
-        username=FROM_DATABASE_USER,
-        password=FROM_DATABASE_PASS,
-        host=FROM_DATABASE_HOST,
+        username=LOCAL_DATABASE_USER,
+        password=LOCAL_DATABASE_PASS,
+        host=LOCAL_DATABASE_HOST,
     )
 
 
@@ -83,10 +84,10 @@ def load_production_data_to_local_mysql_database(
     load_database_dump_command_args = [
         'mysql',
         '-h',
-        FROM_DATABASE_HOST,
+        LOCAL_DATABASE_HOST,
         '-u',
-        FROM_DATABASE_USER,
-        f'-p{FROM_DATABASE_PASS}',
+        LOCAL_DATABASE_USER,
+        f'-p{LOCAL_DATABASE_PASS}',
         press_code,  # Database name
     ]
     with open(database_dump_location, 'r') as dump_stream:
@@ -120,14 +121,15 @@ def create_remote_postgres_production_database(press_code):
 def copy_rua_production_mysql_database_to_postgresql(press_code):
     copy_from_mysqldb_to_postgresdb(
         mysql_db_name=press_code,
-        mysql_user=FROM_DATABASE_USER,
-        mysql_pass=FROM_DATABASE_PASS,
-        mysql_host=FROM_DATABASE_HOST,
+        mysql_user=LOCAL_DATABASE_USER,
+        mysql_pass=LOCAL_DATABASE_PASS,
+        mysql_host=LOCAL_DATABASE_HOST,
         postgres_db_name=press_code,
         postgres_user=TO_DATABASE_USER,
         postgres_pass=TO_DATABASE_PASS,
         postgres_host=TO_DATABASE_HOST,
     )
+    print('\nData copied succesfully :-)')
 
 
 def migrate_rua_data_for_press(press_code):
@@ -138,7 +140,7 @@ def migrate_rua_data_for_press(press_code):
 
     # Call to create_remote_postgres_production_database missed
     # as remote database creation precedes Django migrations,
-    # which precede this script
+    # which precede this script.
     copy_rua_production_mysql_database_to_postgresql(press_code)
 
 
