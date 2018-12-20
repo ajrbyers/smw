@@ -330,22 +330,13 @@ def revision(request, revision_id, submission_id):
                 )
             )
 
-    has_manuscript = False
-    has_additional = False
-
-    for ff in book.files.all():
-        if ff.kind == 'manuscript':
-            has_manuscript = True
-        elif ff.kind == 'additional':
-            has_additional = True
-
     template = 'author/submission.html'
     context = {
         'submission': book,
         'revision': _revision,
         'form': form,
-        'has_manuscript': has_manuscript,
-        'has_additional': has_additional,
+        'has_manuscript': book.files.filter(kind='manuscript').exists(),
+        'has_additional': book.files.filter(kind='additional').exists(),
         'author_include': 'author/revision.html',
     }
 
@@ -479,11 +470,10 @@ def revise_file(request, submission_id, revision_id, file_id):
         for ff in request.FILES.getlist('update_file'):
             file_label = request.POST.get('file_label', None)
             handle_file_update(
-                ff,
-                _file,
-                book,
-                _file.kind,
-                request.user,
+                new_file=ff,
+                old_file=_file,
+                book=book,
+                owner=request.user,
                 label=file_label,
             )
             messages.add_message(request, messages.INFO, 'File updated.')
@@ -503,6 +493,8 @@ def revise_file(request, submission_id, revision_id, file_id):
         'file': _file,
         'author_include': 'author/revision.html',
         'submission_files': 'author/revise_file.html',
+        'has_manuscript': book.files.filter(kind='manuscript').exists(),
+        'has_additional': book.files.filter(kind='additional').exists(),
         'form': form,
     }
 
@@ -546,6 +538,8 @@ def revision_new_file(request, submission_id, revision_id, file_type):
         'revision': _revision,
         'author_include': 'author/revision.html',
         'submission_files': 'author/revision_new_file.html',
+        'has_manuscript': book.files.filter(kind='manuscript').exists(),
+        'has_additional': book.files.filter(kind='additional').exists(),
         'form': form,
     }
 

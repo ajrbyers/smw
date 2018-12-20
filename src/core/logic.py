@@ -1876,27 +1876,6 @@ def get_file_mimetype(file_path):
     return mimetype
 
 
-def get_file_content_dispostion(original_filename):
-    """Returns a Content-Disposition response header for a given filename.
-
-    Args:
-        original_filename (unicode): the name under which the file was uploaded
-
-    Returns:
-        str
-    """
-
-    # Strip non-ascii characters from filename
-    # to avoid a bug where an unusable ZIP file is served
-
-    return (
-        f"attachment; filename={original_filename}".encode(
-            'ascii',
-            errors='replace'
-        )
-    )
-
-
 def get_list_of_editors(proposal):
     book_editors = proposal.book_editors.all()
     previous_editors = []

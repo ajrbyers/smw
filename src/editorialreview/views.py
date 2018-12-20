@@ -19,7 +19,6 @@ from django.views.generic import FormView
 
 import core.logic
 from core import (
-    util,
     log,
     forms as core_forms,
     models as core_models,
@@ -36,7 +35,10 @@ from core.files import (
     handle_email_file,
     handle_multiple_email_files,
 )
-from core.util import get_setting
+from core.util import (
+    add_content_disposition_header,
+    get_setting,
+)
 from editor import logic as editor_logic
 from editorialreview import logic, forms, models
 from manager import models as manager_models
@@ -275,7 +277,7 @@ def email_editorial_review(request, review_id):
             'task_url': task_url
         }
     )
-    subject = util.get_setting(
+    subject = get_setting(
         setting_name='editorial_review',
         setting_group_name='email_subject',
         default='Editorial Review Request',
@@ -752,13 +754,13 @@ def download_er_file(request, file_id, review_id):
     )
 
     try:
-        fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
-        response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = 'attachment; filename={}'.format(
-            _file.original_filename,
-        )
-
+        with default_storage.open(file_path, 'r') as file_stream:
+            response = StreamingHttpResponse(
+                file_stream,
+                content_type=mimetype
+            )
+        add_content_disposition_header(response, _file.original_filename)
         return response
 
     except IOError:
@@ -790,9 +792,7 @@ def download_editor_er_file(request, file_id, review_id):
         fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = "attachment; filename={}".format(
-            _file.original_filename,
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
 
     except IOError:

@@ -47,7 +47,10 @@ from manager import (
 from review import models as review_models
 from revisions import models as revision_models
 from submission import forms as submission_forms
-from core.util import get_setting
+from core.util import (
+    add_content_disposition_header,
+    get_setting,
+)
 
 
 @login_required
@@ -1683,7 +1686,8 @@ def catalog_marc21(request, submission_id, type=None):
                 fsock = default_storage.open(file_path, 'r')
                 mimetype = mimetypes.guess_type(file_path)
                 response = StreamingHttpResponse(fsock, content_type=mimetype)
-                response['Content-Disposition'] = "attachment; filename=%s" % (
+                add_content_disposition_header(
+                    response,
                     _file.original_filename
                 )
                 return response

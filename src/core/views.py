@@ -1,9 +1,9 @@
 from builtins import any as string_any
 from datetime import datetime
+import io
 import json
 import mimetypes
 import os
-from io import StringIO
 from uuid import uuid4
 
 from django.conf import settings
@@ -51,8 +51,12 @@ from core.decorators import (
     is_press_editor,
     is_editor_or_ed_reviewer
 )
-from core.logic import get_list_of_editors, create_proposal_form, \
-    serve_proposal_file, create_proposal_review_form
+from core.logic import (
+    create_proposal_form,
+    create_proposal_review_form,
+    get_list_of_editors,
+    serve_proposal_file,
+)
 from editor import forms as editor_forms
 from editorialreview import models as er_models
 from .email import (
@@ -81,6 +85,7 @@ from review import (
     logic as review_logic
 )
 from .util import (
+    add_content_disposition_header,
     get_setting,
 )
 
@@ -1540,9 +1545,7 @@ def serve_marc21_file(request, submission_id, type):
         fsock = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = (
-                "attachment; filename=%s" % _file.original_filename
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
     except IOError:
         messages.add_message(
@@ -1568,67 +1571,64 @@ def serve_all_files(request, submission_id):
     zip_subdir = "Files of Submission #%s" % submission_id
     zip_filename = "%s.zip" % zip_subdir
 
-    s = StringIO.StringIO()  # Open StringIO to grab in-memory ZIP contents.
-    zf = zipfile.ZipFile(s, "w")  # The zip compressor.
+    zip_buffer = io.BytesIO()  # Open BytesIO to grab in-memory ZIP contents.
+    with zipfile.ZipFile(zip_buffer, "w") as zip_archiver:
 
-    for _file in files:
-        fpath = os.path.join(
-            settings.BOOK_DIR,
-            submission_id,
-            _file.uuid_filename,
-        )
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-        zf.write(fpath, zip_path)
+        for _file in files:
+            file_path = os.path.join(
+                settings.BOOK_DIR,
+                submission_id,
+                _file.uuid_filename,
+            )
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    for _file in external_review_files:
-        fpath = os.path.join(
-            settings.BOOK_DIR,
-            submission_id,
-            _file.uuid_filename,
-        )
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-        zf.write(fpath, zip_path)
+        for _file in external_review_files:
+            file_path = os.path.join(
+                settings.BOOK_DIR,
+                submission_id,
+                _file.uuid_filename,
+            )
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    for _file in internal_review_files:
-        fpath = os.path.join(
-            settings.BOOK_DIR,
-            submission_id,
-            _file.uuid_filename,
-        )
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-        zf.write(fpath, zip_path)
+        for _file in internal_review_files:
+            file_path = os.path.join(
+                settings.BOOK_DIR,
+                submission_id,
+                _file.uuid_filename,
+            )
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    for _file in misc_files:
-        fpath = os.path.join(
-            settings.BOOK_DIR,
-            submission_id,
-            _file.uuid_filename,
-        )
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-        zf.write(fpath, zip_path)
+        for _file in misc_files:
+            file_path = os.path.join(
+                settings.BOOK_DIR,
+                submission_id,
+                _file.uuid_filename,
+            )
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    zf.close()
-    fd = default_storage.open(
-        os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
-        'wb'
+    zip_file_path = os.path.join(
+        settings.BOOK_DIR,
+        submission_id,
+        zip_filename
     )
-    fd.write(s.getvalue())
-    fd.close()
-    fsock = default_storage.open(
-        os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
-        'r'
-    )
-    resp = StreamingHttpResponse(
-        fsock,
-        content_type="application/x-zip-compressed"
-    )
-    os.remove(os.path.join(settings.BOOK_DIR, submission_id, zip_filename))
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
+    with default_storage.open(zip_file_path,'wb') as file_stream:
+        file_stream.write(zip_buffer.read())
+
+    with default_storage.open(zip_file_path, 'r') as file_stream:
+        resp = StreamingHttpResponse(
+            file_stream,
+            content_type="application/x-zip-compressed",
+        )
+    add_content_disposition_header(resp, zip_filename)
     return resp
 
 
@@ -1640,53 +1640,48 @@ def serve_all_review_files(request, submission_id, review_type):
 
     zip_subdir = "Files of Submission #%s" % submission_id
     zip_filename = "%s.zip" % zip_subdir
-    s = StringIO.StringIO()  # Open StringIO to grab in-memory ZIP contents.
-    zf = zipfile.ZipFile(s, "w")  # The zip compressor.
+    zip_buffer = io.BytesIO()  # Open BytesIO to grab in-memory ZIP contents.
 
-    if review_type == "external":
+    with zipfile.ZipFile(zip_buffer, "w") as zip_archiver:
+
         for _file in external_review_files:
-            fpath = os.path.join(
+            file_path = os.path.join(
                 settings.BOOK_DIR,
                 submission_id,
                 _file.uuid_filename,
             )
-            fdir, fname = os.path.split(fpath)
-            zip_path = os.path.join(zip_subdir, fname)
-            zf.write(fpath, zip_path)
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    else:
         for _file in internal_review_files:
-            fpath = os.path.join(
+            file_path = os.path.join(
                 settings.BOOK_DIR,
                 submission_id,
                 _file.uuid_filename,
             )
-            fdir, fname = os.path.split(fpath)
-            zip_path = os.path.join(zip_subdir, fname)
-            zf.write(fpath, zip_path)
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    zf.close()
-    fd = default_storage.open(os.path.join(
-        settings.BOOK_DIR, submission_id, zip_filename),
-        'wb'
+    zip_file_path = os.path.join(
+        settings.BOOK_DIR,
+        submission_id,
+        zip_filename
     )
-    fd.write(s.getvalue())
-    fd.close()
-    fsock = default_storage.open(
-        os.path.join(
-            settings.BOOK_DIR,
-            submission_id,
-            zip_filename
-        ),
-        'r'
-    )
-    resp = StreamingHttpResponse(
-        fsock,
-        content_type="application/x-zip-compressed"
-    )
-    os.remove(os.path.join(settings.BOOK_DIR, submission_id, zip_filename))
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
+    with default_storage.open(zip_file_path, 'wb') as file_stream:
+        file_stream.write(zip_buffer.getvalue())
+
+    # TODO: find a reliable way of decoding the ZIP buffer
+    # and/or avoiding reading the file just written to storage
+    # zip_buffer.read().decode('UTF-8') won't work for all cases
+    with default_storage.open(zip_file_path, 'r') as file_stream:
+        resp = StreamingHttpResponse(
+            file_stream,
+            content_type="application/x-zip-compressed"
+        )
+    add_content_disposition_header(resp, zip_filename)
     return resp
 
 
@@ -1708,50 +1703,48 @@ def serve_all_review_files_one_click(
 
     zip_subdir = "Files of Submission #%s" % submission_id
     zip_filename = "%s.zip" % zip_subdir
+    zip_buffer = io.BytesIO()
 
-    s = StringIO.StringIO()  # Open StringIO to grab in-memory ZIP contents.
-    zf = zipfile.ZipFile(s, "w")  # The zip compressor.
+    with zipfile.ZipFile(zip_buffer, "w") as zip_archiver:
 
-    if review_type == "external":
         for _file in external_review_files:
-            fpath = os.path.join(
+            file_path = os.path.join(
                 settings.BOOK_DIR,
                 submission_id,
                 _file.uuid_filename,
             )
-            fdir, fname = os.path.split(fpath)
-            zip_path = os.path.join(zip_subdir, fname)
-            zf.write(fpath, zip_path)
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    else:
         for _file in internal_review_files:
-            fpath = os.path.join(
+            file_path = os.path.join(
                 settings.BOOK_DIR,
                 submission_id,
                 _file.uuid_filename,
             )
-            fdir, fname = os.path.split(fpath)
-            zip_path = os.path.join(zip_subdir, fname)
-            zf.write(fpath, zip_path)
+            zip_path = os.path.join(zip_subdir, _file.original_filename)
+            with default_storage.open(file_path, 'r') as file_stream:
+                zip_archiver.writestr(zip_path, file_stream.read())
 
-    zf.close()
-    fd = default_storage.open(
-        os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
-        'wb'
+    zip_file_path = os.path.join(
+        settings.BOOK_DIR,
+        submission_id,
+        zip_filename
     )
-    fd.write(s.getvalue())
-    fd.close()
-    fsock = default_storage.open(
-        os.path.join(settings.BOOK_DIR, submission_id, zip_filename),
-        'r'
-    )
-    resp = StreamingHttpResponse(
-        fsock,
-        content_type="application/x-zip-compressed",
-    )
-    os.remove(os.path.join(settings.BOOK_DIR, submission_id, zip_filename))
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
+    with default_storage.open(zip_file_path, 'wb') as file_stream:
+        file_stream.write(zip_buffer.getvalue())
+
+    # TODO: find a reliable way of decoding the ZIP buffer
+    # and/or avoiding reading the file just written to external storage
+    # zip_buffer.read().decode('UTF-8') won't work for all cases
+    with default_storage.open(zip_file_path, 'r') as file_stream:
+        resp = StreamingHttpResponse(
+            file_stream,
+            content_type="application/x-zip-compressed"
+        )
+    add_content_disposition_header(resp, zip_filename)
     return resp
 
 
@@ -1769,9 +1762,7 @@ def serve_file(request, submission_id, file_id):
         fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = logic.get_file_content_dispostion(
-            _file.original_filename
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
     except IOError:
         messages.add_message(
@@ -1793,9 +1784,7 @@ def serve_email_file(request, file_id):
         file_stream = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(file_stream, content_type=mimetype)
-        response['Content-Disposition'] = logic.get_file_content_dispostion(
-            _file.original_filename
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
     except IOError:
         messages.add_message(
@@ -1830,9 +1819,7 @@ def serve_file_one_click(
         fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = logic.get_file_content_dispostion(
-            _file.original_filename
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
     except IOError:
         messages.add_message(
@@ -1858,9 +1845,7 @@ def serve_proposal_file_id(request, proposal_id, file_id):
         file_stream = default_storage.open(file_path, 'r')
         mimetype = mimetypes.guess_type(file_path)
         response = StreamingHttpResponse(file_stream, content_type=mimetype)
-        response['Content-Disposition'] = logic.get_file_content_dispostion(
-            _file.original_filename
-        )
+        add_content_disposition_header(response, _file.original_filename)
         return response
     except IOError:
         messages.add_message(
@@ -1885,7 +1870,8 @@ def serve_versioned_file(request, submission_id, revision_id):
         fsock = default_storage.open(file_path, 'r')
         mimetype = logic.get_file_mimetype(file_path)
         response = StreamingHttpResponse(fsock, content_type=mimetype)
-        response['Content-Disposition'] = logic.get_file_content_dispostion(
+        add_content_disposition_header(
+            response,
             _versions_file.original_filename
         )
         return response
