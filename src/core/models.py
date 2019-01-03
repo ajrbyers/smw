@@ -286,9 +286,7 @@ def profile_images_upload_path(instance, filename):
     except IndexError:
         filename = str(uuid.uuid4())
 
-    path = "profile_images/"
-
-    return os.path.join(path, filename)
+    return os.path.join(settings.PROFILE_IMAGES_MEDIA_DIR, filename)
 
 
 def cover_images_upload_path(instance, filename):

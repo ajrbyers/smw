@@ -47,7 +47,7 @@
                              align="middle" id="callout-helper-bg-specificity">
                             <img src="
                                 {% if user_profile.profile_image %}
-                                   {% static user_profile.profile_image %}
+                                   {% static user_profile.profile_image.name %}
                                 {% else %}
                                     holder.js/150x150
                                 {% endif %}"
