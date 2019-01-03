@@ -146,6 +146,7 @@ STATICFILES_DIRS = (
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 SETTINGS_MEDIA_DIR = os.path.join('files', 'media', 'settings')
+COVER_IMAGES_MEDIA_DIR = os.path.join('files', 'media', 'book_covers')
 FORM_DIR = os.path.join('files', 'forms')
 PROPOSAL_DIR = os.path.join('files', 'proposals')
 BOOK_DIR = os.path.join('files', 'books')

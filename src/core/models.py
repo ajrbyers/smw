@@ -297,9 +297,7 @@ def cover_images_upload_path(instance, filename):
     except IndexError:
         filename = str(uuid.uuid4())
 
-    path = "cover_images/"
-
-    return os.path.join(path, filename)
+    return os.path.join(settings.COVER_IMAGES_MEDIA_DIR, filename)
 
 
 def task_choices():
