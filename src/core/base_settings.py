@@ -30,6 +30,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 LOGIN_REDIRECT_URL = '/user/profile/'
 LOGIN_URL = '/login/'
 
+MAINTENANCE_MODE = False
+
 INSTALLED_APPS = (
     'flat',
     'django.contrib.sites',
@@ -39,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'maintenance_mode',
     'core',
     'submission',
     'manager',
@@ -74,6 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.Roles',
     'core.middleware.Version',
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',
 )
 
 MESSAGE_TAGS = {
