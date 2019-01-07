@@ -30,33 +30,36 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        self.try_load_fixture_data('cc-licenses.json', License)
-        self.try_load_fixture_data('langs.json', Language)
-        self.try_load_fixture_data('role.json', Role)
-        self.try_load_fixture_data('settinggroups.json', SettingGroup)
-        self.try_load_fixture_data('settings/master.json', Setting)
-        self.try_load_fixture_data(
-            'forms/proposalformelement.json',
-            ProposalFormElement,
-        )
-        self.try_load_fixture_data(
-            'forms/proposalform_and_element_relationship.json',
-            ProposalForm,
-            fixture_model='core.proposalform',
-        )
-        self.try_load_fixture_data(
-            'forms/review_formelement.json',
-            review_models.FormElement,
-        )
-        self.try_load_fixture_data(
-            'forms/review_form_and_element_relationship.json',
-            review_models.Form,
-            fixture_model='review.formelementsrelationship'
-        )
-        self.try_load_fixture_data(
-            'forms/submissionchecklistitem.json',
-            SubmissionChecklistItem,
-        )
+        # Loading of further fixtures is contingent on the success of the first
+        # This reduces the number of database queries once data is loaded,
+        # but also solved a problem when migrating Rua to k8s on 2019-01-07.
+        if self.try_load_fixture_data('cc-licenses.json', License):
+            self.try_load_fixture_data('langs.json', Language)
+            self.try_load_fixture_data('role.json', Role)
+            self.try_load_fixture_data('settinggroups.json', SettingGroup)
+            self.try_load_fixture_data('settings/master.json', Setting)
+            self.try_load_fixture_data(
+                'forms/proposalformelement.json',
+                ProposalFormElement,
+            )
+            self.try_load_fixture_data(
+                'forms/proposalform_and_element_relationship.json',
+                ProposalForm,
+                fixture_model='core.proposalform',
+            )
+            self.try_load_fixture_data(
+                'forms/review_formelement.json',
+                review_models.FormElement,
+            )
+            self.try_load_fixture_data(
+                'forms/review_form_and_element_relationship.json',
+                review_models.Form,
+                fixture_model='review.formelementsrelationship'
+            )
+            self.try_load_fixture_data(
+                'forms/submissionchecklistitem.json',
+                SubmissionChecklistItem,
+            )
 
     @staticmethod
     def try_load_fixture_data(
@@ -87,6 +90,7 @@ class Command(BaseCommand):
 
         if not model_class.objects.filter(pk__in=primary_keys):
             call_command('loaddata', fixture_name)
+            return True
         else:
             print(
                 f'Fixture {fixture_name} not loaded. One or more primary keys '
