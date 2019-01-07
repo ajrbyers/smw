@@ -1,9 +1,6 @@
 from configparser import ConfigParser
 import os
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
 from django.contrib import messages
 
 
@@ -63,6 +60,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.orcid',
     'allauth.socialaccount.providers.twitter',
+    'raven.contrib.django.raven_compat',
 )
 
 MIDDLEWARE = (
@@ -213,6 +211,11 @@ LOGGING = {
         },
     },
     'handlers': {
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -230,6 +233,11 @@ LOGGING = {
         },
         'django.db.backends': {
             'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },
@@ -315,16 +323,15 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 
 SENTRY_DSN = os.getenv(
     'SENTRY_DSN',
-    'https://6f4e629b9384499ea7d6aaa72c820839@sentry.ubiquity.press/5'
-
+    'https://6f4e629b9384499ea7d6aaa72c820839:'
+    '33c1f6db04914ee7bf7569f1f3e9cb61@sentry.ubiquity.press/5'
 )
 config_file = ConfigParser()
 config_file.read('sentry_version.ini')
 SENTRY_RELEASE = config_file.get('sentry', 'version', fallback='ERROR')
 
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    release=SENTRY_RELEASE,
-    environment=os.getenv('SENTRY_ENV', 'production'),
-    integrations=[DjangoIntegration()]
-)
+RAVEN_CONFIG = {
+    'dsn': SENTRY_DSN,
+    'release': SENTRY_RELEASE,
+    'environment': 'production'
+}
