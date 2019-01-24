@@ -765,7 +765,7 @@ def form_order_field_list(form_type, form_id):
         )
 
     fields = []
-    if relations > 0:
+    if relations:
         for t, relation in enumerate(relations):
             above = -1
             below = -1
