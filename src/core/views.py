@@ -1987,26 +1987,9 @@ def versions_file(request, submission_id, file_id):
 def view_log(request, submission_id):
     book = get_object_or_404(models.Book, pk=submission_id)
 
-    if request.POST:
-        if 'search' in request.POST or 'filter' in request.POST:
-            if 'search' in request.POST:
-                search = request.POST.get('search')
-                email_search = None
-            elif 'email_search' in request.POST:
-                email_search = request.POST.get('email_search')
-                search = None
-            else:
-                email_search = None
-                search = None
-
-            if 'filter' in request.POST:
-                filter_by = request.POST.get('filter')
-            else:
-                filter_by = None
-    else:
-        search = None
-        email_search = None
-        filter_by = None
+    search = request.POST.get('search')
+    email_search = request.POST.get('email_search')
+    filter_by = request.POST.get('filter')
 
     query_list = []
     email_query_list = []
