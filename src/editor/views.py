@@ -2612,11 +2612,10 @@ def view_typesetter(request, submission_id, typeset_id):
             typeset.author_invited = timezone.now()
             typeset.save()
             email_text = request.POST.get('email_text')
-            logic.send_invite_typesetter(
-                book,
-                typeset,
-                email_text,
-                request.user,
+            logic.send_author_typeset_review_invitation(
+                typeset=typeset,
+                email_text=email_text,
+                sender=request.user
             )
 
         return redirect(reverse(
@@ -2650,7 +2649,6 @@ def view_typesetter(request, submission_id, typeset_id):
 def view_typesetter_alter_due_date(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = get_setting('author_typeset_request', 'email')
 
     date_form = forms.TypesetDate(instance=typeset)
 
@@ -2680,7 +2678,6 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
         'typeset': typeset,
         'typeset_id': typeset.id,
         'date_form': date_form,
-        'email_text': email_text,
         'active_page': 'production',
     }
 
@@ -2691,7 +2688,6 @@ def view_typesetter_alter_due_date(request, submission_id, typeset_id):
 def view_typesetter_alter_author_due(request, submission_id, typeset_id):
     book = get_object_or_404(models.Book, pk=submission_id)
     typeset = get_object_or_404(models.TypesetAssignment, pk=typeset_id)
-    email_text = get_setting('author_typeset_request', 'email')
 
     date_form = forms.TypesetAuthorDate(instance=typeset)
 
@@ -2722,7 +2718,6 @@ def view_typesetter_alter_author_due(request, submission_id, typeset_id):
         'typeset': typeset,
         'typeset_id': typeset.id,
         'date_form': date_form,
-        'email_text': email_text,
         'active_page': 'production',
     }
 

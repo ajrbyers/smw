@@ -743,6 +743,33 @@ def send_invite_typesetter(book, typeset, email_text, sender, attachment=None):
     )
 
 
+def send_author_typeset_review_invitation(
+        typeset,
+        email_text,
+        sender,
+        attachment=None
+):
+    from_email = sender.email or get_setting('from_address', 'email')
+
+    context = {
+        'submission': typeset.book,
+        'author': typeset.book.owner,
+        'typeset': typeset,
+        'sender': sender,
+    }
+
+    email.send_email(
+        subject=get_setting('typesetting_subject', 'email_subject', 'Typesetting'),
+        context=context,
+        from_email=from_email,
+        to=typeset.book.owner.email,
+        html_template=email_text,
+        book=typeset.book,
+        attachment=attachment,
+        kind='typeset',
+    )
+
+
 def send_book_editors(book, added_editors, removed_editors, email_text):
     from_email = get_setting('from_address', 'email')
     base_url = get_setting('base_url', 'general')
